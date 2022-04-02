@@ -8,9 +8,11 @@ const { loadManga } = action;
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const id = route.params.id;
   const dispatch = useAppDispatch();
-  const { dict } = useAppSelector((state) => state.manga);
+  const mangaDict = useAppSelector((state) => state.dict.manga);
+  const mangaToChapter = useAppSelector((state) => state.dict.mangaToChapter);
 
-  const data = dict[id] || undefined;
+  const data = mangaDict[id] || undefined;
+  const chapterList = mangaToChapter[id] || [];
   const canUse = !!data;
 
   useEffect(() => {
@@ -52,7 +54,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         </Flex>
       </Flex>
       <Flex flexWrap="wrap" flexDirection="row" p={2}>
-        {data.chapter.map((item) => {
+        {chapterList.map((item) => {
           const isActived = false;
           return (
             <Box w="1/4" p={2} key={item.chapterId}>

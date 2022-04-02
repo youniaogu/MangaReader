@@ -3,20 +3,20 @@ import { fetchData, handleLatest, handleManga, handleChapter } from '~utils';
 import { action } from './slice';
 
 const {
-  loadLatest,
-  loadLatestCompletion,
+  loadUpdate,
+  loadUpdateCompletion,
   loadManga,
   loadMangaCompletion,
   loadChapter,
   loadChapterCompletion,
 } = action;
 
-function* loadLatestSaga() {
-  yield takeLatest(loadLatest.type, function* () {
-    const { page, isEnd } = yield select((state) => state.latest);
+function* loadUpdateSaga() {
+  yield takeLatest(loadUpdate.type, function* () {
+    const { page, isEnd } = yield select((state) => state.update);
 
     if (isEnd) {
-      yield put(loadLatestCompletion({ error: new Error('已经到底了!') }));
+      yield put(loadUpdateCompletion({ error: new Error('已经到底了!') }));
       return;
     }
 
@@ -29,25 +29,37 @@ function* loadLatestSaga() {
       },
     });
 
-    yield put(loadLatestCompletion({ error, data: handleLatest(data) }));
+    yield put(loadUpdateCompletion({ error, data: handleLatest(data) }));
   });
 }
 
+// https://m.manhuagui.com/s/1.html
+
+// page: 2
+// ajax: 1
+// order: 0
+// key: 1
+
+// post
+
 function* loadMangaSaga() {
   yield takeEvery(loadManga.type, function* () {
-    const { search } = yield select((state: RootState) => state.manga);
+    const { currentId } = yield select((state: RootState) => state.manga);
 
     const { error, data } = yield call(fetchData, {
-      url: 'https://m.manhuagui.com/comic/' + search,
+      url: 'https://m.manhuagui.com/comic/' + currentId,
     });
+    const { manga, chapter } = handleManga(data);
 
-    yield put(loadMangaCompletion({ error, data: { ...handleManga(data), id: search } }));
+    yield put(
+      loadMangaCompletion({ error, data: { manga: { ...manga, id: currentId }, chapter } })
+    );
   });
 }
 
 function* loadChapterSaga() {
   yield takeEvery(loadChapter.type, function* () {
-    // const { search } = yield select((state: RootState) => state.chapter);
+    // const { currentId } = yield select((state: RootState) => state.chapter);
 
     const { error, data } = yield call(fetchData, {
       url: 'https://m.manhuagui.com/comic/39336/612275.html',
@@ -58,5 +70,5 @@ function* loadChapterSaga() {
 }
 
 export default function* rootSaga() {
-  yield all([fork(loadLatestSaga), fork(loadMangaSaga), fork(loadChapterSaga)]);
+  yield all([fork(loadUpdateSaga), fork(loadMangaSaga), fork(loadChapterSaga)]);
 }

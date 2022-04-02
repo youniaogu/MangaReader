@@ -1,25 +1,14 @@
 declare type LodaStatus = 0 | 1 | 2;
+declare type UpdateStatus = 0 | 1 | 2;
 
-declare interface LatestItem {
-  id: string;
-  href: string;
-  title: string;
-  statusLabel: string;
-  cover: string;
-  latest: string;
-  updateTime: string;
-  author: string;
-  tag: string;
-}
-declare interface ChapterItem {}
-declare interface MangaChapterItem {
+declare interface ChapterItem {
   mangaId: string;
   chapterId: string;
   href: string;
   title: string;
 }
 
-declare interface MangaDetail {
+declare interface Manga {
   id: string;
   cover: string;
   title: string;
@@ -27,10 +16,9 @@ declare interface MangaDetail {
   updateTime: string;
   author: string;
   tag: string;
-  chapter: MangaChapterItem[];
-  status: 0 | 1 | 2;
+  status: UpdateStatus;
 }
-declare interface ChapterDetail {
+declare interface Chapter {
   mangaId: string;
   chapterId: string;
   name: string;
@@ -41,24 +29,36 @@ declare interface ChapterDetail {
 }
 
 declare interface RootState {
-  latest: {
+  search: {
+    search: string;
     page: number;
     isEnd: boolean;
     loadStatus: LodaStatus;
-    list: LatestItem[];
+    list: string[];
+  };
+  update: {
+    page: number;
+    isEnd: boolean;
+    loadStatus: LodaStatus;
+    list: string[];
   };
   manga: {
-    search: string;
+    currentId: string;
     loadStatus: LodaStatus;
-    dict: {
-      [key: string]: MangaDetail;
-    };
   };
   chapter: {
-    search: string;
+    currentId: string;
     loadStatus: LodaStatus;
-    dict: {
-      [key: string]: ChapterDetail;
+  };
+  dict: {
+    manga: {
+      [key: string]: Manga;
+    };
+    mangaToChapter: {
+      [key: string]: ChapterItem[];
+    };
+    chapter: {
+      [key: string]: Chapter;
     };
   };
 }

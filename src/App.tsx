@@ -5,6 +5,7 @@ import { NativeBaseProvider } from 'native-base';
 import { Provider } from 'react-redux';
 import { store } from '~redux';
 
+import SearchHeader from '~components/SearchHeader';
 import Header from '~components/Header';
 import Home from '~views/Home';
 import Collection from '~views/Collection';
@@ -27,7 +28,13 @@ const App = () => {
           >
             <Screen name="Home" component={Home} />
             <Screen name="Collection" component={Collection} />
-            <Screen name="Search" component={Search} />
+            <Screen
+              name="Search"
+              options={{
+                header: (props) => <SearchHeader {...props} />,
+              }}
+              component={Search}
+            />
             <Screen
               name="Detail"
               options={{

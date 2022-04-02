@@ -17,9 +17,9 @@ export function firstMatch(matchResult: ReturnType<typeof String.prototype.match
   return matchResult ? matchResult[0] : '';
 }
 
-export function handleLatest(text: string): LatestItem[] {
+export function handleLatest(text: string): Manga[] {
   const $ = cheerio.load(text);
-  const list: LatestItem[] = [];
+  const list: Manga[] = [];
 
   $('li > a')
     .toArray()
@@ -27,7 +27,7 @@ export function handleLatest(text: string): LatestItem[] {
       const $$ = cheerio.load(a);
       const href = 'https://m.manhuagui.com' + (a as any).attribs.href;
       const title = $$('h3').first().text();
-      const statusLabel = $$('div.thumb i').first().text();
+      const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
       const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
       const [latest, updateTime, author, tag] = $$('dl')
         .toArray()
@@ -37,11 +37,18 @@ export function handleLatest(text: string): LatestItem[] {
         ''
       );
 
+      let status: UpdateStatus = 0;
+      if (statusLabel === '连载') {
+        status = 1;
+      }
+      if (statusLabel === '完结') {
+        status = 2;
+      }
+
       list.push({
         id,
-        href,
         title,
-        statusLabel,
+        status,
         cover,
         latest,
         updateTime,
@@ -53,9 +60,9 @@ export function handleLatest(text: string): LatestItem[] {
   return list;
 }
 
-export function handleManga(text: string): MangaDetail {
+export function handleManga(text: string): { manga: Manga; chapter: ChapterItem[] } {
   const $ = cheerio.load(text);
-  const manga: MangaDetail = {
+  const manga: Manga = {
     id: '',
     cover: '',
     title: '',
@@ -63,9 +70,9 @@ export function handleManga(text: string): MangaDetail {
     updateTime: '',
     author: '',
     tag: '',
-    chapter: [],
     status: 0,
   };
+  const chapter: ChapterItem[] = [];
 
   const [latest, updateTime, author, tag] = $('div.cont-list dl')
     .toArray()
@@ -82,7 +89,7 @@ export function handleManga(text: string): MangaDetail {
         .replace('https://m.manhuagui.com/comic/', '')
         .split('/');
 
-      manga.chapter.push({
+      chapter.push({
         mangaId,
         chapterId,
         href,
@@ -104,10 +111,10 @@ export function handleManga(text: string): MangaDetail {
   manga.author = author;
   manga.tag = tag;
 
-  return manga;
+  return { manga, chapter };
 }
 
-export function handleChapter(text: string): ChapterDetail {
+export function handleChapter(text: string): Chapter {
   const $ = cheerio.load(text);
   const script = (
     ($('script:not([src])').eq(0)[0] as unknown as HTMLScriptElement).children[0] as Element & {
