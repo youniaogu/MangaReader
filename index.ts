@@ -7,5 +7,5 @@ if (process.env.NODE_ENV === 'development') {
   process.env.PROXY = proxy;
 }
 
-LogBox.ignoreLogs(['Remote debugger']);
+LogBox.ignoreLogs(['Require cycle:', 'Remote debugger']);
 AppRegistry.registerComponent(name, () => App);

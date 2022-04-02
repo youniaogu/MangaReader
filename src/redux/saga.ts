@@ -21,7 +21,7 @@ function* loadLatestSaga() {
     }
 
     const { error, data } = yield call(fetchData, {
-      url: 'https://m.manhuagui.com/update',
+      url: 'https://m.manhuagui.com/update/',
       body: {
         page,
         ajax: 1,

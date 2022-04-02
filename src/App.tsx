@@ -7,11 +7,12 @@ import { store } from '~redux';
 
 import Header from '~components/Header';
 import Home from '~views/Home';
+import Collection from '~views/Collection';
 import Search from '~views/Search';
 import Detail from '~views/Detail';
 import About from '~views/About';
 
-const { Navigator, Screen } = createNativeStackNavigator();
+const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
@@ -25,8 +26,15 @@ const App = () => {
             }}
           >
             <Screen name="Home" component={Home} />
+            <Screen name="Collection" component={Collection} />
             <Screen name="Search" component={Search} />
-            <Screen name="Detail" component={Detail} />
+            <Screen
+              name="Detail"
+              options={{
+                title: 'loading...',
+              }}
+              component={Detail}
+            />
             <Screen name="About" component={About} />
           </Navigator>
         </NavigationContainer>

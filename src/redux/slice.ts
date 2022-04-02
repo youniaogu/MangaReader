@@ -36,7 +36,7 @@ const latestSlice = createSlice({
 
       state.page += 1;
       state.loadStatus = 2;
-      state.list.push(data);
+      state.list = state.list.concat(data);
       state.isEnd = data.length < 20;
     },
   },
@@ -55,6 +55,20 @@ const mangaSlice = createSlice({
       if (error) {
         state.loadStatus = 0;
         return;
+      }
+
+      if (!state.dict[data.id]) {
+        state.dict[data.id] = {
+          id: data.id,
+          cover: '',
+          title: '',
+          latest: '',
+          updateTime: '',
+          author: '',
+          tag: '',
+          chapter: [],
+          status: 0,
+        };
       }
 
       state.loadStatus = 2;

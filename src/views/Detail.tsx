@@ -1,17 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { action, useAppSelector, useAppDispatch } from '~redux';
 import { Box, Flex, Image, Text, ScrollView } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { mock_detail } from '~/utils';
 
-const Detail = () => {
-  const navigation = useNavigation();
-  const [data] = useState(mock_detail);
-  const isActived = true;
+const { loadManga } = action;
+
+const Detail = ({ route, navigation }: StackDetailProps) => {
+  const id = route.params.id;
+  const dispatch = useAppDispatch();
+  const { dict } = useAppSelector((state) => state.manga);
+
+  const data = dict[id] || undefined;
+  const canUse = !!data;
 
   useEffect(() => {
-    navigation.setOptions({ title: data.name });
-  }, [navigation, data.name]);
+    dispatch(loadManga(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    canUse && navigation.setOptions({ title: data.title });
+  }, [canUse, navigation, data]);
+
+  if (!canUse) {
+    return null;
+  }
 
   return (
     <ScrollView>
@@ -28,24 +40,25 @@ const Detail = () => {
         />
         <Flex flexGrow="1" flexShrink="1" pl="4">
           <Text color="white" fontSize="20" fontWeight="bold" numberOfLines={2}>
-            {data.name}
+            {data.title}
           </Text>
           <Text color="white" fontSize="14" fontWeight="bold" numberOfLines={1}>
-            作者：{data.author}
+            {data.author}
           </Text>
           <Box flexGrow="1" />
           <Text color="white" fontSize="14" fontWeight="bold" numberOfLines={1}>
-            更新日期：{data.updateTime}
+            {data.updateTime}
           </Text>
         </Flex>
       </Flex>
       <Flex flexWrap="wrap" flexDirection="row" p={2}>
         {data.chapter.map((item) => {
+          const isActived = false;
           return (
-            <Box w="1/4" p={2} key={item.name}>
+            <Box w="1/4" p={2} key={item.chapterId}>
               <TouchableOpacity activeOpacity={0.8}>
                 <Text
-                  bg={isActived ? '#6200ee' : ''}
+                  bg={isActived ? '#6200ee' : 'transparent'}
                   color={isActived ? 'white' : '#717171'}
                   borderColor="#717171"
                   overflow="hidden"
@@ -56,7 +69,7 @@ const Detail = () => {
                   fontWeight="bold"
                   p={[1, 0]}
                 >
-                  {item.name}
+                  {item.title}
                 </Text>
               </TouchableOpacity>
             </Box>

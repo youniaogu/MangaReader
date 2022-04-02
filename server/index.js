@@ -17,10 +17,14 @@ function logFail(message) {
 }
 
 const handleProxy = (req, res) => {
-  const { method } = req;
+  const { method, header } = req;
   const { target } = url.parse(req.url, true).query;
 
-  fetch(target, { method, agent })
+  fetch(target, {
+    header,
+    method,
+    agent,
+  })
     .then((response) => response.text())
     .then((data) => {
       res.send(data);

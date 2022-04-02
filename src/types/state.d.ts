@@ -1,6 +1,16 @@
 declare type LodaStatus = 0 | 1 | 2;
 
-declare interface LatestItem {}
+declare interface LatestItem {
+  id: string;
+  href: string;
+  title: string;
+  statusLabel: string;
+  cover: string;
+  latest: string;
+  updateTime: string;
+  author: string;
+  tag: string;
+}
 declare interface ChapterItem {}
 declare interface MangaChapterItem {
   mangaId: string;
@@ -51,14 +61,4 @@ declare interface RootState {
       [key: string]: ChapterDetail;
     };
   };
-}
-
-// declare global {
-//   interface String {
-//     splic(f: string): string[];
-//   }
-// }
-
-declare interface String {
-  splic(f: string): string[];
 }

@@ -1,55 +1,60 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Box, Flex, Image, Text, ScrollView } from 'native-base';
-import { NativeStackHeaderProps } from '@react-navigation/native-stack';
+import React, { Fragment, useEffect } from 'react';
+import { action, useAppSelector, useAppDispatch } from '~redux';
+import { Box, Image, Text, FlatList } from 'native-base';
 import { TouchableOpacity } from 'react-native';
-import { mock_collection } from '~utils';
-import { useDispatch } from 'react-redux';
-import { action } from '~redux';
 
-const { loadLatest, loadManga, loadChapter } = action;
+const { loadLatest } = action;
 
-const Home = ({ navigation: { navigate } }: NativeStackHeaderProps) => {
-  const [collection] = useState(mock_collection);
-  const dispatch = useDispatch();
+const Home = ({ navigation: { navigate } }: StackHomeProps) => {
+  const latest = useAppSelector((state) => state.latest);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(loadLatest());
-    dispatch(loadManga('39336'));
-    dispatch(loadChapter('612275'));
+    dispatch(loadLatest(true));
   }, [dispatch]);
 
-  const handleDetail = () => {
-    navigate('Detail', {});
+  const handleLoadMore = () => {
+    console.log('load more');
+    dispatch(loadLatest());
   };
+  const handleDetail = (id: string) => {
+    return () => {
+      navigate('Detail', { id });
+    };
+  };
+  const { list } = latest;
 
   return (
-    <ScrollView>
-      <Flex flexWrap="wrap" flexDirection="row" p={1.5}>
-        {collection.map((item, index) => {
-          return (
-            <Box key={index} width="1/3" p={1.5}>
-              <TouchableOpacity activeOpacity={0.8} onPress={handleDetail}>
-                <Fragment>
-                  <Image
-                    w="130"
-                    h="160"
-                    borderRadius="md"
-                    source={{
-                      uri: item.cover,
-                    }}
-                    resizeMode="cover"
-                    alt="cover"
-                  />
-                  <Text pt="1" fontSize="md" fontWeight="bold" numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                </Fragment>
-              </TouchableOpacity>
-            </Box>
-          );
-        })}
-      </Flex>
-    </ScrollView>
+    <FlatList
+      p={1.5}
+      numColumns={3}
+      data={list}
+      onEndReached={handleLoadMore}
+      onEndReachedThreshold={0.25}
+      renderItem={({ item }) => {
+        return (
+          <Box key={item.id} width="1/3" p={1.5}>
+            <TouchableOpacity activeOpacity={0.8} onPress={handleDetail(item.id)}>
+              <Fragment>
+                <Image
+                  w="130"
+                  h="160"
+                  borderRadius="md"
+                  source={{
+                    uri: item.cover,
+                  }}
+                  resizeMode="cover"
+                  alt="cover"
+                />
+                <Text pt="1" fontSize="md" fontWeight="bold" numberOfLines={1}>
+                  {item.title}
+                </Text>
+              </Fragment>
+            </TouchableOpacity>
+          </Box>
+        );
+      }}
+    />
   );
 };
 

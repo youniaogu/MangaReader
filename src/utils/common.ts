@@ -21,14 +21,14 @@ export function handleLatest(text: string): LatestItem[] {
   const $ = cheerio.load(text);
   const list: LatestItem[] = [];
 
-  $('#detail li > a')
+  $('li > a')
     .toArray()
     .forEach((a) => {
       const $$ = cheerio.load(a);
       const href = 'https://m.manhuagui.com' + (a as any).attribs.href;
       const title = $$('h3').first().text();
       const statusLabel = $$('div.thumb i').first().text();
-      const cover = 'https:' + $('div.thumb img').first().attr('data-src');
+      const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
       const [latest, updateTime, author, tag] = $$('dl')
         .toArray()
         .map((dl) => cheerio.load(dl).root().text());

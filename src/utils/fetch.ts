@@ -1,16 +1,23 @@
 import queryString from 'query-string';
 
-export const fetchData = ({ url, method = 'GET', body = {}, header = {} }) => {
-  const init = { header };
+export const fetchData = ({
+  url,
+  method = 'GET',
+  body = {},
+  headers = new Headers(),
+}: {
+  url: string;
+  method?: FetchMethod;
+  body?: { [key: string]: any };
+  headers?: Headers;
+}) => {
+  const init: RequestInit = { method: method.toUpperCase(), headers };
 
-  if (method.toUpperCase() === 'GET') {
-    init.method = 'GET';
-    url += '?' + queryString.stringify(body);
-  }
-  if (method.toUpperCase() === 'POST') {
-    init.method = 'POST';
-    init.headers['Content-Type'] = 'application/json';
-    if (Object.keys(body).length > 0) {
+  if (Object.keys(body).length > 0) {
+    if (init.method === 'GET') {
+      url += '?' + queryString.stringify(body);
+    }
+    if (init.method === 'POST') {
       init.body = queryString.stringify(body);
     }
   }
@@ -23,7 +30,7 @@ export const fetchData = ({ url, method = 'GET', body = {}, header = {} }) => {
     try {
       fetch(url, init)
         .then((response) => {
-          const contentType = response.headers.get('content-type');
+          const contentType = response.headers.get('content-type') || '';
           if (contentType.includes('application/json')) {
             return response.json();
           } else {
