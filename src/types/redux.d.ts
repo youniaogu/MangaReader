@@ -30,7 +30,7 @@ declare interface Chapter {
 
 declare interface RootState {
   search: {
-    search: string;
+    keyword: string;
     page: number;
     isEnd: boolean;
     loadStatus: LodaStatus;

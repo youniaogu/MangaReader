@@ -1,7 +1,7 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState: RootState = {
-  search: { search: '', page: 1, isEnd: false, loadStatus: 0, list: [] },
+  search: { keyword: '', page: 1, isEnd: false, loadStatus: 0, list: [] },
   update: { page: 1, isEnd: false, loadStatus: 0, list: [] },
   manga: {
     currentId: '',
@@ -30,7 +30,7 @@ const searchSlice = createSlice({
         state.isEnd = false;
       }
 
-      state.search = keyword;
+      state.keyword = keyword;
       state.loadStatus = 1;
     },
     loadSearchCompletion(state, action: FetchResponseAction<Manga[]>) {
@@ -119,7 +119,6 @@ const dictSlice = createSlice({
   initialState: initialState.dict,
   reducers: {},
   extraReducers: {
-    // 加载搜索列表
     [searchSlice.actions.loadSearchCompletion.type]: (
       state,
       action: FetchResponseAction<Manga[]>
@@ -133,7 +132,6 @@ const dictSlice = createSlice({
         state.manga[item.id] = item;
       });
     },
-    // 加载最新列表
     [updateSlice.actions.loadUpdateCompletion.type]: (
       state,
       action: FetchResponseAction<Manga[]>
@@ -147,7 +145,6 @@ const dictSlice = createSlice({
         state.manga[item.id] = item;
       });
     },
-    // 加载漫画详情
     [mangaSlice.actions.loadMangaCompletion.type]: (
       state,
       action: FetchResponseAction<{ manga: Manga; chapter: ChapterItem[] }>

@@ -8,17 +8,23 @@ export const fetchData = ({
 }: {
   url: string;
   method?: FetchMethod;
-  body?: { [key: string]: any };
+  body?: FormData | { [key: string]: any };
   headers?: Headers;
 }) => {
-  const init: RequestInit = { method: method.toUpperCase(), headers };
+  const init: RequestInit & { headers: Headers } = { method: method.toUpperCase(), headers };
 
   if (Object.keys(body).length > 0) {
     if (init.method === 'GET') {
       url += '?' + queryString.stringify(body);
     }
     if (init.method === 'POST') {
-      init.body = queryString.stringify(body);
+      if (body instanceof FormData) {
+        init.headers.append('Content-Type', 'multipart/form-data');
+        init.body = body;
+      } else {
+        init.headers?.append('Content-Type', 'application/json');
+        init.body = JSON.stringify(body);
+      }
     }
   }
 

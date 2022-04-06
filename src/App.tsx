@@ -5,10 +5,10 @@ import { NativeBaseProvider } from 'native-base';
 import { Provider } from 'react-redux';
 import { store } from '~redux';
 
-import SearchHeader from '~components/SearchHeader';
 import Header from '~components/Header';
 import Home from '~views/Home';
 import Collection from '~views/Collection';
+import SearchHeader from '~views/SearchHeader';
 import Search from '~views/Search';
 import Detail from '~views/Detail';
 import About from '~views/About';

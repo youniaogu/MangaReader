@@ -17,7 +17,8 @@ export function firstMatch(matchResult: ReturnType<typeof String.prototype.match
   return matchResult ? matchResult[0] : '';
 }
 
-export function handleLatest(text: string): Manga[] {
+/** extract data from bookshelf */
+export function handleBookshelf(text: string): Manga[] {
   const $ = cheerio.load(text);
   const list: Manga[] = [];
 
@@ -45,6 +46,10 @@ export function handleLatest(text: string): Manga[] {
         status = 2;
       }
 
+      if (!id || !title) {
+        return;
+      }
+
       list.push({
         id,
         title,
@@ -60,6 +65,7 @@ export function handleLatest(text: string): Manga[] {
   return list;
 }
 
+/** extract data from manga detail */
 export function handleManga(text: string): { manga: Manga; chapter: ChapterItem[] } {
   const $ = cheerio.load(text);
   const manga: Manga = {

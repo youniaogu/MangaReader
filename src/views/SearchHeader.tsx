@@ -1,14 +1,21 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import { Box, StatusBar, HStack, IconButton, Icon, Input } from 'native-base';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
-
+import { action, useAppDispatch } from '~redux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
+const { loadSearch } = action;
+
 const SearchHeader = ({ navigation }: NativeStackHeaderProps) => {
+  const [keyword, setKeyword] = useState('');
   const canGoBack = useMemo(() => navigation.canGoBack(), [navigation]);
+  const dispatch = useAppDispatch();
 
   const handleGoBack = () => {
     navigation.goBack();
+  };
+  const handleSearch = () => {
+    dispatch(loadSearch({ keyword, isReset: true }));
   };
 
   return (
@@ -33,7 +40,9 @@ const SearchHeader = ({ navigation }: NativeStackHeaderProps) => {
           bg="#6200ee"
           color="white"
           variant="underlined"
-          placeholder="Underlined"
+          placeholder="press enter to search"
+          onChangeText={setKeyword}
+          onSubmitEditing={handleSearch}
         />
       </HStack>
     </Fragment>
