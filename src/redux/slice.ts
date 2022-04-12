@@ -4,11 +4,12 @@ const initialState: RootState = {
   search: { keyword: '', page: 1, isEnd: false, loadStatus: 0, list: [] },
   update: { page: 1, isEnd: false, loadStatus: 0, list: [] },
   manga: {
-    currentId: '',
+    mangaId: '',
     loadStatus: 0,
   },
   chapter: {
-    currentId: '',
+    mangaId: '',
+    chapterId: '',
     loadStatus: 0,
   },
   dict: {
@@ -83,7 +84,7 @@ const mangaSlice = createSlice({
   reducers: {
     loadManga(state, action: PayloadAction<string>) {
       state.loadStatus = 1;
-      state.currentId = action.payload;
+      state.mangaId = action.payload;
     },
     loadMangaCompletion(
       state,
@@ -104,12 +105,19 @@ const chapterSlice = createSlice({
   name: 'chapter',
   initialState: initialState.chapter,
   reducers: {
-    loadChapter(state, action: PayloadAction<string>) {
+    loadChapter(state, action: PayloadAction<{ mangaId: string; chapterId: string }>) {
       state.loadStatus = 1;
-      state.currentId = action.payload;
+      state.mangaId = action.payload.mangaId;
+      state.chapterId = action.payload.chapterId;
     },
-    loadChapterCompletion(state, action: FetchResponseAction<any>) {
-      console.log({ state, action });
+    loadChapterCompletion(state, action: FetchResponseAction<Chapter>) {
+      const { error } = action.payload;
+      if (error) {
+        state.loadStatus = 0;
+        return;
+      }
+
+      state.loadStatus = 2;
     },
   },
 });
@@ -157,6 +165,18 @@ const dictSlice = createSlice({
       const { manga, chapter } = data;
       state.mangaToChapter[manga.id] = chapter;
       state.manga[manga.id] = manga;
+    },
+    [chapterSlice.actions.loadChapterCompletion.type]: (
+      state,
+      action: FetchResponseAction<Chapter>
+    ) => {
+      const { error, data } = action.payload;
+      if (error) {
+        return;
+      }
+
+      const { mangaId, chapterId } = data;
+      state.chapter[mangaId + '$$' + chapterId] = data;
     },
   },
 });

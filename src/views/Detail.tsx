@@ -3,7 +3,7 @@ import { action, useAppSelector, useAppDispatch } from '~redux';
 import { Box, Flex, Image, Text, ScrollView } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
-const { loadManga } = action;
+const { loadManga, loadChapter } = action;
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const id = route.params.id;
@@ -22,6 +22,12 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   useEffect(() => {
     canUse && navigation.setOptions({ title: data.title });
   }, [canUse, navigation, data]);
+
+  const handleChapter = (mangaId: string, chapterId: string) => {
+    return () => {
+      dispatch(loadChapter({ mangaId, chapterId }));
+    };
+  };
 
   if (!canUse) {
     return null;
@@ -58,7 +64,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           const isActived = false;
           return (
             <Box w="1/4" p={2} key={item.chapterId}>
-              <TouchableOpacity activeOpacity={0.8}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleChapter(item.mangaId, item.chapterId)}
+              >
                 <Text
                   bg={isActived ? '#6200ee' : 'transparent'}
                   color={isActived ? 'white' : '#717171'}

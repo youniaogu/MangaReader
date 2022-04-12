@@ -30,7 +30,7 @@ export function handleBookshelf(text: string): Manga[] {
       const title = $$('h3').first().text();
       const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
       const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-      const [latest, updateTime, author, tag] = $$('dl')
+      const [author, tag, latest, updateTime] = $$('dl')
         .toArray()
         .map((dl) => cheerio.load(dl).root().text());
       const id = firstMatch(href.match(PATTERN_MANGA_ID)).replace(

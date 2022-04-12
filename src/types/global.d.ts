@@ -14,6 +14,7 @@ declare global {
     Collection: undefined;
     Search: undefined;
     Detail: { id: string };
+    Chapter: undefined;
     About: undefined;
   };
 

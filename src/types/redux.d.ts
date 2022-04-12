@@ -1,4 +1,4 @@
-declare type LodaStatus = 0 | 1 | 2;
+declare type LoadStatus = 0 | 1 | 2;
 declare type UpdateStatus = 0 | 1 | 2;
 
 declare interface ChapterItem {
@@ -33,22 +33,23 @@ declare interface RootState {
     keyword: string;
     page: number;
     isEnd: boolean;
-    loadStatus: LodaStatus;
+    loadStatus: LoadStatus;
     list: string[];
   };
   update: {
     page: number;
     isEnd: boolean;
-    loadStatus: LodaStatus;
+    loadStatus: LoadStatus;
     list: string[];
   };
   manga: {
-    currentId: string;
-    loadStatus: LodaStatus;
+    mangaId: string;
+    loadStatus: LoadStatus;
   };
   chapter: {
-    currentId: string;
-    loadStatus: LodaStatus;
+    mangaId: string;
+    chapterId: string;
+    loadStatus: LoadStatus;
   };
   dict: {
     manga: {

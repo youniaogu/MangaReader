@@ -62,25 +62,23 @@ function* loadUpdateSaga() {
 
 function* loadMangaSaga() {
   yield takeEvery(loadManga.type, function* () {
-    const { currentId } = yield select((state: RootState) => state.manga);
+    const { mangaId } = yield select((state: RootState) => state.manga);
 
     const { error, data } = yield call(fetchData, {
-      url: 'https://m.manhuagui.com/comic/' + currentId,
+      url: 'https://m.manhuagui.com/comic/' + mangaId,
     });
     const { manga, chapter } = handleManga(data);
 
-    yield put(
-      loadMangaCompletion({ error, data: { manga: { ...manga, id: currentId }, chapter } })
-    );
+    yield put(loadMangaCompletion({ error, data: { manga: { ...manga, id: mangaId }, chapter } }));
   });
 }
 
 function* loadChapterSaga() {
   yield takeEvery(loadChapter.type, function* () {
-    // const { currentId } = yield select((state: RootState) => state.chapter);
+    const { mangaId, chapterId } = yield select((state: RootState) => state.chapter);
 
     const { error, data } = yield call(fetchData, {
-      url: 'https://m.manhuagui.com/comic/39336/612275.html',
+      url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
     });
 
     yield put(loadChapterCompletion({ error, data: handleChapter(data) }));
