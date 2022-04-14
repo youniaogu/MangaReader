@@ -161,3 +161,35 @@ export function handleChapter(text: string): Chapter {
     prevId,
   };
 }
+
+export function scaleToFill(
+  img: { width: number; height: number },
+  container: { width: number; height: number }
+) {
+  const scale = Math.max(container.width / img.width, container.height / img.height);
+  const dx = container.width / 2 - (img.width / 2) * scale;
+  const dy = container.height / 2 - (img.height / 2) * scale;
+
+  return {
+    dx,
+    dy,
+    dWidth: img.width * scale,
+    dHeight: img.height * scale,
+  };
+}
+
+export function scaleToFit(
+  img: { width: number; height: number },
+  container: { width: number; height: number }
+) {
+  const scale = Math.min(container.width / img.width, container.height / img.height);
+  const dx = container.width / 2 - (img.width / 2) * scale;
+  const dy = container.height / 2 - (img.height / 2) * scale;
+
+  return {
+    dx,
+    dy,
+    dWidth: img.width * scale,
+    dHeight: img.height * scale,
+  };
+}

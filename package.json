@@ -22,6 +22,8 @@
     "query-string": "^7.1.1",
     "react": "17.0.2",
     "react-native": "0.67.4",
+    "react-native-gesture-handler": "^2.3.2",
+    "react-native-reanimated": "^2.7.0",
     "react-native-safe-area-context": "^4.2.4",
     "react-native-screens": "^3.13.1",
     "react-native-svg": "^12.3.0",
@@ -48,6 +50,7 @@
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "^0.66.2",
     "only-allow": "^1.1.0",
+    "react-devtools": "^4.24.4",
     "react-test-renderer": "17.0.2",
     "typescript": "^4.4.4"
   },
@@ -65,5 +68,5 @@
       "node"
     ]
   },
-  "proxy": "http://192.168.1.176:3333"
+  "proxy": "http://192.168.0.163:3333"
 }
