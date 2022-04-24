@@ -35,26 +35,26 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   return (
     <ScrollView>
-      <Flex w="100%" bg="#6200ee" flexDirection="row" pl="4" pr="4" pb="5">
+      <Flex w="100%" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
         <Image
-          w="130"
-          h="160"
-          flexGrow="0"
-          flexShrink="0"
+          w={130}
+          h={160}
+          flexGrow={0}
+          flexShrink={0}
           source={{ uri: data.cover }}
           resizeMode="cover"
           borderRadius="md"
           alt="cover"
         />
-        <Flex flexGrow="1" flexShrink="1" pl="4">
-          <Text color="white" fontSize="20" fontWeight="bold" numberOfLines={2}>
+        <Flex flexGrow={1} flexShrink={1} pl={4}>
+          <Text color="white" fontSize={20} fontWeight="bold" numberOfLines={2}>
             {data.title}
           </Text>
-          <Text color="white" fontSize="14" fontWeight="bold" numberOfLines={1}>
+          <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             {data.author}
           </Text>
-          <Box flexGrow="1" />
-          <Text color="white" fontSize="14" fontWeight="bold" numberOfLines={1}>
+          <Box flexGrow={1} />
+          <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             {data.updateTime}
           </Text>
         </Flex>
