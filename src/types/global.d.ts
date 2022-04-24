@@ -14,7 +14,7 @@ declare global {
     Collection: undefined;
     Search: undefined;
     Detail: { id: string };
-    Chapter: undefined;
+    Chapter: { mangaId: string; chapterId: string };
     About: undefined;
   };
 
@@ -22,6 +22,7 @@ declare global {
   type StackCollectionProps = NativeStackScreenProps<RootStackParamList, 'Collection'>;
   type StackSearchProps = NativeStackScreenProps<RootStackParamList, 'Search'>;
   type StackDetailProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
+  type StackChapterProps = NativeStackScreenProps<RootStackParamList, 'Chapter'>;
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 
   interface String {

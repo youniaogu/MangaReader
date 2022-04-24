@@ -3,7 +3,7 @@ import { action, useAppSelector, useAppDispatch } from '~redux';
 import { Box, Flex, Image, Text, ScrollView } from 'native-base';
 import { TouchableOpacity } from 'react-native';
 
-const { loadManga, loadChapter } = action;
+const { loadManga } = action;
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const id = route.params.id;
@@ -25,7 +25,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const handleChapter = (mangaId: string, chapterId: string) => {
     return () => {
-      dispatch(loadChapter({ mangaId, chapterId }));
+      navigation.navigate('Chapter', { mangaId, chapterId });
     };
   };
 

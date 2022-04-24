@@ -23,7 +23,12 @@ declare interface Chapter {
   chapterId: string;
   name: string;
   title: string;
-  images: string[];
+  images: {
+    uri: string;
+    headers: {
+      [index: string]: string;
+    };
+  }[];
   nextId: string;
   prevId: string;
 }

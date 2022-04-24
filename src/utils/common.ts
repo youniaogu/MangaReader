@@ -154,9 +154,14 @@ export function handleChapter(text: string): Chapter {
     chapterId,
     name: bookName,
     title: chapterTitle,
-    images: images.map(
-      (item: string) => 'https://i.hamreus.com' + item + '?' + queryString.stringify(sl)
-    ),
+    images: images.map((item: string) => {
+      return {
+        uri: 'https://i.hamreus.com' + item + '?' + queryString.stringify(sl),
+        headers: {
+          referer: 'https://m.manhuagui.com/',
+        },
+      };
+    }),
     nextId,
     prevId,
   };

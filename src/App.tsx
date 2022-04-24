@@ -26,8 +26,7 @@ const App = () => {
         <NativeBaseProvider>
           <NavigationContainer>
             <Navigator
-              // initialRouteName="Home"
-              initialRouteName="Chapter"
+              initialRouteName="Home"
               screenOptions={{
                 header: (props) => <Header {...props} />,
               }}
