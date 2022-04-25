@@ -48,6 +48,8 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
     ],
   }));
 
+  const doubleTapScaleValue = 2;
+
   useEffect(() => {
     ReactImage.getSizeWithHeaders(uri, headers, (w, h) => {
       const { dWidth, dHeight } = scaleToFit(
@@ -59,6 +61,32 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
     });
   }, [uri, headers, width, height]);
 
+  const doubleTap = Gesture.Tap()
+    .maxDuration(250)
+    .maxDelay(250)
+    .numberOfTaps(2)
+    .onStart((e) => {
+      'worklet';
+      if (savedScale.value > 1) {
+        scale.value = withTiming(1, { duration: 300 });
+        translationX.value = withTiming(0, { duration: 300 });
+        translationY.value = withTiming(0, { duration: 300 });
+
+        savedScale.value = 1;
+        savedTranslationX.value = 0;
+        savedTranslationY.value = 0;
+      } else {
+        scale.value = withTiming(doubleTapScaleValue, { duration: 300 });
+        const currentX = (windowWidth / doubleTapScaleValue - e.x) * (doubleTapScaleValue - 1);
+        const currentY = (windowHeight / doubleTapScaleValue - e.y) * (doubleTapScaleValue - 1);
+        translationX.value = withTiming(currentX, { duration: 300 });
+        translationY.value = withTiming(currentY, { duration: 300 });
+
+        savedScale.value = doubleTapScaleValue;
+        savedTranslationX.value = currentX;
+        savedTranslationY.value = currentY;
+      }
+    });
   const pinchGesture = Gesture.Pinch()
     .onStart((e) => {
       'worklet';
@@ -119,8 +147,14 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
     .onEnd(() => {
       'worklet';
       if (savedScale.value === 1) {
-        savedTranslationX.value > translationX.value ? runOnJS(onNext)() : runOnJS(onPrev)();
-        translationX.value = withTiming(0, { duration: 300 });
+        if (Math.abs(savedTranslationX.value - translationX.value) > 50) {
+          savedTranslationX.value > translationX.value ? runOnJS(onNext)() : runOnJS(onPrev)();
+          translationX.value = withTiming(0, { duration: 300 });
+          return;
+        }
+
+        translationX.value = withTiming(0, { duration: 500 });
+        savedTranslationX.value = 0;
         return;
       }
 
@@ -130,11 +164,13 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
 
   return (
     <View w={windowWidth} h={windowHeight} bg="black">
-      <GestureDetector gesture={panGesture}>
-        <GestureDetector gesture={pinchGesture}>
-          <Animated.View style={[styles.wrapper, animatedStyle]}>
-            <Image source={{ uri, headers }} size="full" resizeMode="contain" alt="cover" />
-          </Animated.View>
+      <GestureDetector gesture={doubleTap}>
+        <GestureDetector gesture={panGesture}>
+          <GestureDetector gesture={pinchGesture}>
+            <Animated.View style={[styles.wrapper, animatedStyle]}>
+              <Image source={{ uri, headers }} size="full" resizeMode="contain" alt="cover" />
+            </Animated.View>
+          </GestureDetector>
         </GestureDetector>
       </GestureDetector>
     </View>
@@ -149,26 +185,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
-// const mockData = [
-//   { uri: 'https://images.alphacoders.com/549/thumb-1920-549450.png' },
-//   { uri: 'https://s1.ax1x.com/2022/04/14/LlcpCD.png' },
-//   { uri: 'https://wallpapercave.com/uwp/uwp1102321.jpeg' },
-//   {
-//     uri: 'https://images.unsplash.com/photo-1596701008477-309aeefa29ad?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2231&q=80',
-//   },
-//   {
-//     uri: 'https://images.unsplash.com/photo-1591233244149-62ee33f538d7?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80',
-//   },
-//   {
-//     uri: 'https://images.unsplash.com/photo-1600251215707-95bb01c73f51?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=930&q=80',
-//   },
-//   {
-//     uri: 'https://images.unsplash.com/photo-1626238247302-2f3065c90ff5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1674&q=80',
-//   },
-//   {
-//     uri: 'https://images.unsplash.com/photo-1563432161839-82786c3b4726?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2231&q=80',
-//   },
-// ];
 
 export default Controller;

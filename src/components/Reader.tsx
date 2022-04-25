@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Dimensions, TouchableWithoutFeedback } from 'react-native';
-import { View, IconButton, Icon, Box } from 'native-base';
+import { View, IconButton, Icon, Box, Center } from 'native-base';
 import Controller from '~components/Controller';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -28,6 +28,7 @@ const Reader = ({ data, goBack }: ReaderProps) => {
   }));
 
   useEffect(() => {
+    'worklet';
     translationX.value = withTiming(-index * windowWidth, { duration: 300 });
   }, [index, translationX]);
 
@@ -58,11 +59,15 @@ const Reader = ({ data, goBack }: ReaderProps) => {
         />
 
         {showExtra && (
-          <Box position="absolute" top={0} safeArea>
+          <Box position="absolute" top={0} flexDirection="row" safeArea>
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
               onPress={goBack}
             />
+
+            <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
+              {index + 1} / {data.length}
+            </Center>
           </Box>
         )}
       </View>
