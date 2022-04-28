@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { action, useAppSelector, useAppDispatch } from '~redux';
-import Bookshelf from '~components/Bookshelf';
+import { action, useAppSelector, useAppDispatch } from '~/redux';
+import Bookshelf from '~/components/Bookshelf';
 
 const { loadUpdate } = action;
 

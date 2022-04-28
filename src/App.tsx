@@ -5,16 +5,16 @@ import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
-import { store } from '~redux';
+import { store } from '~/redux';
 
-import Header from '~components/Header';
-import Home from '~views/Home';
-import Collection from '~views/Collection';
-import SearchHeader from '~views/SearchHeader';
-import Search from '~views/Search';
-import Detail from '~views/Detail';
-import Chapter from '~views/Chapter';
-import About from '~views/About';
+import Header from '~/components/Header';
+import Home from '~/views/Home';
+import Collection from '~/views/Collection';
+import SearchHeader from '~/views/SearchHeader';
+import Search from '~/views/Search';
+import Detail from '~/views/Detail';
+import Chapter from '~/views/Chapter';
+import About from '~/views/About';
 
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();

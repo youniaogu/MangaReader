@@ -1,5 +1,5 @@
 import { all, put, fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
-import { fetchData, handleBookshelf, handleManga, handleChapter } from '~utils';
+import { fetchData, handleBookshelf, handleManga, handleChapter } from '~/utils';
 import { action } from './slice';
 
 const {
@@ -76,7 +76,6 @@ function* loadMangaSaga() {
 function* loadChapterSaga() {
   yield takeEvery(loadChapter.type, function* () {
     const { mangaId, chapterId } = yield select((state: RootState) => state.chapter);
-
     const { error, data } = yield call(fetchData, {
       url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
     });

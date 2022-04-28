@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { View, IconButton, Icon, Box, Center } from 'native-base';
-import Controller from '~components/Controller';
+import Controller from '~/components/Controller';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
+const cacheSize = 2;
 const windowWidth = Dimensions.get('window').width;
 
 interface ReaderProps {
@@ -19,7 +20,8 @@ interface ReaderProps {
 }
 
 const Reader = ({ data, goBack }: ReaderProps) => {
-  const [index, setIndex] = useState(0);
+  const [current, setCurrent] = useState(0);
+  const [maxIndex, setMaxIndex] = useState(current + 2);
   const [showExtra, setShowExtra] = useState(false);
   const translationX = useSharedValue(0);
   const translationY = useSharedValue(0);
@@ -29,14 +31,16 @@ const Reader = ({ data, goBack }: ReaderProps) => {
 
   useEffect(() => {
     'worklet';
-    translationX.value = withTiming(-index * windowWidth, { duration: 300 });
-  }, [index, translationX]);
+    translationX.value = withTiming(-current * windowWidth, { duration: 300 });
+  }, [current, translationX]);
 
   const handlePrev = () => {
-    setIndex(Math.max(index - 1, 0));
+    setCurrent(Math.max(current - 1, 0));
   };
   const handleNext = () => {
-    setIndex(Math.min(index + 1, data.length - 1));
+    const newCurrent = Math.min(current + 1, data.length - 1);
+    setCurrent(newCurrent);
+    setMaxIndex(Math.max(maxIndex, newCurrent + cacheSize));
   };
 
   return (
@@ -47,14 +51,20 @@ const Reader = ({ data, goBack }: ReaderProps) => {
           data={data}
           style={animatedStyle}
           initialNumToRender={5}
-          renderItem={({ item }) => (
-            <Controller
-              uri={item.uri}
-              headers={item.headers}
-              onPrev={handlePrev}
-              onNext={handleNext}
-            />
-          )}
+          renderItem={({ item, index }) => {
+            if (Math.abs(index - current) > cacheSize && index > maxIndex) {
+              return null;
+            }
+
+            return (
+              <Controller
+                uri={item.uri}
+                headers={item.headers}
+                onPrev={handlePrev}
+                onNext={handleNext}
+              />
+            );
+          }}
           keyExtractor={(item) => item.uri}
         />
 
@@ -66,7 +76,7 @@ const Reader = ({ data, goBack }: ReaderProps) => {
             />
 
             <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
-              {index + 1} / {data.length}
+              {current + 1} / {data.length}
             </Center>
           </Box>
         )}

@@ -1,15 +1,20 @@
-import React, { useEffect } from 'react';
-import { action, useAppSelector, useAppDispatch } from '~redux';
+import React, { useState, useEffect } from 'react';
+import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Box, Flex, Image, Text, ScrollView } from 'native-base';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Dimensions } from 'react-native';
+import { coverAspectRatio } from '~/utils';
 
 const { loadManga } = action;
+const gap = 4;
+const windowWidth = Dimensions.get('window').width;
+const quarterWidth = (windowWidth - gap * 5) / 4;
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const id = route.params.id;
   const dispatch = useAppDispatch();
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const mangaToChapter = useAppSelector((state) => state.dict.mangaToChapter);
+  const [activedId, setActivedId] = useState('');
 
   const data = mangaDict[id] || undefined;
   const chapterList = mangaToChapter[id] || [];
@@ -25,6 +30,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const handleChapter = (mangaId: string, chapterId: string) => {
     return () => {
+      setActivedId(chapterId);
       navigation.navigate('Chapter', { mangaId, chapterId });
     };
   };
@@ -38,7 +44,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       <Flex w="100%" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
         <Image
           w={130}
-          h={160}
+          h={130 / coverAspectRatio}
           flexGrow={0}
           flexShrink={0}
           source={{ uri: data.cover }}
@@ -59,15 +65,16 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           </Text>
         </Flex>
       </Flex>
-      <Flex flexWrap="wrap" flexDirection="row" p={2}>
+      <Flex flexWrap="wrap" flexDirection="row" p={gap / 2}>
         {chapterList.map((item) => {
-          const isActived = false;
+          const isActived = item.chapterId === activedId;
           return (
-            <Box w="1/4" p={2} key={item.chapterId}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleChapter(item.mangaId, item.chapterId)}
-              >
+            <TouchableOpacity
+              key={item.chapterId}
+              activeOpacity={0.8}
+              onPress={handleChapter(item.mangaId, item.chapterId)}
+            >
+              <Box w={quarterWidth} p={gap / 2}>
                 <Text
                   bg={isActived ? '#6200ee' : 'transparent'}
                   color={isActived ? 'white' : '#717171'}
@@ -82,8 +89,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
                 >
                   {item.title}
                 </Text>
-              </TouchableOpacity>
-            </Box>
+              </Box>
+            </TouchableOpacity>
           );
         })}
       </Flex>

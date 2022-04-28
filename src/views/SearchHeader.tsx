@@ -1,7 +1,7 @@
 import React, { Fragment, useMemo, useState } from 'react';
 import { Box, StatusBar, HStack, IconButton, Icon, Input } from 'native-base';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
-import { action, useAppDispatch } from '~redux';
+import { action, useAppDispatch } from '~/redux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const { loadSearch } = action;

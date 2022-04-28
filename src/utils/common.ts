@@ -158,6 +158,7 @@ export function handleChapter(text: string): Chapter {
       return {
         uri: 'https://i.hamreus.com' + item + '?' + queryString.stringify(sl),
         headers: {
+          Host: 'i.hamreus.com',
           referer: 'https://m.manhuagui.com/',
         },
       };

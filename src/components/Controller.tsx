@@ -8,7 +8,7 @@ import Animated, {
 import { Image as ReactImage, StyleSheet, Dimensions } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { Image, View } from 'native-base';
-import { scaleToFit } from '~utils';
+import { scaleToFit } from '~/utils';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -79,8 +79,14 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
         scale.value = withTiming(doubleTapScaleValue, { duration: 300 });
         const currentX = (windowWidth / doubleTapScaleValue - e.x) * (doubleTapScaleValue - 1);
         const currentY = (windowHeight / doubleTapScaleValue - e.y) * (doubleTapScaleValue - 1);
+        const dX = width.value * doubleTapScaleValue - windowWidth;
+        const dY = height.value * doubleTapScaleValue - windowHeight;
         translationX.value = withTiming(currentX, { duration: 300 });
         translationY.value = withTiming(currentY, { duration: 300 });
+        top.value = Math.max(dY / 2, 0);
+        bottom.value = Math.max(dY / 2, 0);
+        left.value = Math.max(dX / 2, 0);
+        right.value = Math.max(dX / 2, 0);
 
         savedScale.value = doubleTapScaleValue;
         savedTranslationX.value = currentX;
@@ -126,7 +132,6 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
       savedTranslationY.value = translationY.value;
     });
   const panGesture = Gesture.Pan()
-    .averageTouches(true)
     .onChange((e) => {
       'worklet';
       const currentX = translationX.value + e.changeX;
@@ -165,10 +170,10 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
   return (
     <View w={windowWidth} h={windowHeight} bg="black">
       <GestureDetector gesture={doubleTap}>
-        <GestureDetector gesture={panGesture}>
-          <GestureDetector gesture={pinchGesture}>
+        <GestureDetector gesture={pinchGesture}>
+          <GestureDetector gesture={panGesture}>
             <Animated.View style={[styles.wrapper, animatedStyle]}>
-              <Image source={{ uri, headers }} size="full" resizeMode="contain" alt="cover" />
+              <Image source={{ uri, headers }} size="full" resizeMode="contain" alt="source page" />
             </Animated.View>
           </GestureDetector>
         </GestureDetector>

@@ -1,6 +1,11 @@
-import React, { Fragment } from 'react';
+import React from 'react';
+import { TouchableOpacity, Dimensions } from 'react-native';
 import { Box, Image, Text, FlatList } from 'native-base';
-import { TouchableOpacity } from 'react-native';
+import { coverAspectRatio } from '~/utils';
+
+const gap = 3;
+const windowWidth = Dimensions.get('window').width;
+const oneThirdWidth = (windowWidth - gap * 4) / 3;
 
 interface BookshelfProps {
   list: Manga[];
@@ -17,32 +22,30 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
 
   return (
     <FlatList
-      p={1.5}
+      p={gap / 2}
       numColumns={3}
       data={list}
       onEndReached={loadMore}
-      onEndReachedThreshold={0.25}
+      onEndReachedThreshold={0.5}
       renderItem={({ item }) => {
         return (
-          <Box key={item.id} width="1/3" p={1.5}>
-            <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.id)}>
-              <Fragment>
-                <Image
-                  w="130"
-                  h="160"
-                  borderRadius="md"
-                  source={{
-                    uri: item.cover,
-                  }}
-                  resizeMode="cover"
-                  alt="cover"
-                />
-                <Text pt="1" fontSize="md" fontWeight="bold" numberOfLines={1}>
-                  {item.title}
-                </Text>
-              </Fragment>
-            </TouchableOpacity>
-          </Box>
+          <TouchableOpacity key={item.id} activeOpacity={0.8} onPress={handlePress(item.id)}>
+            <Box width={oneThirdWidth} flexDirection="column" p={gap / 2}>
+              <Image
+                w={oneThirdWidth}
+                h={oneThirdWidth / coverAspectRatio}
+                borderRadius="md"
+                source={{
+                  uri: item.cover,
+                }}
+                resizeMode="cover"
+                alt="cover"
+              />
+              <Text pt="1" fontSize="md" fontWeight="bold" numberOfLines={1}>
+                {item.title}
+              </Text>
+            </Box>
+          </TouchableOpacity>
         );
       }}
     />
