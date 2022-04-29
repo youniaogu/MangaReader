@@ -1,15 +1,10 @@
 import React from 'react';
-import { Center, HStack, Spinner, Heading } from 'native-base';
+import { Spinner, Center } from 'native-base';
 
 const Loading = () => {
   return (
-    <Center>
-      <HStack space={2} justifyContent="center">
-        <Spinner accessibilityLabel="Loading posts" />
-        <Heading color="primary.500" fontSize="md">
-          Loading
-        </Heading>
-      </HStack>
+    <Center w="full" h="48">
+      <Spinner color="#6200ee" size="lg" accessibilityLabel="loading" />
     </Center>
   );
 };

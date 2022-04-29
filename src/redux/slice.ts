@@ -1,16 +1,18 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 
+const { LoadStatus } = window;
+
 const initialState: RootState = {
-  search: { keyword: '', page: 1, isEnd: false, loadStatus: 0, list: [] },
-  update: { page: 1, isEnd: false, loadStatus: 0, list: [] },
+  search: { keyword: '', page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
+  update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   manga: {
     mangaId: '',
-    loadStatus: 0,
+    loadStatus: LoadStatus.Default,
   },
   chapter: {
     mangaId: '',
     chapterId: '',
-    loadStatus: 0,
+    loadStatus: LoadStatus.Default,
   },
   dict: {
     manga: {},
@@ -32,17 +34,17 @@ const searchSlice = createSlice({
       }
 
       state.keyword = keyword;
-      state.loadStatus = 1;
+      state.loadStatus = LoadStatus.Pending;
     },
     loadSearchCompletion(state, action: FetchResponseAction<Manga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
-        state.loadStatus = 0;
+        state.loadStatus = LoadStatus.Rejected;
         return;
       }
 
       state.page += 1;
-      state.loadStatus = 2;
+      state.loadStatus = LoadStatus.Fulfilled;
       state.list = state.list.concat(data.map((item) => item.id));
       state.isEnd = data.length < 20;
     },
@@ -61,17 +63,17 @@ const updateSlice = createSlice({
         state.isEnd = false;
       }
 
-      state.loadStatus = 1;
+      state.loadStatus = LoadStatus.Pending;
     },
     loadUpdateCompletion(state, action: FetchResponseAction<Manga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
-        state.loadStatus = 0;
+        state.loadStatus = LoadStatus.Rejected;
         return;
       }
 
       state.page += 1;
-      state.loadStatus = 2;
+      state.loadStatus = LoadStatus.Fulfilled;
       state.list = state.list.concat(data.map((item) => item.id));
       state.isEnd = data.length < 20;
     },
@@ -83,7 +85,7 @@ const mangaSlice = createSlice({
   initialState: initialState.manga,
   reducers: {
     loadManga(state, action: PayloadAction<string>) {
-      state.loadStatus = 1;
+      state.loadStatus = LoadStatus.Pending;
       state.mangaId = action.payload;
     },
     loadMangaCompletion(
@@ -92,11 +94,11 @@ const mangaSlice = createSlice({
     ) {
       const { error } = action.payload;
       if (error) {
-        state.loadStatus = 0;
+        state.loadStatus = LoadStatus.Rejected;
         return;
       }
 
-      state.loadStatus = 2;
+      state.loadStatus = LoadStatus.Fulfilled;
     },
   },
 });
@@ -106,18 +108,18 @@ const chapterSlice = createSlice({
   initialState: initialState.chapter,
   reducers: {
     loadChapter(state, action: PayloadAction<{ mangaId: string; chapterId: string }>) {
-      state.loadStatus = 1;
+      state.loadStatus = LoadStatus.Pending;
       state.mangaId = action.payload.mangaId;
       state.chapterId = action.payload.chapterId;
     },
     loadChapterCompletion(state, action: FetchResponseAction<Chapter>) {
       const { error } = action.payload;
       if (error) {
-        state.loadStatus = 0;
+        state.loadStatus = LoadStatus.Rejected;
         return;
       }
 
-      state.loadStatus = 2;
+      state.loadStatus = LoadStatus.Fulfilled;
     },
   },
 });

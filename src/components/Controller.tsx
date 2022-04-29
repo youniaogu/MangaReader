@@ -5,10 +5,16 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import { Image as ReactImage, StyleSheet, Dimensions } from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Dimensions,
+  NativeSyntheticEvent,
+  ImageErrorEventData,
+} from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { Image, View } from 'native-base';
 import { scaleToFit } from '~/utils';
+import { View } from 'native-base';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -20,9 +26,10 @@ interface ControllerProps {
   };
   onNext: () => void;
   onPrev: () => void;
+  onError?: (e: NativeSyntheticEvent<ImageErrorEventData>) => void;
 }
 
-const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
+const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) => {
   const width = useSharedValue(0);
   const height = useSharedValue(0);
 
@@ -51,7 +58,7 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
   const doubleTapScaleValue = 2;
 
   useEffect(() => {
-    ReactImage.getSizeWithHeaders(uri, headers, (w, h) => {
+    Image.getSizeWithHeaders(uri, headers, (w, h) => {
       const { dWidth, dHeight } = scaleToFit(
         { width: w, height: h },
         { width: windowWidth, height: windowHeight }
@@ -173,7 +180,12 @@ const Controller = ({ uri, headers, onNext, onPrev }: ControllerProps) => {
         <GestureDetector gesture={pinchGesture}>
           <GestureDetector gesture={panGesture}>
             <Animated.View style={[styles.wrapper, animatedStyle]}>
-              <Image source={{ uri, headers }} size="full" resizeMode="contain" alt="source page" />
+              <Image
+                source={{ uri, headers }}
+                style={styles.img}
+                resizeMode="contain"
+                onError={onError}
+              />
             </Animated.View>
           </GestureDetector>
         </GestureDetector>
@@ -188,6 +200,10 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  img: {
+    width: '100%',
+    height: '100%',
   },
 });
 

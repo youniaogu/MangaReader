@@ -50,7 +50,6 @@ const Reader = ({ data, goBack }: ReaderProps) => {
           horizontal
           data={data}
           style={animatedStyle}
-          initialNumToRender={5}
           renderItem={({ item, index }) => {
             if (Math.abs(index - current) > cacheSize && index > maxIndex) {
               return null;

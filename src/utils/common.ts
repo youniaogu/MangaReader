@@ -1,11 +1,7 @@
 import queryString from 'query-string';
-import LZString from 'lz-string';
 import cheerio from 'cheerio';
 
-// eslint-disable-next-line no-extend-native
-String.prototype.splic = function (f: string): string[] {
-  return LZString.decompressFromBase64(this.toString())?.split(f) || [];
-};
+const { UpdateStatus } = window;
 
 export const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/g;
 export const PATTERN_CHAPTER_ID =
@@ -38,12 +34,12 @@ export function handleBookshelf(text: string): Manga[] {
         ''
       );
 
-      let status: UpdateStatus = 0;
+      let status = UpdateStatus.Unknow;
       if (statusLabel === '连载') {
-        status = 1;
+        status = UpdateStatus.Serial;
       }
       if (statusLabel === '完结') {
-        status = 2;
+        status = UpdateStatus.End;
       }
 
       if (!id || !title) {
