@@ -36,7 +36,6 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MangaReader/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MangaReader/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MangaReader/main.m; sourceTree = "<group>"; };
-		1AEB06BC27F4436F004EFC6D /* AntDesign.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = AntDesign.ttf; sourceTree = "<group>"; };
 		1AEB06C527F4436F004EFC6D /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
 		1D0AE47A65C8663E3B452821 /* Pods-MangaReader-MangaReaderTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MangaReader-MangaReaderTests.release.xcconfig"; path = "Target Support Files/Pods-MangaReader-MangaReaderTests/Pods-MangaReader-MangaReaderTests.release.xcconfig"; sourceTree = "<group>"; };
 		6423831EA8574132BED9D8CC /* libPods-MangaReader.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MangaReader.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,7 +101,6 @@
 		1AEB06B527F4436F004EFC6D /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
-				1AEB06BC27F4436F004EFC6D /* AntDesign.ttf */,
 				1AEB06C527F4436F004EFC6D /* MaterialIcons.ttf */,
 			);
 			name = Fonts;

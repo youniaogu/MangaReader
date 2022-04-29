@@ -39,7 +39,6 @@
 	<string></string>
 	<key>UIAppFonts</key>
 	<array>
-		<string>AntDesign.ttf</string>
 		<string>MaterialIcons.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
