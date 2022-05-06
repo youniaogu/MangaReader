@@ -12,16 +12,15 @@ declare global {
 
   type RootStackParamList = {
     Home: undefined;
-    Collection: undefined;
     Search: undefined;
+    Result: undefined;
     Detail: { id: string };
     Chapter: { mangaId: string; chapterId: string };
     About: undefined;
   };
-
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
-  type StackCollectionProps = NativeStackScreenProps<RootStackParamList, 'Collection'>;
   type StackSearchProps = NativeStackScreenProps<RootStackParamList, 'Search'>;
+  type StackResultProps = NativeStackScreenProps<RootStackParamList, 'Result'>;
   type StackDetailProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
   type StackChapterProps = NativeStackScreenProps<RootStackParamList, 'Chapter'>;
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
@@ -32,7 +31,6 @@ declare global {
     href: string;
     title: string;
   }
-
   declare interface Manga {
     id: string;
     cover: string;
@@ -72,6 +70,7 @@ declare global {
       loadStatus: LoadStatus;
       list: string[];
     };
+    favorites: string[];
     manga: {
       mangaId: string;
       loadStatus: LoadStatus;
@@ -98,7 +97,6 @@ declare global {
     LoadStatus: typeof LoadStatus;
     UpdateStatus: typeof UpdateStatus;
   }
-
   interface String {
     splic(f: string): string[];
   }

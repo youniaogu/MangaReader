@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { Box, Flex, Image, Text, ScrollView, IconButton, Icon } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { Box, Flex, Image, Text, ScrollView } from 'native-base';
 import { TouchableOpacity, Dimensions } from 'react-native';
 import { coverAspectRatio } from '~/utils';
+import { useRoute } from '@react-navigation/native';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Loading from '~/components/Loading';
 
-const { loadManga } = action;
 const { LoadStatus } = window;
+const { loadManga, addFavorite, removeFavorite } = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
@@ -106,6 +108,35 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         </Flex>
       )}
     </ScrollView>
+  );
+};
+
+export const Heart = () => {
+  const route = useRoute<StackDetailProps['route']>();
+  const dispatch = useAppDispatch();
+  const favorites = useAppSelector((state) => state.favorites);
+  const id = route.params.id;
+
+  const handleFavorite = () => {
+    dispatch(addFavorite(id));
+  };
+  const handleUnfavorite = () => {
+    dispatch(removeFavorite(id));
+  };
+
+  if (favorites.includes(id)) {
+    return (
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="favorite" size={30} color="red.500" />}
+        onPress={handleUnfavorite}
+      />
+    );
+  }
+  return (
+    <IconButton
+      icon={<Icon as={MaterialIcons} name="favorite-outline" size={30} color="white" />}
+      onPress={handleFavorite}
+    />
   );
 };
 

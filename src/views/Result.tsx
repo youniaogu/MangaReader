@@ -1,29 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Input } from 'native-base';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
-import * as RootNavigation from '~/utils/navigation';
 
-const { loadUpdate, loadSearch } = action;
+const { loadSearch } = action;
 const { LoadStatus } = window;
 
-const Search = ({ navigation: { navigate } }: StackHomeProps) => {
-  const { list } = useAppSelector((state) => state.update);
+const Search = ({ navigation }: StackResultProps) => {
+  const { list } = useAppSelector((state) => state.search);
   const dict = useAppSelector((state) => state.dict.manga);
-  const loadStatus = useAppSelector((state) => state.update.loadStatus);
+  const loadStatus = useAppSelector((state) => state.search.loadStatus);
+  const keyword = useAppSelector((state) => state.search.keyword);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(loadUpdate(true));
-  }, [dispatch]);
+    navigation.setOptions({ title: keyword });
+  }, [keyword, navigation]);
 
   const handleLoadMore = () => {
-    dispatch(loadUpdate());
+    dispatch(loadSearch({ keyword }));
   };
   const handleDetail = (id: string) => {
-    navigate('Detail', { id });
+    navigation.navigate('Detail', { id });
   };
 
   if (loadStatus === LoadStatus.Pending && list.length === 0) {
@@ -48,7 +48,6 @@ export const SearchInput = () => {
 
   const handleSearch = () => {
     dispatch(loadSearch({ keyword, isReset: true }));
-    RootNavigation.navigate('Result');
   };
 
   return (

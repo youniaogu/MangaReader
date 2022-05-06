@@ -5,6 +5,7 @@ const { LoadStatus } = window;
 const initialState: RootState = {
   search: { keyword: '', page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
+  favorites: [],
   manga: {
     mangaId: '',
     loadStatus: LoadStatus.Default,
@@ -76,6 +77,19 @@ const updateSlice = createSlice({
       state.loadStatus = LoadStatus.Fulfilled;
       state.list = state.list.concat(data.map((item) => item.id));
       state.isEnd = data.length < 20;
+    },
+  },
+});
+
+const favoritesSlice = createSlice({
+  name: 'favorites',
+  initialState: initialState.favorites,
+  reducers: {
+    addFavorite(state, action: PayloadAction<string>) {
+      state.push(action.payload);
+    },
+    removeFavorite(state, action: PayloadAction<string>) {
+      return state.filter((item) => item !== action.payload);
     },
   },
 });
@@ -184,20 +198,23 @@ const dictSlice = createSlice({
 });
 
 const searchAction = searchSlice.actions;
-const searchReducer = searchSlice.reducer;
 const updateAction = updateSlice.actions;
-const updateReducer = updateSlice.reducer;
+const favoritesAction = favoritesSlice.actions;
 const mangaAction = mangaSlice.actions;
-
-const mangaReducer = mangaSlice.reducer;
 const chapterAction = chapterSlice.actions;
-const chapterReducer = chapterSlice.reducer;
 const dictAction = dictSlice.actions;
+
+const searchReducer = searchSlice.reducer;
+const updateReducer = updateSlice.reducer;
+const favoritesReducer = favoritesSlice.reducer;
+const mangaReducer = mangaSlice.reducer;
+const chapterReducer = chapterSlice.reducer;
 const dictReducer = dictSlice.reducer;
 
 export const action = {
   ...searchAction,
   ...updateAction,
+  ...favoritesAction,
   ...mangaAction,
   ...chapterAction,
   ...dictAction,
@@ -205,6 +222,7 @@ export const action = {
 export const reducer = combineReducers({
   search: searchReducer,
   update: updateReducer,
+  favorites: favoritesReducer,
   manga: mangaReducer,
   chapter: chapterReducer,
   dict: dictReducer,

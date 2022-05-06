@@ -1,42 +1,45 @@
-import React, { useEffect } from 'react';
-import { action, useAppSelector, useAppDispatch } from '~/redux';
+import React from 'react';
+import { HStack, IconButton, Icon } from 'native-base';
+import { useAppSelector } from '~/redux';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
-import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
-
-const { loadUpdate } = action;
-const { LoadStatus } = window;
+import * as RootNavigation from '~/utils/navigation';
 
 const Home = ({ navigation: { navigate } }: StackHomeProps) => {
-  const { list } = useAppSelector((state) => state.update);
-  const loadStatus = useAppSelector((state) => state.update.loadStatus);
+  const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
-  const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(loadUpdate(true));
-  }, [dispatch]);
-
-  const handleLoadMore = () => {
-    dispatch(loadUpdate());
-  };
   const handleDetail = (id: string) => {
     navigate('Detail', { id });
   };
 
-  if (loadStatus === LoadStatus.Pending && list.length === 0) {
-    return <Loading />;
-  }
-  if (loadStatus === LoadStatus.Fulfilled && list.length === 0) {
+  if (list.length === 0) {
     return <Empty />;
   }
 
+  return <Bookshelf list={list.map((item) => dict[item])} itemOnPress={handleDetail} />;
+};
+
+export const SearchAndAbout = () => {
+  const handleSearch = () => {
+    RootNavigation.navigate('Search');
+  };
+  const handleAbout = () => {
+    RootNavigation.navigate('About');
+  };
+
   return (
-    <Bookshelf
-      list={list.map((item) => dict[item])}
-      loadMore={handleLoadMore}
-      itemOnPress={handleDetail}
-    />
+    <HStack flexShrink="0">
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
+        onPress={handleSearch}
+      />
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="info-outline" size={30} color="white" />}
+        onPress={handleAbout}
+      />
+    </HStack>
   );
 };
 

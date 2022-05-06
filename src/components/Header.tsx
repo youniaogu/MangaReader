@@ -2,22 +2,21 @@ import React, { Fragment, useMemo } from 'react';
 import { Box, StatusBar, HStack, IconButton, Icon, Text } from 'native-base';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { getHeaderTitle } from '@react-navigation/elements';
-
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const Header = ({ navigation, options, route }: NativeStackHeaderProps) => {
+const Header = (headerProps: NativeStackHeaderProps) => {
+  const { navigation, options, route } = headerProps;
   const title = getHeaderTitle(options, route.name);
   const canGoBack = useMemo(() => navigation.canGoBack(), [navigation]);
 
-  const handleSearch = () => {
-    navigation.navigate('Search');
-  };
   const handleGoBack = () => {
     navigation.goBack();
   };
-  const handleAbout = () => {
-    navigation.navigate('About');
-  };
+
+  const { headerLeft, headerRight } = options;
+
+  const Left = headerLeft ? headerLeft({ tintColor: '#6200ee', canGoBack }) : null;
+  const Right = headerRight ? headerRight({ tintColor: '#6200ee', canGoBack }) : null;
 
   return (
     <Fragment>
@@ -31,7 +30,7 @@ const Header = ({ navigation, options, route }: NativeStackHeaderProps) => {
         justifyContent="space-between"
         alignItems="center"
       >
-        <HStack flex="1" flexGrow="1" alignItems="center">
+        <HStack flex="1" justifyContent="flex-start" alignItems="center">
           {canGoBack ? (
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
@@ -40,21 +39,13 @@ const Header = ({ navigation, options, route }: NativeStackHeaderProps) => {
           ) : (
             <IconButton icon={<Icon as={MaterialIcons} name="home" size={30} color="white" />} />
           )}
-          <Text w="5/6" color="white" fontSize="25" fontWeight="bold" numberOfLines={1}>
+          <Text maxW="5/6" color="white" fontSize="25" fontWeight="bold" numberOfLines={1}>
             {title}
           </Text>
+          {Left}
         </HStack>
 
-        <HStack flexShrink="0">
-          <IconButton
-            icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
-            onPress={handleSearch}
-          />
-          <IconButton
-            icon={<Icon as={MaterialIcons} name="info-outline" size={30} color="white" />}
-            onPress={handleAbout}
-          />
-        </HStack>
+        {Right}
       </HStack>
     </Fragment>
   );

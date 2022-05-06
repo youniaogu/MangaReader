@@ -3,6 +3,8 @@ import cheerio from 'cheerio';
 
 const { UpdateStatus } = window;
 
+export const coverAspectRatio = 210 / 297;
+
 export const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/g;
 export const PATTERN_CHAPTER_ID =
   /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/[0-9]+(?=\.html|$)/g;
