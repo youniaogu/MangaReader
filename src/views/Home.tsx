@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon } from 'native-base';
-import { useAppSelector } from '~/redux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import Empty from '~/components/Empty';
 import * as RootNavigation from '~/utils/navigation';
 
+const { launch } = action;
+
 const Home = ({ navigation: { navigate } }: StackHomeProps) => {
+  const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
+
+  useEffect(() => {
+    dispatch(launch());
+  }, [dispatch]);
 
   const handleDetail = (id: string) => {
     navigate('Detail', { id });

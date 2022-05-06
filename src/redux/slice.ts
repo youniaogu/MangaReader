@@ -1,4 +1,4 @@
-import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
+import { createAction, createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 
 const { LoadStatus } = window;
 
@@ -21,6 +21,9 @@ const initialState: RootState = {
     chapter: {},
   },
 };
+
+const launch = createAction('app/launch');
+const syncFavorites = createAction<Manga[]>('app/syncFavorites');
 
 const searchSlice = createSlice({
   name: 'search',
@@ -85,11 +88,16 @@ const favoritesSlice = createSlice({
   name: 'favorites',
   initialState: initialState.favorites,
   reducers: {
-    addFavorite(state, action: PayloadAction<string>) {
+    addFavorites(state, action: PayloadAction<string>) {
       state.push(action.payload);
     },
-    removeFavorite(state, action: PayloadAction<string>) {
+    removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item !== action.payload);
+    },
+  },
+  extraReducers: {
+    [syncFavorites.type]: (_state, action: PayloadAction<Manga[]>) => {
+      return action.payload.map((item) => item.id);
     },
   },
 });
@@ -143,6 +151,11 @@ const dictSlice = createSlice({
   initialState: initialState.dict,
   reducers: {},
   extraReducers: {
+    [syncFavorites.type]: (state, action: PayloadAction<Manga[]>) => {
+      action.payload.forEach((item) => {
+        state.manga[item.id] = item;
+      });
+    },
     [searchSlice.actions.loadSearchCompletion.type]: (
       state,
       action: FetchResponseAction<Manga[]>
@@ -212,6 +225,8 @@ const chapterReducer = chapterSlice.reducer;
 const dictReducer = dictSlice.reducer;
 
 export const action = {
+  launch,
+  syncFavorites,
   ...searchAction,
   ...updateAction,
   ...favoritesAction,

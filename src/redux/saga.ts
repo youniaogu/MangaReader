@@ -1,8 +1,13 @@
 import { all, put, fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
-import { fetchData, handleBookshelf, handleManga, handleChapter } from '~/utils';
+import { storageKey, fetchData, handleBookshelf, handleManga, handleChapter } from '~/utils';
 import { action } from './slice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {
+  launch,
+  syncFavorites,
+  addFavorites,
+  removeFavorites,
   loadSearch,
   loadSearchCompletion,
   loadUpdate,
@@ -13,9 +18,33 @@ const {
   loadChapterCompletion,
 } = action;
 
+function* launchSaga() {
+  yield takeLatest(launch.type, function* () {
+    const stringifyData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
+
+    let favorites: Manga[] = [];
+    if (stringifyData) {
+      favorites = JSON.parse(stringifyData);
+    }
+    yield put(syncFavorites(favorites));
+  });
+}
+function* syncFavoritesSaga() {
+  yield takeLatest([addFavorites.type, removeFavorites.type], function* () {
+    const favorites = ((state: RootState) => state.favorites)(yield select());
+    const dict = ((state: RootState) => state.dict.manga)(yield select());
+
+    yield call(
+      AsyncStorage.setItem,
+      storageKey.favorites,
+      JSON.stringify(favorites.map((id) => dict[id]))
+    );
+  });
+}
+
 function* loadSearchSaga() {
   yield takeLatest(loadSearch.type, function* () {
-    const { keyword, page, isEnd } = yield select((state: RootState) => state.search);
+    const { keyword, page, isEnd } = ((state: RootState) => state.search)(yield select());
 
     if (isEnd) {
       yield put(loadSearchCompletion({ error: new Error('已经到底了!') }));
@@ -24,7 +53,7 @@ function* loadSearchSaga() {
 
     const body = new FormData();
     body.append('key', keyword);
-    body.append('page', page);
+    body.append('page', String(page));
     body.append('ajax', '1');
     body.append('order', '1');
 
@@ -40,7 +69,7 @@ function* loadSearchSaga() {
 
 function* loadUpdateSaga() {
   yield takeLatest(loadUpdate.type, function* () {
-    const { page, isEnd } = yield select((state: RootState) => state.update);
+    const { page, isEnd } = ((state: RootState) => state.update)(yield select());
 
     if (isEnd) {
       yield put(loadUpdateCompletion({ error: new Error('已经到底了!') }));
@@ -62,7 +91,7 @@ function* loadUpdateSaga() {
 
 function* loadMangaSaga() {
   yield takeEvery(loadManga.type, function* () {
-    const { mangaId } = yield select((state: RootState) => state.manga);
+    const { mangaId } = ((state: RootState) => state.manga)(yield select());
 
     const { error, data } = yield call(fetchData, {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
@@ -75,7 +104,7 @@ function* loadMangaSaga() {
 
 function* loadChapterSaga() {
   yield takeEvery(loadChapter.type, function* () {
-    const { mangaId, chapterId } = yield select((state: RootState) => state.chapter);
+    const { mangaId, chapterId } = ((state: RootState) => state.chapter)(yield select());
     const { error, data } = yield call(fetchData, {
       url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
     });
@@ -86,6 +115,8 @@ function* loadChapterSaga() {
 
 export default function* rootSaga() {
   yield all([
+    fork(launchSaga),
+    fork(syncFavoritesSaga),
     fork(loadSearchSaga),
     fork(loadUpdateSaga),
     fork(loadMangaSaga),

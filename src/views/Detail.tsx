@@ -9,7 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Loading from '~/components/Loading';
 
 const { LoadStatus } = window;
-const { loadManga, addFavorite, removeFavorite } = action;
+const { loadManga, addFavorites, removeFavorites } = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
@@ -118,10 +118,10 @@ export const Heart = () => {
   const id = route.params.id;
 
   const handleFavorite = () => {
-    dispatch(addFavorite(id));
+    dispatch(addFavorites(id));
   };
   const handleUnfavorite = () => {
-    dispatch(removeFavorite(id));
+    dispatch(removeFavorites(id));
   };
 
   if (favorites.includes(id)) {
