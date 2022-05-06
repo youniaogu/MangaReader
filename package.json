@@ -12,6 +12,7 @@
     "preinstall": "npx only-allow yarn"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.17.3",
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.2",
     "@reduxjs/toolkit": "^1.8.0",
@@ -69,5 +70,5 @@
       "node"
     ]
   },
-  "proxy": "http://192.168.0.163:3333"
+  "proxy": "http://192.168.1.103:3333"
 }
