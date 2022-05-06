@@ -19,11 +19,12 @@ const initialState: RootState = {
     manga: {},
     mangaToChapter: {},
     chapter: {},
+    history: {},
   },
 };
 
 const launch = createAction('app/launch');
-const syncFavorites = createAction<Manga[]>('app/syncFavorites');
+const clearCache = createAction('app/clearCache');
 
 const searchSlice = createSlice({
   name: 'search',
@@ -94,10 +95,8 @@ const favoritesSlice = createSlice({
     removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item !== action.payload);
     },
-  },
-  extraReducers: {
-    [syncFavorites.type]: (_state, action: PayloadAction<Manga[]>) => {
-      return action.payload.map((item) => item.id);
+    syncFavorites(_state, action: PayloadAction<string[]>) {
+      return action.payload;
     },
   },
 });
@@ -149,13 +148,17 @@ const chapterSlice = createSlice({
 const dictSlice = createSlice({
   name: 'dict',
   initialState: initialState.dict,
-  reducers: {},
-  extraReducers: {
-    [syncFavorites.type]: (state, action: PayloadAction<Manga[]>) => {
-      action.payload.forEach((item) => {
-        state.manga[item.id] = item;
-      });
+  reducers: {
+    syncDict(_state, action: PayloadAction<RootState['dict']>) {
+      return action.payload;
     },
+    viewChapter(state, action: PayloadAction<WatchHistory & { mangaId: string }>) {
+      const { mangaId, lastWatchChapterId, lastWatchPage } = action.payload;
+
+      state.history[mangaId] = { lastWatchChapterId, lastWatchPage };
+    },
+  },
+  extraReducers: {
     [searchSlice.actions.loadSearchCompletion.type]: (
       state,
       action: FetchResponseAction<Manga[]>
@@ -226,7 +229,7 @@ const dictReducer = dictSlice.reducer;
 
 export const action = {
   launch,
-  syncFavorites,
+  clearCache,
   ...searchAction,
   ...updateAction,
   ...favoritesAction,

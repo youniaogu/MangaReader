@@ -6,6 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const {
   launch,
   syncFavorites,
+  syncDict,
+  clearCache,
+  viewChapter,
   addFavorites,
   removeFavorites,
   loadSearch,
@@ -20,25 +23,45 @@ const {
 
 function* launchSaga() {
   yield takeLatest(launch.type, function* () {
-    const stringifyData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
+    const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
+    const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
 
-    let favorites: Manga[] = [];
-    if (stringifyData) {
-      favorites = JSON.parse(stringifyData);
+    let favorites: string[] = [];
+    let dict: RootState['dict'] = { manga: {}, mangaToChapter: {}, chapter: {}, history: {} };
+    if (favoritesData) {
+      favorites = JSON.parse(favoritesData);
     }
+    if (dictData) {
+      dict = JSON.parse(dictData);
+    }
+
     yield put(syncFavorites(favorites));
+    yield put(syncDict(dict));
   });
 }
-function* syncFavoritesSaga() {
-  yield takeLatest([addFavorites.type, removeFavorites.type], function* () {
-    const favorites = ((state: RootState) => state.favorites)(yield select());
-    const dict = ((state: RootState) => state.dict.manga)(yield select());
+function* storageDataSaga() {
+  yield takeLatest(
+    [
+      viewChapter.type,
+      addFavorites.type,
+      removeFavorites.type,
+      loadSearchCompletion.type,
+      loadUpdateCompletion.type,
+      loadMangaCompletion.type,
+      loadChapterCompletion.type,
+    ],
+    function* () {
+      const favorites = ((state: RootState) => state.favorites)(yield select());
+      const dict = ((state: RootState) => state.dict)(yield select());
 
-    yield call(
-      AsyncStorage.setItem,
-      storageKey.favorites,
-      JSON.stringify(favorites.map((id) => dict[id]))
-    );
+      yield call(AsyncStorage.setItem, storageKey.favorites, JSON.stringify(favorites));
+      yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(dict));
+    }
+  );
+}
+function* clearCacheSaga() {
+  yield takeLatest([clearCache.type], function* () {
+    yield call(AsyncStorage.clear);
   });
 }
 
@@ -116,7 +139,8 @@ function* loadChapterSaga() {
 export default function* rootSaga() {
   yield all([
     fork(launchSaga),
-    fork(syncFavoritesSaga),
+    fork(storageDataSaga),
+    fork(clearCacheSaga),
     fork(loadSearchSaga),
     fork(loadUpdateSaga),
     fork(loadMangaSaga),

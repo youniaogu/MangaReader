@@ -6,6 +6,7 @@ const { UpdateStatus } = window;
 export const coverAspectRatio = 210 / 297;
 export const storageKey = {
   favorites: '@favorites',
+  dict: '@dict',
 };
 
 export const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/g;

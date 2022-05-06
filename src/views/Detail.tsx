@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Flex, Image, Text, ScrollView, IconButton, Icon } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { TouchableOpacity, Dimensions } from 'react-native';
@@ -19,10 +19,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
+  const historyDict = useAppSelector((state) => state.dict.history);
   const mangaToChapter = useAppSelector((state) => state.dict.mangaToChapter);
-  const [activedId, setActivedId] = useState('');
 
   const data = mangaDict[id] || undefined;
+  const { lastWatchChapterId } = historyDict[id] || {};
   const chapterList = mangaToChapter[id] || [];
   const canUse = !!data;
 
@@ -36,7 +37,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const handleChapter = (mangaId: string, chapterId: string) => {
     return () => {
-      setActivedId(chapterId);
       navigation.navigate('Chapter', { mangaId, chapterId });
     };
   };
@@ -79,7 +79,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       {loadStatus === LoadStatus.Fulfilled && (
         <Flex flexWrap="wrap" flexDirection="row" p={gap / 2}>
           {chapterList.map((item) => {
-            const isActived = item.chapterId === activedId;
+            const isActived = item.chapterId === lastWatchChapterId;
             return (
               <TouchableOpacity
                 key={item.chapterId}

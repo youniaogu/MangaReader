@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import Reader from '~/components/Reader';
 
-const { loadChapter } = action;
+const { loadChapter, viewChapter } = action;
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaId, chapterId } = route.params || {};
@@ -11,6 +11,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const data = chapterDict[mangaId + '$$' + chapterId];
 
   useEffect(() => {
+    dispatch(viewChapter({ mangaId, lastWatchChapterId: chapterId, lastWatchPage: 1 }));
     dispatch(loadChapter({ mangaId, chapterId }));
   }, [dispatch, mangaId, chapterId]);
 

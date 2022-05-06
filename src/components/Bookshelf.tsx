@@ -30,7 +30,7 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
       renderItem={({ item }) => {
         return (
           <TouchableOpacity key={item.id} activeOpacity={0.8} onPress={handlePress(item.id)}>
-            <Box width={oneThirdWidth} flexDirection="column" p={gap / 2}>
+            <Box shadow={0} width={oneThirdWidth} flexDirection="column" p={gap / 2}>
               <Image
                 w={oneThirdWidth}
                 h={oneThirdWidth / coverAspectRatio}
@@ -41,7 +41,7 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
                 resizeMode="cover"
                 alt="cover"
               />
-              <Text pt="1" fontSize="md" fontWeight="bold" numberOfLines={1}>
+              <Text shadow="none" pt="1" fontSize="md" fontWeight="bold" numberOfLines={1}>
                 {item.title}
               </Text>
             </Box>

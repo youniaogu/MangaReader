@@ -55,6 +55,10 @@ declare global {
     nextId: string;
     prevId: string;
   }
+  declare interface WatchHistory {
+    lastWatchChapterId: string;
+    lastWatchPage: number;
+  }
 
   declare interface RootState {
     search: {
@@ -89,6 +93,9 @@ declare global {
       };
       chapter: {
         [key: string]: Chapter;
+      };
+      history: {
+        [key: string]: WatchHistory;
       };
     };
   }
