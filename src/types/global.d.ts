@@ -1,5 +1,5 @@
+import { LoadStatus, UpdateStatus, env } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { LoadStatus, UpdateStatus } from '~/utils';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 declare global {
@@ -94,9 +94,11 @@ declare global {
   }
 
   interface Window {
+    env: typeof env;
     LoadStatus: typeof LoadStatus;
     UpdateStatus: typeof UpdateStatus;
   }
+
   interface String {
     splic(f: string): string[];
   }

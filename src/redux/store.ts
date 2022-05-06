@@ -3,10 +3,11 @@ import { reducer } from './slice';
 import createSagaMiddleware from 'redux-saga';
 import saga from './saga';
 
+const { env } = window;
 const sagaMiddleware = createSagaMiddleware();
 const middleware = [sagaMiddleware];
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === env.DEV) {
   const { logger } = require('redux-logger');
   middleware.push(logger);
 }
@@ -14,7 +15,7 @@ if (process.env.NODE_ENV === 'development') {
 const store = configureStore({
   reducer,
   middleware,
-  devTools: process.env.NODE_ENV === 'development',
+  devTools: process.env.NODE_ENV === env.DEV,
 });
 sagaMiddleware.run(saga);
 

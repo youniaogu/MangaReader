@@ -1,5 +1,7 @@
 import queryString from 'query-string';
 
+const { env } = window;
+
 export const fetchData = ({
   url,
   method = 'GET',
@@ -28,7 +30,7 @@ export const fetchData = ({
     }
   }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === env.DEV) {
     url = process.env.PROXY + '?target=' + encodeURIComponent(url);
   }
 

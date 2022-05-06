@@ -4,7 +4,7 @@ import { proxy } from './package.json';
 import { name } from './app.json';
 import App from '~/App';
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === window.env.DEV) {
   process.env.PROXY = proxy;
 }
 
