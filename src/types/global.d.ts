@@ -6,8 +6,10 @@ declare global {
   type GET = 'GET' | 'get';
   type POST = 'POST' | 'post';
   type FetchMethod = GET | POST;
-  type FetchResponseAction<T> = PayloadAction<
-    { error: Error; data?: undefined } | { error: undefined; data: T }
+  type FetchResponseAction<T = undefined> = PayloadAction<
+    undefined extends T
+      ? { error?: Error }
+      : { error: Error; data?: undefined } | { error?: undefined; data: T }
   >;
 
   type RootStackParamList = {
@@ -40,6 +42,7 @@ declare global {
     author: string;
     tag: string;
     status: UpdateStatus;
+    chapters: ChapterItem[];
   }
   declare interface Chapter {
     mangaId: string;
@@ -61,6 +64,11 @@ declare global {
   }
 
   declare interface RootState {
+    app: {
+      launchStatus: LoadStatus;
+      syncStatus: LoadStatus;
+      clearStatus: LoadStatus;
+    };
     search: {
       keyword: string;
       page: number;
@@ -87,9 +95,6 @@ declare global {
     dict: {
       manga: {
         [key: string]: Manga;
-      };
-      mangaToChapter: {
-        [key: string]: ChapterItem[];
       };
       chapter: {
         [key: string]: Chapter;

@@ -1,10 +1,13 @@
-import { all, put, fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
+import { all, put, take, fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
 import { storageKey, fetchData, handleBookshelf, handleManga, handleChapter } from '~/utils';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {
   launch,
+  launchCompletion,
+  syncData,
+  syncDataCompletion,
   syncFavorites,
   syncDict,
   clearCache,
@@ -23,20 +26,33 @@ const {
 
 function* launchSaga() {
   yield takeLatest(launch.type, function* () {
-    const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
-    const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
+    yield put(syncData());
+    yield take(syncDataCompletion.type);
 
-    let favorites: string[] = [];
-    let dict: RootState['dict'] = { manga: {}, mangaToChapter: {}, chapter: {}, history: {} };
-    if (favoritesData) {
-      favorites = JSON.parse(favoritesData);
-    }
-    if (dictData) {
-      dict = JSON.parse(dictData);
-    }
+    yield put(launchCompletion({ error: undefined }));
+  });
+}
+function* syncDataSaga() {
+  yield takeLatest(syncData.type, function* () {
+    try {
+      const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
+      const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
 
-    yield put(syncFavorites(favorites));
-    yield put(syncDict(dict));
+      let favorites: string[] = [];
+      let dict: RootState['dict'] = { manga: {}, chapter: {}, history: {} };
+      if (favoritesData) {
+        favorites = JSON.parse(favoritesData);
+      }
+      if (dictData) {
+        dict = JSON.parse(dictData);
+      }
+
+      yield put(syncFavorites(favorites));
+      yield put(syncDict(dict));
+      yield put(syncDataCompletion({ error: undefined }));
+    } catch (e) {
+      yield put(syncDataCompletion({ error: new Error('launch fail') }));
+    }
   });
 }
 function* storageDataSaga() {
@@ -119,9 +135,9 @@ function* loadMangaSaga() {
     const { error, data } = yield call(fetchData, {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
     });
-    const { manga, chapter } = handleManga(data);
+    const manga = handleManga(data);
 
-    yield put(loadMangaCompletion({ error, data: { manga: { ...manga, id: mangaId }, chapter } }));
+    yield put(loadMangaCompletion({ error, data: { ...manga, id: mangaId } }));
   });
 }
 
@@ -139,6 +155,7 @@ function* loadChapterSaga() {
 export default function* rootSaga() {
   yield all([
     fork(launchSaga),
+    fork(syncDataSaga),
     fork(storageDataSaga),
     fork(clearCacheSaga),
     fork(loadSearchSaga),

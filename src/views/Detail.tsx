@@ -20,11 +20,9 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const historyDict = useAppSelector((state) => state.dict.history);
-  const mangaToChapter = useAppSelector((state) => state.dict.mangaToChapter);
 
   const data = mangaDict[id] || undefined;
   const { lastWatchChapterId } = historyDict[id] || {};
-  const chapterList = mangaToChapter[id] || [];
   const canUse = !!data;
 
   useEffect(() => {
@@ -78,7 +76,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       {loadStatus === LoadStatus.Rejected && <ErrorWithRetry onRetry={handleReload} />}
       {loadStatus === LoadStatus.Fulfilled && (
         <Flex flexWrap="wrap" flexDirection="row" p={gap / 2}>
-          {chapterList.map((item) => {
+          {data.chapters.map((item) => {
             const isActived = item.chapterId === lastWatchChapterId;
             return (
               <TouchableOpacity

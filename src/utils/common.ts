@@ -61,6 +61,7 @@ export function handleBookshelf(text: string): Manga[] {
         updateTime,
         author,
         tag,
+        chapters: [],
       });
     });
 
@@ -68,7 +69,7 @@ export function handleBookshelf(text: string): Manga[] {
 }
 
 /** extract data from manga detail */
-export function handleManga(text: string): { manga: Manga; chapter: ChapterItem[] } {
+export function handleManga(text: string): Manga {
   const $ = cheerio.load(text);
   const manga: Manga = {
     id: '',
@@ -79,8 +80,9 @@ export function handleManga(text: string): { manga: Manga; chapter: ChapterItem[
     author: '',
     tag: '',
     status: 0,
+    chapters: [],
   };
-  const chapter: ChapterItem[] = [];
+  const chapters: ChapterItem[] = [];
 
   const [latest, updateTime, author, tag] = $('div.cont-list dl')
     .toArray()
@@ -97,7 +99,7 @@ export function handleManga(text: string): { manga: Manga; chapter: ChapterItem[
         .replace('https://m.manhuagui.com/comic/', '')
         .split('/');
 
-      chapter.push({
+      chapters.push({
         mangaId,
         chapterId,
         href,
@@ -118,8 +120,9 @@ export function handleManga(text: string): { manga: Manga; chapter: ChapterItem[
   manga.updateTime = updateTime;
   manga.author = author;
   manga.tag = tag;
+  manga.chapters = chapters;
 
-  return { manga, chapter };
+  return manga;
 }
 
 export function handleChapter(text: string): Chapter {

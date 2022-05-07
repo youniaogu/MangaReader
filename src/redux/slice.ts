@@ -1,8 +1,13 @@
-import { createAction, createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 
 const { LoadStatus } = window;
 
 const initialState: RootState = {
+  app: {
+    launchStatus: LoadStatus.Default,
+    syncStatus: LoadStatus.Default,
+    clearStatus: LoadStatus.Default,
+  },
   search: { keyword: '', page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   favorites: [],
@@ -17,14 +22,50 @@ const initialState: RootState = {
   },
   dict: {
     manga: {},
-    mangaToChapter: {},
     chapter: {},
     history: {},
   },
 };
 
-const launch = createAction('app/launch');
-const clearCache = createAction('app/clearCache');
+const appSlice = createSlice({
+  name: 'app',
+  initialState: initialState.app,
+  reducers: {
+    launch(state) {
+      state.launchStatus = LoadStatus.Pending;
+    },
+    launchCompletion(state, action: FetchResponseAction) {
+      if (action.payload.error) {
+        state.launchStatus = LoadStatus.Rejected;
+        return;
+      }
+
+      state.launchStatus = LoadStatus.Fulfilled;
+    },
+    syncData(state) {
+      state.syncStatus = LoadStatus.Pending;
+    },
+    syncDataCompletion(state, action: FetchResponseAction): any {
+      if (action.payload.error) {
+        state.syncStatus = LoadStatus.Rejected;
+        return;
+      }
+
+      state.syncStatus = LoadStatus.Fulfilled;
+    },
+    clearCache(state) {
+      state.clearStatus = LoadStatus.Pending;
+    },
+    clearCacheCompletion(state, action: FetchResponseAction) {
+      if (action.payload.error) {
+        state.clearStatus = LoadStatus.Rejected;
+        return;
+      }
+
+      state.clearStatus = LoadStatus.Fulfilled;
+    },
+  },
+});
 
 const searchSlice = createSlice({
   name: 'search',
@@ -109,10 +150,7 @@ const mangaSlice = createSlice({
       state.loadStatus = LoadStatus.Pending;
       state.mangaId = action.payload;
     },
-    loadMangaCompletion(
-      state,
-      action: FetchResponseAction<{ manga: Manga; chapter: ChapterItem[] }>
-    ) {
+    loadMangaCompletion(state, action: FetchResponseAction<Manga>) {
       const { error } = action.payload;
       if (error) {
         state.loadStatus = LoadStatus.Rejected;
@@ -185,18 +223,13 @@ const dictSlice = createSlice({
         state.manga[item.id] = item;
       });
     },
-    [mangaSlice.actions.loadMangaCompletion.type]: (
-      state,
-      action: FetchResponseAction<{ manga: Manga; chapter: ChapterItem[] }>
-    ) => {
+    [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
       const { error, data } = action.payload;
       if (error) {
         return;
       }
 
-      const { manga, chapter } = data;
-      state.mangaToChapter[manga.id] = chapter;
-      state.manga[manga.id] = manga;
+      state.manga[data.id] = data;
     },
     [chapterSlice.actions.loadChapterCompletion.type]: (
       state,
@@ -213,6 +246,7 @@ const dictSlice = createSlice({
   },
 });
 
+const appAction = appSlice.actions;
 const searchAction = searchSlice.actions;
 const updateAction = updateSlice.actions;
 const favoritesAction = favoritesSlice.actions;
@@ -220,6 +254,7 @@ const mangaAction = mangaSlice.actions;
 const chapterAction = chapterSlice.actions;
 const dictAction = dictSlice.actions;
 
+const appReducer = appSlice.reducer;
 const searchReducer = searchSlice.reducer;
 const updateReducer = updateSlice.reducer;
 const favoritesReducer = favoritesSlice.reducer;
@@ -228,8 +263,7 @@ const chapterReducer = chapterSlice.reducer;
 const dictReducer = dictSlice.reducer;
 
 export const action = {
-  launch,
-  clearCache,
+  ...appAction,
   ...searchAction,
   ...updateAction,
   ...favoritesAction,
@@ -238,6 +272,7 @@ export const action = {
   ...dictAction,
 };
 export const reducer = combineReducers({
+  app: appReducer,
   search: searchReducer,
   update: updateReducer,
   favorites: favoritesReducer,
