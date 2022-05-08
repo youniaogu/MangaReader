@@ -1,24 +1,31 @@
 # MangaReader
 
-a manga app📱, build by react-native, work on ios and android platforms.
+![platform](https://img.shields.io/badge/platform-android%20%7C%20ios-lightgrey)
+![last-modified](https://img.shields.io/aur/last-modified/MangaReader)
 
-all data come from [manhuagui](https://m.manhuagui.com/)
+一个漫画 APP📱，基于 react-native 构建，兼容 Android、Ios 平台
 
-## How to get the app?
+- 支持收藏、搜索漫画，章节记忆
+- 良好图片手势控制
 
-for android user, i will build and upload a package on github [releases](https://github.com/youniaogu/MangaReader/releases), also you can build by yourself
+> 所有数据来源于：[manhuagui](https://m.manhuagui.com/)（访问需要代理）
 
-for ios user, you need a machine that have macos, use xcode to build and install to you phone. if you meet some trouble when building app, tell me [here](https://github.com/youniaogu/MangaReader/issues), i will try to fix it
+<p align="center">
+  <img src="./demo.gif" alt="demo" />
+</p>
 
-## How to install dependencies?
+## Installation
 
-cooming soon...
+```bash
+> git clone https://github.com/youniaogu/MangaReader.git
+> cd MangaReader
+> yarn install
+> cd ios
+> pod install
+```
 
-## attention of developer
+## Download
 
-react-native-reanimated@v2 can't use remote debug, the version higher than v2.3.1 useless in iOS simulator when remote debug is on, see detail on this [doc](https://docs.swmansion.com/react-native-reanimated/docs/#known-problems-and-limitations), and issues on github
+Android：[下载](https://github.com/youniaogu/MangaReader/releases)
 
-- [If expo react native debugger open, swipe doesn't respond in IOS](https://github.com/software-mansion/react-native-gesture-handler/issues/1302)
-- [app crashes if debugging mode is enabled](https://github.com/software-mansion/react-native-reanimated/issues/1674)
-
-so we need to use [Flipper](https://fbflipper.com/) instead of remote debug
+Ios：因为没有开发者账户，请按上面流程安装依赖并构建至手机
