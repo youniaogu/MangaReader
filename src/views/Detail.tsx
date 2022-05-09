@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, Flex, Image, Text, ScrollView, IconButton, Icon } from 'native-base';
+import { Box, Flex, Image, Text, IconButton, Icon, FlatList } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { TouchableOpacity, Dimensions } from 'react-native';
 import { coverAspectRatio } from '~/utils';
@@ -19,10 +19,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
-  const historyDict = useAppSelector((state) => state.dict.history);
 
   const data = mangaDict[id] || undefined;
-  const { lastWatchChapterId } = historyDict[id] || {};
   const canUse = !!data;
 
   useEffect(() => {
@@ -47,8 +45,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   }
 
   return (
-    <ScrollView>
-      <Flex w="100%" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
+    <Box w="full" h="full" safeAreaBottom>
+      <Flex w="full" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
         <Image
           w={130}
           h={130 / coverAspectRatio}
@@ -72,15 +70,19 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           </Text>
         </Flex>
       </Flex>
+
       {loadStatus === LoadStatus.Pending && <Loading />}
       {loadStatus === LoadStatus.Rejected && <ErrorWithRetry onRetry={handleReload} />}
       {loadStatus === LoadStatus.Fulfilled && (
-        <Flex flexWrap="wrap" flexDirection="row" p={gap / 2}>
-          {data.chapters.map((item) => {
-            const isActived = item.chapterId === lastWatchChapterId;
+        <FlatList
+          p={gap / 2}
+          numColumns={4}
+          data={data.chapters}
+          keyExtractor={(item) => item.chapterId}
+          renderItem={({ item }) => {
+            const isActived = item.chapterId === data.lastWatchChapterId;
             return (
               <TouchableOpacity
-                key={item.chapterId}
                 activeOpacity={0.8}
                 onPress={handleChapter(item.mangaId, item.chapterId)}
               >
@@ -102,10 +104,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
                 </Box>
               </TouchableOpacity>
             );
-          })}
-        </Flex>
+          }}
+        />
       )}
-    </ScrollView>
+    </Box>
   );
 };
 

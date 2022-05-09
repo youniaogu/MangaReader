@@ -62,6 +62,7 @@ export function handleBookshelf(text: string): Manga[] {
         author,
         tag,
         chapters: [],
+        lastWatchChapterId: null,
       });
     });
 
@@ -81,6 +82,7 @@ export function handleManga(text: string): Manga {
     tag: '',
     status: 0,
     chapters: [],
+    lastWatchChapterId: null,
   };
   const chapters: ChapterItem[] = [];
 
@@ -170,6 +172,7 @@ export function handleChapter(text: string): Chapter {
     }),
     nextId,
     prevId,
+    lastWatchPage: 1,
   };
 }
 

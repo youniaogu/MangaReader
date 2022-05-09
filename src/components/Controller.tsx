@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -24,12 +24,10 @@ interface ControllerProps {
   headers: {
     [index: string]: string;
   };
-  onNext: () => void;
-  onPrev: () => void;
   onError?: (e: NativeSyntheticEvent<ImageErrorEventData>) => void;
 }
 
-const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) => {
+const Controller = ({ uri, headers, onError }: ControllerProps) => {
   const width = useSharedValue(0);
   const height = useSharedValue(0);
 
@@ -55,6 +53,7 @@ const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) 
     ],
   }));
 
+  const [enabledPan, setEnabledPan] = useState(savedScale.value > 1);
   const doubleTapScaleValue = 2;
 
   useEffect(() => {
@@ -82,6 +81,7 @@ const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) 
         savedScale.value = 1;
         savedTranslationX.value = 0;
         savedTranslationY.value = 0;
+        runOnJS(setEnabledPan)(false);
       } else {
         scale.value = withTiming(doubleTapScaleValue, { duration: 300 });
         const currentX = (windowWidth / doubleTapScaleValue - e.x) * (doubleTapScaleValue - 1);
@@ -98,6 +98,7 @@ const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) 
         savedScale.value = doubleTapScaleValue;
         savedTranslationX.value = currentX;
         savedTranslationY.value = currentY;
+        runOnJS(setEnabledPan)(doubleTapScaleValue > 1);
       }
     });
   const pinchGesture = Gesture.Pinch()
@@ -137,8 +138,10 @@ const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) 
       savedScale.value = scale.value;
       savedTranslationX.value = translationX.value;
       savedTranslationY.value = translationY.value;
+      runOnJS(setEnabledPan)(scale.value > 1);
     });
   const panGesture = Gesture.Pan()
+    .enabled(enabledPan)
     .onChange((e) => {
       'worklet';
       const currentX = translationX.value + e.changeX;
@@ -158,18 +161,6 @@ const Controller = ({ uri, headers, onNext, onPrev, onError }: ControllerProps) 
     })
     .onEnd(() => {
       'worklet';
-      if (savedScale.value === 1) {
-        if (Math.abs(savedTranslationX.value - translationX.value) > 50) {
-          savedTranslationX.value > translationX.value ? runOnJS(onNext)() : runOnJS(onPrev)();
-          translationX.value = withTiming(0, { duration: 300 });
-          return;
-        }
-
-        translationX.value = withTiming(0, { duration: 500 });
-        savedTranslationX.value = 0;
-        return;
-      }
-
       savedTranslationX.value = translationX.value;
       savedTranslationY.value = translationY.value;
     });

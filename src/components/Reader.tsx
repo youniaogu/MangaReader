@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 import { Dimensions, TouchableWithoutFeedback } from 'react-native';
-import { View, IconButton, Icon, Box, Center } from 'native-base';
+import { View, IconButton, Icon, HStack, Center } from 'native-base';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Controller from '~/components/Controller';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const cacheSize = 2;
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 interface ReaderProps {
   data: {
@@ -16,23 +23,27 @@ interface ReaderProps {
       [index: string]: string;
     };
   }[];
+  onPageChange?: (page: number) => void;
   goBack: () => void;
 }
 
-const Reader = ({ data, goBack }: ReaderProps) => {
+const Reader = ({ data, goBack, onPageChange }: ReaderProps) => {
   const [current, setCurrent] = useState(0);
   const [maxIndex, setMaxIndex] = useState(current + 2);
   const [showExtra, setShowExtra] = useState(false);
+  const width = useSharedValue(windowWidth * data.length);
+  const height = useSharedValue(windowHeight);
   const translationX = useSharedValue(0);
-  const translationY = useSharedValue(0);
+  const savedTranslationX = useSharedValue(0);
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translationX.value }, { translateY: translationY.value }],
+    width: width.value,
+    height: height.value,
+    transform: [{ translateX: translationX.value }],
   }));
 
   useEffect(() => {
-    'worklet';
-    translationX.value = withTiming(-current * windowWidth, { duration: 300 });
-  }, [current, translationX]);
+    onPageChange && onPageChange(current);
+  }, [current, onPageChange]);
 
   const handlePrev = () => {
     setCurrent(Math.max(current - 1, 0));
@@ -43,32 +54,60 @@ const Reader = ({ data, goBack }: ReaderProps) => {
     setMaxIndex(Math.max(maxIndex, newCurrent + cacheSize));
   };
 
+  const panGesture = Gesture.Pan()
+    .onChange((e) => {
+      'worklet';
+      const currentX = translationX.value + e.changeX;
+
+      translationX.value = currentX;
+    })
+    .onEnd(() => {
+      'worklet';
+      const distance = Math.abs(savedTranslationX.value - translationX.value);
+      if (distance > 50) {
+        if (savedTranslationX.value > translationX.value) {
+          translationX.value = withTiming(-(current + 1) * windowWidth, {
+            duration: (1 - distance / windowWidth) * 300,
+          });
+          savedTranslationX.value = -(current + 1) * windowWidth;
+          runOnJS(handleNext)();
+        } else {
+          translationX.value = withTiming(-(current - 1) * windowWidth, {
+            duration: (1 - distance / windowWidth) * 300,
+          });
+          savedTranslationX.value = -(current - 1) * windowWidth;
+          runOnJS(handlePrev)();
+        }
+
+        return;
+      }
+
+      translationX.value = withTiming(savedTranslationX.value, {
+        duration: 300 * (distance / windowWidth),
+      });
+    });
+
   return (
     <TouchableWithoutFeedback onPress={() => setShowExtra(!showExtra)}>
-      <View w={windowWidth * data.length} bg="black" flex={1}>
-        <Animated.FlatList
-          horizontal
-          data={data}
-          style={animatedStyle}
-          renderItem={({ item, index }) => {
-            if (Math.abs(index - current) > cacheSize && index > maxIndex) {
-              return null;
-            }
+      <View w="full" h="full" overflow="hidden" bg="black">
+        <GestureDetector gesture={panGesture}>
+          <Animated.FlatList
+            horizontal
+            data={data}
+            style={animatedStyle}
+            renderItem={({ item, index }) => {
+              if (Math.abs(index - current) > cacheSize && index > maxIndex) {
+                return null;
+              }
 
-            return (
-              <Controller
-                uri={item.uri}
-                headers={item.headers}
-                onPrev={handlePrev}
-                onNext={handleNext}
-              />
-            );
-          }}
-          keyExtractor={(item) => item.uri}
-        />
+              return <Controller uri={item.uri} headers={item.headers} />;
+            }}
+            keyExtractor={(item) => item.uri}
+          />
+        </GestureDetector>
 
         {showExtra && (
-          <Box position="absolute" top={0} flexDirection="row" safeArea>
+          <HStack position="absolute" top={0} alignItems="center" safeAreaTop>
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
               onPress={goBack}
@@ -77,7 +116,7 @@ const Reader = ({ data, goBack }: ReaderProps) => {
             <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
               {current + 1} / {data.length}
             </Center>
-          </Box>
+          </HStack>
         )}
       </View>
     </TouchableWithoutFeedback>

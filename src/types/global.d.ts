@@ -43,6 +43,7 @@ declare global {
     tag: string;
     status: UpdateStatus;
     chapters: ChapterItem[];
+    lastWatchChapterId: string | null;
   }
   declare interface Chapter {
     mangaId: string;
@@ -57,9 +58,6 @@ declare global {
     }[];
     nextId: string;
     prevId: string;
-  }
-  declare interface WatchHistory {
-    lastWatchChapterId: string;
     lastWatchPage: number;
   }
 
@@ -98,9 +96,6 @@ declare global {
       };
       chapter: {
         [key: string]: Chapter;
-      };
-      history: {
-        [key: string]: WatchHistory;
       };
     };
   }

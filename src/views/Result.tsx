@@ -35,7 +35,7 @@ const Search = ({ navigation }: StackResultProps) => {
 
   return (
     <Bookshelf
-      list={list.map((item) => dict[item])}
+      list={list.map((item) => dict[item]).filter((item) => item !== undefined)}
       loadMore={handleLoadMore}
       itemOnPress={handleDetail}
     />

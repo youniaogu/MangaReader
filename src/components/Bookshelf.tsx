@@ -27,9 +27,10 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
       data={list}
       onEndReached={loadMore}
       onEndReachedThreshold={0.5}
+      keyExtractor={(item) => item.id}
       renderItem={({ item }) => {
         return (
-          <TouchableOpacity key={item.id} activeOpacity={0.8} onPress={handlePress(item.id)}>
+          <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.id)}>
             <Box shadow={0} width={oneThirdWidth} flexDirection="column" p={gap / 2}>
               <Image
                 w={oneThirdWidth}

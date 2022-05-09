@@ -12,6 +12,7 @@ const {
   syncDict,
   clearCache,
   viewChapter,
+  viewPage,
   addFavorites,
   removeFavorites,
   loadSearch,
@@ -39,7 +40,7 @@ function* syncDataSaga() {
       const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
 
       let favorites: string[] = [];
-      let dict: RootState['dict'] = { manga: {}, chapter: {}, history: {} };
+      let dict: RootState['dict'] = { manga: {}, chapter: {} };
       if (favoritesData) {
         favorites = JSON.parse(favoritesData);
       }
@@ -59,6 +60,7 @@ function* storageDataSaga() {
   yield takeLatest(
     [
       viewChapter.type,
+      viewPage.type,
       addFavorites.type,
       removeFavorites.type,
       loadSearchCompletion.type,

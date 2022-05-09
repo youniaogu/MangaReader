@@ -23,7 +23,6 @@ const initialState: RootState = {
   dict: {
     manga: {},
     chapter: {},
-    history: {},
   },
 };
 
@@ -190,10 +189,15 @@ const dictSlice = createSlice({
     syncDict(_state, action: PayloadAction<RootState['dict']>) {
       return action.payload;
     },
-    viewChapter(state, action: PayloadAction<WatchHistory & { mangaId: string }>) {
-      const { mangaId, lastWatchChapterId, lastWatchPage } = action.payload;
+    viewChapter(state, action: PayloadAction<{ mangaId: string; chapterId: string }>) {
+      const { mangaId, chapterId } = action.payload;
 
-      state.history[mangaId] = { lastWatchChapterId, lastWatchPage };
+      state.manga[mangaId].lastWatchChapterId = chapterId;
+    },
+    viewPage(state, action: PayloadAction<{ mangaId: string; chapterId: string; page: number }>) {
+      const { mangaId, chapterId, page } = action.payload;
+
+      state.chapter[mangaId + '$$' + chapterId].lastWatchPage = page;
     },
   },
   extraReducers: {

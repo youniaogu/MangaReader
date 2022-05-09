@@ -16,8 +16,8 @@ const Search = ({ navigation: { navigate } }: StackHomeProps) => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(loadUpdate(true));
-  }, [dispatch]);
+    loadStatus === LoadStatus.Default && dispatch(loadUpdate(true));
+  }, [dispatch, loadStatus]);
 
   const handleLoadMore = () => {
     dispatch(loadUpdate());
@@ -35,7 +35,7 @@ const Search = ({ navigation: { navigate } }: StackHomeProps) => {
 
   return (
     <Bookshelf
-      list={list.map((item) => dict[item])}
+      list={list.map((item) => dict[item]).filter((item) => item !== undefined)}
       loadMore={handleLoadMore}
       itemOnPress={handleDetail}
     />

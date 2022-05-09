@@ -25,7 +25,12 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     return <Empty />;
   }
 
-  return <Bookshelf list={list.map((item) => dict[item])} itemOnPress={handleDetail} />;
+  return (
+    <Bookshelf
+      list={list.map((item) => dict[item]).filter((item) => item !== undefined)}
+      itemOnPress={handleDetail}
+    />
+  );
 };
 
 export const SearchAndAbout = () => {
