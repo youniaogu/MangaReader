@@ -17,6 +17,7 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 interface ReaderProps {
+  initPage?: number;
   data: {
     uri: string;
     headers: {
@@ -27,14 +28,14 @@ interface ReaderProps {
   goBack: () => void;
 }
 
-const Reader = ({ data, goBack, onPageChange }: ReaderProps) => {
-  const [current, setCurrent] = useState(0);
+const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
+  const [current, setCurrent] = useState(initPage - 1);
   const [maxIndex, setMaxIndex] = useState(current + 2);
   const [showExtra, setShowExtra] = useState(false);
   const width = useSharedValue(windowWidth * data.length);
   const height = useSharedValue(windowHeight);
-  const translationX = useSharedValue(0);
-  const savedTranslationX = useSharedValue(0);
+  const translationX = useSharedValue(-(initPage - 1) * windowWidth);
+  const savedTranslationX = useSharedValue(-(initPage - 1) * windowWidth);
   const animatedStyle = useAnimatedStyle(() => ({
     width: width.value,
     height: height.value,
@@ -42,7 +43,7 @@ const Reader = ({ data, goBack, onPageChange }: ReaderProps) => {
   }));
 
   useEffect(() => {
-    onPageChange && onPageChange(current);
+    onPageChange && onPageChange(current + 1);
   }, [current, onPageChange]);
 
   const handlePrev = () => {

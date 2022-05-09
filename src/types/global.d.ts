@@ -43,7 +43,7 @@ declare global {
     tag: string;
     status: UpdateStatus;
     chapters: ChapterItem[];
-    lastWatchChapterId: string | null;
+    lastWatchChapterId?: string;
   }
   declare interface Chapter {
     mangaId: string;

@@ -211,7 +211,7 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.id] = item;
+        state.manga[item.id] = { ...state.manga[item.id], ...item };
       });
     },
     [updateSlice.actions.loadUpdateCompletion.type]: (
@@ -224,7 +224,7 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.id] = item;
+        state.manga[item.id] = { ...state.manga[item.id], ...item };
       });
     },
     [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
@@ -233,7 +233,7 @@ const dictSlice = createSlice({
         return;
       }
 
-      state.manga[data.id] = data;
+      state.manga[data.id] = { ...state.manga[data.id], ...data };
     },
     [chapterSlice.actions.loadChapterCompletion.type]: (
       state,

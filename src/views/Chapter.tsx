@@ -32,7 +32,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     );
   }
 
-  return <Reader data={data.images} onPageChange={handlePageChange} goBack={handleGoBack} />;
+  return (
+    <Reader
+      initPage={data.lastWatchPage}
+      data={data.images}
+      onPageChange={handlePageChange}
+      goBack={handleGoBack}
+    />
+  );
 };
 
 export default Chapter;
