@@ -1,10 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
+import React, { useEffect } from 'react';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import {
   Image,
   StyleSheet,
@@ -44,6 +39,7 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
   const savedTranslationX = useSharedValue(0);
   const savedTranslationY = useSharedValue(0);
   const savedScale = useSharedValue(1);
+  const enabledPan = useSharedValue(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -53,7 +49,6 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
     ],
   }));
 
-  const [enabledPan, setEnabledPan] = useState(savedScale.value > 1);
   const doubleTapScaleValue = 2;
 
   useEffect(() => {
@@ -81,7 +76,7 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
         savedScale.value = 1;
         savedTranslationX.value = 0;
         savedTranslationY.value = 0;
-        runOnJS(setEnabledPan)(false);
+        enabledPan.value = false;
       } else {
         scale.value = withTiming(doubleTapScaleValue, { duration: 300 });
         const currentX = (windowWidth / doubleTapScaleValue - e.x) * (doubleTapScaleValue - 1);
@@ -98,7 +93,7 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
         savedScale.value = doubleTapScaleValue;
         savedTranslationX.value = currentX;
         savedTranslationY.value = currentY;
-        runOnJS(setEnabledPan)(doubleTapScaleValue > 1);
+        enabledPan.value = doubleTapScaleValue > 1;
       }
     });
   const pinchGesture = Gesture.Pinch()
@@ -138,17 +133,16 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
       savedScale.value = scale.value;
       savedTranslationX.value = translationX.value;
       savedTranslationY.value = translationY.value;
-      runOnJS(setEnabledPan)(scale.value > 1);
+      enabledPan.value = scale.value > 1;
     });
   const panGesture = Gesture.Pan()
-    .enabled(enabledPan)
+    .enabled(enabledPan.value)
     .onChange((e) => {
       'worklet';
       const currentX = translationX.value + e.changeX;
       const currentY = translationY.value + e.changeY;
 
       if (savedScale.value === 1) {
-        translationX.value = currentX;
         return;
       }
 

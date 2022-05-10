@@ -6,13 +6,13 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { Dimensions, TouchableWithoutFeedback } from 'react-native';
-import { View, IconButton, Icon, HStack, Center } from 'native-base';
+import { Box, IconButton, Icon, HStack, Center } from 'native-base';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Controller from '~/components/Controller';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const cacheSize = 4;
+const cacheSize = 5;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -29,9 +29,9 @@ interface ReaderProps {
 }
 
 const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
-  const [current, setCurrent] = useState(initPage - 1);
-  const [maxIndex, setMaxIndex] = useState(current + 2);
+  const [displayIndex, setDisplayIndex] = useState(initPage - 1);
   const [showExtra, setShowExtra] = useState(false);
+  const current = useSharedValue(initPage - 1);
   const length = useSharedValue(data.length);
   const width = useSharedValue(windowWidth * data.length);
   const height = useSharedValue(windowHeight);
@@ -44,43 +44,41 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
   }));
 
   useEffect(() => {
-    onPageChange && onPageChange(current + 1);
-  }, [current, onPageChange]);
+    onPageChange && onPageChange(displayIndex + 1);
+  }, [displayIndex, onPageChange]);
 
   const handlePrev = () => {
-    setCurrent(Math.max(current - 1, 0));
+    setDisplayIndex(Math.max(displayIndex - 1, 0));
   };
   const handleNext = () => {
-    const newCurrent = Math.min(current + 1, data.length - 1);
-    setCurrent(newCurrent);
-    setMaxIndex(Math.max(maxIndex, newCurrent + cacheSize));
+    setDisplayIndex(Math.min(displayIndex + 1, data.length - 1));
   };
 
   const panGesture = Gesture.Pan()
     .onChange((e) => {
       'worklet';
-      const currentX = translationX.value + e.changeX;
-
-      translationX.value = currentX;
+      translationX.value += e.changeX;
     })
     .onEnd(() => {
       'worklet';
       const distance = Math.abs(savedTranslationX.value - translationX.value);
       if (distance > 50) {
-        if (savedTranslationX.value > translationX.value && current < length.value - 1) {
-          translationX.value = withTiming(-(current + 1) * windowWidth, {
+        if (savedTranslationX.value > translationX.value && current.value < length.value - 1) {
+          translationX.value = withTiming(-(current.value + 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
-          savedTranslationX.value = -(current + 1) * windowWidth;
+          savedTranslationX.value = -(current.value + 1) * windowWidth;
+          current.value += 1;
           runOnJS(handleNext)();
           return;
         }
 
-        if (savedTranslationX.value < translationX.value && current > 0) {
-          translationX.value = withTiming(-(current - 1) * windowWidth, {
+        if (savedTranslationX.value < translationX.value && current.value > 0) {
+          translationX.value = withTiming(-(current.value - 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
-          savedTranslationX.value = -(current - 1) * windowWidth;
+          savedTranslationX.value = -(current.value - 1) * windowWidth;
+          current.value -= 1;
           runOnJS(handlePrev)();
           return;
         }
@@ -93,15 +91,15 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
 
   return (
     <TouchableWithoutFeedback onPress={() => setShowExtra(!showExtra)}>
-      <View w="full" h="full" overflow="hidden" bg="black">
+      <Box w="full" h="full" overflow="hidden" bg="black">
         <GestureDetector gesture={panGesture}>
           <Animated.FlatList
             horizontal
             data={data}
             style={animatedStyle}
             renderItem={({ item, index }) => {
-              if (Math.abs(index - current) > cacheSize) {
-                return null;
+              if (Math.abs(index - displayIndex) > cacheSize) {
+                return <Box w={windowWidth} bg="black" />;
               }
 
               return <Controller uri={item.uri} headers={item.headers} />;
@@ -118,11 +116,11 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
             />
 
             <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
-              {current + 1} / {data.length}
+              {displayIndex + 1} / {data.length}
             </Center>
           </HStack>
         )}
-      </View>
+      </Box>
     </TouchableWithoutFeedback>
   );
 };
