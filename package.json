@@ -10,6 +10,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "build:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
+    "clean": "react-native-clean-project",
     "preinstall": "npx only-allow yarn"
   },
   "dependencies": {
@@ -54,6 +55,7 @@
     "metro-react-native-babel-preset": "^0.66.2",
     "only-allow": "^1.1.0",
     "react-devtools": "^4.24.4",
+    "react-native-clean-project": "^4.0.1",
     "react-test-renderer": "17.0.2",
     "typescript": "^4.4.4"
   },
