@@ -32,6 +32,7 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
   const [current, setCurrent] = useState(initPage - 1);
   const [maxIndex, setMaxIndex] = useState(current + 2);
   const [showExtra, setShowExtra] = useState(false);
+  const length = useSharedValue(data.length);
   const width = useSharedValue(windowWidth * data.length);
   const height = useSharedValue(windowHeight);
   const translationX = useSharedValue(-(initPage - 1) * windowWidth);
@@ -66,21 +67,23 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
       'worklet';
       const distance = Math.abs(savedTranslationX.value - translationX.value);
       if (distance > 50) {
-        if (savedTranslationX.value > translationX.value) {
+        if (savedTranslationX.value > translationX.value && current < length.value - 1) {
           translationX.value = withTiming(-(current + 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
           savedTranslationX.value = -(current + 1) * windowWidth;
           runOnJS(handleNext)();
-        } else {
+          return;
+        }
+
+        if (savedTranslationX.value < translationX.value && current > 0) {
           translationX.value = withTiming(-(current - 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
           savedTranslationX.value = -(current - 1) * windowWidth;
           runOnJS(handlePrev)();
+          return;
         }
-
-        return;
       }
 
       translationX.value = withTiming(savedTranslationX.value, {

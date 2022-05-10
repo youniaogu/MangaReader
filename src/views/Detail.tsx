@@ -33,7 +33,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const handleChapter = (mangaId: string, chapterId: string) => {
     return () => {
-      navigation.navigate('Chapter', { mangaId, chapterId });
+      navigation.navigate('Chapter', {
+        mangaId,
+        chapterId,
+        page: chapterId === data.lastWatchChapterId ? data.lastWatchPage || 1 : 1,
+      });
     };
   };
   const handleReload = () => {

@@ -194,10 +194,10 @@ const dictSlice = createSlice({
 
       state.manga[mangaId].lastWatchChapterId = chapterId;
     },
-    viewPage(state, action: PayloadAction<{ mangaId: string; chapterId: string; page: number }>) {
-      const { mangaId, chapterId, page } = action.payload;
+    viewPage(state, action: PayloadAction<{ mangaId: string; page: number }>) {
+      const { mangaId, page } = action.payload;
 
-      state.chapter[mangaId + '$$' + chapterId].lastWatchPage = page;
+      state.manga[mangaId].lastWatchPage = page;
     },
   },
   extraReducers: {
@@ -275,7 +275,7 @@ export const action = {
   ...chapterAction,
   ...dictAction,
 };
-export const reducer = combineReducers({
+export const reducer = combineReducers<RootState>({
   app: appReducer,
   search: searchReducer,
   update: updateReducer,

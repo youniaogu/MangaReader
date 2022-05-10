@@ -17,7 +17,7 @@ declare global {
     Search: undefined;
     Result: undefined;
     Detail: { id: string };
-    Chapter: { mangaId: string; chapterId: string };
+    Chapter: { mangaId: string; chapterId: string; page: number };
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -44,6 +44,7 @@ declare global {
     status: UpdateStatus;
     chapters: ChapterItem[];
     lastWatchChapterId?: string;
+    lastWatchPage?: number;
   }
   declare interface Chapter {
     mangaId: string;
@@ -58,7 +59,6 @@ declare global {
     }[];
     nextId: string;
     prevId: string;
-    lastWatchPage: number;
   }
 
   declare interface RootState {

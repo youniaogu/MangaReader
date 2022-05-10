@@ -170,7 +170,6 @@ export function handleChapter(text: string): Chapter {
     }),
     nextId,
     prevId,
-    lastWatchPage: 1,
   };
 }
 
