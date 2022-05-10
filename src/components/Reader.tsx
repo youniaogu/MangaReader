@@ -12,7 +12,7 @@ import Controller from '~/components/Controller';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const cacheSize = 2;
+const cacheSize = 4;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -100,7 +100,7 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
             data={data}
             style={animatedStyle}
             renderItem={({ item, index }) => {
-              if (Math.abs(index - current) > cacheSize && index > maxIndex) {
+              if (Math.abs(index - current) > cacheSize) {
                 return null;
               }
 
