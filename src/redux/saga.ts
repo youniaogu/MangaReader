@@ -1,4 +1,14 @@
-import { all, put, take, fork, call, select, takeLatest, takeEvery } from 'redux-saga/effects';
+import {
+  all,
+  put,
+  take,
+  fork,
+  call,
+  select,
+  takeLatest,
+  takeEvery,
+  delay,
+} from 'redux-saga/effects';
 import { storageKey, fetchData, handleBookshelf, handleManga, handleChapter } from '~/utils';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,6 +79,7 @@ function* storageDataSaga() {
       loadChapterCompletion.type,
     ],
     function* () {
+      yield delay(2000);
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const dict = ((state: RootState) => state.dict)(yield select());
 
