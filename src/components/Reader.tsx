@@ -47,13 +47,6 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
     onPageChange && onPageChange(displayIndex + 1);
   }, [displayIndex, onPageChange]);
 
-  const handlePrev = () => {
-    setDisplayIndex(Math.max(displayIndex - 1, 0));
-  };
-  const handleNext = () => {
-    setDisplayIndex(Math.min(displayIndex + 1, data.length - 1));
-  };
-
   const panGesture = Gesture.Pan()
     .onChange((e) => {
       'worklet';
@@ -64,22 +57,22 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
       const distance = Math.abs(savedTranslationX.value - translationX.value);
       if (distance > 50) {
         if (savedTranslationX.value > translationX.value && current.value < length.value - 1) {
+          runOnJS(setDisplayIndex)(Math.min(current.value + 1, length.value - 1));
           translationX.value = withTiming(-(current.value + 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
           savedTranslationX.value = -(current.value + 1) * windowWidth;
           current.value += 1;
-          runOnJS(handleNext)();
           return;
         }
 
         if (savedTranslationX.value < translationX.value && current.value > 0) {
+          runOnJS(setDisplayIndex)(Math.max(current.value - 1, 0));
           translationX.value = withTiming(-(current.value - 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
           savedTranslationX.value = -(current.value - 1) * windowWidth;
           current.value -= 1;
-          runOnJS(handlePrev)();
           return;
         }
       }

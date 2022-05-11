@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Box, Flex, Image, Text, IconButton, Icon, FlatList } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { TouchableOpacity, Dimensions } from 'react-native';
@@ -9,7 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Loading from '~/components/Loading';
 
 const { LoadStatus } = window;
-const { loadManga, addFavorites, removeFavorites } = action;
+const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
@@ -119,7 +119,15 @@ export const Heart = () => {
   const route = useRoute<StackDetailProps['route']>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites);
+  const firstRender = useRef(true);
   const id = route.params.id;
+
+  useEffect(() => {
+    if (firstRender.current) {
+      favorites.includes(id) && dispatch(viewFavorites(id));
+      firstRender.current = false;
+    }
+  }, [favorites, dispatch, id]);
 
   const handleFavorite = () => {
     dispatch(addFavorites(id));

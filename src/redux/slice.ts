@@ -130,10 +130,15 @@ const favoritesSlice = createSlice({
   initialState: initialState.favorites,
   reducers: {
     addFavorites(state, action: PayloadAction<string>) {
-      state.push(action.payload);
+      state.unshift(action.payload);
     },
     removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item !== action.payload);
+    },
+    viewFavorites(state, action: PayloadAction<string>) {
+      const stateAfterFiltered = state.filter((item) => item !== action.payload);
+      stateAfterFiltered.unshift(action.payload);
+      return stateAfterFiltered;
     },
     syncFavorites(_state, action: PayloadAction<string[]>) {
       return action.payload;
