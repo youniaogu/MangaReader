@@ -79,7 +79,7 @@ function* storageDataSaga() {
       loadChapterCompletion.type,
     ],
     function* () {
-      yield delay(2000);
+      yield delay(3000);
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const dict = ((state: RootState) => state.dict)(yield select());
 
