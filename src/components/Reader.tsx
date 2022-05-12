@@ -89,6 +89,7 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
           <Animated.FlatList
             horizontal
             data={data}
+            scrollEnabled={false}
             style={animatedStyle}
             renderItem={({ item, index }) => {
               if (Math.abs(index - displayIndex) > cacheSize) {
