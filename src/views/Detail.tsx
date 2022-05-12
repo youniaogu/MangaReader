@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Box, Flex, Image, Text, IconButton, Icon, FlatList } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { coverAspectRatio, useFirstRender } from '~/utils';
 import { TouchableOpacity, Dimensions } from 'react-native';
-import { coverAspectRatio } from '~/utils';
 import { useRoute } from '@react-navigation/native';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -119,15 +119,13 @@ export const Heart = () => {
   const route = useRoute<StackDetailProps['route']>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites);
-  const firstRender = useRef(true);
   const id = route.params.id;
 
-  useEffect(() => {
-    if (firstRender.current) {
+  useFirstRender(
+    useCallback(() => {
       favorites.includes(id) && dispatch(viewFavorites(id));
-      firstRender.current = false;
-    }
-  }, [favorites, dispatch, id]);
+    }, [dispatch, favorites, id])
+  );
 
   const handleFavorite = () => {
     dispatch(addFavorites(id));
