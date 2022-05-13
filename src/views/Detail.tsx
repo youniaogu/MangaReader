@@ -49,7 +49,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   }
 
   return (
-    <Box w="full" h="full" safeAreaBottom>
+    <Box w="full" h="full">
       <Flex w="full" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
         <Image
           w={130}
@@ -79,18 +79,20 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       {loadStatus === LoadStatus.Rejected && <ErrorWithRetry onRetry={handleReload} />}
       {loadStatus === LoadStatus.Fulfilled && (
         <FlatList
+          h="full"
           p={gap / 2}
           numColumns={4}
           data={data.chapters}
           keyExtractor={(item) => item.chapterId}
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             const isActived = item.chapterId === data.lastWatchChapterId;
+            const isLastone = index + 1 === data.chapters.length;
             return (
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={handleChapter(item.mangaId, item.chapterId)}
               >
-                <Box w={quarterWidth} p={gap / 2}>
+                <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
                   <Text
                     bg={isActived ? '#6200ee' : 'transparent'}
                     color={isActived ? 'white' : '#717171'}
