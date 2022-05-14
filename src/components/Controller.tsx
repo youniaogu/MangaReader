@@ -1,16 +1,12 @@
-import React, { useEffect } from 'react';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import {
-  Image,
-  StyleSheet,
-  Dimensions,
-  NativeSyntheticEvent,
-  ImageErrorEventData,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Image, Dimensions, NativeSyntheticEvent, ImageErrorEventData } from 'react-native';
+import { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { scaleToFit } from '~/utils';
-import { View } from 'native-base';
+import { Box } from 'native-base';
+import ImageWithRetry from '~/components/ImageWithRetry';
 
+const doubleTapScaleValue = 2;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
@@ -22,7 +18,8 @@ interface ControllerProps {
   onError?: (e: NativeSyntheticEvent<ImageErrorEventData>) => void;
 }
 
-const Controller = ({ uri, headers, onError }: ControllerProps) => {
+const Controller = ({ uri, headers }: ControllerProps) => {
+  const [enabled, setEnabled] = useState(false);
   const width = useSharedValue(0);
   const height = useSharedValue(0);
 
@@ -39,7 +36,6 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
   const savedTranslationX = useSharedValue(0);
   const savedTranslationY = useSharedValue(0);
   const savedScale = useSharedValue(1);
-  const enabledPan = useSharedValue(false);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -48,8 +44,6 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
       { scale: scale.value },
     ],
   }));
-
-  const doubleTapScaleValue = 2;
 
   useEffect(() => {
     Image.getSizeWithHeaders(uri, headers, (w, h) => {
@@ -76,7 +70,7 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
         savedScale.value = 1;
         savedTranslationX.value = 0;
         savedTranslationY.value = 0;
-        enabledPan.value = false;
+        runOnJS(setEnabled)(false);
       } else {
         scale.value = withTiming(doubleTapScaleValue, { duration: 300 });
         const currentX = (windowWidth / doubleTapScaleValue - e.x) * (doubleTapScaleValue - 1);
@@ -93,7 +87,7 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
         savedScale.value = doubleTapScaleValue;
         savedTranslationX.value = currentX;
         savedTranslationY.value = currentY;
-        enabledPan.value = doubleTapScaleValue > 1;
+        runOnJS(setEnabled)(doubleTapScaleValue > 1);
       }
     });
   const pinchGesture = Gesture.Pinch()
@@ -133,10 +127,10 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
       savedScale.value = scale.value;
       savedTranslationX.value = translationX.value;
       savedTranslationY.value = translationY.value;
-      enabledPan.value = scale.value > 1;
+      runOnJS(setEnabled)(scale.value > 1);
     });
   const panGesture = Gesture.Pan()
-    .enabled(enabledPan.value)
+    .enabled(enabled)
     .onChange((e) => {
       'worklet';
       const currentX = translationX.value + e.changeX;
@@ -146,10 +140,18 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
         return;
       }
 
-      if (currentX >= -left.value && currentX <= right.value) {
+      if (
+        (currentX >= -left.value && currentX <= right.value) ||
+        (currentX < -left.value && currentX > translationX.value) ||
+        (currentX > right.value && currentX < translationX.value)
+      ) {
         translationX.value = currentX;
       }
-      if (currentY >= -top.value && currentY <= bottom.value) {
+      if (
+        (currentY >= -top.value && currentY <= bottom.value) ||
+        (currentY < -top.value && currentY > translationY.value) ||
+        (currentY > bottom.value && currentY < translationY.value)
+      ) {
         translationY.value = currentY;
       }
     })
@@ -160,36 +162,18 @@ const Controller = ({ uri, headers, onError }: ControllerProps) => {
     });
 
   return (
-    <View w={windowWidth} h={windowHeight} bg="black">
+    <Box w={windowWidth} h={windowHeight} bg="black">
       <GestureDetector gesture={doubleTap}>
         <GestureDetector gesture={pinchGesture}>
           <GestureDetector gesture={panGesture}>
-            <Animated.View style={[styles.wrapper, animatedStyle]}>
-              <Image
-                source={{ uri, headers }}
-                style={styles.img}
-                resizeMode="contain"
-                onError={onError}
-              />
-            </Animated.View>
+            <Box safeArea>
+              <ImageWithRetry source={{ uri, headers }} animatedStyle={animatedStyle} />
+            </Box>
           </GestureDetector>
         </GestureDetector>
       </GestureDetector>
-    </View>
+    </Box>
   );
 };
-
-const styles = StyleSheet.create({
-  wrapper: {
-    height: '100%',
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  img: {
-    width: '100%',
-    height: '100%',
-  },
-});
 
 export default Controller;
