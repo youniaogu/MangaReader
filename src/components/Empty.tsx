@@ -5,7 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Empty = () => {
   return (
-    <Center w="full" h="48">
+    <Center w="full" h={48}>
       <IconButton
         icon={<Icon as={MaterialIcons} name="sentiment-neutral" size="4xl" color="gray.500" />}
       />

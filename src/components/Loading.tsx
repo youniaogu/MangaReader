@@ -7,7 +7,7 @@ interface LoadingProps {
 
 const Loading = ({ color = '#6200ee' }: LoadingProps) => {
   return (
-    <Center w="full" h="48">
+    <Center w="full" h={48}>
       <Spinner color={color} size="lg" accessibilityLabel="loading" />
     </Center>
   );

@@ -24,13 +24,13 @@ const Header = (headerProps: NativeStackHeaderProps) => {
       <Box safeAreaTop bg="#6200ee" />
       <HStack
         bg="#6200ee"
-        px="1"
-        py="3"
+        px={1}
+        py={3}
         w="100%"
         justifyContent="space-between"
         alignItems="center"
       >
-        <HStack flex="1" justifyContent="flex-start" alignItems="center">
+        <HStack flex={1} justifyContent="flex-start" alignItems="center">
           {canGoBack ? (
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
@@ -39,7 +39,7 @@ const Header = (headerProps: NativeStackHeaderProps) => {
           ) : (
             <IconButton icon={<Icon as={MaterialIcons} name="home" size={30} color="white" />} />
           )}
-          <Text maxW="5/6" color="white" fontSize="25" fontWeight="bold" numberOfLines={1}>
+          <Text maxW="5/6" color="white" fontSize={25} fontWeight="bold" numberOfLines={1}>
             {title}
           </Text>
           {Left}

@@ -12,7 +12,7 @@ const About = () => {
   };
 
   return (
-    <VStack pt="9" space={9} alignItems="center">
+    <VStack pt={9} space={9} alignItems="center">
       <Button shadow={2} onPress={handleCacheClear}>
         Clear Cache
       </Button>

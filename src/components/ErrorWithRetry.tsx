@@ -9,7 +9,7 @@ interface ErrorWithRetryProps {
 
 const ErrorWithRetry = ({ onRetry }: ErrorWithRetryProps) => {
   return (
-    <Center w="full" h="48">
+    <Center w="full" h={48}>
       {onRetry && (
         <IconButton
           icon={<Icon as={MaterialIcons} name="replay" size="4xl" color="gray.500" />}

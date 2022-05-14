@@ -42,7 +42,7 @@ export const SearchAndAbout = () => {
   };
 
   return (
-    <HStack flexShrink="0">
+    <HStack flexShrink={0}>
       <IconButton
         icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
         onPress={handleSearch}
