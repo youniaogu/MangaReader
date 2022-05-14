@@ -5,8 +5,8 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import { Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { Box, IconButton, Icon, HStack, Center } from 'native-base';
+import { Dimensions, TouchableWithoutFeedback } from 'react-native';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Controller from '~/components/Controller';
 
@@ -29,7 +29,7 @@ interface ReaderProps {
 }
 
 const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
-  const [displayIndex, setDisplayIndex] = useState(initPage - 1);
+  const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
   const current = useSharedValue(initPage - 1);
   const length = useSharedValue(data.length);
@@ -44,8 +44,12 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
   }));
 
   useEffect(() => {
-    onPageChange && onPageChange(displayIndex + 1);
-  }, [displayIndex, onPageChange]);
+    onPageChange && onPageChange(page);
+  }, [page, onPageChange]);
+
+  const changePage = (newCurrent: number) => {
+    setPage(newCurrent + 1);
+  };
 
   const panGesture = Gesture.Pan()
     .onChange((e) => {
@@ -57,7 +61,7 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
       const distance = Math.abs(savedTranslationX.value - translationX.value);
       if (distance > 50) {
         if (savedTranslationX.value > translationX.value && current.value < length.value - 1) {
-          runOnJS(setDisplayIndex)(Math.min(current.value + 1, length.value - 1));
+          runOnJS(changePage)(Math.min(current.value + 1, length.value - 1));
           translationX.value = withTiming(-(current.value + 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
@@ -67,7 +71,7 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
         }
 
         if (savedTranslationX.value < translationX.value && current.value > 0) {
-          runOnJS(setDisplayIndex)(Math.max(current.value - 1, 0));
+          runOnJS(changePage)(Math.max(current.value - 1, 0));
           translationX.value = withTiming(-(current.value - 1) * windowWidth, {
             duration: (1 - distance / windowWidth) * 300,
           });
@@ -89,10 +93,11 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
           <Animated.FlatList
             horizontal
             data={data}
+            initialNumToRender={1}
             scrollEnabled={false}
             style={animatedStyle}
             renderItem={({ item, index }) => {
-              if (Math.abs(index - displayIndex) > cacheSize) {
+              if (Math.abs(index - page) > cacheSize) {
                 return <Box w={windowWidth} bg="black" />;
               }
 
@@ -110,7 +115,7 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
             />
 
             <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
-              {displayIndex + 1} / {data.length}
+              {page} / {data.length}
             </Center>
           </HStack>
         )}

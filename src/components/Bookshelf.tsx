@@ -21,37 +21,41 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
   };
 
   return (
-    <Box safeAreaBottom>
-      <FlatList
-        p={gap / 2}
-        numColumns={3}
-        data={list}
-        onEndReached={loadMore}
-        onEndReachedThreshold={1}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
-          return (
-            <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.id)}>
-              <Box shadow={0} width={oneThirdWidth} flexDirection="column" p={gap / 2}>
-                <Image
-                  w={oneThirdWidth}
-                  h={oneThirdWidth / coverAspectRatio}
-                  borderRadius="md"
-                  source={{
-                    uri: item.cover,
-                  }}
-                  resizeMode="cover"
-                  alt="cover"
-                />
-                <Text shadow="none" pt={1} fontSize="md" fontWeight="bold" numberOfLines={1}>
-                  {item.title}
-                </Text>
-              </Box>
-            </TouchableOpacity>
-          );
-        }}
-      />
-    </Box>
+    <FlatList
+      p={gap / 2}
+      numColumns={3}
+      data={list}
+      onEndReached={loadMore}
+      onEndReachedThreshold={1}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item, index }) => {
+        return (
+          <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.id)}>
+            <Box
+              shadow={0}
+              width={oneThirdWidth}
+              flexDirection="column"
+              p={gap / 2}
+              safeAreaBottom={index + 1 === list.length ? true : undefined}
+            >
+              <Image
+                w={oneThirdWidth}
+                h={oneThirdWidth / coverAspectRatio}
+                borderRadius="md"
+                source={{
+                  uri: item.cover,
+                }}
+                resizeMode="cover"
+                alt="cover"
+              />
+              <Text shadow="none" pt={1} fontSize="md" fontWeight="bold" numberOfLines={1}>
+                {item.title}
+              </Text>
+            </Box>
+          </TouchableOpacity>
+        );
+      }}
+    />
   );
 };
 
