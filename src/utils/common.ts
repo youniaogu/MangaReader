@@ -1,4 +1,5 @@
 import queryString from 'query-string';
+import LZString from 'lz-string';
 import cheerio from 'cheerio';
 
 const { UpdateStatus } = window;
@@ -89,23 +90,52 @@ export function handleManga(text: string): Manga {
     .map((dl) => cheerio.load(dl).root().text());
   const statusLabel = $('div.thumb i').first().text(); // 连载 or 完结
 
-  $('#chapterList > ul > li > a')
-    .toArray()
-    .forEach((item) => {
-      const $$ = cheerio.load(item);
-      const title = $$('b').first().text();
-      const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
-      const [mangaId, chapterId] = firstMatch(href.match(PATTERN_CHAPTER_ID))
-        .replace('https://m.manhuagui.com/comic/', '')
-        .split('/');
+  const isAudit = $('#erroraudit_show').length > 0;
 
-      chapters.push({
-        mangaId,
-        chapterId,
-        href,
-        title,
+  if (isAudit) {
+    const encodeHtml = $('#__VIEWSTATE').first().attr('value') || '';
+    const decodeHtml = LZString.decompressFromBase64(encodeHtml);
+
+    if (decodeHtml) {
+      const $$ = cheerio.load(decodeHtml);
+
+      $$('ul > li > a')
+        .toArray()
+        .forEach((item) => {
+          const $$$ = cheerio.load(item);
+          const title = $$$('b').first().text();
+          const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
+          const [mangaId, chapterId] = firstMatch(href.match(PATTERN_CHAPTER_ID))
+            .replace('https://m.manhuagui.com/comic/', '')
+            .split('/');
+
+          chapters.push({
+            mangaId,
+            chapterId,
+            href,
+            title,
+          });
+        });
+    }
+  } else {
+    $('#chapterList > ul > li > a')
+      .toArray()
+      .forEach((item) => {
+        const $$ = cheerio.load(item);
+        const title = $$('b').first().text();
+        const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
+        const [mangaId, chapterId] = firstMatch(href.match(PATTERN_CHAPTER_ID))
+          .replace('https://m.manhuagui.com/comic/', '')
+          .split('/');
+
+        chapters.push({
+          mangaId,
+          chapterId,
+          href,
+          title,
+        });
       });
-    });
+  }
 
   if (statusLabel === '连载') {
     manga.status = 1;
