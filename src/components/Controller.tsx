@@ -162,17 +162,15 @@ const Controller = ({ uri, headers }: ControllerProps) => {
     });
 
   return (
-    <Box w={windowWidth} h={windowHeight} bg="black">
-      <GestureDetector gesture={doubleTap}>
-        <GestureDetector gesture={pinchGesture}>
-          <GestureDetector gesture={panGesture}>
-            <Box safeArea>
-              <ImageWithRetry source={{ uri, headers }} animatedStyle={animatedStyle} />
-            </Box>
-          </GestureDetector>
+    <GestureDetector gesture={doubleTap}>
+      <GestureDetector gesture={pinchGesture}>
+        <GestureDetector gesture={panGesture}>
+          <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
+            <ImageWithRetry uri={uri} headers={headers} animatedStyle={animatedStyle} />
+          </Box>
         </GestureDetector>
       </GestureDetector>
-    </Box>
+    </GestureDetector>
   );
 };
 

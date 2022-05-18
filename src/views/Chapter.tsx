@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFirstRender } from '~/utils';
 import { Center } from 'native-base';
@@ -11,7 +11,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaId, chapterId, page } = route.params || {};
   const dispatch = useAppDispatch();
   const chapterDict = useAppSelector((state) => state.dict.chapter);
-  const data = chapterDict[mangaId + '$$' + chapterId];
+  const data = useMemo(
+    () => chapterDict[mangaId + '$$' + chapterId],
+    [chapterDict, mangaId, chapterId]
+  );
 
   useFirstRender(
     useCallback(() => {

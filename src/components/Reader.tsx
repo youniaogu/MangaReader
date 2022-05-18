@@ -12,7 +12,7 @@ import Controller from '~/components/Controller';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const cacheSize = 5;
+const cacheSize = 3;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 

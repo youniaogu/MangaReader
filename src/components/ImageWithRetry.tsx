@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, TransformsStyle, ImageSourcePropType } from 'react-native';
-import { Box, Center, Image, IconButton, Icon } from 'native-base';
+import { Center, Image, IconButton, Icon } from 'native-base';
+import { StyleSheet, TransformsStyle } from 'react-native';
+import { CachedImage } from '@georstat/react-native-image-cache';
+import { nanoid } from '@reduxjs/toolkit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Animated from 'react-native-reanimated';
 
@@ -8,16 +10,15 @@ const { LoadStatus } = window;
 const loadingGif = require('~/assets/groundPound.gif');
 
 interface StatusImageProps {
-  source: ImageSourcePropType;
+  uri: string;
+  headers?: { [name: string]: string };
   animatedStyle?: TransformsStyle;
 }
 
-const StatusImage = ({ source, animatedStyle }: StatusImageProps) => {
-  const [loadStatus, setLoadStatus] = useState(LoadStatus.Default);
+const ImageWithRetry = ({ uri, headers, animatedStyle }: StatusImageProps) => {
+  const [retryHash, setRetryHash] = useState(nanoid());
+  const [loadStatus, setLoadStatus] = useState(LoadStatus.Pending);
 
-  const handleLoadStart = () => {
-    setLoadStatus(LoadStatus.Pending);
-  };
   const handleLoadSuccess = () => {
     setLoadStatus(LoadStatus.Fulfilled);
   };
@@ -26,6 +27,7 @@ const StatusImage = ({ source, animatedStyle }: StatusImageProps) => {
   };
   const handleRetry = () => {
     setLoadStatus(LoadStatus.Pending);
+    setRetryHash(nanoid());
   };
 
   if (loadStatus === LoadStatus.Rejected) {
@@ -41,21 +43,22 @@ const StatusImage = ({ source, animatedStyle }: StatusImageProps) => {
   }
 
   return (
-    <Box position="relative">
-      <Animated.Image
-        source={source}
-        style={[styles.img, animatedStyle]}
+    <Animated.View style={animatedStyle}>
+      <CachedImage
+        key={retryHash}
+        source={uri}
+        options={{ headers }}
+        style={styles.img}
         resizeMode="contain"
-        onLoadStart={handleLoadStart}
         onLoad={handleLoadSuccess}
         onError={handleError}
+        loadingImageComponent={() => (
+          <Center position="absolute" w="full" h="full" bg="black">
+            <Image w="1/3" source={loadingGif} resizeMode="contain" alt="loading" />
+          </Center>
+        )}
       />
-      {loadStatus === LoadStatus.Pending && (
-        <Center position="absolute" w="full" h="full" bg="black" zIndex={1}>
-          <Image w="1/3" source={loadingGif} resizeMode="contain" alt="loading" />
-        </Center>
-      )}
-    </Box>
+    </Animated.View>
   );
 };
 
@@ -66,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default StatusImage;
+export default ImageWithRetry;
