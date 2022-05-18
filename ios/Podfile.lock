@@ -300,6 +300,9 @@ PODS:
   - React-jsinspector (0.68.1)
   - React-logger (0.68.1):
     - glog
+  - react-native-file-access (2.4.1):
+    - React-Core
+    - ZIPFoundation (< 0.9.12)
   - react-native-safe-area-context (4.2.5):
     - RCT-Folly
     - RCTRequired
@@ -413,6 +416,7 @@ PODS:
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
+  - ZIPFoundation (0.9.11)
 
 DEPENDENCIES:
   - boost (from `../node_modules/react-native/third-party-podspecs/boost.podspec`)
@@ -460,6 +464,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-file-access (from `../node_modules/react-native-file-access`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -499,6 +504,7 @@ SPEC REPOS:
     - OpenSSL-Universal
     - SocketRocket
     - YogaKit
+    - ZIPFoundation
 
 EXTERNAL SOURCES:
   boost:
@@ -539,6 +545,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-file-access:
+    :path: "../node_modules/react-native-file-access"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-perflogger:
@@ -614,6 +622,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 4a4bae5671b064a2248a690cf75957669489d08c
   React-jsinspector: 218a2503198ff28a085f8e16622a8d8f507c8019
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
+  react-native-file-access: 8c7b3c8935f7f33e31e16439b5882caa620cc493
   react-native-safe-area-context: ebf8c413eb8b5f7c392a036a315eb7b46b96845f
   React-perflogger: 30ab8d6db10e175626069e742eead3ebe8f24fd5
   React-RCTActionSheet: 4b45da334a175b24dabe75f856b98fed3dfd6201
@@ -636,6 +645,7 @@ SPEC CHECKSUMS:
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   Yoga: 17cd9a50243093b547c1e539c749928dd68152da
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
+  ZIPFoundation: b1f0de4eed33e74a676f76e12559ab6b75990197
 
 PODFILE CHECKSUM: 439e63790531d57a7e70b9fb24f88e76e95753b1
 

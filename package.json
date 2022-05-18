@@ -24,6 +24,7 @@
     "query-string": "^7.1.1",
     "react": "17.0.2",
     "react-native": "0.68.1",
+    "react-native-file-access": "^2.4.1",
     "react-native-gesture-handler": "^2.4.2",
     "react-native-reanimated": "^2.8.0",
     "react-native-safe-area-context": "^4.2.5",
