@@ -826,6 +826,16 @@
   dependencies:
     tslib "^2.1.0"
 
+"@georstat/react-native-image-cache@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.npmjs.org/@georstat/react-native-image-cache/-/react-native-image-cache-2.1.0.tgz#c423b0657e8d7e107c29d318063b74d017bf77e6"
+  integrity sha512-RIEFABOwJAwX9eXecZ2kAjaTwi3cRDqoEGGynTvxVpeC4RZGTmt39Q4g6zALRbnH19rkAj5nvouwwlm+XW1Zmw==
+  dependencies:
+    crypto-js "^4.1.1"
+    lodash "^4.17.21"
+    react-native-file-access "^2.4.1"
+    react-native-reanimated "^2.8.0"
+
 "@hapi/hoek@^9.0.0":
   version "9.3.0"
   resolved "https://registry.npmjs.org/@hapi/hoek/-/hoek-9.3.0.tgz#8368869dcb735be2e7f5cb7647de78e167a251fb"
@@ -3470,6 +3480,11 @@ cross-spawn@^7.0.0, cross-spawn@^7.0.2:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
     which "^2.0.1"
+
+crypto-js@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.npmjs.org/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
+  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
 
 css-select@^4.2.1, css-select@^4.3.0:
   version "4.3.0"
@@ -7013,6 +7028,11 @@ react-native-codegen@^0.0.13:
     flow-parser "^0.121.0"
     jscodeshift "^0.13.1"
     nullthrows "^1.1.1"
+
+react-native-file-access@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.npmjs.org/react-native-file-access/-/react-native-file-access-2.4.1.tgz#cd2191771ba41542d20037c07102bbab505d2c69"
+  integrity sha512-f+cPyveRpUPDYFA6+f81/vfzPRSpfniwDiO/Ynh2D374J2bE9nqLK4aRWWeQU4J13OPfzfySLG3x8NguLrkAww==
 
 react-native-gesture-handler@^2.4.2:
   version "2.4.2"
