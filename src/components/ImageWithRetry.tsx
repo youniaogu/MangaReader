@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Center, Image, IconButton, Icon } from 'native-base';
+import { Image, Center, IconButton, Icon } from 'native-base';
 import { StyleSheet, TransformsStyle } from 'react-native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { nanoid } from '@reduxjs/toolkit';
@@ -7,7 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Animated from 'react-native-reanimated';
 
 const { LoadStatus } = window;
-const loadingGif = require('~/assets/groundPound.gif');
+const loadingGif = require('~/assets/ground-pound.gif');
 
 interface StatusImageProps {
   uri: string;
@@ -22,8 +22,10 @@ const ImageWithRetry = ({ uri, headers, animatedStyle }: StatusImageProps) => {
   const handleLoadSuccess = () => {
     setLoadStatus(LoadStatus.Fulfilled);
   };
-  const handleError = () => {
-    setLoadStatus(LoadStatus.Rejected);
+  const handleError = (event?: { nativeEvent: { error: Error } }) => {
+    if (event?.nativeEvent.error.message === 'Could not load image') {
+      setLoadStatus(LoadStatus.Rejected);
+    }
   };
   const handleRetry = () => {
     setLoadStatus(LoadStatus.Pending);
