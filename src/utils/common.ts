@@ -22,7 +22,7 @@ export function firstMatch(matchResult: ReturnType<typeof String.prototype.match
 
 /** extract data from bookshelf */
 export function handleBookshelf(text: string): Manga[] {
-  const $ = cheerio.load(text);
+  const $ = cheerio.load(text || '');
   const list: Manga[] = [];
 
   $('li > a')
@@ -71,7 +71,7 @@ export function handleBookshelf(text: string): Manga[] {
 
 /** extract data from manga detail */
 export function handleManga(text: string): Manga {
-  const $ = cheerio.load(text);
+  const $ = cheerio.load(text || '');
   const manga: Manga = {
     id: '',
     cover: '',
@@ -156,7 +156,7 @@ export function handleManga(text: string): Manga {
 }
 
 export function handleChapter(text: string): Chapter {
-  const $ = cheerio.load(text);
+  const $ = cheerio.load(text || '');
   const script = (
     ($('script:not([src])').eq(0)[0] as unknown as HTMLScriptElement).children[0] as Element & {
       data: string;

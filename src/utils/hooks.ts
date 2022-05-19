@@ -32,3 +32,14 @@ export const useIndexCache = (
 
   return [indexList, putIndex];
 };
+
+export const useUpdate = (fn: () => void) => {
+  const firstRender = useRef(true);
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+    }
+    fn();
+  }, [fn]);
+};

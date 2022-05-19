@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { Image, Center, IconButton, Icon } from 'native-base';
-import { StyleSheet, TransformsStyle } from 'react-native';
 import { CachedImage } from '@georstat/react-native-image-cache';
+import { StyleSheet } from 'react-native';
 import { nanoid } from '@reduxjs/toolkit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Animated from 'react-native-reanimated';
 
 const { LoadStatus } = window;
 const loadingGif = require('~/assets/ground-pound.gif');
@@ -12,10 +11,9 @@ const loadingGif = require('~/assets/ground-pound.gif');
 interface StatusImageProps {
   uri: string;
   headers?: { [name: string]: string };
-  animatedStyle?: TransformsStyle;
 }
 
-const ImageWithRetry = ({ uri, headers, animatedStyle }: StatusImageProps) => {
+const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
   const [retryHash, setRetryHash] = useState(nanoid());
   const [loadStatus, setLoadStatus] = useState(LoadStatus.Pending);
 
@@ -45,22 +43,20 @@ const ImageWithRetry = ({ uri, headers, animatedStyle }: StatusImageProps) => {
   }
 
   return (
-    <Animated.View style={animatedStyle}>
-      <CachedImage
-        key={retryHash}
-        source={uri}
-        options={{ headers }}
-        style={styles.img}
-        resizeMode="contain"
-        onLoad={handleLoadSuccess}
-        onError={handleError}
-        loadingImageComponent={() => (
-          <Center position="absolute" w="full" h="full" bg="black">
-            <Image w="1/3" source={loadingGif} resizeMode="contain" alt="loading" />
-          </Center>
-        )}
-      />
-    </Animated.View>
+    <CachedImage
+      key={retryHash}
+      source={uri}
+      options={{ headers }}
+      style={styles.img}
+      resizeMode="contain"
+      onLoad={handleLoadSuccess}
+      onError={handleError}
+      loadingImageComponent={() => (
+        <Center position="absolute" w="full" h="full" bg="black">
+          <Image w="1/3" source={loadingGif} resizeMode="contain" alt="loading" />
+        </Center>
+      )}
+    />
   );
 };
 

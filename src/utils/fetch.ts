@@ -38,7 +38,7 @@ export const fetchData = ({
     url = process.env.PROXY + '?target=' + encodeURIComponent(url);
   }
 
-  return new Promise((res, rej) => {
+  return new Promise((res) => {
     try {
       fetch(url, init)
         .then((response) => {
@@ -53,10 +53,10 @@ export const fetchData = ({
           res({ error: undefined, data });
         })
         .catch((error) => {
-          rej({ error, data: undefined });
+          res({ error, data: undefined });
         });
     } catch (error) {
-      rej({ error, data: undefined });
+      res({ error, data: undefined });
     }
   });
 };

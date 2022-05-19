@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
-import { Box, Flex, Image, Text, IconButton, Icon, FlatList } from 'native-base';
+import { StyleSheet, TouchableOpacity, Dimensions, RefreshControl } from 'react-native';
+import { Box, Flex, Text, IconButton, Icon, FlatList } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { coverAspectRatio, useFirstRender } from '~/utils';
-import { TouchableOpacity, Dimensions } from 'react-native';
+import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
-import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Loading from '~/components/Loading';
 
 const { LoadStatus } = window;
 const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
@@ -51,16 +50,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   return (
     <Box w="full" h="full">
       <Flex w="full" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
-        <Image
-          w={130}
-          h={130 / coverAspectRatio}
-          flexGrow={0}
-          flexShrink={0}
-          source={{ uri: data.cover }}
-          resizeMode="cover"
-          borderRadius="md"
-          alt="cover"
-        />
+        <CachedImage source={data.cover} style={styles.img} resizeMode="cover" />
         <Flex flexGrow={1} flexShrink={1} pl={4}>
           <Text color="white" fontSize={20} fontWeight="bold" numberOfLines={2}>
             {data.title}
@@ -75,44 +65,47 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         </Flex>
       </Flex>
 
-      {loadStatus === LoadStatus.Pending && <Loading />}
-      {loadStatus === LoadStatus.Rejected && <ErrorWithRetry onRetry={handleReload} />}
-      {loadStatus === LoadStatus.Fulfilled && (
-        <FlatList
-          h="full"
-          p={gap / 2}
-          numColumns={4}
-          data={data.chapters}
-          keyExtractor={(item) => item.chapterId}
-          renderItem={({ item, index }) => {
-            const isActived = item.chapterId === data.lastWatchChapterId;
-            const isLastone = index + 1 === data.chapters.length;
-            return (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleChapter(item.mangaId, item.chapterId)}
-              >
-                <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
-                  <Text
-                    bg={isActived ? '#6200ee' : 'transparent'}
-                    color={isActived ? 'white' : '#717171'}
-                    borderColor="#717171"
-                    overflow="hidden"
-                    borderRadius="md"
-                    borderWidth={isActived ? 0 : 0.5}
-                    textAlign="center"
-                    numberOfLines={1}
-                    fontWeight="bold"
-                    p={[1, 0]}
-                  >
-                    {item.title}
-                  </Text>
-                </Box>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      )}
+      <FlatList
+        h="full"
+        p={gap / 2}
+        numColumns={4}
+        data={data.chapters}
+        refreshControl={
+          <RefreshControl
+            refreshing={loadStatus === LoadStatus.Pending}
+            onRefresh={handleReload}
+            tintColor="#6200ee"
+          />
+        }
+        renderItem={({ item, index }) => {
+          const isActived = item.chapterId === data.lastWatchChapterId;
+          const isLastone = index + 1 === data.chapters.length;
+          return (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleChapter(item.mangaId, item.chapterId)}
+            >
+              <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
+                <Text
+                  bg={isActived ? '#6200ee' : 'transparent'}
+                  color={isActived ? 'white' : '#717171'}
+                  borderColor="#717171"
+                  overflow="hidden"
+                  borderRadius="md"
+                  borderWidth={isActived ? 0 : 0.5}
+                  textAlign="center"
+                  numberOfLines={1}
+                  fontWeight="bold"
+                  p={[1, 0]}
+                >
+                  {item.title}
+                </Text>
+              </Box>
+            </TouchableOpacity>
+          );
+        }}
+        keyExtractor={(item) => item.chapterId}
+      />
     </Box>
   );
 };
@@ -151,5 +144,16 @@ export const Heart = () => {
     />
   );
 };
+
+const styles = StyleSheet.create({
+  img: {
+    width: 130,
+    height: 130 / coverAspectRatio,
+    flexGrow: 0,
+    flexShrink: 0,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+});
 
 export default Detail;

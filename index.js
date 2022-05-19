@@ -8,10 +8,9 @@ import App from '~/App';
 
 CacheManager.config = {
   baseDir: `${Dirs.CacheDir}/images_cache/`,
-  blurRadius: 15,
-  cacheLimit: 0,
-  sourceAnimationDuration: 1000,
-  thumbnailAnimationDuration: 1000,
+  cacheLimit: 1024 * 1024 * 512,
+  sourceAnimationDuration: 500,
+  thumbnailAnimationDuration: 500,
 };
 
 if (process.env.NODE_ENV === window.env.DEV) {

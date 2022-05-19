@@ -5,6 +5,7 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { scaleToFit } from '~/utils';
 import { Box } from 'native-base';
 import ImageWithRetry from '~/components/ImageWithRetry';
+import Animated from 'react-native-reanimated';
 
 const doubleTapScaleValue = 2;
 const windowWidth = Dimensions.get('window').width;
@@ -166,7 +167,9 @@ const Controller = ({ uri, headers }: ControllerProps) => {
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
           <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
-            <ImageWithRetry uri={uri} headers={headers} animatedStyle={animatedStyle} />
+            <Animated.View style={animatedStyle}>
+              <ImageWithRetry uri={uri} headers={headers} />
+            </Animated.View>
           </Box>
         </GestureDetector>
       </GestureDetector>
