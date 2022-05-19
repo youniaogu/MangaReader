@@ -191,7 +191,7 @@ export function handleChapter(text: string): Chapter {
     title: chapterTitle,
     images: images.map((item: string) => {
       return {
-        uri: encodeURI('https://i.hamreus.com' + item + '?' + queryString.stringify(sl)),
+        uri: encodeURI(decodeURI('https://i.hamreus.com' + item + '?' + queryString.stringify(sl))),
         headers: {
           Host: 'i.hamreus.com',
           referer: 'https://m.manhuagui.com/',
