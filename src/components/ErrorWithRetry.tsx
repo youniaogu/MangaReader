@@ -1,6 +1,5 @@
 import React from 'react';
 import { Center, Icon, IconButton } from 'native-base';
-
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 interface ErrorWithRetryProps {

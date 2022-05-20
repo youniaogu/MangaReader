@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Image, Dimensions, NativeSyntheticEvent, ImageErrorEventData } from 'react-native';
 import { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
@@ -177,4 +177,4 @@ const Controller = ({ uri, headers }: ControllerProps) => {
   );
 };
 
-export default Controller;
+export default memo(Controller);

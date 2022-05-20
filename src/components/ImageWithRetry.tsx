@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Image, Center, IconButton, Icon } from 'native-base';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { StyleSheet } from 'react-native';
@@ -67,4 +67,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ImageWithRetry;
+export default memo(ImageWithRetry);

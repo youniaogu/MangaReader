@@ -1,6 +1,5 @@
 import React from 'react';
 import { Center, Heading, Icon, IconButton } from 'native-base';
-
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Empty = () => {
