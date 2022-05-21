@@ -8,9 +8,9 @@ import App from '~/App';
 
 CacheManager.config = {
   baseDir: `${Dirs.CacheDir}/images_cache/`,
-  cacheLimit: 1024 * 1024 * 512,
-  sourceAnimationDuration: 500,
-  thumbnailAnimationDuration: 500,
+  cacheLimit: 0,
+  sourceAnimationDuration: 300,
+  thumbnailAnimationDuration: 300,
 };
 
 if (process.env.NODE_ENV === window.env.DEV) {

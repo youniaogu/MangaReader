@@ -20,10 +20,8 @@ const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
   const handleLoadSuccess = () => {
     setLoadStatus(LoadStatus.Fulfilled);
   };
-  const handleError = (event?: { nativeEvent: { error: Error } }) => {
-    if (event?.nativeEvent.error.message === 'Could not load image') {
-      setLoadStatus(LoadStatus.Rejected);
-    }
+  const handleError = () => {
+    setLoadStatus(LoadStatus.Rejected);
   };
   const handleRetry = () => {
     setLoadStatus(LoadStatus.Pending);

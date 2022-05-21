@@ -18,19 +18,21 @@ const calculateCache = (index: number, cacheSize: number) => {
   return Array.from({ length: max + 1 }, (_value, i) => i + min);
 };
 
-export const useIndexCache = (
-  initIndex: number = 0,
+export const usePageCache = (
+  initPage: number = 0,
   cacheSize: number = 3
-): [Set<number>, (index: number) => void] => {
-  const [indexList, setCacheList] = useState(new Set<number>(calculateCache(initIndex, cacheSize)));
-  const putIndex = useCallback(
-    (index: number) => {
-      setCacheList(new Set([...indexList, ...calculateCache(index, cacheSize)]));
+): [number, Set<number>, (index: number) => void] => {
+  const [page, setPage] = useState(initPage);
+  const [cacheList, setCacheList] = useState(new Set<number>(calculateCache(initPage, cacheSize)));
+  const putPage = useCallback(
+    (newPage: number) => {
+      setPage(newPage);
+      setCacheList(new Set([...cacheList, ...calculateCache(newPage, cacheSize)]));
     },
-    [indexList, cacheSize]
+    [cacheList, cacheSize]
   );
 
-  return [indexList, putIndex];
+  return [page, cacheList, putPage];
 };
 
 export const useUpdate = (fn: () => void) => {

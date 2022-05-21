@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
-import { StyleSheet, TouchableOpacity, Dimensions, RefreshControl } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  RefreshControl,
+  ListRenderItemInfo,
+} from 'react-native';
 import { Box, Flex, Text, IconButton, Icon, FlatList } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { coverAspectRatio, useFirstRender } from '~/utils';
@@ -42,6 +48,30 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const handleReload = () => {
     dispatch(loadManga(id));
   };
+  const renderItem = ({ item, index }: ListRenderItemInfo<ChapterItem>) => {
+    const isActived = item.chapterId === data.lastWatchChapterId;
+    const isLastone = index + 1 === data.chapters.length;
+    return (
+      <TouchableOpacity activeOpacity={0.8} onPress={handleChapter(item.mangaId, item.chapterId)}>
+        <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
+          <Text
+            bg={isActived ? '#6200ee' : 'transparent'}
+            color={isActived ? 'white' : '#717171'}
+            borderColor="#717171"
+            overflow="hidden"
+            borderRadius="md"
+            borderWidth={isActived ? 0 : 0.5}
+            textAlign="center"
+            numberOfLines={1}
+            fontWeight="bold"
+            p={[1, 0]}
+          >
+            {item.title}
+          </Text>
+        </Box>
+      </TouchableOpacity>
+    );
+  };
 
   if (!canUse) {
     return null;
@@ -77,33 +107,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             tintColor="#6200ee"
           />
         }
-        renderItem={({ item, index }) => {
-          const isActived = item.chapterId === data.lastWatchChapterId;
-          const isLastone = index + 1 === data.chapters.length;
-          return (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={handleChapter(item.mangaId, item.chapterId)}
-            >
-              <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
-                <Text
-                  bg={isActived ? '#6200ee' : 'transparent'}
-                  color={isActived ? 'white' : '#717171'}
-                  borderColor="#717171"
-                  overflow="hidden"
-                  borderRadius="md"
-                  borderWidth={isActived ? 0 : 0.5}
-                  textAlign="center"
-                  numberOfLines={1}
-                  fontWeight="bold"
-                  p={[1, 0]}
-                >
-                  {item.title}
-                </Text>
-              </Box>
-            </TouchableOpacity>
-          );
-        }}
+        renderItem={renderItem}
         keyExtractor={(item) => item.chapterId}
       />
     </Box>

@@ -1,20 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  runOnJS,
-} from 'react-native-reanimated';
-import { Box, IconButton, Icon, HStack, Center } from 'native-base';
-import { Dimensions, TouchableWithoutFeedback } from 'react-native';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  Dimensions,
+  ListRenderItemInfo,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
+import { FlatList, Box, IconButton, Icon, HStack, Center, Pressable, StatusBar } from 'native-base';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Controller from '~/components/Controller';
 
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-
-const cacheSize = 3;
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 interface ReaderProps {
   initPage?: number;
@@ -31,96 +26,67 @@ interface ReaderProps {
 const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
-  const current = useSharedValue(initPage - 1);
-  const length = useSharedValue(data.length);
-  const width = useSharedValue(windowWidth * data.length);
-  const height = useSharedValue(windowHeight);
-  const translationX = useSharedValue(-(initPage - 1) * windowWidth);
-  const savedTranslationX = useSharedValue(-(initPage - 1) * windowWidth);
-  const animatedStyle = useAnimatedStyle(() => ({
-    width: width.value,
-    height: height.value,
-    transform: [{ translateX: translationX.value }],
-  }));
+  const timeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     onPageChange && onPageChange(page);
   }, [page, onPageChange]);
 
-  const changePage = (newCurrent: number) => {
-    setPage(newCurrent + 1);
+  const toggleExtra = () => {
+    setShowExtra(!showExtra);
+  };
+  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const contentOffset = event.nativeEvent.contentOffset;
+    const viewSize = event.nativeEvent.layoutMeasurement;
+    const index = Math.floor(contentOffset.x / viewSize.width);
+    const newPage = Math.min(Math.max(index + 1, 1), data.length);
+
+    timeout.current && clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => setPage(newPage), 250);
   };
 
-  const panGesture = Gesture.Pan()
-    .onChange((e) => {
-      'worklet';
-      translationX.value += e.changeX;
-    })
-    .onEnd(() => {
-      'worklet';
-      const distance = Math.abs(savedTranslationX.value - translationX.value);
-      if (distance > 50) {
-        if (savedTranslationX.value > translationX.value && current.value < length.value - 1) {
-          runOnJS(changePage)(Math.min(current.value + 1, length.value - 1));
-          translationX.value = withTiming(-(current.value + 1) * windowWidth, {
-            duration: (1 - distance / windowWidth) * 300,
-          });
-          savedTranslationX.value = -(current.value + 1) * windowWidth;
-          current.value += 1;
-          return;
-        }
-
-        if (savedTranslationX.value < translationX.value && current.value > 0) {
-          runOnJS(changePage)(Math.max(current.value - 1, 0));
-          translationX.value = withTiming(-(current.value - 1) * windowWidth, {
-            duration: (1 - distance / windowWidth) * 300,
-          });
-          savedTranslationX.value = -(current.value - 1) * windowWidth;
-          current.value -= 1;
-          return;
-        }
-      }
-
-      translationX.value = withTiming(savedTranslationX.value, {
-        duration: 300 * (distance / windowWidth),
-      });
-    });
+  const renderItem = ({ item }: ListRenderItemInfo<typeof data[0]>) => {
+    return (
+      <Pressable onPress={toggleExtra}>
+        <Box>
+          <Controller uri={item.uri} headers={item.headers} />
+        </Box>
+      </Pressable>
+    );
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={() => setShowExtra(!showExtra)}>
-      <Box w="full" h="full" overflow="hidden" bg="black">
-        <GestureDetector gesture={panGesture}>
-          <Animated.FlatList
-            horizontal
-            data={data}
-            initialNumToRender={1}
-            scrollEnabled={false}
-            style={animatedStyle}
-            renderItem={({ item, index }) => {
-              if (Math.abs(index - page) > cacheSize) {
-                return <Box w={windowWidth} bg="black" />;
-              }
+    <Box w="full" h="full" bg="black">
+      <StatusBar barStyle={showExtra ? 'light-content' : 'dark-content'} />
+      <FlatList
+        horizontal
+        data={data}
+        pagingEnabled
+        initialScrollIndex={initPage - 1}
+        initialNumToRender={1}
+        getItemLayout={(_data, index) => ({
+          length: windowWidth,
+          offset: windowWidth * index,
+          index,
+        })}
+        onScroll={handleScrollEnd}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.uri}
+      />
 
-              return <Controller uri={item.uri} headers={item.headers} />;
-            }}
-            keyExtractor={(item) => item.uri}
+      {showExtra && (
+        <HStack position="absolute" top={0} alignItems="center" safeAreaTop>
+          <IconButton
+            icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
+            onPress={goBack}
           />
-        </GestureDetector>
 
-        {showExtra && (
-          <HStack position="absolute" top={0} alignItems="center" safeAreaTop>
-            <IconButton
-              icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
-              onPress={goBack}
-            />
-
-            <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
-              {page} / {data.length}
-            </Center>
-          </HStack>
-        )}
-      </Box>
-    </TouchableWithoutFeedback>
+          <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
+            {page} / {data.length}
+          </Center>
+        </HStack>
+      )}
+    </Box>
   );
 };
 
