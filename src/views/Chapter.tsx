@@ -41,6 +41,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   return (
     <Reader
+      title={data.title}
       initPage={page}
       data={data.images}
       onPageChange={handlePageChange}

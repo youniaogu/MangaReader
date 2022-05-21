@@ -5,13 +5,14 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
 } from 'react-native';
-import { FlatList, Box, IconButton, Icon, HStack, Center, Pressable, StatusBar } from 'native-base';
+import { FlatList, Box, IconButton, Icon, Text, Pressable, StatusBar, Flex } from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Controller from '~/components/Controller';
 
 const windowWidth = Dimensions.get('window').width;
 
 interface ReaderProps {
+  title?: string;
   initPage?: number;
   data: {
     uri: string;
@@ -23,7 +24,7 @@ interface ReaderProps {
   goBack: () => void;
 }
 
-const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
+const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
   const timeout = useRef<NodeJS.Timeout | null>(null);
@@ -75,16 +76,28 @@ const Reader = ({ initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
       />
 
       {showExtra && (
-        <HStack position="absolute" top={0} alignItems="center" safeAreaTop>
+        <Flex
+          position="absolute"
+          top={0}
+          flexDirection="row"
+          alignItems="center"
+          safeAreaTop
+          safeAreaLeft
+          safeAreaRight
+          pr={3}
+        >
           <IconButton
             icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
             onPress={goBack}
           />
-
-          <Center _text={{ color: 'white', fontWeight: 'bold' }} flexDirection="row">
+          <Text fontSize="md" color="white" fontWeight="bold">
+            {title}
+          </Text>
+          <Box flex={1} />
+          <Text color="white" fontWeight="bold">
             {page} / {data.length}
-          </Center>
-        </HStack>
+          </Text>
+        </Flex>
       )}
     </Box>
   );
