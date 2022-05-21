@@ -60,7 +60,7 @@ export const SearchInput = () => {
       bg="#6200ee"
       color="white"
       variant="underlined"
-      placeholder="press enter to search"
+      placeholder="Press Enter To Search"
       onChangeText={setKeyword}
       onSubmitEditing={handleSearch}
     />

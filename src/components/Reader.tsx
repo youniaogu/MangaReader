@@ -5,11 +5,22 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
 } from 'react-native';
-import { FlatList, Box, IconButton, Icon, Text, Pressable, StatusBar, Flex } from 'native-base';
+import {
+  Box,
+  Text,
+  Flex,
+  Icon,
+  IconButton,
+  FlatList,
+  StatusBar,
+  Pressable,
+  useToast,
+} from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Controller from '~/components/Controller';
 
 const windowWidth = Dimensions.get('window').width;
+const lastPageToastId = Symbol().toString();
 
 interface ReaderProps {
   title?: string;
@@ -25,6 +36,7 @@ interface ReaderProps {
 }
 
 const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
+  const toast = useToast();
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
   const timeout = useRef<NodeJS.Timeout | null>(null);
@@ -36,12 +48,19 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
   const toggleExtra = () => {
     setShowExtra(!showExtra);
   };
-  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffset = event.nativeEvent.contentOffset;
     const viewSize = event.nativeEvent.layoutMeasurement;
     const index = Math.floor(contentOffset.x / viewSize.width);
     const newPage = Math.min(Math.max(index + 1, 1), data.length);
 
+    if (newPage === data.length && !toast.isActive(lastPageToastId)) {
+      toast.show({
+        id: lastPageToastId,
+        placement: 'bottom',
+        title: 'Last Page',
+      });
+    }
     timeout.current && clearTimeout(timeout.current);
     timeout.current = setTimeout(() => setPage(newPage), 250);
   };
@@ -70,7 +89,7 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
           offset: windowWidth * index,
           index,
         })}
-        onScroll={handleScrollEnd}
+        onScroll={handleScroll}
         renderItem={renderItem}
         keyExtractor={(item) => item.uri}
       />
