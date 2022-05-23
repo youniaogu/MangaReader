@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Fragment } from 'react';
 import {
+  FlatList as FlatListRN,
   Dimensions,
   ListRenderItemInfo,
   NativeScrollEvent,
@@ -11,6 +12,7 @@ import {
   Flex,
   Icon,
   IconButton,
+  Slider,
   FlatList,
   StatusBar,
   Pressable,
@@ -39,6 +41,7 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
   const toast = useToast();
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
+  const flatListRef = useRef<FlatListRN>(null);
   const timeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -64,6 +67,13 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
     timeout.current && clearTimeout(timeout.current);
     timeout.current = setTimeout(() => setPage(newPage), 250);
   };
+  const handleSliderChange = (step: number) => {
+    const newPage = Math.floor(step);
+    if (newPage !== page) {
+      setPage(newPage);
+      flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
+    }
+  };
 
   const renderItem = ({ item }: ListRenderItemInfo<typeof data[0]>) => {
     return (
@@ -79,6 +89,7 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
     <Box w="full" h="full" bg="black">
       <StatusBar barStyle={showExtra ? 'light-content' : 'dark-content'} />
       <FlatList
+        ref={flatListRef}
         horizontal
         data={data}
         pagingEnabled
@@ -95,28 +106,57 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
       />
 
       {showExtra && (
-        <Flex
-          position="absolute"
-          top={0}
-          flexDirection="row"
-          alignItems="center"
-          safeAreaTop
-          safeAreaLeft
-          safeAreaRight
-          pr={3}
-        >
-          <IconButton
-            icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
-            onPress={goBack}
-          />
-          <Text fontSize="md" color="white" fontWeight="bold">
-            {title}
-          </Text>
-          <Box flex={1} />
-          <Text color="white" fontWeight="bold">
-            {page} / {data.length}
-          </Text>
-        </Flex>
+        <Fragment>
+          <Flex
+            position="absolute"
+            top={0}
+            flexDirection="row"
+            alignItems="center"
+            safeAreaTop
+            safeAreaLeft
+            safeAreaRight
+            pr={3}
+          >
+            <IconButton
+              icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
+              onPress={goBack}
+            />
+            <Text fontSize="md" color="white" fontWeight="bold">
+              {title}
+            </Text>
+            <Box flex={1} />
+            <Text color="white" fontWeight="bold">
+              {page} / {data.length}
+            </Text>
+          </Flex>
+
+          <Flex
+            w="full"
+            position="absolute"
+            bottom={12}
+            alignItems="center"
+            justifyContent="center"
+            safeAreaLeft
+            safeAreaRight
+            safeAreaBottom
+          >
+            <Slider
+              w="3/4"
+              size="md"
+              defaultValue={page}
+              step={page}
+              minValue={1}
+              maxValue={data.length}
+              colorScheme="purple"
+              onChangeEnd={handleSliderChange}
+            >
+              <Slider.Track>
+                <Slider.FilledTrack />
+              </Slider.Track>
+              <Slider.Thumb />
+            </Slider>
+          </Flex>
+        </Fragment>
       )}
     </Box>
   );
