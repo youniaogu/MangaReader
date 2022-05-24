@@ -18,6 +18,7 @@ declare global {
     Result: undefined;
     Detail: { id: string };
     Chapter: { mangaId: string; chapterId: string; page: number };
+    Plugin: undefined;
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -25,6 +26,7 @@ declare global {
   type StackResultProps = NativeStackScreenProps<RootStackParamList, 'Result'>;
   type StackDetailProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
   type StackChapterProps = NativeStackScreenProps<RootStackParamList, 'Chapter'>;
+  type StackPluginProps = NativeStackScreenProps<RootStackParamList, 'Plugin'>;
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 
   declare interface ChapterItem {

@@ -14,6 +14,7 @@ import Result from '~/views/Result';
 import Search, { SearchInput } from '~/views/Search';
 import Detail, { Heart } from '~/views/Detail';
 import Chapter from '~/views/Chapter';
+import Plugin from '~/views/Plugin';
 import About from '~/views/About';
 
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
@@ -48,6 +49,7 @@ const App = () => {
                 component={Detail}
               />
               <Screen name="Chapter" options={{ headerShown: false }} component={Chapter} />
+              <Screen name="Plugin" component={Plugin} />
               <Screen name="About" component={About} />
             </Navigator>
           </NavigationContainer>
