@@ -20,7 +20,7 @@ const Header = (headerProps: NativeStackHeaderProps) => {
 
   return (
     <Fragment>
-      <StatusBar animated barStyle="light-content" />
+      <StatusBar animated backgroundColor="black" barStyle="light-content" />
       <Box safeAreaTop bg="#6200ee" />
       <HStack
         bg="#6200ee"
