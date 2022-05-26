@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { Box, Text, FlatList } from 'native-base';
 import { coverAspectRatio } from '~/utils';
@@ -60,4 +60,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Bookshelf;
+export default memo(Bookshelf);

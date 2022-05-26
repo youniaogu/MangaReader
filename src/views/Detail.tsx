@@ -7,8 +7,8 @@ import {
   ListRenderItemInfo,
 } from 'react-native';
 import { Box, Flex, Text, IconButton, Icon, FlatList } from 'native-base';
+import { coverAspectRatio, useFirstRender, isManga } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { coverAspectRatio, useFirstRender } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -25,7 +25,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
 
-  const data = mangaDict[id] || undefined;
+  const data = mangaDict[id];
   const canUse = !!data;
 
   useEffect(() => {
@@ -36,6 +36,14 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     canUse && navigation.setOptions({ title: data.title });
   }, [canUse, navigation, data]);
 
+  const handleReload = useCallback(() => {
+    dispatch(loadManga(id));
+  }, [dispatch, id]);
+
+  if (!isManga(data)) {
+    return null;
+  }
+
   const handleChapter = (mangaId: string, chapterId: string) => {
     return () => {
       navigation.navigate('Chapter', {
@@ -45,9 +53,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       });
     };
   };
-  const handleReload = () => {
-    dispatch(loadManga(id));
-  };
+
   const renderItem = ({ item, index }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.chapterId === data.lastWatchChapterId;
     const isLastone = index + 1 === data.chapters.length;
@@ -72,10 +78,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       </TouchableOpacity>
     );
   };
-
-  if (!canUse) {
-    return null;
-  }
 
   return (
     <Box w="full" h="full">

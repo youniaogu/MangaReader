@@ -240,6 +240,19 @@ class ManHuaGuiMobile extends Base {
           headers: {
             Host: 'i.hamreus.com',
             referer: 'https://m.manhuagui.com/',
+            ':authority': 'i.hamreus.com',
+            ':method': 'GET',
+            ':path': item + '?' + queryString.stringify(sl),
+            ':scheme': 'https',
+            Connection: 'keep-alive',
+            accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            'accept-encoding': 'gzip, deflate, br',
+            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'sec-fetch-dest': 'image',
+            'sec-fetch-mode': 'no-cors',
+            'sec-fetch-site': 'cross-site',
+            'user-agent':
+              'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
           },
         };
       }),

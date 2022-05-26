@@ -94,10 +94,10 @@ declare global {
     };
     dict: {
       manga: {
-        [key: string]: Manga;
+        [key: string]: Manga | undefined;
       };
       chapter: {
-        [key: string]: Chapter;
+        [key: string]: Chapter | undefined;
       };
     };
   }

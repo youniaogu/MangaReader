@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { isManga } from '~/utils';
 import { Input } from 'native-base';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
@@ -14,17 +15,21 @@ const Search = ({ navigation }: StackResultProps) => {
   const loadStatus = useAppSelector((state) => state.search.loadStatus);
   const keyword = useAppSelector((state) => state.search.keyword);
   const dispatch = useAppDispatch();
+  const searchList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useEffect(() => {
     navigation.setOptions({ title: keyword });
   }, [keyword, navigation]);
 
-  const handleLoadMore = () => {
+  const handleLoadMore = useCallback(() => {
     dispatch(loadSearch({ keyword }));
-  };
-  const handleDetail = (id: string) => {
-    navigation.navigate('Detail', { id });
-  };
+  }, [dispatch, keyword]);
+  const handleDetail = useCallback(
+    (id: string) => {
+      navigation.navigate('Detail', { id });
+    },
+    [navigation]
+  );
 
   if (loadStatus === LoadStatus.Pending && list.length === 0) {
     return <Loading />;
@@ -33,13 +38,7 @@ const Search = ({ navigation }: StackResultProps) => {
     return <Empty />;
   }
 
-  return (
-    <Bookshelf
-      list={list.map((item) => dict[item]).filter((item) => item !== undefined)}
-      loadMore={handleLoadMore}
-      itemOnPress={handleDetail}
-    />
-  );
+  return <Bookshelf list={searchList} loadMore={handleLoadMore} itemOnPress={handleDetail} />;
 };
 
 export const SearchInput = () => {

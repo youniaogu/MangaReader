@@ -196,13 +196,19 @@ const dictSlice = createSlice({
     },
     viewChapter(state, action: PayloadAction<{ mangaId: string; chapterId: string }>) {
       const { mangaId, chapterId } = action.payload;
+      const manga = state.manga[mangaId];
 
-      state.manga[mangaId].lastWatchChapterId = chapterId;
+      if (manga) {
+        manga.lastWatchChapterId = chapterId;
+      }
     },
     viewPage(state, action: PayloadAction<{ mangaId: string; page: number }>) {
       const { mangaId, page } = action.payload;
+      const manga = state.manga[mangaId];
 
-      state.manga[mangaId].lastWatchPage = page;
+      if (manga) {
+        manga.lastWatchPage = page;
+      }
     },
   },
   extraReducers: {

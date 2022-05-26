@@ -20,6 +20,19 @@ export function firstMatch(matchResult: ReturnType<typeof String.prototype.match
   return matchResult ? matchResult[0] : '';
 }
 
+export function isManga(item: Manga | undefined | null): item is Manga {
+  if (item) {
+    return true;
+  }
+  return false;
+}
+export function isChapter(item: Chapter | undefined | null): item is Chapter {
+  if (item) {
+    return true;
+  }
+  return false;
+}
+
 /** extract data from bookshelf */
 export function handleBookshelf(text: string): Manga[] {
   const $ = cheerio.load(text || '');
