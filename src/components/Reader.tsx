@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Fragment, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, Fragment } from 'react';
 import {
   FlatList as FlatListRN,
   Dimensions,
@@ -6,17 +6,7 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
 } from 'react-native';
-import {
-  Box,
-  Text,
-  Flex,
-  Icon,
-  IconButton,
-  FlatList,
-  StatusBar,
-  Pressable,
-  useToast,
-} from 'native-base';
+import { Box, Text, Flex, Icon, IconButton, FlatList, StatusBar, useToast } from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Controller from '~/components/Controller';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
@@ -79,27 +69,22 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
     setPage(newPage);
     flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
   }, []);
+  const renderItem = useCallback(
+    ({ item }: ListRenderItemInfo<typeof data[0]>) => {
+      return <Controller uri={item.uri} headers={item.headers} onTap={toggleExtra} />;
+    },
+    [toggleExtra]
+  );
 
-  const renderItem = ({ item }: ListRenderItemInfo<typeof data[0]>) => {
-    return (
-      <Pressable onPress={toggleExtra}>
-        <Box>
-          <Controller uri={item.uri} headers={item.headers} />
-        </Box>
-      </Pressable>
-    );
-  };
-
-  return (
-    <Box w="full" h="full" bg="black">
-      <StatusBar backgroundColor="black" barStyle={showExtra ? 'light-content' : 'dark-content'} />
+  const MemoFlatList = useMemo(
+    () => (
       <FlatList
         ref={flatListRef}
         horizontal
         data={data}
         pagingEnabled
         initialScrollIndex={initPage - 1}
-        windowSize={5}
+        windowSize={3}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
         getItemLayout={(_data, index) => ({
@@ -111,6 +96,14 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
         renderItem={renderItem}
         keyExtractor={(item) => item.uri}
       />
+    ),
+    [data, handleScroll, initPage, renderItem]
+  );
+
+  return (
+    <Box w="full" h="full" bg="black">
+      <StatusBar backgroundColor="black" barStyle={showExtra ? 'light-content' : 'dark-content'} />
+      {MemoFlatList}
 
       {showExtra && (
         <Fragment>

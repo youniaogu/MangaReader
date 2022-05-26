@@ -1,7 +1,7 @@
 import React, { useState, useEffect, memo } from 'react';
-import { Image, Dimensions, NativeSyntheticEvent, ImageErrorEventData } from 'react-native';
 import { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { Image, Dimensions } from 'react-native';
 import { scaleToFit } from '~/utils';
 import { Box } from 'native-base';
 import ImageWithRetry from '~/components/ImageWithRetry';
@@ -16,10 +16,10 @@ interface ControllerProps {
   headers: {
     [index: string]: string;
   };
-  onError?: (e: NativeSyntheticEvent<ImageErrorEventData>) => void;
+  onTap?: () => void;
 }
 
-const Controller = ({ uri, headers }: ControllerProps) => {
+const Controller = ({ uri, headers, onTap }: ControllerProps) => {
   const [enabled, setEnabled] = useState(false);
   const width = useSharedValue(0);
   const height = useSharedValue(0);
@@ -57,9 +57,16 @@ const Controller = ({ uri, headers }: ControllerProps) => {
     });
   }, [uri, headers, width, height]);
 
+  const singleTap = Gesture.Tap()
+    .runOnJS(true)
+    .maxDuration(300)
+    .numberOfTaps(1)
+    .onStart(() => {
+      onTap && onTap();
+    });
   const doubleTap = Gesture.Tap()
-    .maxDuration(250)
-    .maxDelay(250)
+    .maxDuration(300)
+    .maxDelay(300)
     .numberOfTaps(2)
     .onStart((e) => {
       'worklet';
@@ -163,7 +170,7 @@ const Controller = ({ uri, headers }: ControllerProps) => {
     });
 
   return (
-    <GestureDetector gesture={doubleTap}>
+    <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap)}>
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
           <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
