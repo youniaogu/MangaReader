@@ -1,6 +1,7 @@
 import { LoadStatus, UpdateStatus, env } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
+import { Plugin } from '~/plugins';
 
 declare global {
   type GET = 'GET' | 'get';
@@ -17,7 +18,7 @@ declare global {
     Search: undefined;
     Result: undefined;
     Detail: { id: string };
-    Chapter: { mangaId: string; chapterId: string; page: number };
+    Chapter: { mangaId: string; chapterId: string; page: number; source: Plugin };
     Plugin: undefined;
     About: undefined;
   };
@@ -29,14 +30,10 @@ declare global {
   type StackPluginProps = NativeStackScreenProps<RootStackParamList, 'Plugin'>;
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 
-  declare interface ChapterItem {
-    mangaId: string;
-    chapterId: string;
-    href: string;
-    title: string;
-  }
   declare interface Manga {
-    id: string;
+    key: string;
+    source: Plugin;
+    mangaId: string;
     cover: string;
     title: string;
     latest: string;
@@ -48,19 +45,22 @@ declare global {
     lastWatchChapterId?: string;
     lastWatchPage?: number;
   }
+  declare interface ChapterItem {
+    mangaId: string;
+    chapterId: string;
+    href: string;
+    title: string;
+  }
   declare interface Chapter {
+    key: string;
     mangaId: string;
     chapterId: string;
     name: string;
     title: string;
-    images: {
-      uri: string;
-      headers: {
-        [index: string]: string;
-      };
-    }[];
-    nextId: string;
-    prevId: string;
+    headers: {
+      [index: string]: string;
+    };
+    images: string[];
   }
 
   declare interface RootState {

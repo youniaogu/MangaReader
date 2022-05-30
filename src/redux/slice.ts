@@ -1,4 +1,5 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
+import { Plugin } from '~/plugins';
 
 const { LoadStatus } = window;
 
@@ -70,7 +71,10 @@ const searchSlice = createSlice({
   name: 'search',
   initialState: initialState.search,
   reducers: {
-    loadSearch(state, action: PayloadAction<{ keyword: string; isReset?: boolean }>) {
+    loadSearch(
+      state,
+      action: PayloadAction<{ keyword: string; isReset?: boolean; source: Plugin }>
+    ) {
       const { keyword, isReset = false } = action.payload;
       if (isReset) {
         state.page = 1;
@@ -90,7 +94,7 @@ const searchSlice = createSlice({
 
       state.page += 1;
       state.loadStatus = LoadStatus.Fulfilled;
-      state.list = state.list.concat(data.map((item) => item.id));
+      state.list = state.list.concat(data.map((item) => item.mangaId));
       state.isEnd = data.length < 20;
     },
   },
@@ -100,8 +104,8 @@ const updateSlice = createSlice({
   name: 'update',
   initialState: initialState.update,
   reducers: {
-    loadUpdate(state, action: PayloadAction<boolean | undefined>) {
-      const isReset = action.payload || false;
+    loadUpdate(state, action: PayloadAction<{ isReset?: boolean; source: Plugin }>) {
+      const isReset = action.payload.isReset || false;
       if (isReset) {
         state.page = 1;
         state.list = [];
@@ -119,7 +123,7 @@ const updateSlice = createSlice({
 
       state.page += 1;
       state.loadStatus = LoadStatus.Fulfilled;
-      state.list = state.list.concat(data.map((item) => item.id));
+      state.list = state.list.concat(data.map((item) => item.mangaId));
       state.isEnd = data.length < 20;
     },
   },
@@ -150,9 +154,9 @@ const mangaSlice = createSlice({
   name: 'manga',
   initialState: initialState.manga,
   reducers: {
-    loadManga(state, action: PayloadAction<string>) {
+    loadManga(state, action: PayloadAction<{ mangaId: string; source: Plugin }>) {
       state.loadStatus = LoadStatus.Pending;
-      state.mangaId = action.payload;
+      state.mangaId = action.payload.mangaId;
     },
     loadMangaCompletion(state, action: FetchResponseAction<Manga>) {
       const { error } = action.payload;
@@ -170,7 +174,10 @@ const chapterSlice = createSlice({
   name: 'chapter',
   initialState: initialState.chapter,
   reducers: {
-    loadChapter(state, action: PayloadAction<{ mangaId: string; chapterId: string }>) {
+    loadChapter(
+      state,
+      action: PayloadAction<{ mangaId: string; chapterId: string; source: Plugin }>
+    ) {
       state.loadStatus = LoadStatus.Pending;
       state.mangaId = action.payload.mangaId;
       state.chapterId = action.payload.chapterId;
@@ -222,7 +229,7 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.id] = { ...state.manga[item.id], ...item };
+        state.manga[item.mangaId] = { ...state.manga[item.mangaId], ...item };
       });
     },
     [updateSlice.actions.loadUpdateCompletion.type]: (
@@ -235,7 +242,7 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.id] = { ...state.manga[item.id], ...item };
+        state.manga[item.mangaId] = { ...state.manga[item.mangaId], ...item };
       });
     },
     [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
@@ -244,7 +251,7 @@ const dictSlice = createSlice({
         return;
       }
 
-      state.manga[data.id] = { ...state.manga[data.id], ...data };
+      state.manga[data.mangaId] = { ...state.manga[data.mangaId], ...data };
     },
     [chapterSlice.actions.loadChapterCompletion.type]: (
       state,

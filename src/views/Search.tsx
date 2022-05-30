@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga } from '~/utils';
+import { Plugin } from '~/plugins';
 import { Input } from 'native-base';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
@@ -18,11 +19,11 @@ const Search = ({ navigation: { navigate } }: StackHomeProps) => {
   const updateList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useEffect(() => {
-    loadStatus === LoadStatus.Default && dispatch(loadUpdate(true));
+    loadStatus === LoadStatus.Default && dispatch(loadUpdate({ source: Plugin.MHGM }));
   }, [dispatch, loadStatus]);
 
   const handleLoadMore = useCallback(() => {
-    dispatch(loadUpdate());
+    dispatch(loadUpdate({ source: Plugin.MHGM }));
   }, [dispatch]);
   const handleDetail = useCallback(
     (id: string) => {
@@ -46,7 +47,7 @@ export const SearchInput = () => {
   const dispatch = useAppDispatch();
 
   const handleSearch = () => {
-    dispatch(loadSearch({ keyword, isReset: true }));
+    dispatch(loadSearch({ source: Plugin.MHGM, keyword, isReset: true }));
     RootNavigation.navigate('Result');
   };
 

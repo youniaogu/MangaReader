@@ -12,22 +12,27 @@ import Controller from '~/components/Controller';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 
 const windowWidth = Dimensions.get('window').width;
-const lastPageToastId = Symbol().toString();
+const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 
 interface ReaderProps {
   title?: string;
   initPage?: number;
-  data: {
-    uri: string;
-    headers: {
-      [index: string]: string;
-    };
-  }[];
+  data?: string[];
+  headers?: {
+    [index: string]: string;
+  };
   onPageChange?: (page: number) => void;
   goBack: () => void;
 }
 
-const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: ReaderProps) => {
+const Reader = ({
+  title = '',
+  initPage = 1,
+  data = [],
+  headers = {},
+  goBack,
+  onPageChange,
+}: ReaderProps) => {
   const toast = useToast();
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
@@ -71,9 +76,9 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
   }, []);
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<typeof data[0]>) => {
-      return <Controller uri={item.uri} headers={item.headers} onTap={toggleExtra} />;
+      return <Controller uri={item} headers={headers} onTap={toggleExtra} />;
     },
-    [toggleExtra]
+    [toggleExtra, headers]
   );
 
   const MemoFlatList = useMemo(
@@ -94,7 +99,7 @@ const Reader = ({ title = '', initPage = 1, data, goBack, onPageChange }: Reader
         })}
         onScroll={handleScroll}
         renderItem={renderItem}
-        keyExtractor={(item) => item.uri}
+        keyExtractor={(item) => item}
       />
     ),
     [data, handleScroll, initPage, renderItem]

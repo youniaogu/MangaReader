@@ -12,6 +12,7 @@ import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Loading from '~/components/Loading';
 
 const { LoadStatus } = window;
 const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
@@ -26,22 +27,25 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaDict = useAppSelector((state) => state.dict.manga);
 
   const data = mangaDict[id];
-  const canUse = !!data;
 
   useEffect(() => {
-    dispatch(loadManga(id));
-  }, [dispatch, id]);
+    data?.source && dispatch(loadManga({ mangaId: id, source: data?.source }));
+  }, [dispatch, id, data?.source]);
 
   useEffect(() => {
-    canUse && navigation.setOptions({ title: data.title });
-  }, [canUse, navigation, data]);
+    navigation.setOptions({ title: data?.title });
+  }, [navigation, data?.title]);
 
   const handleReload = useCallback(() => {
-    dispatch(loadManga(id));
-  }, [dispatch, id]);
+    data?.source && dispatch(loadManga({ mangaId: id, source: data?.source }));
+  }, [dispatch, id, data?.source]);
 
   if (!isManga(data)) {
-    return null;
+    return (
+      <Flex w="full" h="full" alignItems="center" justifyContent="center">
+        <Loading />
+      </Flex>
+    );
   }
 
   const handleChapter = (mangaId: string, chapterId: string) => {
@@ -50,6 +54,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         mangaId,
         chapterId,
         page: chapterId === data.lastWatchChapterId ? data.lastWatchPage || 1 : 1,
+        source: data.source,
       });
     };
   };

@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon } from 'native-base';
+import { isManga } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import Empty from '~/components/Empty';
@@ -12,6 +13,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
+  const favoriteList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useEffect(() => {
     dispatch(launch());
@@ -25,12 +27,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     return <Empty />;
   }
 
-  return (
-    <Bookshelf
-      list={list.map((item) => dict[item]).filter((item) => item !== undefined)}
-      itemOnPress={handleDetail}
-    />
-  );
+  return <Bookshelf list={favoriteList} itemOnPress={handleDetail} />;
 };
 
 export const SearchAndAbout = () => {

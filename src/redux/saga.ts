@@ -9,7 +9,9 @@ import {
   takeEvery,
   delay,
 } from 'redux-saga/effects';
-import { storageKey, fetchData, handleBookshelf, handleManga, handleChapter } from '~/utils';
+import { storageKey, fetchData } from '~/utils';
+import { Plugin, PluginMap } from '~/plugins';
+import { PayloadAction } from '@reduxjs/toolkit';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -95,74 +97,93 @@ function* clearCacheSaga() {
 }
 
 function* loadSearchSaga() {
-  yield takeLatest(loadSearch.type, function* () {
-    const { keyword, page, isEnd } = ((state: RootState) => state.search)(yield select());
+  yield takeLatest(
+    loadSearch.type,
+    function* ({
+      payload: { source },
+    }: PayloadAction<{ keyword: string; isReset?: boolean; source: Plugin }>) {
+      const plugin = PluginMap.get(source);
+      const { keyword, page, isEnd } = ((state: RootState) => state.search)(yield select());
 
-    if (isEnd) {
-      yield put(loadSearchCompletion({ error: new Error('已经到底了!') }));
-      return;
+      if (!plugin) {
+        yield put(loadSearchCompletion({ error: new Error('Need Plugin!') }));
+        return;
+      }
+      if (isEnd) {
+        yield put(loadSearchCompletion({ error: new Error('No More!') }));
+        return;
+      }
+
+      const { error, data } = yield call(fetchData, plugin.prepareSearchFetch(keyword, page));
+
+      yield put(loadSearchCompletion({ error, data: plugin.handleSearch(data) }));
     }
-
-    const body = new FormData();
-    body.append('key', keyword);
-    body.append('page', String(page));
-    body.append('ajax', '1');
-    body.append('order', '1');
-
-    const { error, data } = yield call(fetchData, {
-      url: `https://m.manhuagui.com/s/${keyword}.html/`,
-      method: 'POST',
-      body: page > 1 ? body : undefined,
-    });
-
-    yield put(loadSearchCompletion({ error, data: handleBookshelf(data) }));
-  });
+  );
 }
 
 function* loadUpdateSaga() {
-  yield takeLatest(loadUpdate.type, function* () {
-    const { page, isEnd } = ((state: RootState) => state.update)(yield select());
+  yield takeLatest(
+    loadUpdate.type,
+    function* ({
+      payload: { source },
+    }: PayloadAction<{ isReset: boolean | undefined; source: Plugin }>) {
+      const plugin = PluginMap.get(source);
+      const { page, isEnd } = ((state: RootState) => state.update)(yield select());
 
-    if (isEnd) {
-      yield put(loadUpdateCompletion({ error: new Error('已经到底了!') }));
-      return;
+      if (!plugin) {
+        yield put(loadUpdateCompletion({ error: new Error('Need Plugin!') }));
+        return;
+      }
+      if (isEnd) {
+        yield put(loadUpdateCompletion({ error: new Error('No More!') }));
+        return;
+      }
+
+      const { error, data } = yield call(fetchData, plugin.prepareUpdateFetch(page));
+
+      yield put(loadUpdateCompletion({ error, data: plugin.handleUpdate(data) }));
     }
-
-    const { error, data } = yield call(fetchData, {
-      url: 'https://m.manhuagui.com/update/',
-      body: {
-        page,
-        ajax: 1,
-        order: 1,
-      },
-    });
-
-    yield put(loadUpdateCompletion({ error, data: handleBookshelf(data) }));
-  });
+  );
 }
 
 function* loadMangaSaga() {
-  yield takeEvery(loadManga.type, function* () {
-    const { mangaId } = ((state: RootState) => state.manga)(yield select());
+  yield takeEvery(
+    loadManga.type,
+    function* ({ payload: { source } }: PayloadAction<{ mangaId: string; source: Plugin }>) {
+      const plugin = PluginMap.get(source);
+      const { mangaId } = ((state: RootState) => state.manga)(yield select());
 
-    const { error, data } = yield call(fetchData, {
-      url: 'https://m.manhuagui.com/comic/' + mangaId,
-    });
-    const manga = handleManga(data);
+      if (!plugin) {
+        yield put(loadMangaCompletion({ error: new Error('Need Plugin!') }));
+        return;
+      }
 
-    yield put(loadMangaCompletion({ error, data: { ...manga, id: mangaId } }));
-  });
+      const { error, data } = yield call(fetchData, plugin.prepareMangaFetch(mangaId));
+
+      yield put(loadMangaCompletion({ error, data: { ...plugin.handleManga(data), mangaId } }));
+    }
+  );
 }
 
 function* loadChapterSaga() {
-  yield takeEvery(loadChapter.type, function* () {
-    const { mangaId, chapterId } = ((state: RootState) => state.chapter)(yield select());
-    const { error, data } = yield call(fetchData, {
-      url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
-    });
+  yield takeEvery(
+    loadChapter.type,
+    function* ({
+      payload: { source },
+    }: PayloadAction<{ mangaId: string; chapterId: string; source: Plugin }>) {
+      const plugin = PluginMap.get(source);
+      const { mangaId, chapterId } = ((state: RootState) => state.chapter)(yield select());
 
-    yield put(loadChapterCompletion({ error, data: handleChapter(data) }));
-  });
+      if (!plugin) {
+        yield put(loadChapterCompletion({ error: new Error('Need Plugin!') }));
+        return;
+      }
+
+      const { error, data } = yield call(fetchData, plugin.prepareChapterFetch(mangaId, chapterId));
+
+      yield put(loadChapterCompletion({ error, data: plugin.handleChapter(data) }));
+    }
+  );
 }
 
 export default function* rootSaga() {

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga } from '~/utils';
 import { Input } from 'native-base';
+import { Plugin } from '~/plugins';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
@@ -22,7 +23,7 @@ const Search = ({ navigation }: StackResultProps) => {
   }, [keyword, navigation]);
 
   const handleLoadMore = useCallback(() => {
-    dispatch(loadSearch({ keyword }));
+    dispatch(loadSearch({ keyword, source: Plugin.MHGM }));
   }, [dispatch, keyword]);
   const handleDetail = useCallback(
     (id: string) => {
@@ -46,7 +47,7 @@ export const SearchInput = () => {
   const dispatch = useAppDispatch();
 
   const handleSearch = () => {
-    dispatch(loadSearch({ keyword, isReset: true }));
+    dispatch(loadSearch({ keyword, isReset: true, source: Plugin.MHGM }));
   };
 
   return (

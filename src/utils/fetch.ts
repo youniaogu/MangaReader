@@ -1,18 +1,18 @@
 import queryString from 'query-string';
 
-const { env } = window;
+export interface FetchData {
+  url: string;
+  method?: FetchMethod;
+  body?: FormData | { [key: string]: any };
+  headers?: Headers;
+}
 
 export const fetchData = ({
   url,
   method = 'GET',
   body = {},
   headers = new Headers(),
-}: {
-  url: string;
-  method?: FetchMethod;
-  body?: FormData | { [key: string]: any };
-  headers?: Headers;
-}) => {
+}: FetchData) => {
   const init: RequestInit & { headers: Headers } = { method: method.toUpperCase(), headers };
 
   init.headers.append(
@@ -32,10 +32,6 @@ export const fetchData = ({
         init.body = JSON.stringify(body);
       }
     }
-  }
-
-  if (process.env.NODE_ENV === env.DEV) {
-    url = process.env.PROXY + '?target=' + encodeURIComponent(url);
   }
 
   return new Promise((res) => {

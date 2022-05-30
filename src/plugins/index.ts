@@ -1,10 +1,15 @@
 import ManHuaGuiMobile from './mhgm';
 import ManHuaGui from './mhg';
 
-const MHGM = new ManHuaGuiMobile();
-const MHG = new ManHuaGui();
+export enum Plugin {
+  MHGM = 'MHGM',
+  MHG = 'MHG',
+}
 
-export default {
-  [MHGM.id]: MHGM,
-  [MHG.id]: MHG,
-};
+const MHGM = new ManHuaGuiMobile(Plugin.MHGM, 'manhuagui(mobile)');
+const MHG = new ManHuaGui(Plugin.MHG, 'manhuagui');
+
+export const PluginMap = new Map([
+  [Plugin.MHGM, MHGM],
+  [Plugin.MHG, MHG],
+]);

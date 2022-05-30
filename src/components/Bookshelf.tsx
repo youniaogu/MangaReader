@@ -28,10 +28,10 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
       data={list}
       onEndReached={loadMore}
       onEndReachedThreshold={1}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => item.key}
       renderItem={({ item, index }) => {
         return (
-          <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.id)}>
+          <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.mangaId)}>
             <Box
               shadow={0}
               width={oneThirdWidth}
