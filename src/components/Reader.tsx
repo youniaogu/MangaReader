@@ -58,7 +58,8 @@ const Reader = ({
         toast.show({
           id: lastPageToastId,
           placement: 'bottom',
-          title: 'Last Page',
+          title: 'The Last Page',
+          duration: 3000,
         });
       }
       timeout.current && clearTimeout(timeout.current);

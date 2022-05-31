@@ -23,6 +23,7 @@ const {
   syncFavorites,
   syncDict,
   clearCache,
+  clearCacheCompletion,
   viewChapter,
   viewPage,
   addFavorites,
@@ -93,6 +94,8 @@ function* storageDataSaga() {
 function* clearCacheSaga() {
   yield takeLatest([clearCache.type], function* () {
     yield call(AsyncStorage.clear);
+    yield put(launch());
+    yield put(clearCacheCompletion({}));
   });
 }
 
