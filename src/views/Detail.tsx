@@ -96,6 +96,9 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           </Text>
           <Box flexGrow={1} />
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
+            {data.sourceName}
+          </Text>
+          <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             {data.updateTime}
           </Text>
         </Flex>

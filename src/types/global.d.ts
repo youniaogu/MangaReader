@@ -33,6 +33,7 @@ declare global {
   declare interface Manga {
     hash: string;
     source: Plugin;
+    sourceName: string;
     mangaId: string;
     cover: string;
     title: string;

@@ -118,6 +118,7 @@ class ManHuaGuiMobile extends Base {
         list.push({
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
+          sourceName: this.name,
           mangaId,
           title,
           status,
@@ -168,6 +169,7 @@ class ManHuaGuiMobile extends Base {
         list.push({
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
+          sourceName: this.name,
           mangaId,
           title,
           status,
@@ -188,6 +190,7 @@ class ManHuaGuiMobile extends Base {
     const manga: Manga = {
       hash: '',
       source: this.id,
+      sourceName: this.name,
       mangaId: '',
       cover: '',
       title: '',
