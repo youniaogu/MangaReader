@@ -10,7 +10,7 @@ import {
   delay,
 } from 'redux-saga/effects';
 import { storageKey, fetchData } from '~/utils';
-import { Plugin, PluginMap } from '~/plugins';
+import { splitHash, Plugin, PluginMap } from '~/plugins';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -149,9 +149,9 @@ function* loadUpdateSaga() {
 function* loadMangaSaga() {
   yield takeEvery(
     loadManga.type,
-    function* ({ payload: { source } }: PayloadAction<{ mangaId: string; source: Plugin }>) {
+    function* ({ payload: { mangaHash } }: PayloadAction<{ mangaHash: string }>) {
+      const [source, mangaId] = splitHash(mangaHash);
       const plugin = PluginMap.get(source);
-      const { mangaId } = ((state: RootState) => state.manga)(yield select());
 
       if (!plugin) {
         yield put(loadMangaCompletion({ error: new Error('Need Plugin!') }));
@@ -160,7 +160,7 @@ function* loadMangaSaga() {
 
       const { error, data } = yield call(fetchData, plugin.prepareMangaFetch(mangaId));
 
-      yield put(loadMangaCompletion({ error, data: { ...plugin.handleManga(data), mangaId } }));
+      yield put(loadMangaCompletion({ error, data: plugin.handleManga(data) }));
     }
   );
 }
@@ -168,11 +168,9 @@ function* loadMangaSaga() {
 function* loadChapterSaga() {
   yield takeEvery(
     loadChapter.type,
-    function* ({
-      payload: { source },
-    }: PayloadAction<{ mangaId: string; chapterId: string; source: Plugin }>) {
+    function* ({ payload: { chapterHash } }: PayloadAction<{ chapterHash: string }>) {
+      const [source, mangaId, chapterId] = splitHash(chapterHash);
       const plugin = PluginMap.get(source);
-      const { mangaId, chapterId } = ((state: RootState) => state.chapter)(yield select());
 
       if (!plugin) {
         yield put(loadChapterCompletion({ error: new Error('Need Plugin!') }));

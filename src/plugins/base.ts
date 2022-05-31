@@ -10,6 +10,18 @@ abstract class Base {
     this.name = name;
   }
 
+  static combineHash(id: Plugin, mangaId: string, chapterId?: string): string {
+    if (!chapterId) {
+      return [id, mangaId].join('&');
+    }
+
+    return [id, mangaId, chapterId].join('&');
+  }
+  static splitHash(hash: string): [Plugin, string, string] {
+    const [plugin, mangaId, chapterId] = hash.split('&');
+    return [plugin as Plugin, mangaId, chapterId];
+  }
+
   abstract prepareUpdateFetch(page: number): FetchData;
   abstract prepareSearchFetch(keyword: string, page: number): FetchData;
   abstract prepareMangaFetch(mangaId: string): FetchData;

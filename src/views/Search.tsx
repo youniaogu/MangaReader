@@ -26,8 +26,8 @@ const Search = ({ navigation: { navigate } }: StackHomeProps) => {
     dispatch(loadUpdate({ source: Plugin.MHGM }));
   }, [dispatch]);
   const handleDetail = useCallback(
-    (id: string) => {
-      navigate('Detail', { id });
+    (mangaHash: string) => {
+      navigate('Detail', { mangaHash });
     },
     [navigate]
   );

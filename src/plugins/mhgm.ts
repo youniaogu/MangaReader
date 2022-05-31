@@ -11,7 +11,7 @@ const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/[0-9]+(
 const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\].+(?=$)/g;
 const PATTERN_READER_DATA = /^SMH\.reader\(.+(?=\)\.preInit\(\);)/g;
 
-const PATTERN_MANGA_INFO = /{ bid: ([0-9]*), status: ([0|1]), block_cc: "" }/;
+const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:([0|1]),block_cc:'' }/;
 
 class ManHuaGuiMobile extends Base {
   constructor(pluginID: Plugin, pluginName: string) {
@@ -20,7 +20,6 @@ class ManHuaGuiMobile extends Base {
 
   prepareUpdateFetch(page: number): FetchData {
     if (process.env.NODE_ENV === env.DEV) {
-      console.log(process.env.PROXY + '/update');
       return {
         url: process.env.PROXY + '/update',
         body: {
@@ -117,7 +116,7 @@ class ManHuaGuiMobile extends Base {
         }
 
         list.push({
-          key: `${this.id}&${mangaId}`,
+          hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           mangaId,
           title,
@@ -167,7 +166,7 @@ class ManHuaGuiMobile extends Base {
         }
 
         list.push({
-          key: `${this.id}&${mangaId}`,
+          hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           mangaId,
           title,
@@ -187,7 +186,7 @@ class ManHuaGuiMobile extends Base {
   handleManga(text: string): Manga {
     const $ = cheerio.load(text || '');
     const manga: Manga = {
-      key: '',
+      hash: '',
       source: this.id,
       mangaId: '',
       cover: '',
@@ -228,6 +227,7 @@ class ManHuaGuiMobile extends Base {
               .split('/');
 
             chapters.push({
+              hash: Base.combineHash(this.id, mangaId, chapterId),
               mangaId,
               chapterId,
               href,
@@ -247,6 +247,7 @@ class ManHuaGuiMobile extends Base {
             .split('/');
 
           chapters.push({
+            hash: Base.combineHash(this.id, mangaId, chapterId),
             mangaId,
             chapterId,
             href,
@@ -263,7 +264,7 @@ class ManHuaGuiMobile extends Base {
     }
 
     manga.mangaId = mangaId;
-    manga.key = `${this.id}&${mangaId}`;
+    manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = $('div.main-bar > h1').first().text();
     manga.cover = 'https:' + $('div.thumb img').first().attr('src');
     manga.latest = latest;
@@ -305,7 +306,7 @@ class ManHuaGuiMobile extends Base {
     const { bookId, chapterId, bookName, chapterTitle, images = [], sl } = data;
 
     return {
-      key: `${this.id}&${bookId}&${chapterId}`,
+      hash: Base.combineHash(this.id, bookId, chapterId),
       mangaId: bookId,
       chapterId,
       name: bookName,

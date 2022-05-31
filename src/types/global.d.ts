@@ -17,8 +17,8 @@ declare global {
     Home: undefined;
     Search: undefined;
     Result: undefined;
-    Detail: { id: string };
-    Chapter: { mangaId: string; chapterId: string; page: number; source: Plugin };
+    Detail: { mangaHash: string };
+    Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
     About: undefined;
   };
@@ -31,7 +31,7 @@ declare global {
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 
   declare interface Manga {
-    key: string;
+    hash: string;
     source: Plugin;
     mangaId: string;
     cover: string;
@@ -42,17 +42,18 @@ declare global {
     tag: string;
     status: UpdateStatus;
     chapters: ChapterItem[];
-    lastWatchChapterId?: string;
+    lastWatchChapter?: string;
     lastWatchPage?: number;
   }
   declare interface ChapterItem {
+    hash: string;
     mangaId: string;
     chapterId: string;
     href: string;
     title: string;
   }
   declare interface Chapter {
-    key: string;
+    hash: string;
     mangaId: string;
     chapterId: string;
     name: string;
@@ -84,12 +85,9 @@ declare global {
     };
     favorites: string[];
     manga: {
-      mangaId: string;
       loadStatus: LoadStatus;
     };
     chapter: {
-      mangaId: string;
-      chapterId: string;
       loadStatus: LoadStatus;
     };
     dict: {

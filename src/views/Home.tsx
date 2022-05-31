@@ -19,8 +19,8 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     dispatch(launch());
   }, [dispatch]);
 
-  const handleDetail = (id: string) => {
-    navigate('Detail', { id });
+  const handleDetail = (mangaHash: string) => {
+    navigate('Detail', { mangaHash });
   };
 
   if (list.length === 0) {

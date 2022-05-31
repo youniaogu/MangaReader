@@ -60,7 +60,9 @@ class ManHuaGui extends Base {
       body: page > 1 ? body : undefined,
     };
   }
-  prepareMangaFetch(mangaId: string): FetchData {
+  prepareMangaFetch(mangaHash: string): FetchData {
+    const [, mangaId] = mangaHash.split('&');
+
     if (process.env.NODE_ENV === env.DEV) {
       return {
         url: process.env.PROXY + '/manga',
@@ -71,10 +73,11 @@ class ManHuaGui extends Base {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
     };
   }
-  prepareChapterFetch(mangaId: string, chapterId: string): FetchData {
+  prepareChapterFetch(chapterHash: string): FetchData {
+    const [, mangaId, chapterId] = chapterHash.split('&');
     if (process.env.NODE_ENV === env.DEV) {
       return {
-        url: process.env.PROXY + '/manga',
+        url: process.env.PROXY + '/chapter',
       };
     }
 
@@ -116,7 +119,7 @@ class ManHuaGui extends Base {
         }
 
         list.push({
-          key: `${this.id}&${mangaId}`,
+          hash: `${this.id}&${mangaId}`,
           source: this.id,
           mangaId,
           title,
@@ -166,7 +169,7 @@ class ManHuaGui extends Base {
         }
 
         list.push({
-          key: `${this.id}&${mangaId}`,
+          hash: `${this.id}&${mangaId}`,
           source: this.id,
           mangaId,
           title,
@@ -186,7 +189,7 @@ class ManHuaGui extends Base {
   handleManga(text: string): Manga {
     const $ = cheerio.load(text || '');
     const manga: Manga = {
-      key: '',
+      hash: '',
       source: this.id,
       mangaId: '',
       cover: '',
@@ -227,6 +230,7 @@ class ManHuaGui extends Base {
               .split('/');
 
             chapters.push({
+              hash: `${this.id}&${mangaId}&${chapterId}`,
               mangaId,
               chapterId,
               href,
@@ -246,6 +250,7 @@ class ManHuaGui extends Base {
             .split('/');
 
           chapters.push({
+            hash: `${this.id}&${mangaId}&${chapterId}`,
             mangaId,
             chapterId,
             href,
@@ -262,7 +267,7 @@ class ManHuaGui extends Base {
     }
 
     manga.mangaId = mangaId;
-    manga.key = `${this.id}&${mangaId}`;
+    manga.hash = `${this.id}&${mangaId}`;
     manga.title = $('div.main-bar > h1').first().text();
     manga.cover = 'https:' + $('div.thumb img').first().attr('src');
     manga.latest = latest;
@@ -304,14 +309,14 @@ class ManHuaGui extends Base {
     const { bookId, chapterId, bookName, chapterTitle, images = [], sl } = data;
 
     return {
-      key: `${this.id}&${bookId}&${chapterId}`,
+      hash: `${this.id}&${bookId}&${chapterId}`,
       mangaId: bookId,
       chapterId,
       name: bookName,
       title: chapterTitle,
       headers: {
         Host: 'i.hamreus.com',
-        referer: `https://m.manhuagui.com/comic/${bookId}/`,
+        referer: 'https://m.manhuagui.com/',
         Connection: 'keep-alive',
         accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
         'accept-encoding': 'gzip, deflate, br',

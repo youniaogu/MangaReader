@@ -21,24 +21,24 @@ const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
-  const id = route.params.id;
+  const mangaHash = route.params.mangaHash;
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
 
-  const data = mangaDict[id];
+  const data = mangaDict[mangaHash];
 
   useEffect(() => {
-    data?.source && dispatch(loadManga({ mangaId: id, source: data?.source }));
-  }, [dispatch, id, data?.source]);
+    dispatch(loadManga({ mangaHash }));
+  }, [dispatch, mangaHash]);
 
   useEffect(() => {
-    navigation.setOptions({ title: data?.title });
-  }, [navigation, data?.title]);
+    isManga(data) && navigation.setOptions({ title: data.title });
+  }, [navigation, data]);
 
   const handleReload = useCallback(() => {
-    data?.source && dispatch(loadManga({ mangaId: id, source: data?.source }));
-  }, [dispatch, id, data?.source]);
+    isManga(data) && dispatch(loadManga({ mangaHash }));
+  }, [dispatch, mangaHash, data]);
 
   if (!isManga(data)) {
     return (
@@ -48,22 +48,21 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     );
   }
 
-  const handleChapter = (mangaId: string, chapterId: string) => {
+  const handleChapter = (chapterHash: string) => {
     return () => {
       navigation.navigate('Chapter', {
-        mangaId,
-        chapterId,
-        page: chapterId === data.lastWatchChapterId ? data.lastWatchPage || 1 : 1,
-        source: data.source,
+        mangaHash,
+        chapterHash,
+        page: chapterHash === data.lastWatchChapter ? data.lastWatchPage || 1 : 1,
       });
     };
   };
 
   const renderItem = ({ item, index }: ListRenderItemInfo<ChapterItem>) => {
-    const isActived = item.chapterId === data.lastWatchChapterId;
+    const isActived = item.hash === data.lastWatchChapter;
     const isLastone = index + 1 === data.chapters.length;
     return (
-      <TouchableOpacity activeOpacity={0.8} onPress={handleChapter(item.mangaId, item.chapterId)}>
+      <TouchableOpacity activeOpacity={0.8} onPress={handleChapter(item.hash)}>
         <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
           <Text
             bg={isActived ? '#6200ee' : 'transparent'}
@@ -115,7 +114,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           />
         }
         renderItem={renderItem}
-        keyExtractor={(item) => item.chapterId}
+        keyExtractor={(item) => item.hash}
       />
     </Box>
   );
@@ -125,22 +124,22 @@ export const Heart = () => {
   const route = useRoute<StackDetailProps['route']>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites);
-  const id = route.params.id;
+  const mangaHash = route.params.mangaHash;
 
   useFirstRender(
     useCallback(() => {
-      favorites.includes(id) && dispatch(viewFavorites(id));
-    }, [dispatch, favorites, id])
+      favorites.includes(mangaHash) && dispatch(viewFavorites(mangaHash));
+    }, [dispatch, favorites, mangaHash])
   );
 
   const handleFavorite = () => {
-    dispatch(addFavorites(id));
+    dispatch(addFavorites(mangaHash));
   };
   const handleUnfavorite = () => {
-    dispatch(removeFavorites(id));
+    dispatch(removeFavorites(mangaHash));
   };
 
-  if (favorites.includes(id)) {
+  if (favorites.includes(mangaHash)) {
     return (
       <IconButton
         icon={<Icon as={MaterialIcons} name="favorite" size={30} color="red.500" />}

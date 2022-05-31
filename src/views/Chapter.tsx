@@ -8,25 +8,22 @@ import Reader from '~/components/Reader';
 const { loadChapter, viewChapter, viewPage } = action;
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
-  const { mangaId, chapterId, page, source } = route.params || {};
+  const { mangaHash, chapterHash, page } = route.params || {};
   const dispatch = useAppDispatch();
   const chapterDict = useAppSelector((state) => state.dict.chapter);
-  const data = useMemo(
-    () => chapterDict[mangaId + '$$' + chapterId],
-    [chapterDict, mangaId, chapterId]
-  );
+  const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
 
   const loadAndViewChapter = () => {
-    !isChapter(data) && dispatch(loadChapter({ mangaId, chapterId, source }));
-    dispatch(viewChapter({ mangaId, chapterId }));
+    !isChapter(data) && dispatch(loadChapter({ chapterHash }));
+    dispatch(viewChapter({ mangaHash, chapterHash }));
   };
   useFirstRender(loadAndViewChapter);
 
   const handlePageChange = useCallback(
     (currentPage: number) => {
-      dispatch(viewPage({ mangaId, page: currentPage }));
+      dispatch(viewPage({ mangaHash, page: currentPage }));
     },
-    [dispatch, mangaId]
+    [dispatch, mangaHash]
   );
   const handleGoBack = useCallback(() => {
     navigation.goBack();

@@ -13,12 +13,9 @@ const initialState: RootState = {
   update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   favorites: [],
   manga: {
-    mangaId: '',
     loadStatus: LoadStatus.Default,
   },
   chapter: {
-    mangaId: '',
-    chapterId: '',
     loadStatus: LoadStatus.Default,
   },
   dict: {
@@ -94,7 +91,7 @@ const searchSlice = createSlice({
 
       state.page += 1;
       state.loadStatus = LoadStatus.Fulfilled;
-      state.list = state.list.concat(data.map((item) => item.mangaId));
+      state.list = state.list.concat(data.map((item) => item.hash));
       state.isEnd = data.length < 20;
     },
   },
@@ -123,7 +120,7 @@ const updateSlice = createSlice({
 
       state.page += 1;
       state.loadStatus = LoadStatus.Fulfilled;
-      state.list = state.list.concat(data.map((item) => item.mangaId));
+      state.list = state.list.concat(data.map((item) => item.hash));
       state.isEnd = data.length < 20;
     },
   },
@@ -154,9 +151,8 @@ const mangaSlice = createSlice({
   name: 'manga',
   initialState: initialState.manga,
   reducers: {
-    loadManga(state, action: PayloadAction<{ mangaId: string; source: Plugin }>) {
+    loadManga(state, _action: PayloadAction<{ mangaHash: string }>) {
       state.loadStatus = LoadStatus.Pending;
-      state.mangaId = action.payload.mangaId;
     },
     loadMangaCompletion(state, action: FetchResponseAction<Manga>) {
       const { error } = action.payload;
@@ -174,13 +170,8 @@ const chapterSlice = createSlice({
   name: 'chapter',
   initialState: initialState.chapter,
   reducers: {
-    loadChapter(
-      state,
-      action: PayloadAction<{ mangaId: string; chapterId: string; source: Plugin }>
-    ) {
+    loadChapter(state, _action: PayloadAction<{ chapterHash: string }>) {
       state.loadStatus = LoadStatus.Pending;
-      state.mangaId = action.payload.mangaId;
-      state.chapterId = action.payload.chapterId;
     },
     loadChapterCompletion(state, action: FetchResponseAction<Chapter>) {
       const { error } = action.payload;
@@ -201,17 +192,17 @@ const dictSlice = createSlice({
     syncDict(_state, action: PayloadAction<RootState['dict']>) {
       return action.payload;
     },
-    viewChapter(state, action: PayloadAction<{ mangaId: string; chapterId: string }>) {
-      const { mangaId, chapterId } = action.payload;
-      const manga = state.manga[mangaId];
+    viewChapter(state, action: PayloadAction<{ mangaHash: string; chapterHash: string }>) {
+      const { mangaHash, chapterHash } = action.payload;
+      const manga = state.manga[mangaHash];
 
       if (manga) {
-        manga.lastWatchChapterId = chapterId;
+        manga.lastWatchChapter = chapterHash;
       }
     },
-    viewPage(state, action: PayloadAction<{ mangaId: string; page: number }>) {
-      const { mangaId, page } = action.payload;
-      const manga = state.manga[mangaId];
+    viewPage(state, action: PayloadAction<{ mangaHash: string; page: number }>) {
+      const { mangaHash, page } = action.payload;
+      const manga = state.manga[mangaHash];
 
       if (manga) {
         manga.lastWatchPage = page;
@@ -229,7 +220,7 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.mangaId] = { ...state.manga[item.mangaId], ...item };
+        state.manga[item.hash] = { ...state.manga[item.hash], ...item };
       });
     },
     [updateSlice.actions.loadUpdateCompletion.type]: (
@@ -242,7 +233,7 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.mangaId] = { ...state.manga[item.mangaId], ...item };
+        state.manga[item.hash] = { ...state.manga[item.hash], ...item };
       });
     },
     [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
@@ -251,7 +242,7 @@ const dictSlice = createSlice({
         return;
       }
 
-      state.manga[data.mangaId] = { ...state.manga[data.mangaId], ...data };
+      state.manga[data.hash] = { ...state.manga[data.hash], ...data };
     },
     [chapterSlice.actions.loadChapterCompletion.type]: (
       state,
@@ -262,8 +253,7 @@ const dictSlice = createSlice({
         return;
       }
 
-      const { mangaId, chapterId } = data;
-      state.chapter[mangaId + '$$' + chapterId] = data;
+      state.chapter[data.hash] = { ...state.chapter[data.hash], ...data };
     },
   },
 });

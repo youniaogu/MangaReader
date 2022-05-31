@@ -11,13 +11,13 @@ const oneThirdWidth = (windowWidth - gap * 4) / 3;
 interface BookshelfProps {
   list: Manga[];
   loadMore?: (info: { distanceFromEnd: number }) => void;
-  itemOnPress: (id: string) => void;
+  itemOnPress: (hash: string) => void;
 }
 
 const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
-  const handlePress = (id: string) => {
+  const handlePress = (hash: string) => {
     return () => {
-      itemOnPress(id);
+      itemOnPress(hash);
     };
   };
 
@@ -28,10 +28,10 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
       data={list}
       onEndReached={loadMore}
       onEndReachedThreshold={1}
-      keyExtractor={(item) => item.key}
+      keyExtractor={(item) => item.hash}
       renderItem={({ item, index }) => {
         return (
-          <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.mangaId)}>
+          <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.hash)}>
             <Box
               shadow={0}
               width={oneThirdWidth}

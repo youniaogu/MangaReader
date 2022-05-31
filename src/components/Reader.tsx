@@ -92,6 +92,7 @@ const Reader = ({
         windowSize={3}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
+        updateCellsBatchingPeriod={1000}
         getItemLayout={(_data, index) => ({
           length: windowWidth,
           offset: windowWidth * index,

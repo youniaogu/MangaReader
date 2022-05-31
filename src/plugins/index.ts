@@ -1,3 +1,4 @@
+import Base from './base';
 import ManHuaGuiMobile from './mhgm';
 import ManHuaGui from './mhg';
 
@@ -13,3 +14,5 @@ export const PluginMap = new Map([
   [Plugin.MHGM, MHGM],
   [Plugin.MHG, MHG],
 ]);
+export const combineHash = Base.combineHash;
+export const splitHash = Base.splitHash;
