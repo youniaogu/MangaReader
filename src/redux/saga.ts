@@ -138,9 +138,13 @@ function* loadSearchSaga() {
         return;
       }
 
-      const { error, data } = yield call(fetchData, plugin.prepareSearchFetch(keyword, page));
+      const { error: fetchError, data } = yield call(
+        fetchData,
+        plugin.prepareSearchFetch(keyword, page)
+      );
+      const { error: pluginError, search } = plugin.handleSearch(data);
 
-      yield put(loadSearchCompletion({ error, data: plugin.handleSearch(data) }));
+      yield put(loadSearchCompletion({ error: fetchError || pluginError, data: search }));
     }
   );
 }
@@ -163,9 +167,10 @@ function* loadUpdateSaga() {
         return;
       }
 
-      const { error, data } = yield call(fetchData, plugin.prepareUpdateFetch(page));
+      const { error: fetchError, data } = yield call(fetchData, plugin.prepareUpdateFetch(page));
+      const { error: pluginError, update } = plugin.handleUpdate(data);
 
-      yield put(loadUpdateCompletion({ error, data: plugin.handleUpdate(data) }));
+      yield put(loadUpdateCompletion({ error: fetchError || pluginError, data: update }));
     }
   );
 }
@@ -182,9 +187,10 @@ function* loadMangaSaga() {
         return;
       }
 
-      const { error, data } = yield call(fetchData, plugin.prepareMangaFetch(mangaId));
+      const { error: fetchError, data } = yield call(fetchData, plugin.prepareMangaFetch(mangaId));
+      const { error: pluginError, manga } = plugin.handleManga(data);
 
-      yield put(loadMangaCompletion({ error, data: plugin.handleManga(data) }));
+      yield put(loadMangaCompletion({ error: fetchError || pluginError, data: manga }));
     }
   );
 }
@@ -201,9 +207,13 @@ function* loadChapterSaga() {
         return;
       }
 
-      const { error, data } = yield call(fetchData, plugin.prepareChapterFetch(mangaId, chapterId));
+      const { error: fetchError, data } = yield call(
+        fetchData,
+        plugin.prepareChapterFetch(mangaId, chapterId)
+      );
+      const { error: pluginError, chapter } = plugin.handleChapter(data);
 
-      yield put(loadChapterCompletion({ error, data: plugin.handleChapter(data) }));
+      yield put(loadChapterCompletion({ error: fetchError || pluginError, data: chapter }));
     }
   );
 }

@@ -29,10 +29,18 @@ abstract class Base {
   abstract prepareMangaFetch(mangaId: string): FetchData;
   abstract prepareChapterFetch(mangaId: string, chapterId: string): FetchData;
 
-  abstract handleUpdate(text: string | null): Manga[];
-  abstract handleSearch(text: string | null): Manga[];
-  abstract handleManga(text: string | null): Manga;
-  abstract handleChapter(text: string | null): Chapter;
+  abstract handleUpdate(
+    text: string | null
+  ): { error: Error; update?: undefined } | { error?: undefined; update: Manga[] };
+  abstract handleSearch(
+    text: string | null
+  ): { error: Error; search?: undefined } | { error?: undefined; search: Manga[] };
+  abstract handleManga(
+    text: string | null
+  ): { error: Error; manga?: undefined } | { error?: undefined; manga: Manga };
+  abstract handleChapter(
+    text: string | null
+  ): { error: Error; chapter?: undefined } | { error?: undefined; chapter: Chapter };
 }
 
 export default Base;
