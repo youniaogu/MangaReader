@@ -31,6 +31,7 @@ declare global {
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 
   declare interface Manga {
+    href: string;
     hash: string;
     source: Plugin;
     sourceName: string;

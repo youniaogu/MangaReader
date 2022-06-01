@@ -116,6 +116,7 @@ class ManHuaGuiMobile extends Base {
         }
 
         list.push({
+          href: 'https://m.manhuagui.com/comic/' + mangaId,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
@@ -168,6 +169,7 @@ class ManHuaGuiMobile extends Base {
 
         list.push({
           hash: Base.combineHash(this.id, mangaId),
+          href: 'https://m.manhuagui.com/comic/' + mangaId,
           source: this.id,
           sourceName: this.name,
           mangaId,
@@ -188,6 +190,7 @@ class ManHuaGuiMobile extends Base {
   handleManga(text: string): Manga {
     const $ = cheerio.load(text || '');
     const manga: Manga = {
+      href: '',
       hash: '',
       source: this.id,
       sourceName: this.name,
@@ -266,6 +269,7 @@ class ManHuaGuiMobile extends Base {
       manga.status = UpdateStatus.End;
     }
 
+    manga.href = 'https://m.manhuagui.com/comic/' + mangaId;
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = $('div.main-bar > h1').first().text();

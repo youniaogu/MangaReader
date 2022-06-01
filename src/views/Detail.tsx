@@ -4,9 +4,10 @@ import {
   TouchableOpacity,
   Dimensions,
   RefreshControl,
+  Linking,
   ListRenderItemInfo,
 } from 'react-native';
-import { Box, Flex, Text, IconButton, Icon, FlatList } from 'native-base';
+import { Box, Flex, Text, IconButton, Icon, FlatList, HStack } from 'native-base';
 import { coverAspectRatio, useFirstRender, isManga } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -127,6 +128,7 @@ export const Heart = () => {
   const route = useRoute<StackDetailProps['route']>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites);
+  const dict = useAppSelector((state) => state.dict.manga);
   const mangaHash = route.params.mangaHash;
 
   useFirstRender(
@@ -141,20 +143,38 @@ export const Heart = () => {
   const handleUnfavorite = () => {
     dispatch(removeFavorites(mangaHash));
   };
+  const handleToBrowser = () => {
+    const href = dict[mangaHash]?.href || '';
+    Linking.canOpenURL(href).then((supported) => {
+      supported && Linking.openURL(href);
+    });
+  };
 
   if (favorites.includes(mangaHash)) {
     return (
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="favorite" size={30} color="red.500" />}
-        onPress={handleUnfavorite}
-      />
+      <HStack>
+        <IconButton
+          icon={<Icon as={MaterialIcons} name="favorite" size={30} color="red.500" />}
+          onPress={handleUnfavorite}
+        />
+        <IconButton
+          icon={<Icon as={MaterialIcons} name="open-in-browser" size={30} color="white" />}
+          onPress={handleToBrowser}
+        />
+      </HStack>
     );
   }
   return (
-    <IconButton
-      icon={<Icon as={MaterialIcons} name="favorite-outline" size={30} color="white" />}
-      onPress={handleFavorite}
-    />
+    <HStack>
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="favorite-outline" size={30} color="white" />}
+        onPress={handleFavorite}
+      />
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="open-in-browser" size={30} color="white" />}
+        onPress={handleToBrowser}
+      />
+    </HStack>
   );
 };
 
