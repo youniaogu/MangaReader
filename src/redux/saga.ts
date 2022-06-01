@@ -9,8 +9,8 @@ import {
   takeEvery,
   delay,
 } from 'redux-saga/effects';
+import { splitHash, Plugin, PluginMap, defaultPlugin } from '~/plugins';
 import { storageKey, fetchData } from '~/utils';
-import { splitHash, Plugin, PluginMap } from '~/plugins';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,6 +22,7 @@ const {
   syncDataCompletion,
   syncFavorites,
   syncDict,
+  syncPlugin,
   clearCache,
   clearCacheCompletion,
   viewChapter,
@@ -51,18 +52,36 @@ function* syncDataSaga() {
     try {
       const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
       const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
+      const pluginData: string | null = yield call(AsyncStorage.getItem, storageKey.plugin);
 
       let favorites: string[] = [];
       let dict: RootState['dict'] = { manga: {}, chapter: {} };
+      let plugin: RootState['plugin'] = { list: [], source: defaultPlugin };
       if (favoritesData) {
         favorites = JSON.parse(favoritesData);
+        yield put(syncFavorites(favorites));
       }
       if (dictData) {
         dict = JSON.parse(dictData);
+        yield put(syncDict(dict));
+      }
+      if (pluginData) {
+        const pluginCache: RootState['plugin'] = JSON.parse(pluginData);
+
+        plugin.source = pluginCache.source;
+        PluginMap.forEach((item) => {
+          const finded = pluginCache.list.find((obj) => obj.value === item.id);
+
+          plugin.list.push({
+            name: item.name,
+            label: item.shortName,
+            value: item.id,
+            disabled: finded ? finded.disabled : true,
+          });
+        });
+        yield put(syncPlugin(plugin));
       }
 
-      yield put(syncFavorites(favorites));
-      yield put(syncDict(dict));
       yield put(syncDataCompletion({ error: undefined }));
     } catch (e) {
       yield put(syncDataCompletion({ error: new Error('launch fail') }));
@@ -85,9 +104,11 @@ function* storageDataSaga() {
       yield delay(3000);
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const dict = ((state: RootState) => state.dict)(yield select());
+      const plugin = ((state: RootState) => state.plugin)(yield select());
 
       yield call(AsyncStorage.setItem, storageKey.favorites, JSON.stringify(favorites));
       yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(dict));
+      yield call(AsyncStorage.setItem, storageKey.plugin, JSON.stringify(plugin));
     }
   );
 }

@@ -7,8 +7,8 @@ export enum Plugin {
   MHG = 'MHG',
 }
 
-const MHGM = new ManHuaGuiMobile(Plugin.MHGM, 'manhuagui(mobile)');
-const MHG = new ManHuaGui(Plugin.MHG, 'manhuagui');
+const MHGM = new ManHuaGuiMobile(Plugin.MHGM, 'manhuagui(mobile)', 'MHGM');
+const MHG = new ManHuaGui(Plugin.MHG, 'manhuagui', 'MHG');
 
 export const PluginMap = new Map([
   [Plugin.MHGM, MHGM],
@@ -16,3 +16,12 @@ export const PluginMap = new Map([
 ]);
 export const combineHash = Base.combineHash;
 export const splitHash = Base.splitHash;
+export const defaultPlugin: Plugin = PluginMap.entries().next().value[0];
+export const defaultPluginList = Array.from(PluginMap.values()).map((item) => {
+  return {
+    label: item.shortName,
+    name: item.name,
+    value: item.id,
+    disabled: false,
+  };
+});

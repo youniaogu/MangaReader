@@ -1,5 +1,5 @@
 import React, { Fragment, useMemo } from 'react';
-import { Box, StatusBar, HStack, IconButton, Icon, Text } from 'native-base';
+import { StatusBar, HStack, IconButton, Icon, Text } from 'native-base';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { getHeaderTitle } from '@react-navigation/elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -21,16 +21,17 @@ const Header = (headerProps: NativeStackHeaderProps) => {
   return (
     <Fragment>
       <StatusBar animated backgroundColor="black" barStyle="light-content" />
-      <Box safeAreaTop bg="#6200ee" />
       <HStack
         bg="#6200ee"
-        px={1}
-        py={3}
-        w="100%"
+        p={1}
+        w="full"
         justifyContent="space-between"
         alignItems="center"
+        safeAreaTop
+        safeAreaLeft
+        safeAreaRight
       >
-        <HStack flex={1} justifyContent="flex-start" alignItems="center">
+        <HStack flex={1} flexGrow={1} justifyContent="flex-start" alignItems="center">
           {canGoBack ? (
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}

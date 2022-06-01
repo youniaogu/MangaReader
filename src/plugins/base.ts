@@ -4,10 +4,12 @@ import { Plugin } from './index';
 abstract class Base {
   readonly id: Plugin;
   readonly name: string;
+  readonly shortName: string;
 
-  constructor(id: Plugin, name: string) {
+  constructor(id: Plugin, name: string, shortName: string) {
     this.id = id;
     this.name = name;
+    this.shortName = shortName;
   }
 
   static combineHash(id: Plugin, mangaId: string, chapterId?: string): string {

@@ -11,11 +11,11 @@ const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/[0-9]+(
 const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\].+(?=$)/g;
 const PATTERN_READER_DATA = /^SMH\.reader\(.+(?=\)\.preInit\(\);)/g;
 
-const PATTERN_MANGA_INFO = /{ bid: ([0-9]*), status: ([0|1]), block_cc: "" }/;
+const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:([0|1]),block_cc:'' }/;
 
 class ManHuaGui extends Base {
-  constructor(pluginID: Plugin, pluginName: string) {
-    super(pluginID, pluginName);
+  constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
+    super(pluginID, pluginName, pluginShortName);
   }
 
   prepareUpdateFetch(page: number): FetchData {
@@ -60,9 +60,7 @@ class ManHuaGui extends Base {
       body: page > 1 ? body : undefined,
     };
   }
-  prepareMangaFetch(mangaHash: string): FetchData {
-    const [, mangaId] = mangaHash.split('&');
-
+  prepareMangaFetch(mangaId: string): FetchData {
     if (process.env.NODE_ENV === env.DEV) {
       return {
         url: process.env.PROXY + '/manga',
@@ -73,8 +71,7 @@ class ManHuaGui extends Base {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
     };
   }
-  prepareChapterFetch(chapterHash: string): FetchData {
-    const [, mangaId, chapterId] = chapterHash.split('&');
+  prepareChapterFetch(mangaId: string, chapterId: string): FetchData {
     if (process.env.NODE_ENV === env.DEV) {
       return {
         url: process.env.PROXY + '/chapter',
@@ -119,8 +116,9 @@ class ManHuaGui extends Base {
         }
 
         list.push({
-          hash: `${this.id}&${mangaId}`,
+          hash: Base.combineHash(this.id, mangaId),
           source: this.id,
+          sourceName: this.name,
           mangaId,
           title,
           status,
@@ -169,8 +167,9 @@ class ManHuaGui extends Base {
         }
 
         list.push({
-          hash: `${this.id}&${mangaId}`,
+          hash: Base.combineHash(this.id, mangaId),
           source: this.id,
+          sourceName: this.name,
           mangaId,
           title,
           status,
@@ -191,6 +190,7 @@ class ManHuaGui extends Base {
     const manga: Manga = {
       hash: '',
       source: this.id,
+      sourceName: this.name,
       mangaId: '',
       cover: '',
       title: '',
@@ -230,7 +230,7 @@ class ManHuaGui extends Base {
               .split('/');
 
             chapters.push({
-              hash: `${this.id}&${mangaId}&${chapterId}`,
+              hash: Base.combineHash(this.id, mangaId, chapterId),
               mangaId,
               chapterId,
               href,
@@ -250,7 +250,7 @@ class ManHuaGui extends Base {
             .split('/');
 
           chapters.push({
-            hash: `${this.id}&${mangaId}&${chapterId}`,
+            hash: Base.combineHash(this.id, mangaId, chapterId),
             mangaId,
             chapterId,
             href,
@@ -267,7 +267,7 @@ class ManHuaGui extends Base {
     }
 
     manga.mangaId = mangaId;
-    manga.hash = `${this.id}&${mangaId}`;
+    manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = $('div.main-bar > h1').first().text();
     manga.cover = 'https:' + $('div.thumb img').first().attr('src');
     manga.latest = latest;
@@ -309,7 +309,7 @@ class ManHuaGui extends Base {
     const { bookId, chapterId, bookName, chapterTitle, images = [], sl } = data;
 
     return {
-      hash: `${this.id}&${bookId}&${chapterId}`,
+      hash: Base.combineHash(this.id, bookId, chapterId),
       mangaId: bookId,
       chapterId,
       name: bookName,

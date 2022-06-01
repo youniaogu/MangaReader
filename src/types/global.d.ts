@@ -71,6 +71,10 @@ declare global {
       syncStatus: LoadStatus;
       clearStatus: LoadStatus;
     };
+    plugin: {
+      source: Plugin;
+      list: { name: string; label: string; value: Plugin; disabled: boolean }[];
+    };
     search: {
       keyword: string;
       page: number;

@@ -1,5 +1,5 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
-import { Plugin } from '~/plugins';
+import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 
 const { LoadStatus } = window;
 
@@ -8,6 +8,10 @@ const initialState: RootState = {
     launchStatus: LoadStatus.Default,
     syncStatus: LoadStatus.Default,
     clearStatus: LoadStatus.Default,
+  },
+  plugin: {
+    source: defaultPlugin,
+    list: defaultPluginList,
   },
   search: { keyword: '', page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
@@ -60,6 +64,19 @@ const appSlice = createSlice({
       }
 
       state.clearStatus = LoadStatus.Fulfilled;
+    },
+  },
+});
+
+const pluginSlice = createSlice({
+  name: 'plugin',
+  initialState: initialState.plugin,
+  reducers: {
+    setCurrent(state, action: PayloadAction<Plugin>) {
+      state.source = action.payload;
+    },
+    syncPlugin(_state, action: PayloadAction<RootState['plugin']>) {
+      return action.payload;
     },
   },
 });
@@ -122,6 +139,11 @@ const updateSlice = createSlice({
       state.loadStatus = LoadStatus.Fulfilled;
       state.list = state.list.concat(data.map((item) => item.hash));
       state.isEnd = data.length < 20;
+    },
+  },
+  extraReducers: {
+    [pluginSlice.actions.setCurrent.type]: (state) => {
+      state.loadStatus = LoadStatus.Default;
     },
   },
 });
@@ -259,6 +281,7 @@ const dictSlice = createSlice({
 });
 
 const appAction = appSlice.actions;
+const pluginAction = pluginSlice.actions;
 const searchAction = searchSlice.actions;
 const updateAction = updateSlice.actions;
 const favoritesAction = favoritesSlice.actions;
@@ -267,6 +290,7 @@ const chapterAction = chapterSlice.actions;
 const dictAction = dictSlice.actions;
 
 const appReducer = appSlice.reducer;
+const pluginReducer = pluginSlice.reducer;
 const searchReducer = searchSlice.reducer;
 const updateReducer = updateSlice.reducer;
 const favoritesReducer = favoritesSlice.reducer;
@@ -276,6 +300,7 @@ const dictReducer = dictSlice.reducer;
 
 export const action = {
   ...appAction,
+  ...pluginAction,
   ...searchAction,
   ...updateAction,
   ...favoritesAction,
@@ -285,6 +310,7 @@ export const action = {
 };
 export const reducer = combineReducers<RootState>({
   app: appReducer,
+  plugin: pluginReducer,
   search: searchReducer,
   update: updateReducer,
   favorites: favoritesReducer,

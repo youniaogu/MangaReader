@@ -14,8 +14,8 @@ const PATTERN_READER_DATA = /^SMH\.reader\(.+(?=\)\.preInit\(\);)/g;
 const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:([0|1]),block_cc:'' }/;
 
 class ManHuaGuiMobile extends Base {
-  constructor(pluginID: Plugin, pluginName: string) {
-    super(pluginID, pluginName);
+  constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
+    super(pluginID, pluginName, pluginShortName);
   }
 
   prepareUpdateFetch(page: number): FetchData {
