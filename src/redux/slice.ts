@@ -106,10 +106,11 @@ const searchSlice = createSlice({
         return;
       }
 
+      const list = Array.from(new Set(state.list.concat(data.map((item) => item.hash))));
       state.page += 1;
       state.loadStatus = LoadStatus.Fulfilled;
-      state.list = state.list.concat(data.map((item) => item.hash));
-      state.isEnd = data.length < 20;
+      state.isEnd = list.length === state.list.length;
+      state.list = list;
     },
   },
 });
@@ -135,10 +136,11 @@ const updateSlice = createSlice({
         return;
       }
 
+      const list = Array.from(new Set(state.list.concat(data.map((item) => item.hash))));
       state.page += 1;
       state.loadStatus = LoadStatus.Fulfilled;
-      state.list = state.list.concat(data.map((item) => item.hash));
-      state.isEnd = data.length < 20;
+      state.isEnd = list.length === state.list.length;
+      state.list = list;
     },
   },
   extraReducers: {

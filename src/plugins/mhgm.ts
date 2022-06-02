@@ -1,25 +1,25 @@
-import { firstMatch } from '~/utils';
 import { Plugin } from '~/plugins';
 import queryString from 'query-string';
 import LZString from 'lz-string';
 import cheerio from 'cheerio';
 import Base from './base';
 
-const { env, UpdateStatus } = window;
-const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/g;
-const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/[0-9]+(?=\.html|$)/g;
-const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\].+(?=$)/g;
-const PATTERN_READER_DATA = /^SMH\.reader\(.+(?=\)\.preInit\(\);)/g;
-
+const { UpdateStatus } = window;
+const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/;
 const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:([0|1]),block_cc:'' }/;
+const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
+const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\](.+)(?=$)/;
+const PATTERN_READER_DATA = /^SMH\.reader\((.+)(?=\)\.preInit\(\);)/;
 
 class ManHuaGuiMobile extends Base {
+  readonly useMock = true;
+
   constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
     super(pluginID, pluginName, pluginShortName);
   }
 
   prepareUpdateFetch: Base['prepareUpdateFetch'] = (page) => {
-    if (process.env.NODE_ENV === env.DEV) {
+    if (this.useMock) {
       return {
         url: process.env.PROXY + '/update',
         body: {
@@ -46,7 +46,7 @@ class ManHuaGuiMobile extends Base {
     body.append('ajax', '1');
     body.append('order', '1');
 
-    if (process.env.NODE_ENV === env.DEV) {
+    if (this.useMock) {
       return {
         url: process.env.PROXY + '/search',
         method: 'POST',
@@ -61,7 +61,7 @@ class ManHuaGuiMobile extends Base {
     };
   };
   prepareMangaFetch: Base['prepareMangaFetch'] = (mangaId) => {
-    if (process.env.NODE_ENV === env.DEV) {
+    if (this.useMock) {
       return {
         url: process.env.PROXY + '/manga',
       };
@@ -72,7 +72,7 @@ class ManHuaGuiMobile extends Base {
     };
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
-    if (process.env.NODE_ENV === env.DEV) {
+    if (this.useMock) {
       return {
         url: process.env.PROXY + '/chapter',
       };
@@ -88,6 +88,8 @@ class ManHuaGuiMobile extends Base {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
 
+      console.log($('li > a').toArray().length);
+
       $('li > a')
         .toArray()
         .forEach((a) => {
@@ -99,10 +101,7 @@ class ManHuaGuiMobile extends Base {
           const [author, tag, latest, updateTime] = $$('dl')
             .toArray()
             .map((dl) => cheerio.load(dl).root().text());
-          const mangaId = firstMatch(href.match(PATTERN_MANGA_ID)).replace(
-            'https://m.manhuagui.com/comic/',
-            ''
-          );
+          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           let status = UpdateStatus.Unknow;
           if (statusLabel === '连载') {
@@ -117,7 +116,7 @@ class ManHuaGuiMobile extends Base {
           }
 
           list.push({
-            href: 'https://m.manhuagui.com/comic/' + mangaId,
+            href,
             hash: Base.combineHash(this.id, mangaId),
             source: this.id,
             sourceName: this.name,
@@ -155,10 +154,7 @@ class ManHuaGuiMobile extends Base {
           const [author, tag, latest, updateTime] = $$('dl')
             .toArray()
             .map((dl) => cheerio.load(dl).root().text());
-          const mangaId = firstMatch(href.match(PATTERN_MANGA_ID)).replace(
-            'https://m.manhuagui.com/comic/',
-            ''
-          );
+          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           let status = UpdateStatus.Unknow;
           if (statusLabel === '连载') {
@@ -173,8 +169,8 @@ class ManHuaGuiMobile extends Base {
           }
 
           list.push({
+            href,
             hash: Base.combineHash(this.id, mangaId),
-            href: 'https://m.manhuagui.com/comic/' + mangaId,
             source: this.id,
             sourceName: this.name,
             mangaId,
@@ -237,9 +233,7 @@ class ManHuaGuiMobile extends Base {
               const $$$ = cheerio.load(item);
               const title = $$$('b').first().text();
               const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
-              const [, chapterId] = firstMatch(href.match(PATTERN_CHAPTER_ID))
-                .replace('https://m.manhuagui.com/comic/', '')
-                .split('/');
+              const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
 
               chapters.push({
                 hash: Base.combineHash(this.id, mangaId, chapterId),
@@ -257,9 +251,7 @@ class ManHuaGuiMobile extends Base {
             const $$ = cheerio.load(item);
             const title = $$('b').first().text();
             const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
-            const [, chapterId] = firstMatch(href.match(PATTERN_CHAPTER_ID))
-              .replace('https://m.manhuagui.com/comic/', '')
-              .split('/');
+            const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
 
             chapters.push({
               hash: Base.combineHash(this.id, mangaId, chapterId),
@@ -303,25 +295,12 @@ class ManHuaGuiMobile extends Base {
           data: string;
         }
       ).data;
-      const scriptContent = firstMatch(script.match(PATTERN_SCRIPT)).replace(
-        'window["\\x65\\x76\\x61\\x6c"]',
-        ''
-      );
+      const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
 
-      let data: any;
-      try {
-        // eslint-disable-next-line no-eval
-        const readerScript = eval(scriptContent) as string;
-        const stringifyData = firstMatch(readerScript.match(PATTERN_READER_DATA)).replace(
-          'SMH.reader(',
-          ''
-        );
-
-        data = JSON.parse(stringifyData);
-      } catch (e) {
-        data = {};
-        console.error(e);
-      }
+      // eslint-disable-next-line no-eval
+      const readerScript = eval(scriptContent) as string;
+      const [, stringifyData] = readerScript.match(PATTERN_READER_DATA) || [];
+      const data = JSON.parse(stringifyData);
 
       const { bookId, chapterId, bookName, chapterTitle, images = [], sl } = data;
 

@@ -11,10 +11,6 @@ export const PATTERN_CHAPTER_ID =
 export const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\].+(?=$)/g;
 export const PATTERN_READER_DATA = /^SMH\.reader\(.+(?=\)\.preInit\(\);)/g;
 
-export function firstMatch(matchResult: ReturnType<typeof String.prototype.match>): string {
-  return matchResult ? matchResult[0] : '';
-}
-
 export function isManga(item: Manga | undefined | null): item is Manga {
   if (item) {
     return true;

@@ -50,7 +50,7 @@ export const SearchInput = () => {
   const dispatch = useAppDispatch();
 
   const handleSearch = () => {
-    dispatch(loadSearch({ source: Plugin.MHGM, keyword, isReset: true }));
+    dispatch(loadSearch({ source, keyword, isReset: true }));
     RootNavigation.navigate('Result');
   };
   const handleDisOpen = () => {

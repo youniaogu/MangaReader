@@ -1,7 +1,6 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga } from '~/utils';
-import { Input } from 'native-base';
 import { Plugin } from '~/plugins';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
@@ -40,30 +39,6 @@ const Search = ({ navigation }: StackResultProps) => {
   }
 
   return <Bookshelf list={searchList} loadMore={handleLoadMore} itemOnPress={handleDetail} />;
-};
-
-export const SearchInput = () => {
-  const [keyword, setKeyword] = useState('');
-  const dispatch = useAppDispatch();
-
-  const handleSearch = () => {
-    dispatch(loadSearch({ keyword, isReset: true, source: Plugin.MHGM }));
-  };
-
-  return (
-    <Input
-      ml={1}
-      mr={30}
-      w="4/5"
-      size="2xl"
-      bg="#6200ee"
-      color="white"
-      variant="underlined"
-      placeholder="press enter to search"
-      onChangeText={setKeyword}
-      onSubmitEditing={handleSearch}
-    />
-  );
 };
 
 export default Search;

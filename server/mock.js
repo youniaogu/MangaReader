@@ -14,7 +14,7 @@ function logFail(message) {
 }
 
 app.all('/update', function (req, res) {
-  res.sendFile(path.join(__dirname, 'example/update.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'example/MHG/update.html'), (err) => {
     if (err) {
       logFail('【fail】update: ' + err.message);
     } else {
@@ -23,7 +23,7 @@ app.all('/update', function (req, res) {
   });
 });
 app.all('/search', function (req, res) {
-  res.sendFile(path.join(__dirname, 'example/search.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'example/MHG/search.html'), (err) => {
     if (err) {
       logFail('【fail】search: ' + err.message);
     } else {
@@ -32,7 +32,7 @@ app.all('/search', function (req, res) {
   });
 });
 app.all('/manga', function (req, res) {
-  res.sendFile(path.join(__dirname, 'example/manga.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'example/MHG/manga.html'), (err) => {
     if (err) {
       logFail('【fail】manga: ' + err.message);
     } else {
@@ -41,7 +41,7 @@ app.all('/manga', function (req, res) {
   });
 });
 app.all('/chapter', function (req, res) {
-  res.sendFile(path.join(__dirname, 'example/chapter.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'example/MHG/chapter.html'), (err) => {
     if (err) {
       logFail('【fail】chapter: ' + err.message);
     } else {
