@@ -15,10 +15,6 @@ export const fetchData = ({
 }: FetchData) => {
   const init: RequestInit & { headers: Headers } = { method: method.toUpperCase(), headers };
 
-  init.headers.append(
-    'user-agent',
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36'
-  );
   if (Object.keys(body).length > 0) {
     if (init.method === 'GET') {
       url += '?' + queryString.stringify(body);

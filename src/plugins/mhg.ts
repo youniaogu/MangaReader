@@ -4,7 +4,7 @@ import cheerio from 'cheerio';
 import Base from './base';
 
 const { UpdateStatus } = window;
-const PATTERN_MANGA_ID = /^https:\/\/www\.mhgui\.com\/comic\/([0-9]+)(?=\/$|$)/;
+const PATTERN_MANGA_ID = /^https:\/\/www\.mhgui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO =
   /{ id: ([0-9]*), status:([0|1]),block_cc:'.*', name: '(.+)', url: '.*' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.mhgui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
@@ -50,7 +50,7 @@ class ManHuaGui extends Base {
     }
 
     return {
-      url: 'https://www.mhgui.com/comic/' + mangaId,
+      url: `https://www.mhgui.com/comic/${mangaId}/`,
     };
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
@@ -77,7 +77,7 @@ class ManHuaGui extends Base {
           const a = $$('a:first-child').first();
           const img = $$('img').first();
 
-          const href = 'https://www.mhgui.com' + a.attr('href');
+          const href = `https://www.mhgui.com${a.attr('href')}/`;
           const title = a.attr('title');
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
           const latest = $$('span.tt').first().text();
@@ -96,7 +96,7 @@ class ManHuaGui extends Base {
           }
 
           list.push({
-            href: 'https://m.manhuagui.com/comic/' + mangaId,
+            href,
             hash: Base.combineHash(this.id, mangaId),
             source: this.id,
             sourceName: this.name,
@@ -130,7 +130,7 @@ class ManHuaGui extends Base {
           const a = $$('div.book-cover a.bcover').first();
           const img = $$('div.book-cover a.bcover img').first();
 
-          const href = 'https://www.mhgui.com' + a.attr('href');
+          const href = `https://www.mhgui.com${a.attr('href')}`;
           const title = a.attr('title');
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
           const updateTime = $$('div.book-detail dd.status span.red').last().text();
@@ -158,8 +158,8 @@ class ManHuaGui extends Base {
           }
 
           list.push({
+            href,
             hash: Base.combineHash(this.id, mangaId),
-            href: 'https://m.manhuagui.com/comic/' + mangaId,
             source: this.id,
             sourceName: this.name,
             mangaId,
@@ -200,7 +200,8 @@ class ManHuaGui extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent = $('script:not([src])').get(4).children[0].data;
+      const scriptContent = $('script:not([src])').get($('script:not([src])').length - 2)
+        .children[0].data;
       const [, mangaId, status, title] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const latest = '更新至：' + $('div.chapter-bar a.blue').first().text();
       const updateTime = $('div.chapter-bar span.fr span.red').last().text();
@@ -234,7 +235,7 @@ class ManHuaGui extends Base {
         manga.status = UpdateStatus.End;
       }
 
-      manga.href = 'https://www.mhgui.com/comic/' + mangaId;
+      manga.href = `https://www.mhgui.com/comic/${mangaId}`;
       manga.mangaId = mangaId;
       manga.hash = Base.combineHash(this.id, mangaId);
       manga.title = title;

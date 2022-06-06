@@ -5,14 +5,14 @@ import cheerio from 'cheerio';
 import Base from './base';
 
 const { UpdateStatus } = window;
-const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/;
+const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:([0|1]),block_cc:'' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
 const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\](.+)(?=$)/;
 const PATTERN_READER_DATA = /^SMH\.reader\((.+)(?=\)\.preInit\(\);)/;
 
 class ManHuaGuiMobile extends Base {
-  readonly useMock = true;
+  readonly useMock = false;
 
   constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
     super(pluginID, pluginName, pluginShortName);
@@ -87,8 +87,6 @@ class ManHuaGuiMobile extends Base {
     try {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
-
-      console.log($('li > a').toArray().length);
 
       $('li > a')
         .toArray()
