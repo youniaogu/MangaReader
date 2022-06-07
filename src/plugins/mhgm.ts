@@ -6,7 +6,7 @@ import Base from './base';
 
 const { UpdateStatus } = window;
 const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/([0-9]+)/;
-const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:([0|1]),block_cc:'' }/;
+const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:[0-9]*,block_cc:'' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
 const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\](.+)(?=$)/;
 const PATTERN_READER_DATA = /^SMH\.reader\((.+)(?=\)\.preInit\(\);)/;
@@ -210,7 +210,8 @@ class ManHuaGuiMobile extends Base {
       const chapters: ChapterItem[] = [];
 
       const scriptContent: string = $('script:not([src]):not([type])').get(1).children[0].data;
-      const [, mangaId, status] = scriptContent.match(PATTERN_MANGA_INFO) || [];
+      const [, mangaId] = scriptContent.match(PATTERN_MANGA_INFO) || [];
+      const statusLabel = $('div.book-detail div.thumb i').first().text(); // 连载 or 完结
 
       const [latest, updateTime, author, tag] = $('div.cont-list dl')
         .toArray()
@@ -261,10 +262,10 @@ class ManHuaGuiMobile extends Base {
           });
       }
 
-      if (status === '1') {
+      if (statusLabel === '连载') {
         manga.status = UpdateStatus.Serial;
       }
-      if (status === '2') {
+      if (statusLabel === '完结') {
         manga.status = UpdateStatus.End;
       }
 
@@ -288,11 +289,14 @@ class ManHuaGuiMobile extends Base {
   handleChapter: Base['handleChapter'] = (text) => {
     try {
       const $ = cheerio.load(text || '');
-      const script = (
-        ($('script:not([src])').eq(0)[0] as unknown as HTMLScriptElement).children[0] as Element & {
-          data: string;
-        }
-      ).data;
+      const scriptAfterFilter = (
+        $('script:not([src])').toArray() as unknown as HTMLSpanElement[]
+      ).filter((item) => PATTERN_SCRIPT.test((item.children[0] as any).data));
+
+      if (scriptAfterFilter.length <= 0) {
+        throw new Error('without chapter info');
+      }
+      const script = (scriptAfterFilter[0].children[0] as any).data;
       const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
 
       // eslint-disable-next-line no-eval
