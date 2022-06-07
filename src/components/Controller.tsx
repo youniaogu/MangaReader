@@ -1,8 +1,7 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, memo } from 'react';
 import { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { Image, Dimensions } from 'react-native';
-import { scaleToFit } from '~/utils';
+import { Dimensions } from 'react-native';
 import { Box } from 'native-base';
 import ImageWithRetry from '~/components/ImageWithRetry';
 import Animated from 'react-native-reanimated';
@@ -21,8 +20,8 @@ interface ControllerProps {
 
 const Controller = ({ uri, headers, onTap }: ControllerProps) => {
   const [enabled, setEnabled] = useState(false);
-  const width = useSharedValue(0);
-  const height = useSharedValue(0);
+  const width = useSharedValue(windowWidth);
+  const height = useSharedValue(windowHeight);
 
   const focalX = useSharedValue(0);
   const focalY = useSharedValue(0);
@@ -45,17 +44,6 @@ const Controller = ({ uri, headers, onTap }: ControllerProps) => {
       { scale: scale.value },
     ],
   }));
-
-  useEffect(() => {
-    Image.getSizeWithHeaders(uri, headers, (w, h) => {
-      const { dWidth, dHeight } = scaleToFit(
-        { width: w, height: h },
-        { width: windowWidth, height: windowHeight }
-      );
-      width.value = dWidth;
-      height.value = dHeight;
-    });
-  }, [uri, headers, width, height]);
 
   const singleTap = Gesture.Tap()
     .runOnJS(true)
