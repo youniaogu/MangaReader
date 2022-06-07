@@ -28,6 +28,9 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
       data={list}
       onEndReached={loadMore}
       onEndReachedThreshold={1}
+      windowSize={3}
+      initialNumToRender={12}
+      maxToRenderPerBatch={12}
       keyExtractor={(item) => item.hash}
       renderItem={({ item, index }) => {
         return (
