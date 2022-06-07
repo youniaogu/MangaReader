@@ -1,12 +1,11 @@
 import React, { useState, memo } from 'react';
-import { Image, Center, IconButton, Icon } from 'native-base';
-import { CachedImage } from '@georstat/react-native-image-cache';
+import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
+import { Center, IconButton, Icon } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { nanoid } from '@reduxjs/toolkit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const { LoadStatus } = window;
-const loadingGif = require('~/assets/ground-pound.gif');
 
 interface StatusImageProps {
   uri: string;
@@ -24,8 +23,13 @@ const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
     setLoadStatus(LoadStatus.Rejected);
   };
   const handleRetry = () => {
-    setLoadStatus(LoadStatus.Pending);
-    setRetryHash(nanoid());
+    CacheManager.removeCacheEntry(uri)
+      .then(() => {})
+      .catch(() => {})
+      .finally(() => {
+        setLoadStatus(LoadStatus.Pending);
+        setRetryHash(nanoid());
+      });
   };
 
   if (loadStatus === LoadStatus.Rejected) {
@@ -51,7 +55,11 @@ const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
       onError={handleError}
       loadingImageComponent={() => (
         <Center position="absolute" w="full" h="full" bg="black">
-          <Image w="1/3" source={loadingGif} resizeMode="contain" alt="loading" />
+          <CachedImage
+            source="https://raw.githubusercontent.com/youniaogu/walfie-gif/master/ground%20pound.gif"
+            resizeMode="contain"
+            style={styles.loading}
+          />
         </Center>
       )}
     />
@@ -61,6 +69,10 @@ const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
 const styles = StyleSheet.create({
   img: {
     width: '100%',
+    height: '100%',
+  },
+  loading: {
+    width: '30%',
     height: '100%',
   },
 });

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, Fragment } from 'react';
+import React, { useState, useEffect, useRef, useCallback, Fragment } from 'react';
 import {
   FlatList as FlatListRN,
   Dimensions,
@@ -38,7 +38,6 @@ const Reader = ({
   const [showExtra, setShowExtra] = useState(false);
   const pageSliderRef = useRef<PageSliderRef>(null);
   const flatListRef = useRef<FlatListRN>(null);
-  const timeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     onPageChange && onPageChange(page);
@@ -62,11 +61,8 @@ const Reader = ({
           duration: 3000,
         });
       }
-      timeout.current && clearTimeout(timeout.current);
-      timeout.current = setTimeout(() => {
-        setPage(newPage);
-        pageSliderRef.current?.changePage(newPage);
-      }, 250);
+      setPage(newPage);
+      pageSliderRef.current?.changePage(newPage);
     },
     [data.length, toast]
   );
@@ -82,8 +78,9 @@ const Reader = ({
     [toggleExtra, headers]
   );
 
-  const MemoFlatList = useMemo(
-    () => (
+  return (
+    <Box w="full" h="full" bg="black">
+      <StatusBar backgroundColor="black" barStyle={showExtra ? 'light-content' : 'dark-content'} />
       <FlatList
         ref={flatListRef}
         horizontal
@@ -103,14 +100,6 @@ const Reader = ({
         renderItem={renderItem}
         keyExtractor={(item) => item}
       />
-    ),
-    [data, handleScroll, initPage, renderItem]
-  );
-
-  return (
-    <Box w="full" h="full" bg="black">
-      <StatusBar backgroundColor="black" barStyle={showExtra ? 'light-content' : 'dark-content'} />
-      {MemoFlatList}
 
       {showExtra && (
         <Fragment>
