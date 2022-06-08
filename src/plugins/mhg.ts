@@ -221,37 +221,63 @@ class ManHuaGui extends Base {
         if (decodeHtml) {
           const $$ = cheerio.load(decodeHtml);
 
-          $$('div.chapter-list li a')
+          $$('div.chapter-list')
             .toArray()
-            .forEach((a) => {
-              const href = 'https://www.mhgui.com' + (a as any).attribs.href;
-              const chapterTitle = (a as any).children[0].children[0].data;
-              const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+            .forEach((div) => {
+              const $$$ = cheerio.load(div);
 
-              chapters.push({
-                hash: Base.combineHash(this.id, mangaId, chapterId),
-                mangaId,
-                chapterId,
-                href,
-                title: chapterTitle,
-              });
+              $$$('ul')
+                .toArray()
+                .reverse()
+                .forEach((ul) => {
+                  const $$$$ = cheerio.load(ul);
+
+                  $$$$('li a')
+                    .toArray()
+                    .forEach((a) => {
+                      const href = 'https://www.mhgui.com' + (a as any).attribs.href;
+                      const chapterTitle = (a as any).children[0].children[0].data;
+                      const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+
+                      chapters.push({
+                        hash: Base.combineHash(this.id, mangaId, chapterId),
+                        mangaId,
+                        chapterId,
+                        href,
+                        title: chapterTitle,
+                      });
+                    });
+                });
             });
         }
       } else {
-        $('div.chapter-list li a')
+        $('div.chapter-list')
           .toArray()
-          .forEach((a) => {
-            const href = 'https://www.mhgui.com' + (a as any).attribs.href;
-            const chapterTitle = (a as any).children[0].children[0].data;
-            const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+          .forEach((div) => {
+            const $$ = cheerio.load(div);
 
-            chapters.push({
-              hash: Base.combineHash(this.id, mangaId, chapterId),
-              mangaId,
-              chapterId,
-              href,
-              title: chapterTitle,
-            });
+            $$('ul')
+              .toArray()
+              .reverse()
+              .forEach((ul) => {
+                const $$$ = cheerio.load(ul);
+
+                $$$('li a')
+                  .toArray()
+                  .forEach((a) => {
+                    const href = 'https://www.mhgui.com' + (a as any).attribs.href;
+                    const chapterTitle = (a as any).children[0].children[0].data;
+                    const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+
+                    chapters.push({
+                      hash: Base.combineHash(this.id, mangaId, chapterId),
+                      mangaId,
+                      chapterId,
+                      href,
+                      title: chapterTitle,
+                    });
+                  });
+              });
           });
       }
 

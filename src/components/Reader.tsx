@@ -38,6 +38,7 @@ const Reader = ({
   const [showExtra, setShowExtra] = useState(false);
   const pageSliderRef = useRef<PageSliderRef>(null);
   const flatListRef = useRef<FlatListRN>(null);
+  const timeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     onPageChange && onPageChange(page);
@@ -61,8 +62,11 @@ const Reader = ({
           duration: 3000,
         });
       }
-      setPage(newPage);
-      pageSliderRef.current?.changePage(newPage);
+      timeout.current && clearTimeout(timeout.current);
+      timeout.current = setTimeout(() => {
+        setPage(newPage);
+        pageSliderRef.current?.changePage(newPage);
+      }, 250);
     },
     [data.length, toast]
   );
@@ -90,7 +94,7 @@ const Reader = ({
         windowSize={3}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
-        updateCellsBatchingPeriod={1000}
+        updateCellsBatchingPeriod={500}
         getItemLayout={(_data, index) => ({
           length: windowWidth,
           offset: windowWidth * index,
