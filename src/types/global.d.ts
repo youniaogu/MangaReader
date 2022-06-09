@@ -16,7 +16,7 @@ declare global {
   type RootStackParamList = {
     Home: undefined;
     Search: undefined;
-    Result: undefined;
+    Result: { keyword: string };
     Detail: { mangaHash: string };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
@@ -77,7 +77,6 @@ declare global {
       list: { name: string; label: string; value: Plugin; disabled: boolean }[];
     };
     search: {
-      keyword: string;
       page: number;
       isEnd: boolean;
       loadStatus: LoadStatus;

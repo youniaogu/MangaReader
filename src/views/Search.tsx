@@ -8,7 +8,7 @@ import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
 import * as RootNavigation from '~/utils/navigation';
 
-const { loadUpdate, loadSearch, setCurrent } = action;
+const { loadUpdate, setCurrent } = action;
 const { LoadStatus } = window;
 
 const Search = ({ navigation: { navigate } }: StackHomeProps) => {
@@ -50,8 +50,7 @@ export const SearchInput = () => {
   const dispatch = useAppDispatch();
 
   const handleSearch = () => {
-    dispatch(loadSearch({ source, keyword, isReset: true }));
-    RootNavigation.navigate('Result');
+    RootNavigation.navigate('Result', { keyword });
   };
   const handleDisOpen = () => {
     onOpen();

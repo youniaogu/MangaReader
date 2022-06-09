@@ -13,7 +13,7 @@ const initialState: RootState = {
     source: defaultPlugin,
     list: defaultPluginList,
   },
-  search: { keyword: '', page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
+  search: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
   favorites: [],
   manga: {
@@ -89,14 +89,13 @@ const searchSlice = createSlice({
       state,
       action: PayloadAction<{ keyword: string; isReset?: boolean; source: Plugin }>
     ) {
-      const { keyword, isReset = false } = action.payload;
+      const { isReset = false } = action.payload;
       if (isReset) {
         state.page = 1;
         state.list = [];
         state.isEnd = false;
       }
 
-      state.keyword = keyword;
       state.loadStatus = LoadStatus.Pending;
     },
     loadSearchCompletion(state, action: FetchResponseAction<Manga[]>) {

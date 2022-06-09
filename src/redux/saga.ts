@@ -124,10 +124,10 @@ function* loadSearchSaga() {
   yield takeLatest(
     loadSearch.type,
     function* ({
-      payload: { source },
+      payload: { keyword, source },
     }: PayloadAction<{ keyword: string; isReset?: boolean; source: Plugin }>) {
       const plugin = PluginMap.get(source);
-      const { keyword, page, isEnd } = ((state: RootState) => state.search)(yield select());
+      const { page, isEnd } = ((state: RootState) => state.search)(yield select());
 
       if (!plugin) {
         yield put(loadSearchCompletion({ error: new Error('Need Plugin!') }));
