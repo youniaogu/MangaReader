@@ -10,6 +10,7 @@ const PATTERN_MANGA_INFO = /{ id: ([0-9]*), status:[0-9]*,block_cc:'.*', name: '
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.mhgui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
 const PATTERN_SCRIPT = /window\["\\x65\\x76\\x61\\x6c"\](.+)(?=$)/;
 const PATTERN_READER_DATA = /^SMH\.imgData\((.+)(?=\)\.preInit\(\);)/;
+const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 
 class ManHuaGui extends Base {
   readonly useMock = false;
@@ -85,9 +86,10 @@ class ManHuaGui extends Base {
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           let status = MangaStatus.Unknown;
-          if ($$('span.fd').toArray().length > 0) {
+          if ($$('span.sl').toArray().length > 0) {
             status = MangaStatus.Serial;
-          } else {
+          }
+          if ($$('span.fd').toArray().length > 0) {
             status = MangaStatus.End;
           }
 
@@ -133,8 +135,9 @@ class ManHuaGui extends Base {
           const href = `https://www.mhgui.com${a.attr('href')}`;
           const title = a.attr('title');
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
-          const updateTime = $$('div.book-detail dd.status span.red').last().text();
+          const fullUpdateTime = $$('div.book-detail dd.status span.red').last().text();
           const latest = '更新至：' + $$('div.book-detail dd.status a.blue').first().text();
+          const [updateTime] = fullUpdateTime.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = $$('div.book-detail dd:nth-child(4) a')
@@ -147,9 +150,10 @@ class ManHuaGui extends Base {
             .join(' ');
 
           let status = MangaStatus.Unknown;
-          if ($$('div.book-cover span.fd').toArray().length > 0) {
+          if ($$('div.book-cover span.sl').toArray().length > 0) {
             status = MangaStatus.Serial;
-          } else {
+          }
+          if ($$('div.book-cover span.fd').toArray().length > 0) {
             status = MangaStatus.End;
           }
 
