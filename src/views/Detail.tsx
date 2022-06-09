@@ -7,15 +7,14 @@ import {
   Linking,
   ListRenderItemInfo,
 } from 'react-native';
+import { coverAspectRatio, useFirstRender, isManga, MangaStatus, AsyncStatus } from '~/utils';
 import { Box, Flex, Text, IconButton, Icon, FlatList, HStack } from 'native-base';
-import { coverAspectRatio, useFirstRender, isManga } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Loading from '~/components/Loading';
 
-const { LoadStatus } = window;
 const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
@@ -48,6 +47,19 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       </Flex>
     );
   }
+
+  const StatusToLabel = (status: MangaStatus) => {
+    switch (status) {
+      case MangaStatus.Serial: {
+        return '连载中';
+      }
+      case MangaStatus.End: {
+        return '已完结';
+      }
+      default:
+        return '未知';
+    }
+  };
 
   const handleChapter = (chapterHash: string) => {
     return () => {
@@ -100,7 +112,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             {data.sourceName}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            {data.updateTime}
+            {data.updateTime}【{StatusToLabel(data.status)}】
           </Text>
         </Flex>
       </Flex>
@@ -112,7 +124,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         data={data.chapters}
         refreshControl={
           <RefreshControl
-            refreshing={loadStatus === LoadStatus.Pending}
+            refreshing={loadStatus === AsyncStatus.Pending}
             onRefresh={handleReload}
             tintColor="#6200ee"
           />

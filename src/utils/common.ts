@@ -1,15 +1,39 @@
+/**
+ * @description enum of any async status
+ * @enum {number}
+ */
+export enum AsyncStatus {
+  Default,
+  Pending,
+  Fulfilled,
+  Rejected,
+}
+
+/**
+ * @description enum of manga serial status
+ * @enum {number}
+ */
+export enum MangaStatus {
+  Unknown,
+  Serial,
+  End,
+}
+
+/**
+ * @description enum of nodejs env
+ * @enum {number}
+ */
+export enum env {
+  DEV = 'development',
+  PROD = 'production',
+}
+
 export const coverAspectRatio = 210 / 297;
 export const storageKey = {
   favorites: '@favorites',
   dict: '@dict',
   plugin: '@plugin',
 };
-
-export const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+(?=\/$|$)/g;
-export const PATTERN_CHAPTER_ID =
-  /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/[0-9]+(?=\.html|$)/g;
-export const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\].+(?=$)/g;
-export const PATTERN_READER_DATA = /^SMH\.reader\(.+(?=\)\.preInit\(\);)/g;
 
 export function isManga(item: Manga | undefined | null): item is Manga {
   if (item) {

@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { isManga } from '~/utils';
+import { isManga, AsyncStatus } from '~/utils';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
 
 const { loadSearch } = action;
-const { LoadStatus } = window;
 
 const Search = ({ route, navigation }: StackResultProps) => {
   const keyword = route.params.keyword;
@@ -34,10 +33,10 @@ const Search = ({ route, navigation }: StackResultProps) => {
     [navigation]
   );
 
-  if (loadStatus === LoadStatus.Pending && list.length === 0) {
+  if (loadStatus === AsyncStatus.Pending && list.length === 0) {
     return <Loading />;
   }
-  if (loadStatus === LoadStatus.Fulfilled && list.length === 0) {
+  if (loadStatus === AsyncStatus.Fulfilled && list.length === 0) {
     return <Empty />;
   }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Input, Button, HStack, Actionsheet, Box, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { isManga } from '~/utils';
+import { isManga, AsyncStatus } from '~/utils';
 import { Plugin } from '~/plugins';
 import Bookshelf from '~/components/Bookshelf';
 import Loading from '~/components/Loading';
@@ -9,7 +9,6 @@ import Empty from '~/components/Empty';
 import * as RootNavigation from '~/utils/navigation';
 
 const { loadUpdate, setCurrent } = action;
-const { LoadStatus } = window;
 
 const Search = ({ navigation: { navigate } }: StackHomeProps) => {
   const { list } = useAppSelector((state) => state.update);
@@ -20,7 +19,7 @@ const Search = ({ navigation: { navigate } }: StackHomeProps) => {
   const updateList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useEffect(() => {
-    loadStatus === LoadStatus.Default && dispatch(loadUpdate({ isReset: true, source }));
+    loadStatus === AsyncStatus.Default && dispatch(loadUpdate({ isReset: true, source }));
   }, [dispatch, loadStatus, source]);
 
   const handleLoadMore = useCallback(() => {
@@ -33,10 +32,10 @@ const Search = ({ navigation: { navigate } }: StackHomeProps) => {
     [navigate]
   );
 
-  if (loadStatus === LoadStatus.Pending && list.length === 0) {
+  if (loadStatus === AsyncStatus.Pending && list.length === 0) {
     return <Loading />;
   }
-  if (loadStatus === LoadStatus.Fulfilled && list.length === 0) {
+  if (loadStatus === AsyncStatus.Fulfilled && list.length === 0) {
     return <Empty />;
   }
 

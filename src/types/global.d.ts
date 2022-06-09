@@ -1,4 +1,4 @@
-import { LoadStatus, UpdateStatus, env } from '~/utils';
+import { AsyncStatus, MangaStatus } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
@@ -42,7 +42,7 @@ declare global {
     updateTime: string;
     author: string;
     tag: string;
-    status: UpdateStatus;
+    status: MangaStatus;
     chapters: ChapterItem[];
     lastWatchChapter?: string;
     lastWatchPage?: number;
@@ -68,9 +68,9 @@ declare global {
 
   declare interface RootState {
     app: {
-      launchStatus: LoadStatus;
-      syncStatus: LoadStatus;
-      clearStatus: LoadStatus;
+      launchStatus: AsyncStatus;
+      syncStatus: AsyncStatus;
+      clearStatus: AsyncStatus;
     };
     plugin: {
       source: Plugin;
@@ -79,21 +79,21 @@ declare global {
     search: {
       page: number;
       isEnd: boolean;
-      loadStatus: LoadStatus;
+      loadStatus: AsyncStatus;
       list: string[];
     };
     update: {
       page: number;
       isEnd: boolean;
-      loadStatus: LoadStatus;
+      loadStatus: AsyncStatus;
       list: string[];
     };
     favorites: string[];
     manga: {
-      loadStatus: LoadStatus;
+      loadStatus: AsyncStatus;
     };
     chapter: {
-      loadStatus: LoadStatus;
+      loadStatus: AsyncStatus;
     };
     dict: {
       manga: {
@@ -103,12 +103,6 @@ declare global {
         [key: string]: Chapter | undefined;
       };
     };
-  }
-
-  interface Window {
-    env: typeof env;
-    LoadStatus: typeof LoadStatus;
-    UpdateStatus: typeof UpdateStatus;
   }
 
   interface String {

@@ -1,10 +1,10 @@
+import { MangaStatus } from '~/utils';
 import { Plugin } from '~/plugins';
 import queryString from 'query-string';
 import LZString from 'lz-string';
 import cheerio from 'cheerio';
 import Base from './base';
 
-const { UpdateStatus } = window;
 const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:[0-9]*,block_cc:'' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
@@ -101,12 +101,12 @@ class ManHuaGuiMobile extends Base {
             .map((dl) => cheerio.load(dl).root().text());
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          let status = UpdateStatus.Unknow;
+          let status = MangaStatus.Unknown;
           if (statusLabel === '连载') {
-            status = UpdateStatus.Serial;
+            status = MangaStatus.Serial;
           }
           if (statusLabel === '完结') {
-            status = UpdateStatus.End;
+            status = MangaStatus.End;
           }
 
           if (!mangaId || !title) {
@@ -154,12 +154,12 @@ class ManHuaGuiMobile extends Base {
             .map((dl) => cheerio.load(dl).root().text());
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          let status = UpdateStatus.Unknow;
+          let status = MangaStatus.Unknown;
           if (statusLabel === '连载') {
-            status = UpdateStatus.Serial;
+            status = MangaStatus.Serial;
           }
           if (statusLabel === '完结') {
-            status = UpdateStatus.End;
+            status = MangaStatus.End;
           }
 
           if (!mangaId || !title) {
@@ -204,7 +204,7 @@ class ManHuaGuiMobile extends Base {
         updateTime: '',
         author: '',
         tag: '',
-        status: UpdateStatus.Unknow,
+        status: MangaStatus.Unknown,
         chapters: [],
       };
       const chapters: ChapterItem[] = [];
@@ -263,10 +263,10 @@ class ManHuaGuiMobile extends Base {
       }
 
       if (statusLabel === '连载') {
-        manga.status = UpdateStatus.Serial;
+        manga.status = MangaStatus.Serial;
       }
       if (statusLabel === '完结') {
-        manga.status = UpdateStatus.End;
+        manga.status = MangaStatus.End;
       }
 
       manga.href = 'https://m.manhuagui.com/comic/' + mangaId;

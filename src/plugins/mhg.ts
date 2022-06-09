@@ -1,10 +1,10 @@
+import { MangaStatus } from '~/utils';
 import { Plugin } from '~/plugins';
 import queryString from 'query-string';
 import LZString from 'lz-string';
 import cheerio from 'cheerio';
 import Base from './base';
 
-const { UpdateStatus } = window;
 const PATTERN_MANGA_ID = /^https:\/\/www\.mhgui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ id: ([0-9]*), status:[0-9]*,block_cc:'.*', name: '(.+)', url: '.*' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.mhgui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
@@ -84,11 +84,11 @@ class ManHuaGui extends Base {
           const updateTime = $$('span.dt').first().text();
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          let status = UpdateStatus.Unknow;
+          let status = MangaStatus.Unknown;
           if ($$('span.fd').toArray().length > 0) {
-            status = UpdateStatus.Serial;
+            status = MangaStatus.Serial;
           } else {
-            status = UpdateStatus.End;
+            status = MangaStatus.End;
           }
 
           if (!mangaId || !title) {
@@ -146,11 +146,11 @@ class ManHuaGui extends Base {
             .map((item) => (item as any).attribs.title)
             .join(' ');
 
-          let status = UpdateStatus.Unknow;
+          let status = MangaStatus.Unknown;
           if ($$('div.book-cover span.fd').toArray().length > 0) {
-            status = UpdateStatus.Serial;
+            status = MangaStatus.Serial;
           } else {
-            status = UpdateStatus.End;
+            status = MangaStatus.End;
           }
 
           if (!mangaId || !title) {
@@ -195,7 +195,7 @@ class ManHuaGui extends Base {
         updateTime: '',
         author: '',
         tag: '',
-        status: UpdateStatus.Unknow,
+        status: MangaStatus.Unknown,
         chapters: [],
       };
       const chapters: ChapterItem[] = [];
@@ -282,10 +282,10 @@ class ManHuaGui extends Base {
       }
 
       if ($('p.hcover span.serial').toArray().length > 0) {
-        manga.status = UpdateStatus.Serial;
+        manga.status = MangaStatus.Serial;
       }
       if ($('p.hcover span.finish').toArray().length > 0) {
-        manga.status = UpdateStatus.End;
+        manga.status = MangaStatus.End;
       }
 
       manga.href = `https://www.mhgui.com/comic/${mangaId}`;

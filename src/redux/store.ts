@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { reducer } from './slice';
+import { env } from '~/utils';
 import createSagaMiddleware from 'redux-saga';
 import saga from './saga';
 
-const { env } = window;
 const sagaMiddleware = createSagaMiddleware();
 const middleware = [sagaMiddleware];
 

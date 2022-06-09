@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Button, VStack, Icon } from 'native-base';
 import { action, useAppDispatch, useAppSelector } from '~/redux';
+import { Button, VStack, Icon } from 'native-base';
 import { CacheManager } from '@georstat/react-native-image-cache';
+import { AsyncStatus } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const { LoadStatus } = window;
 const { clearCache } = action;
 
 const About = () => {
@@ -14,7 +14,7 @@ const About = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (clearStatus !== LoadStatus.Pending) {
+    if (clearStatus !== AsyncStatus.Pending) {
       setTimeout(() => setClearRedux(false), 500);
     }
   }, [clearStatus]);

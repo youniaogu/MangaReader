@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 import { nanoid } from '@reduxjs/toolkit';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-const { LoadStatus } = window;
+const { AsyncStatus } = window;
 
 interface StatusImageProps {
   uri: string;
@@ -14,25 +14,25 @@ interface StatusImageProps {
 
 const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
   const [retryHash, setRetryHash] = useState(nanoid());
-  const [loadStatus, setLoadStatus] = useState(LoadStatus.Pending);
+  const [loadStatus, setLoadStatus] = useState(AsyncStatus.Pending);
 
   const handleLoadSuccess = () => {
-    setLoadStatus(LoadStatus.Fulfilled);
+    setLoadStatus(AsyncStatus.Fulfilled);
   };
   const handleError = () => {
-    setLoadStatus(LoadStatus.Rejected);
+    setLoadStatus(AsyncStatus.Rejected);
   };
   const handleRetry = () => {
     CacheManager.removeCacheEntry(uri)
       .then(() => {})
       .catch(() => {})
       .finally(() => {
-        setLoadStatus(LoadStatus.Pending);
+        setLoadStatus(AsyncStatus.Pending);
         setRetryHash(nanoid());
       });
   };
 
-  if (loadStatus === LoadStatus.Rejected) {
+  if (loadStatus === AsyncStatus.Rejected) {
     return (
       <Center w="full" h="full" bg="black">
         <IconButton

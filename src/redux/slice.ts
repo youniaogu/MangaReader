@@ -1,26 +1,25 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
-
-const { LoadStatus } = window;
+import { AsyncStatus } from '~/utils';
 
 const initialState: RootState = {
   app: {
-    launchStatus: LoadStatus.Default,
-    syncStatus: LoadStatus.Default,
-    clearStatus: LoadStatus.Default,
+    launchStatus: AsyncStatus.Default,
+    syncStatus: AsyncStatus.Default,
+    clearStatus: AsyncStatus.Default,
   },
   plugin: {
     source: defaultPlugin,
     list: defaultPluginList,
   },
-  search: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
-  update: { page: 1, isEnd: false, loadStatus: LoadStatus.Default, list: [] },
+  search: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
+  update: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
   favorites: [],
   manga: {
-    loadStatus: LoadStatus.Default,
+    loadStatus: AsyncStatus.Default,
   },
   chapter: {
-    loadStatus: LoadStatus.Default,
+    loadStatus: AsyncStatus.Default,
   },
   dict: {
     manga: {},
@@ -33,37 +32,37 @@ const appSlice = createSlice({
   initialState: initialState.app,
   reducers: {
     launch(state) {
-      state.launchStatus = LoadStatus.Pending;
+      state.launchStatus = AsyncStatus.Pending;
     },
     launchCompletion(state, action: FetchResponseAction) {
       if (action.payload.error) {
-        state.launchStatus = LoadStatus.Rejected;
+        state.launchStatus = AsyncStatus.Rejected;
         return;
       }
 
-      state.launchStatus = LoadStatus.Fulfilled;
+      state.launchStatus = AsyncStatus.Fulfilled;
     },
     syncData(state) {
-      state.syncStatus = LoadStatus.Pending;
+      state.syncStatus = AsyncStatus.Pending;
     },
     syncDataCompletion(state, action: FetchResponseAction): any {
       if (action.payload.error) {
-        state.syncStatus = LoadStatus.Rejected;
+        state.syncStatus = AsyncStatus.Rejected;
         return;
       }
 
-      state.syncStatus = LoadStatus.Fulfilled;
+      state.syncStatus = AsyncStatus.Fulfilled;
     },
     clearCache(state) {
-      state.clearStatus = LoadStatus.Pending;
+      state.clearStatus = AsyncStatus.Pending;
     },
     clearCacheCompletion(state, action: FetchResponseAction) {
       if (action.payload.error) {
-        state.clearStatus = LoadStatus.Rejected;
+        state.clearStatus = AsyncStatus.Rejected;
         return;
       }
 
-      state.clearStatus = LoadStatus.Fulfilled;
+      state.clearStatus = AsyncStatus.Fulfilled;
     },
   },
 });
@@ -96,18 +95,18 @@ const searchSlice = createSlice({
         state.isEnd = false;
       }
 
-      state.loadStatus = LoadStatus.Pending;
+      state.loadStatus = AsyncStatus.Pending;
     },
     loadSearchCompletion(state, action: FetchResponseAction<Manga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
-        state.loadStatus = LoadStatus.Rejected;
+        state.loadStatus = AsyncStatus.Rejected;
         return;
       }
 
       const list = Array.from(new Set(state.list.concat(data.map((item) => item.hash))));
       state.page += 1;
-      state.loadStatus = LoadStatus.Fulfilled;
+      state.loadStatus = AsyncStatus.Fulfilled;
       state.isEnd = list.length === state.list.length;
       state.list = list;
     },
@@ -126,25 +125,25 @@ const updateSlice = createSlice({
         state.isEnd = false;
       }
 
-      state.loadStatus = LoadStatus.Pending;
+      state.loadStatus = AsyncStatus.Pending;
     },
     loadUpdateCompletion(state, action: FetchResponseAction<Manga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
-        state.loadStatus = LoadStatus.Rejected;
+        state.loadStatus = AsyncStatus.Rejected;
         return;
       }
 
       const list = Array.from(new Set(state.list.concat(data.map((item) => item.hash))));
       state.page += 1;
-      state.loadStatus = LoadStatus.Fulfilled;
+      state.loadStatus = AsyncStatus.Fulfilled;
       state.isEnd = list.length === state.list.length;
       state.list = list;
     },
   },
   extraReducers: {
     [pluginSlice.actions.setCurrent.type]: (state) => {
-      state.loadStatus = LoadStatus.Default;
+      state.loadStatus = AsyncStatus.Default;
     },
   },
 });
@@ -175,16 +174,16 @@ const mangaSlice = createSlice({
   initialState: initialState.manga,
   reducers: {
     loadManga(state, _action: PayloadAction<{ mangaHash: string }>) {
-      state.loadStatus = LoadStatus.Pending;
+      state.loadStatus = AsyncStatus.Pending;
     },
     loadMangaCompletion(state, action: FetchResponseAction<Manga>) {
       const { error } = action.payload;
       if (error) {
-        state.loadStatus = LoadStatus.Rejected;
+        state.loadStatus = AsyncStatus.Rejected;
         return;
       }
 
-      state.loadStatus = LoadStatus.Fulfilled;
+      state.loadStatus = AsyncStatus.Fulfilled;
     },
   },
 });
@@ -194,16 +193,16 @@ const chapterSlice = createSlice({
   initialState: initialState.chapter,
   reducers: {
     loadChapter(state, _action: PayloadAction<{ chapterHash: string }>) {
-      state.loadStatus = LoadStatus.Pending;
+      state.loadStatus = AsyncStatus.Pending;
     },
     loadChapterCompletion(state, action: FetchResponseAction<Chapter>) {
       const { error } = action.payload;
       if (error) {
-        state.loadStatus = LoadStatus.Rejected;
+        state.loadStatus = AsyncStatus.Rejected;
         return;
       }
 
-      state.loadStatus = LoadStatus.Fulfilled;
+      state.loadStatus = AsyncStatus.Fulfilled;
     },
   },
 });
