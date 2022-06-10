@@ -71,5 +71,12 @@
       "node"
     ]
   },
-  "proxy": "http://192.168.0.163:3333"
+  "repository": "https://github.com/youniaogu/MangaReader",
+  "author": "youniaogu (https://github.com/youniaogu)",
+  "bugs": {
+    "url": "https://github.com/youniaogu/MangaReader/issues"
+  },
+  "homepage": "https://github.com/youniaogu/MangaReader#readme",
+  "proxy": "http://192.168.0.163:3333",
+  "license": "MIT"
 }
