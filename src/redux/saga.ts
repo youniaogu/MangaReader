@@ -35,6 +35,10 @@ const {
   loadUpdateCompletion,
   loadManga,
   loadMangaCompletion,
+  loadMangaInfo,
+  loadMangaInfoCompletion,
+  loadChapterList,
+  loadChapterListCompletion,
   loadChapter,
   loadChapterCompletion,
 } = action;
@@ -130,11 +134,11 @@ function* loadSearchSaga() {
       const { page, isEnd } = ((state: RootState) => state.search)(yield select());
 
       if (!plugin) {
-        yield put(loadSearchCompletion({ error: new Error('Need Plugin!') }));
+        yield put(loadSearchCompletion({ error: new Error('Missing Plugin') }));
         return;
       }
       if (isEnd) {
-        yield put(loadSearchCompletion({ error: new Error('No More!') }));
+        yield put(loadSearchCompletion({ error: new Error('No More') }));
         return;
       }
 
@@ -159,11 +163,11 @@ function* loadUpdateSaga() {
       const { page, isEnd } = ((state: RootState) => state.update)(yield select());
 
       if (!plugin) {
-        yield put(loadUpdateCompletion({ error: new Error('Need Plugin!') }));
+        yield put(loadUpdateCompletion({ error: new Error('Missing Plugin') }));
         return;
       }
       if (isEnd) {
-        yield put(loadUpdateCompletion({ error: new Error('No More!') }));
+        yield put(loadUpdateCompletion({ error: new Error('No More') }));
         return;
       }
 
@@ -179,18 +183,130 @@ function* loadMangaSaga() {
   yield takeEvery(
     loadManga.type,
     function* ({ payload: { mangaHash } }: PayloadAction<{ mangaHash: string }>) {
+      yield put(loadMangaInfo({ mangaHash }));
+      const {
+        payload: { error: loadMangaInfoError, data: mangaInfo },
+      }: FetchResponseAction<Manga> = yield take(loadMangaInfoCompletion.type);
+
+      yield put(loadChapterList({ mangaHash, page: 1 }));
+      const {
+        payload: { error: loadChapterListError, data: chapterInfo },
+      }: FetchResponseAction<{
+        mangaHash: string;
+        page: number;
+        list: Manga['chapters'];
+      }> = yield take(({ type, payload: { data } }: any) => {
+        return (
+          type === loadChapterListCompletion.type && data.mangaHash === mangaHash && data.page === 1
+        );
+      });
+
+      if (loadMangaInfoError) {
+        yield put(loadMangaCompletion({ error: loadMangaInfoError }));
+        return;
+      }
+      if (loadChapterListError) {
+        yield put(loadMangaCompletion({ error: loadChapterListError }));
+        return;
+      }
+
+      yield put(
+        loadMangaCompletion({
+          data: {
+            ...(mangaInfo as Manga),
+            chapters: (mangaInfo as Manga).chapters.concat(
+              (chapterInfo as { mangaHash: string; page: number; list: Manga['chapters'] }).list
+            ),
+          },
+        })
+      );
+    }
+  );
+}
+
+function* loadMangaInfoSaga() {
+  yield takeEvery(
+    loadMangaInfo.type,
+    function* ({ payload: { mangaHash } }: PayloadAction<{ mangaHash: string }>) {
       const [source, mangaId] = splitHash(mangaHash);
       const plugin = PluginMap.get(source);
 
       if (!plugin) {
-        yield put(loadMangaCompletion({ error: new Error('Need Plugin!') }));
+        yield put(loadMangaInfoCompletion({ error: new Error('Missing Plugin') }));
         return;
       }
 
-      const { error: fetchError, data } = yield call(fetchData, plugin.prepareMangaFetch(mangaId));
-      const { error: pluginError, manga } = plugin.handleManga(data);
+      const { error: fetchError, data } = yield call(
+        fetchData,
+        plugin.prepareMangaInfoFetch(mangaId)
+      );
+      const { error: pluginError, manga } = plugin.handleMangaInfo(data);
 
-      yield put(loadMangaCompletion({ error: fetchError || pluginError, data: manga }));
+      yield put(loadMangaInfoCompletion({ error: fetchError || pluginError, data: manga }));
+    }
+  );
+}
+
+function* loadChapterListSaga() {
+  yield takeEvery(
+    loadChapterList.type,
+    function* ({
+      payload: { mangaHash, page },
+    }: PayloadAction<{ mangaHash: string; page: number }>) {
+      const [source, mangaId] = splitHash(mangaHash);
+      const plugin = PluginMap.get(source);
+
+      if (!plugin) {
+        yield put(loadChapterListCompletion({ error: new Error('Missing Plugin') }));
+        return;
+      }
+
+      const body = plugin.prepareChapterListFetch(mangaId, page);
+      if (!body) {
+        yield put(loadChapterListCompletion({ data: { mangaHash, page, list: [] } }));
+        return;
+      }
+
+      const { error: fetchError, data } = yield call(fetchData, body);
+      const { error: pluginError, chapterList = [], canLoadMore } = plugin.handleChapterList(data);
+
+      if (pluginError || fetchError) {
+        yield put(
+          loadChapterListCompletion({
+            error: pluginError || fetchError,
+            data: { mangaHash, page, list: [] },
+          })
+        );
+        return;
+      }
+
+      if (canLoadMore) {
+        yield put(loadChapterList({ mangaHash, page: page + 1 }));
+        const {
+          payload: { error: loadMoreError, data: extraData },
+        }: FetchResponseAction<{
+          mangaHash: string;
+          page: number;
+          list: Manga['chapters'];
+        }> = yield take(({ type, payload }: any) => {
+          return (
+            type === loadChapterListCompletion.type &&
+            payload.mangaHash === mangaHash &&
+            payload.page === page + 1
+          );
+        });
+
+        if (!loadMoreError) {
+          data.push(extraData?.list);
+        }
+      }
+
+      yield put(
+        loadChapterListCompletion({
+          error: fetchError || pluginError,
+          data: { mangaHash, page, list: chapterList },
+        })
+      );
     }
   );
 }
@@ -203,7 +319,7 @@ function* loadChapterSaga() {
       const plugin = PluginMap.get(source);
 
       if (!plugin) {
-        yield put(loadChapterCompletion({ error: new Error('Need Plugin!') }));
+        yield put(loadChapterCompletion({ error: new Error('Missing Plugin') }));
         return;
       }
 
@@ -227,6 +343,8 @@ export default function* rootSaga() {
     fork(loadSearchSaga),
     fork(loadUpdateSaga),
     fork(loadMangaSaga),
+    fork(loadMangaInfoSaga),
+    fork(loadChapterListSaga),
     fork(loadChapterSaga),
   ]);
 }

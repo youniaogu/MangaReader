@@ -21,7 +21,7 @@ class ManHuaGuiMobile extends Base {
   prepareUpdateFetch: Base['prepareUpdateFetch'] = (page) => {
     if (this.useMock) {
       return {
-        url: process.env.PROXY + '/update',
+        url: process.env.PROXY + '/mhgm/update',
         body: {
           page,
           ajax: 1,
@@ -52,7 +52,7 @@ class ManHuaGuiMobile extends Base {
 
     if (this.useMock) {
       return {
-        url: process.env.PROXY + '/search',
+        url: process.env.PROXY + '/mhgm/search',
         method: 'POST',
         body: page > 1 ? body : undefined,
       };
@@ -68,10 +68,10 @@ class ManHuaGuiMobile extends Base {
       }),
     };
   };
-  prepareMangaFetch: Base['prepareMangaFetch'] = (mangaId) => {
+  prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     if (this.useMock) {
       return {
-        url: process.env.PROXY + '/manga',
+        url: process.env.PROXY + '/mhgm/manga',
       };
     }
 
@@ -83,10 +83,11 @@ class ManHuaGuiMobile extends Base {
       }),
     };
   };
+  prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     if (this.useMock) {
       return {
-        url: process.env.PROXY + '/chapter',
+        url: process.env.PROXY + '/mhgm/chapter',
       };
     }
 
@@ -205,7 +206,7 @@ class ManHuaGuiMobile extends Base {
     }
   };
 
-  handleManga: Base['handleManga'] = (text) => {
+  handleMangaInfo: Base['handleMangaInfo'] = (text) => {
     try {
       const $ = cheerio.load(text || '');
       const manga: Manga = {
@@ -298,8 +299,12 @@ class ManHuaGuiMobile extends Base {
 
       return { manga };
     } catch {
-      return { error: new Error('Fail to handleManga') };
+      return { error: new Error('Fail to handleMangaInfo') };
     }
+  };
+
+  handleChapterList: Base['handleChapterList'] = () => {
+    return { error: new Error('Plugin MHGM not support handleChapterList') };
   };
 
   handleChapter: Base['handleChapter'] = (text) => {

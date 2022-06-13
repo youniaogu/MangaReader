@@ -50,6 +50,7 @@ abstract class Base {
 
     return [id, mangaId, chapterId].join('&');
   }
+
   /**
    * @description decode and return params
    * @static
@@ -70,6 +71,7 @@ abstract class Base {
    * @memberof Base
    */
   abstract prepareUpdateFetch(page: number): FetchData;
+
   /**
    * @description accept keyword param, return body for search fetch
    * @abstract
@@ -79,14 +81,26 @@ abstract class Base {
    * @memberof Base
    */
   abstract prepareSearchFetch(keyword: string, page: number): FetchData;
+
   /**
-   * @description accept mangaId param, return body for manga fetch
+   * @description accept mangaId param, return body for manga info fetch
    * @abstract
    * @param {string} mangaId
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareMangaFetch(mangaId: string): FetchData;
+  abstract prepareMangaInfoFetch(mangaId: string): FetchData;
+
+  /**
+   * @description accept mangaId and page param, return body or void
+   * @abstract
+   * @param {string} mangaId
+   * @param {number} page
+   * @return {*}  {(FetchData | void)}
+   * @memberof Base
+   */
+  abstract prepareChapterListFetch(mangaId: string, page: number): FetchData | void;
+
   /**
    * @description accept mangaId and chapterId param, return body for chapter fetch
    * @abstract
@@ -98,7 +112,7 @@ abstract class Base {
   abstract prepareChapterFetch(mangaId: string, chapterId: string): FetchData;
 
   /**
-   * @description crawl data from website
+   * @description crawl data from website or interface
    * @abstract
    * @param {(string | null)} text
    * @return {*}  {({ error: Error; update?: undefined } | { error?: undefined; update: Manga[] })}
@@ -107,8 +121,9 @@ abstract class Base {
   abstract handleUpdate(
     text: string | null
   ): { error: Error; update?: undefined } | { error?: undefined; update: Manga[] };
+
   /**
-   * @description crawl data from website
+   * @description crawl data from website or interface
    * @abstract
    * @param {(string | null)} text
    * @return {*}  {({ error: Error; search?: undefined } | { error?: undefined; search: Manga[] })}
@@ -117,18 +132,34 @@ abstract class Base {
   abstract handleSearch(
     text: string | null
   ): { error: Error; search?: undefined } | { error?: undefined; search: Manga[] };
+
   /**
-   * @description crawl data from website
+   * @description crawl data from website or interface
    * @abstract
    * @param {(string | null)} text
    * @return {*}  {({ error: Error; manga?: undefined } | { error?: undefined; manga: Manga })}
    * @memberof Base
    */
-  abstract handleManga(
+  abstract handleMangaInfo(
     text: string | null
   ): { error: Error; manga?: undefined } | { error?: undefined; manga: Manga };
+
   /**
-   * @description crawl data from website
+   * @description crawl data from website or interface
+   * @abstract
+   * @param {(string | null)} text
+   * @return {*}  {({ error: Error; chapterList?: undefined }
+   *     | { error?: undefined; chapterList: Manga['chapters'] })}
+   * @memberof Base
+   */
+  abstract handleChapterList(
+    text: string | null
+  ):
+    | { error: Error; chapterList?: undefined; canLoadMore?: boolean }
+    | { error?: undefined; chapterList: Manga['chapters']; canLoadMore: boolean };
+
+  /**
+   * @description crawl data from website or interface
    * @abstract
    * @param {(string | null)} text
    * @return {*}  {({ error: Error; chapter?: undefined } | { error?: undefined; chapter: Chapter })}

@@ -2,7 +2,7 @@ import queryString from 'query-string';
 
 export interface FetchData {
   url: string;
-  method?: FetchMethod;
+  method?: GET | POST;
   body?: FormData | { [key: string]: any };
   headers?: Headers;
 }

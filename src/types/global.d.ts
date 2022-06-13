@@ -6,7 +6,6 @@ import { Plugin } from '~/plugins';
 declare global {
   type GET = 'GET' | 'get';
   type POST = 'POST' | 'post';
-  type FetchMethod = GET | POST;
   type FetchResponseAction<T = undefined> = PayloadAction<
     undefined extends T
       ? { error?: Error }

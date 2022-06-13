@@ -185,6 +185,17 @@ const mangaSlice = createSlice({
 
       state.loadStatus = AsyncStatus.Fulfilled;
     },
+    loadMangaInfo(_state, _action: PayloadAction<{ mangaHash: string }>) {},
+    loadMangaInfoCompletion(_state, _action: FetchResponseAction<Manga>) {},
+    loadChapterList(_state, _action: PayloadAction<{ mangaHash: string; page: number }>) {},
+    loadChapterListCompletion(
+      _state,
+      _action: FetchResponseAction<{
+        mangaHash: string;
+        page: number;
+        list: Manga['chapters'];
+      }>
+    ) {},
   },
 });
 
@@ -258,7 +269,10 @@ const dictSlice = createSlice({
         state.manga[item.hash] = { ...state.manga[item.hash], ...item };
       });
     },
-    [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
+    [mangaSlice.actions.loadMangaInfoCompletion.type]: (
+      state,
+      action: FetchResponseAction<Manga>
+    ) => {
       const { error, data } = action.payload;
       if (error) {
         return;
