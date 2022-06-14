@@ -83,7 +83,7 @@ class ManHuaGui extends Base {
     };
   };
 
-  handleUpdate: Base['handleUpdate'] = (text) => {
+  handleUpdate: Base['handleUpdate'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
@@ -132,12 +132,16 @@ class ManHuaGui extends Base {
         });
 
       return { update: list };
-    } catch {
-      return { error: new Error('Fail to handleUpdate') };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error };
+      } else {
+        return { error: new Error('Unknown Error') };
+      }
     }
   };
 
-  handleSearch: Base['handleSearch'] = (text) => {
+  handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
@@ -196,12 +200,16 @@ class ManHuaGui extends Base {
         });
 
       return { search: list };
-    } catch {
-      return { error: new Error('Fail to handleSearch') };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error };
+      } else {
+        return { error: new Error('Unknown Error') };
+      }
     }
   };
 
-  handleMangaInfo: Base['handleMangaInfo'] = (text) => {
+  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
       const manga: Manga = {
@@ -321,8 +329,12 @@ class ManHuaGui extends Base {
       manga.chapters = chapters;
 
       return { manga };
-    } catch {
-      return { error: new Error('Fail to handleMangaInfo') };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error };
+      } else {
+        return { error: new Error('Unknown Error') };
+      }
     }
   };
 
@@ -330,7 +342,7 @@ class ManHuaGui extends Base {
     return { error: new Error('Plugin MHG not support handleChapterList') };
   };
 
-  handleChapter: Base['handleChapter'] = (text) => {
+  handleChapter: Base['handleChapter'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
       const scriptAfterFilter = (
@@ -378,8 +390,12 @@ class ManHuaGui extends Base {
           ),
         },
       };
-    } catch {
-      return { error: new Error('Fail to handleChapter') };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { error };
+      } else {
+        return { error: new Error('Unknown Error') };
+      }
     }
   };
 }

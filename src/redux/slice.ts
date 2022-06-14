@@ -269,10 +269,7 @@ const dictSlice = createSlice({
         state.manga[item.hash] = { ...state.manga[item.hash], ...item };
       });
     },
-    [mangaSlice.actions.loadMangaInfoCompletion.type]: (
-      state,
-      action: FetchResponseAction<Manga>
-    ) => {
+    [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
       const { error, data } = action.payload;
       if (error) {
         return;

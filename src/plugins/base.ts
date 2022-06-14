@@ -114,46 +114,46 @@ abstract class Base {
   /**
    * @description crawl data from website or interface
    * @abstract
-   * @param {(string | null)} text
+   * @param {*} response
    * @return {*}  {({ error: Error; update?: undefined } | { error?: undefined; update: Manga[] })}
    * @memberof Base
    */
   abstract handleUpdate(
-    text: string | null
+    response: any
   ): { error: Error; update?: undefined } | { error?: undefined; update: Manga[] };
 
   /**
    * @description crawl data from website or interface
    * @abstract
-   * @param {(string | null)} text
+   * @param {*} response
    * @return {*}  {({ error: Error; search?: undefined } | { error?: undefined; search: Manga[] })}
    * @memberof Base
    */
   abstract handleSearch(
-    text: string | null
+    response: any
   ): { error: Error; search?: undefined } | { error?: undefined; search: Manga[] };
 
   /**
    * @description crawl data from website or interface
    * @abstract
-   * @param {(string | null)} text
+   * @param {*} response
    * @return {*}  {({ error: Error; manga?: undefined } | { error?: undefined; manga: Manga })}
    * @memberof Base
    */
   abstract handleMangaInfo(
-    text: string | null
+    response: any
   ): { error: Error; manga?: undefined } | { error?: undefined; manga: Manga };
 
   /**
    * @description crawl data from website or interface
    * @abstract
-   * @param {(string | null)} text
+   * @param {*} response
    * @return {*}  {({ error: Error; chapterList?: undefined }
    *     | { error?: undefined; chapterList: Manga['chapters'] })}
    * @memberof Base
    */
   abstract handleChapterList(
-    text: string | null
+    response: any
   ):
     | { error: Error; chapterList?: undefined; canLoadMore?: boolean }
     | { error?: undefined; chapterList: Manga['chapters']; canLoadMore: boolean };
@@ -161,12 +161,12 @@ abstract class Base {
   /**
    * @description crawl data from website or interface
    * @abstract
-   * @param {(string | null)} text
+   * @param {*} response
    * @return {*}  {({ error: Error; chapter?: undefined } | { error?: undefined; chapter: Chapter })}
    * @memberof Base
    */
   abstract handleChapter(
-    text: string | null
+    response: any
   ): { error: Error; chapter?: undefined } | { error?: undefined; chapter: Chapter };
 }
 
