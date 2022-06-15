@@ -203,7 +203,7 @@ class CopyManga extends Base {
         const { list, total, limit, offset } = res.results;
 
         return {
-          chapterList: list.map((item: any) => {
+          chapterList: list.reverse().map((item: any) => {
             const { name, comic_path_word, uuid } = item;
 
             return {
@@ -234,9 +234,9 @@ class CopyManga extends Base {
         const { comic, chapter } = res.results;
         const { contents, words } = chapter;
 
-        const ziped = words.map((item: any) => {
+        const ziped = words.map((item: any, index: number) => {
           return {
-            url: contents[item.url],
+            url: contents[index].url,
             index: item,
           };
         });

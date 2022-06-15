@@ -291,13 +291,13 @@ function* loadChapterListSaga() {
         }> = yield take(({ type, payload }: any) => {
           return (
             type === loadChapterListCompletion.type &&
-            payload.mangaHash === mangaHash &&
-            payload.page === page + 1
+            payload.data.mangaHash === mangaHash &&
+            payload.data.page === page + 1
           );
         });
 
-        if (!loadMoreError) {
-          data.push(extraData?.list);
+        if (!loadMoreError && extraData) {
+          chapterList.unshift(...extraData.list);
         }
       }
 
