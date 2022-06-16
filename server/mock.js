@@ -14,7 +14,7 @@ function logFail(message) {
 }
 
 app.all('*', function (req, res) {
-  res.sendFile(path.join(__dirname, 'example', req.path), (err) => {
+  res.sendFile(path.join(__dirname, 'example', req.path + '.html'), (err) => {
     if (err) {
       logFail('【fail】' + req.path);
     } else {
