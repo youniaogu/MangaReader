@@ -161,10 +161,10 @@ class CopyManga extends Base {
           res.results.comic;
 
         let mangaStatus = MangaStatus.Unknown;
-        if (status === 0) {
+        if (status.value === 0) {
           mangaStatus = MangaStatus.Serial;
         }
-        if (status === 1) {
+        if (status.value === 1) {
           mangaStatus = MangaStatus.End;
         }
 
