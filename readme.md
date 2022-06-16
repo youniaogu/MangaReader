@@ -33,13 +33,13 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 ## TodoList
 
 - [x] 更多的插件
-  
-  - [x] manhuagui（无需代理，但外网ip会转到manhuaguimobile）
-  
+
+  - [x] manhuagui（无需代理，但外网 ip 会转到 manhuaguimobile）
+
   - [x] manhuaguimobile（需要代理）
-  
-  - [ ] copymanga
-  
+
+  - [x] copymanga
+
   - [ ] manhuadb
 
 - [ ] 更完善的错误处理
@@ -47,3 +47,5 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 - [ ] 插件速率支持
 
 - [ ] 漫画更新提示
+
+- [ ] 发现页支持分类搜索
