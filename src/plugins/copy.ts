@@ -254,6 +254,7 @@ class CopyManga extends Base {
               'accept-encoding': 'gzip, deflate, br',
               'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
               referer: 'https://copymanga.com/',
+              'Cache-control': 'no-store',
               'sec-fetch-dest': 'image',
               'sec-fetch-mode': 'no-cors',
               'sec-fetch-site': 'cross-site',
