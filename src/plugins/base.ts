@@ -1,5 +1,11 @@
 import { FetchData } from '~/utils';
-import { Plugin } from './index';
+
+export enum Plugin {
+  MHG = 'MHG',
+  MHGM = 'MHGM',
+  COPY = 'COPY',
+  MHDB = 'MHDB',
+}
 
 abstract class Base {
   /**

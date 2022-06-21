@@ -1,22 +1,16 @@
-import Base from './base';
-import ManHuaGuiMobile from './mhgm';
-import ManHuaGui from './mhg';
-import CopyManga from './copy';
+import Base, { Plugin } from './base';
+import MHGM from './mhgm';
+import MHG from './mhg';
+import COPY from './copy';
+import MHDB from './mhdb';
 
-export enum Plugin {
-  MHG = 'MHG',
-  MHGM = 'MHGM',
-  COPY = 'COPY',
-}
-
-const MHG = new ManHuaGui(Plugin.MHG, 'manhuagui', 'MHG');
-const MHGM = new ManHuaGuiMobile(Plugin.MHGM, 'manhuagui(mobile)', 'MHGM');
-const COPY = new CopyManga(Plugin.COPY, 'copymanga', 'COPY');
+export * from './base';
 
 export const PluginMap = new Map([
   [Plugin.MHG, MHG],
   [Plugin.MHGM, MHGM],
   [Plugin.COPY, COPY],
+  [Plugin.MHDB, MHDB],
 ]);
 export const combineHash = Base.combineHash;
 export const splitHash = Base.splitHash;

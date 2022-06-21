@@ -1,0 +1,1800 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<title>漫画大全-漫画DB</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="renderer" content="webkit" />
+<meta name="applicable-device" content="pc,mobile">
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<link href="https://www.manhuadb.com/manhua/list.html" rel="canonical" />
+
+<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+<link href="/assets/css/bootstrap-icon.css" rel="stylesheet">
+<link href="/assets/css/common.css" rel="stylesheet">
+<link rel="shortcut icon" href="/assets/www/img/favicon.png" />
+<script src="/assets/js/jquery-3.2.1.min.js"></script>
+<script src="/assets/js/jquery.lazyload.min.js"></script>
+<script src="/assets/js/mdb-comm.js?v=1.0.2"></script>
+<meta name="keywords" content="漫画大全,看漫画,在线漫画,漫画">
+<meta name="description" content="漫画DB是全网最专业的日本漫画大全资料库。网站上的所有漫画均可免费在线看，同时每部漫画都有丰富的资料，包括登场人物、用语、设定、改编作品及创作幕后等深层的内容。">
+<script type="application/ld+json">
+        {"@context":"http://schema.org","@type":"ItemList","name":"漫画大全","itemListOrder":"Descending","url":"https://www.manhuadb.com/manhua/list.html","numberOfItems":20,"itemListElement":[{"@type":"ListItem","position":1,"url":"https://www.manhuadb.com/manhua/25931"},{"@type":"ListItem","position":2,"url":"https://www.manhuadb.com/manhua/25930"},{"@type":"ListItem","position":3,"url":"https://www.manhuadb.com/manhua/25929"},{"@type":"ListItem","position":4,"url":"https://www.manhuadb.com/manhua/25928"},{"@type":"ListItem","position":5,"url":"https://www.manhuadb.com/manhua/25927"},{"@type":"ListItem","position":6,"url":"https://www.manhuadb.com/manhua/25926"},{"@type":"ListItem","position":7,"url":"https://www.manhuadb.com/manhua/25925"},{"@type":"ListItem","position":8,"url":"https://www.manhuadb.com/manhua/25924"},{"@type":"ListItem","position":9,"url":"https://www.manhuadb.com/manhua/25923"},{"@type":"ListItem","position":10,"url":"https://www.manhuadb.com/manhua/25922"},{"@type":"ListItem","position":11,"url":"https://www.manhuadb.com/manhua/25921"},{"@type":"ListItem","position":12,"url":"https://www.manhuadb.com/manhua/25920"},{"@type":"ListItem","position":13,"url":"https://www.manhuadb.com/manhua/25919"},{"@type":"ListItem","position":14,"url":"https://www.manhuadb.com/manhua/25918"},{"@type":"ListItem","position":15,"url":"https://www.manhuadb.com/manhua/25917"},{"@type":"ListItem","position":16,"url":"https://www.manhuadb.com/manhua/25916"},{"@type":"ListItem","position":17,"url":"https://www.manhuadb.com/manhua/25915"},{"@type":"ListItem","position":18,"url":"https://www.manhuadb.com/manhua/25914"},{"@type":"ListItem","position":19,"url":"https://www.manhuadb.com/manhua/25913"},{"@type":"ListItem","position":20,"url":"https://www.manhuadb.com/manhua/25912"}]}
+    </script>
+</head>
+<body class="top-bg" style="">
+<div class="bg-white">
+<div class="header-wrapper container-xxl">
+<div class="align-self-center">
+<a class="logo" href="/"><img src="/assets/www/img/logo.png" style="max-width: 200px;" alt="回到首页"></a>
+</div>
+<div class="d-flex justify-content-center align-self-center">
+<form class="form-inline" action="/search" name="search_form1" method="get">
+<div class="d-none d-lg-flex input-group search">
+<input type="text" class="form-control" name="q" value="" placeholder="搜作品、作者、类型">
+<button class="btn btn-danger" type="submit" id="main-search">搜索</button>
+</div>
+</form>
+</div>
+<div class="align-self-center d-flex justify-content-end login-status">
+<script>
+            $.ajax({
+                type: 'post',
+                url: '/user/loginStatus',
+                data: {r: Math.random()},
+                success: function(json) {
+                    let html = "";
+                    if(json.state == 1) {
+                        html = `
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-danger">我的</button>
+                            <button type="button" class="btn btn-danger dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="javascript:;">设置</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="javascript:;" data-url="/user/signOut.html" onclick="sign_out($(this));">登出</a></li>
+                            </ul>
+                        </div>
+                        `;
+                    } else {
+                        html = `
+                            <a class="btn btn-primary" href="/user/signIn.html">登录</a>
+                        `;
+                    }
+                    $(".login-status").html(html);
+                }
+            });
+        </script>
+</div>
+</div>
+</div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<div class="container-xxl">
+<a class="navbar-brand" href="/">漫画DB</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+<form class="d-flex order-2 d-lg-none" method="get" action="/search" name="searchform2">
+<div class="input-group nav-search-wrapper">
+<input type="text" name="q" class="form-control" placeholder="搜作品、作者、类型" aria-label="Recipient's username" aria-describedby="button-addon2">
+<button class="btn btn-danger" type="submit" id="button-addon2">搜索</button>
+</div>
+</form>
+<ul class="order-1 navbar-nav me-auto">
+
+<li class="nav-item">
+<a class="nav-link active" href="/manhua/list.html">漫画大全</a>
+</li>
+<li class="nav-item">
+<a class="nav-link " href="/manhua/list-r-4.html">日本漫画</a>
+</li>
+<li class="nav-item">
+<a class="nav-link " href="/manhua/list-a-3.html" title="少年漫画">少年</a>
+</li>
+<li class="nav-item">
+<a class="nav-link " href="/manhua/list-a-5.html" title="少女漫画">少女</a>
+</li>
+<li class="nav-item">
+<a class="nav-link " href="/manhua/list-a-4.html" title="青年漫画">青年</a>
+</li>
+<li class="nav-item dropdown">
+<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+漫画分类
+</a>
+<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+<li><a class="dropdown-item" href="/manhua/list-c-26.html" title="爱情漫画">爱情</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-66.html" title="东方漫画">东方</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-12.html" title="冒险漫画">冒险</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-64.html" title="欢乐向漫画">欢乐向</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-39.html" title="百合漫画">百合</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-41.html" title="搞笑漫画">搞笑</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-20.html" title="科幻漫画">科幻</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-40.html" title="校园漫画">校园</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-33.html" title="生活漫画">生活</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-48.html" title="魔幻漫画">魔幻</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-13.html" title="奇幻漫画">奇幻</a></li>
+<li><a class="dropdown-item" href="/manhua/list-c-46.html" title="热血漫画">热血</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item" href="/manhua/list.html">更多分类……</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</nav>
+<div class="container-fluid comic-detail px-0 px-sm-3 pt-sm-3">
+<div class="row m-0">
+<div class="order-2 col-sm-7 col-lg-8 col-xl-9 px-0">
+<div class="comic-main-section bg-white p-3">
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25931"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_ypxwotue_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_ypxwotue_250x362.jpg" alt="樱桃教师  佐仓直生的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25931">樱桃教师 佐仓直生</a>
+<span class="text-muted">(<a href="/manhua/list-t-2015.html" class="year text-muted" title="2015年面世的漫画">2015</a> - <a href="/manhua/list-et-2016.html" class="year text-muted" title="2016年完结的漫画">2016</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/5738" title="立花和三">立花和三</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-32.html" title="喜剧漫画"><span class="badge badge-info">喜剧</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-40.html" title="校园漫画"><span class="badge badge-info">校园</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-41.html" title="搞笑漫画"><span class="badge badge-info">搞笑</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-57.html" title="后宫漫画"><span class="badge badge-info">后宫</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-14.html" title="校园漫画"><span class="badge badge-warning">校园</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-72.html" title="恋爱漫画"><span class="badge badge-warning">恋爱</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-125.html" title="学院漫画"><span class="badge badge-warning">学院</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">菜鸟热血教师──佐仓直生于乙姬女子高中上任！在他担任班导的1年级班上，以幸运色妹为首，有着许多个性十足的女生。而佐仓却对着她们大声宣言「我想与你们相亲相爱」？他能够达成他的目标──「建构出真正的师生关系」吗？ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25930"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_qqqipcpz_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_qqqipcpz_250x362.jpg" alt="恋爱志向学生会的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25930">恋爱志向学生会</a>
+<span class="text-muted">(<a href="/manhua/list-t-2019.html" class="year text-muted" title="2019年面世的漫画">2019</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13421" title="如月群真">如月群真</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-32.html" title="喜剧漫画"><span class="badge badge-info">喜剧</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-40.html" title="校园漫画"><span class="badge badge-info">校园</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-14.html" title="校园漫画"><span class="badge badge-warning">校园</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-72.html" title="恋爱漫画"><span class="badge badge-warning">恋爱</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-125.html" title="学院漫画"><span class="badge badge-warning">学院</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">在深深遺留著嚴格校風的私立白亞坂學園。有個就讀於此、優點唯有正經的男學生泉水誠參選學生會會長選舉，提出「廢除禁止男女交往的校規」這項校園改革方案的公約而當選。雖然當選後泉水馬上就開始跟老師進行交涉，但卻陰錯陽差地被迫親自擔任戀愛自由化的測試案例，開始與同為學生會成員的優等生櫻田風香進行”男女交往”！ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25929"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_evqmurda_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_evqmurda_250x362.jpg" alt="拜托请穿上，鹰峰同学的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25929">拜托请穿上，鹰峰同学</a>
+<span class="text-muted">(<a href="/manhua/list-t-2020.html" class="year text-muted" title="2020年面世的漫画">2020</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/2594" title="柊裕一">柊裕一</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-32.html" title="喜剧漫画"><span class="badge badge-info">喜剧</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-40.html" title="校园漫画"><span class="badge badge-info">校园</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-41.html" title="搞笑漫画"><span class="badge badge-info">搞笑</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-72.html" title="恋爱漫画"><span class="badge badge-warning">恋爱</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">校园女神鹰峰和一点都不起眼的白田虽然从小同校，但从来没有什么交流可言。某日，白田在阴错阳差下目睹了鹰峰的更衣现场，更进一步发现她竟然拥有透过脱下内裤来穿越时空改变因果的超能力…！而为了让自己能够随心所欲的使用这个能力，被鹰峰使诈陷害的白田逼不得已，只能选择成为她的衣柜…！ </div>
+ </div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25928"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_gqzmpgap_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_gqzmpgap_250x362.jpg" alt="美女后宫乳日子的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25928">美女后宫乳日子</a>
+<span class="text-muted">(<a href="/manhua/list-t-2021.html" class="year text-muted" title="2021年面世的漫画">2021</a> - <a href="/manhua/list-et-2021.html" class="year text-muted" title="2021年完结的漫画">2021</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13420" title="一梦">一梦</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-41.html" title="后宫漫画"><span class="badge badge-warning">后宫</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">想揉、想夹、想舔、想吸……我都可以帮你弄喔❤员工宿舍里只有我一个男人身处在性欲旺盛的姐姐们之中❤难道喜欢爱爱的大姐姐们已经盯上我了吗！？ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25927"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_dkwmlrmh_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_dkwmlrmh_250x362.jpg" alt="美乳狂欢祭的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25927">美乳狂欢祭</a>
+<span class="text-muted">(<a href="/manhua/list-t-2021.html" class="year text-muted" title="2021年面世的漫画">2021</a> - <a href="/manhua/list-et-2021.html" class="year text-muted" title="2021年完结的漫画">2021</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13420" title="一梦">一梦</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+ <li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">用柔嫩至极的绵软♥胸部温柔地将你包覆♥不只胸部大，外观可爱性格又好身为男人，这样怎么可能忍耐得住？在美乳之间彻底融化直到升天♥当你想做的时候……就不需等待了！ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25926"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_piphekmj_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_piphekmj_250x362.jpg" alt="柔情姐姐的敏感课程的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25926">柔情姐姐的敏感课程</a>
+<span class="text-muted"></span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13419" title="東タイラ">東タイラ</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">干练女职员、空服员、女仆、眼镜OL、新婚妻子以及成熟人妻—— 美乳与美腿姊姊齐聚一堂!! 。。欢迎您到漫画猫畅快阅读。 </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25925"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_yhcsmdqk_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_yhcsmdqk_250x362.jpg" alt="舍身的恋爱的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25925">舍身的恋爱</a>
+<span class="text-muted"></span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13412" title="春辉">春辉</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-37.html" title="社会漫画"><span class="badge badge-info">社会</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">女大学生舆车站员工瞒着大家在交往…放在邮箱里的dvd，属性竟然是另一半过去的性爱画面…刚搬新家发现能听到隔壁的那种声音……跟年纪小很多的情人之间，带着纯爱的恋爱特集！ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25924"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_zgvolmyn_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_zgvolmyn_250x362.jpg" alt="升天药局的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25924">升天药局</a>
+<span class="text-muted"></span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13412" title="春辉">春辉</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-13.html" title="奇幻漫画"><span class="badge badge-info">奇幻</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-33.html" title="生活漫画"><span class="badge badge-info">生活</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-37.html" title="社会漫画"><span class="badge badge-info">社会</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">《昇天药局！》是由春辉老师于2018年执笔并发行在日本地区的漫画作品。怎麽办…好…………舒服。出现在有着烦恼的人面前的药局──诚资堂。药剂师寿会开给你不可思议的处方。恋爱烦恼的女高中生、缺乏性爱的新婚夫妇、焦急於公司前辈的ＯＬ等等…今天心灵的齿轮没有咬合的人们也会来造访诚资堂。这帖药，要不要服用，就看你决定──── </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25923"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_qtlnyosj_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_qtlnyosj_250x362.jpg" alt="三十处女与二十熟女的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25923">三十处女与二十熟女</a>
+<span class="text-muted">(<a href="/manhua/list-t-2015.html" class="year text-muted" title="2015年面世的漫画">2015</a> - <a href="/manhua/list-et-2017.html" class="year text-muted" title="2017年完结的漫画">2017</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/404" title="甘诘留太">甘诘留太</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">夹在可爱的姊妹之间被耍得团团转，青涩姊、情色妹，你选哪边！？「好喜欢好喜欢又常常超讨厌」不坦率的姊姊.冬子和妹妹.夏姬。大学生平田憧憬着妹妹却渐渐迷上姊姊…即将在姊妹度过幼少时期之地迎接初体验…！？ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25922"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_bbkvnlkb_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_bbkvnlkb_250x362.jpg" alt="暗夜女教父的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25922">暗夜女教父</a>
+<span class="text-muted">(<a href="/manhua/list-t-1976.html" class="year text-muted" title="1976年面世的漫画">1976</a> - <a href="/manhua/list-et-1980.html" class="year text-muted" title="1980年完结的漫画">1980</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13417" title="柿沼宏">柿沼宏</a></li>
+<li class="list-inline-item"><a href="/author/13418" title="筱原とおる">筱原とおる</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-18.html" title="动作漫画"><span class="badge badge-info">动作</span></a></li>
+ <li class="list-inline-item"><a href="/manhua/list-c-22.html" title="职业漫画"><span class="badge badge-info">职业</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-73.html" title="犯罪漫画"><span class="badge badge-warning">犯罪</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-124.html" title="医生漫画"><span class="badge badge-warning">医生</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-195.html" title="医疗漫画"><span class="badge badge-warning">医疗</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">医院里面的一个漂亮女医生的故事!主角是位女医师，表面上医术出众，关心病人，背地里却以自己的方式制裁着夜幕下不为人知的罪恶… </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25921"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_jkgndctk_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_jkgndctk_250x362.jpg" alt="天保 桃色水浒传的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25921">天保 桃色水浒传</a>
+<span class="text-muted">(<a href="/manhua/list-t-2020.html" class="year text-muted" title="2020年面世的漫画">2020</a> - <a href="/manhua/list-et-2021.html" class="year text-muted" title="2021年完结的漫画">2021</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13416" title="八月薰">八月薰</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-9.html" title="历史漫画"><span class="badge badge-info">历史</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-107.html" title="时代剧漫画"><span class="badge badge-warning">时代剧</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">从武士退休成为绘师的杉孙六，伴随死去儿子的妻子.加津从越后出发前往江户。义理父女关系的两人，经历种种后成了男女关系──再加上长屋的居民们，淫乱欲望的绳索缠绕得更加复杂……！！ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25920"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_nvjkaefr_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_nvjkaefr_250x362.jpg" alt="十~忍法魔界轉生~的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25920">十~忍法魔界轉生~</a>
+<span class="text-muted">(<a href="/manhua/list-t-2017.html" class="year text-muted" title="2017年面世的漫画">2017</a> - <a href="/manhua/list-et-2018.html" class="year text-muted" title="2018年完结的漫画">2018</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/250" title="山田风太郎">山田风太郎</a></li>
+<li class="list-inline-item"><a href="/author/251" title="濑川雅树">濑川雅树</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-22.html" title="职业漫画"><span class="badge badge-info">职业</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-44.html" title="格斗漫画"><span class="badge badge-info">格斗</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-81.html" title="江户时代漫画"><span class="badge badge-warning">江户时代</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-104.html" title="忍者漫画"><span class="badge badge-warning">忍者</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-107.html" title="时代剧漫画"><span class="badge badge-warning">时代剧</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">宽永十五年，震惊天下的「岛原之乱」结束了，然而在小西行长的家臣森宗意轩的特意安排下，岛原之乱的总大将竟然透过秘术「魔界转生」复活了！不只如此，就连知名的剑客田宫坊太郎，剑豪宫本武藏，甚至早该病死的义士荒木又右卫门都因此获得重生，变成「魔人」……目睹这不可思议现象的剑客柳生如云斋与枪法高手宝藏院胤舜将如何对应？「魔人」们又有什么企图？ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25919"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_aacwigax_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_aacwigax_250x362.jpg" alt="仆BOKU的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25919">仆BOKU</a>
+<span class="text-muted">(<a href="/manhua/list-t-2013.html" class="year text-muted" title="2013年面世的漫画">2013</a> - <a href="/manhua/list-et-2015.html" class="year text-muted" title="2015年完结的漫画">2015</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/602" title="木月明">木月明</a></li>
+<li class="list-inline-item"><a href="/author/603" title="佐藤南纪">佐藤南纪</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-40.html" title="校园漫画"><span class="badge badge-info">校园</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">家世良好，而且自认为无懈可击的资优生.京极太郎，某一天却在电车上遇到了色狼，而且对方还是个女的！没想到隔天，他又再次遇上同一位女色狼！这名女色狼甚至还变本加厉！忍无可忍的京极在电车到站后，随即追了上去！等到揭开女色狼的真面目之后，发现竟然是同校的学妹？而这位色狼学妹接着又会做出什么惊人之举？其背后又藏有什么目的？ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25918"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_xvggcwrq_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_xvggcwrq_250x362.jpg" alt="毒X恋的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25918">毒X恋</a>
+<span class="text-muted">(<a href="/manhua/list-t-2013.html" class="year text-muted" title="2013年面世的漫画">2013</a> - <a href="/manhua/list-et-2014.html" class="year text-muted" title="2014年完结的漫画">2014</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13415" title="克‧亚树">克‧亚树</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-26.html" title="爱情漫画"><span class="badge badge-info">爱情</span></a></li>
+ </ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">某天美津夏遇见一位男孩子，他站在天桥上把照片撕碎丢下。之后这位男孩以转学生的身份出现，在美津夏身边造谣生事、搬弄是非，使她与好友决裂，和男友也分手了。然而这男孩并非是天生的花花公子，是因为同时遭女友和好友背叛，才对女人失去了信心……看着这样的他，美津夏渐渐无法置之不理—— </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25917"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_pborwpju_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_pborwpju_250x362.jpg" alt="不伦食堂的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25917">不伦食堂</a>
+<span class="text-muted">(<a href="/manhua/list-t-2016.html" class="year text-muted" title="2016年面世的漫画">2016</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13408" title="山口让司">山口让司</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-29.html" title="料理漫画"><span class="badge badge-info">料理</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-45.html" title="美食漫画"><span class="badge badge-info">美食</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-108.html" title="日式料理漫画"><span class="badge badge-warning">日式料理</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">山寺隆一。兴趣是在出差地点享受美食。喜欢的东西是美味餐点和……别人的太太！最喜欢欣赏女性在用餐时的举动，每次一回过神来，总是已经和她在床上交流感情？吃一顿美味的餐点。明明就只是这样而已，为什么，为什么，会变成这样──！ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25916"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/25916_cover_niqerxdr_250x362.jpg" src="https://media.manhuadb.com/cartoon/25916_cover_niqerxdr_250x362.jpg" alt="阴阳眼见子的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25916">阴阳眼见子</a>
+<span class="text-muted">(<a href="/manhua/list-t-2018.html" class="year text-muted" title="2018年面世的漫画">2018</a>)</span>
+</h2>
+ <div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13259" title="泉朝树">泉朝树</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-16.html" title="恐怖漫画"><span class="badge badge-info">恐怖</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-32.html" title="喜剧漫画"><span class="badge badge-info">喜剧</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">某天，女高中生见子突然变得可以看见那些普通人看不见的鬼怪。面对一夜之间改变的日常，她选择“视而不见”，假装看不见那些东西来生活下去。 </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25915"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_wpquyycd_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_wpquyycd_250x362.jpg" alt="青之驱魔师的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25915">青之驱魔师</a>
+<span class="text-muted">(<a href="/manhua/list-t-2009.html" class="year text-muted" title="2009年面世的漫画">2009</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/181" title="加藤和惠">加藤和惠</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-12.html" title="冒险漫画"><span class="badge badge-info">冒险</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-13.html" title="奇幻漫画"><span class="badge badge-info">奇幻</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-40.html" title="校园漫画"><span class="badge badge-info">校园</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-tg-14.html" title="校园漫画"><span class="badge badge-warning">校园</span></a></li>
+</ul>
+ </div>
+<div class="comic-story-intro text-justify mt-3">贺！《青之驱魔师》动画化决定！日本知名漫画杂志「JUMP SQ」台柱隆重登场！继承恶魔之血的少年.奥村磷，突然有名自称父亲的魔神出现眼前，并企图带他前往恶魔栖息的虚无界。身为知名驱魔师的养父，却为了… </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25914"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_txezcwru_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_txezcwru_250x362.jpg" alt="村祀的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25914">村祀</a>
+<span class="text-muted">(<a href="/manhua/list-t-2014.html" class="year text-muted" title="2014年面世的漫画">2014</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13408" title="山口让司">山口让司</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-16.html" title="恐怖漫画"><span class="badge badge-info">恐怖</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-27.html" title="悬疑漫画"><span class="badge badge-info">悬疑</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">村子祭祀细节是不能对外公开的……钻研民俗学的本草学者‧三神与外国掮客造访的是有着蛇神信仰的「忍冬村」。在这座陆上孤岛渡过一个礼拜的他们将目睹令人害怕的一幕…… </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25913"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_syiglcnn_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_syiglcnn_250x362.jpg" alt="终末的后宫的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25913">终末的后宫</a>
+<span class="text-muted">(<a href="/manhua/list-t-2016.html" class="year text-muted" title="2016年面世的漫画">2016</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/12372" title="LINK">LINK</a></li>
+<li class="list-inline-item"><a href="/author/13414" title="宵野小太郎">宵野小太郎</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-1.html" title="连载中的漫画"><span class="badge badge-success">连载中</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-20.html" title="科幻漫画"><span class="badge badge-info">科幻</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-21.html" title="惊悚漫画"><span class="badge badge-info">惊悚</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-57.html" title="后宫漫画"><span class="badge badge-info">后宫</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">时间是在2040年。罹患罕见疾病的青年.怜人在与青梅竹马绘理沙相约再会之后接受了冷冻睡眠治疗。然后5年后｜｜怜人醒来之后等待他的却是全人口99﹒9%的男性皆感染病毒而死，现存50亿人口大多为女性的世界…！近未来情色悬疑漫画就此开幕！ </div>
+</div>
+</div>
+<hr>
+<div class="media comic-book-unit">
+<a class="d-block" href="/manhua/25912"><img class="mr-3 comic-book-cover" data-original="https://media.manhuadb.com/cartoon/_cover_jjvjfyct_250x362.jpg" src="https://media.manhuadb.com/cartoon/_cover_jjvjfyct_250x362.jpg" alt="秘书课秘蜜情事的封面图"></a>
+<div class="media-body">
+<h2 class="h3 my-0">
+<a href="/manhua/25912">秘书课秘蜜情事</a>
+<span class="text-muted">(<a href="/manhua/list-t-2012.html" class="year text-muted" title="2012年面世的漫画">2012</a> - <a href="/manhua/list-et-2012.html" class="year text-muted" title="2012年完结的漫画">2012</a>)</span>
+</h2>
+<div class="comic-creators">
+<ul class="list-inline my-1">
+<li class="list-inline-item"><a href="/author/13412" title="春辉">春辉</a></li>
+</ul>
+</div>
+<div class="comic-categories">
+<ul class="list-inline mb-1">
+<li class="list-inline-item"><a href="/manhua/list-s-2.html" title="已完结的漫画"><span class="badge badge-success">已完结</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-22.html" title="职业漫画"><span class="badge badge-info">职业</span></a></li>
+<li class="list-inline-item"><a href="/manhua/list-c-37.html" title="社会漫画"><span class="badge badge-info">社会</span></a></li>
+</ul>
+</div>
+<div class="comic-story-intro text-justify mt-3">如果在身材姣好的美女秘书们环伺下工作的话…毫无长处的青年‧后台被分配的部门竟然是美女如云的秘书课！？在各个难搞的女性们玩弄下，甜蜜淫靡的日子揭开序幕！！ </div>
+</div>
+</div>
+<hr>
+</div>
+
+<div class="bg-white pagination px-2 pt-3 pb-4 justify-content-center">
+<nav aria-label="Page navigation">
+<div class="form-inline">
+<a href="/manhua/list.html" class="btn btn-light mr-1 mb-1 disabled" title="第一页">首页</a>
+<a href="javascript:;" class="btn btn-light mb-1 disabled" title="上一页">上页</a>
+<div class="mx-1 mb-1">
+<label for="page-selector" class="sr-only">翻页</label>
+<select class="form-control" id="page-selector" onchange="window.location=this.value;">
+<option value="/manhua/list.html" selected>第 1 页</option>
+<option value="/manhua/list-page-2.html">第 2 页</option>
+<option value="/manhua/list-page-3.html">第 3 页</option>
+<option value="/manhua/list-page-4.html">第 4 页</option>
+<option value="/manhua/list-page-5.html">第 5 页</option>
+<option value="/manhua/list-page-6.html">第 6 页</option>
+<option value="/manhua/list-page-7.html">第 7 页</option>
+<option value="/manhua/list-page-8.html">第 8 页</option>
+<option value="/manhua/list-page-9.html">第 9 页</option>
+<option value="/manhua/list-page-10.html">第 10 页</option>
+<option value="/manhua/list-page-11.html">第 11 页</option>
+<option value="/manhua/list-page-12.html">第 12 页</option>
+<option value="/manhua/list-page-13.html">第 13 页</option>
+<option value="/manhua/list-page-14.html">第 14 页</option>
+<option value="/manhua/list-page-15.html">第 15 页</option>
+<option value="/manhua/list-page-16.html">第 16 页</option>
+<option value="/manhua/list-page-17.html">第 17 页</option>
+<option value="/manhua/list-page-18.html">第 18 页</option>
+<option value="/manhua/list-page-19.html">第 19 页</option>
+<option value="/manhua/list-page-20.html">第 20 页</option>
+<option value="/manhua/list-page-21.html">第 21 页</option>
+<option value="/manhua/list-page-22.html">第 22 页</option>
+<option value="/manhua/list-page-23.html">第 23 页</option>
+<option value="/manhua/list-page-24.html">第 24 页</option>
+<option value="/manhua/list-page-25.html">第 25 页</option>
+<option value="/manhua/list-page-26.html">第 26 页</option>
+<option value="/manhua/list-page-27.html">第 27 页</option>
+<option value="/manhua/list-page-28.html">第 28 页</option>
+<option value="/manhua/list-page-29.html">第 29 页</option>
+<option value="/manhua/list-page-30.html">第 30 页</option>
+<option value="/manhua/list-page-31.html">第 31 页</option>
+<option value="/manhua/list-page-32.html">第 32 页</option>
+<option value="/manhua/list-page-33.html">第 33 页</option>
+<option value="/manhua/list-page-34.html">第 34 页</option>
+<option value="/manhua/list-page-35.html">第 35 页</option>
+<option value="/manhua/list-page-36.html">第 36 页</option>
+<option value="/manhua/list-page-37.html">第 37 页</option>
+<option value="/manhua/list-page-38.html">第 38 页</option>
+<option value="/manhua/list-page-39.html">第 39 页</option>
+<option value="/manhua/list-page-40.html">第 40 页</option>
+<option value="/manhua/list-page-41.html">第 41 页</option>
+<option value="/manhua/list-page-42.html">第 42 页</option>
+<option value="/manhua/list-page-43.html">第 43 页</option>
+<option value="/manhua/list-page-44.html">第 44 页</option>
+<option value="/manhua/list-page-45.html">第 45 页</option>
+<option value="/manhua/list-page-46.html">第 46 页</option>
+<option value="/manhua/list-page-47.html">第 47 页</option>
+<option value="/manhua/list-page-48.html">第 48 页</option>
+<option value="/manhua/list-page-49.html">第 49 页</option>
+<option value="/manhua/list-page-50.html">第 50 页</option>
+<option value="/manhua/list-page-51.html">第 51 页</option>
+<option value="/manhua/list-page-52.html">第 52 页</option>
+<option value="/manhua/list-page-53.html">第 53 页</option>
+<option value="/manhua/list-page-54.html">第 54 页</option>
+<option value="/manhua/list-page-55.html">第 55 页</option>
+<option value="/manhua/list-page-56.html">第 56 页</option>
+<option value="/manhua/list-page-57.html">第 57 页</option>
+<option value="/manhua/list-page-58.html">第 58 页</option>
+<option value="/manhua/list-page-59.html">第 59 页</option>
+<option value="/manhua/list-page-60.html">第 60 页</option>
+<option value="/manhua/list-page-61.html">第 61 页</option>
+<option value="/manhua/list-page-62.html">第 62 页</option>
+<option value="/manhua/list-page-63.html">第 63 页</option>
+<option value="/manhua/list-page-64.html">第 64 页</option>
+<option value="/manhua/list-page-65.html">第 65 页</option>
+<option value="/manhua/list-page-66.html">第 66 页</option>
+<option value="/manhua/list-page-67.html">第 67 页</option>
+<option value="/manhua/list-page-68.html">第 68 页</option>
+<option value="/manhua/list-page-69.html">第 69 页</option>
+<option value="/manhua/list-page-70.html">第 70 页</option>
+<option value="/manhua/list-page-71.html">第 71 页</option>
+<option value="/manhua/list-page-72.html">第 72 页</option>
+<option value="/manhua/list-page-73.html">第 73 页</option>
+<option value="/manhua/list-page-74.html">第 74 页</option>
+<option value="/manhua/list-page-75.html">第 75 页</option>
+<option value="/manhua/list-page-76.html">第 76 页</option>
+<option value="/manhua/list-page-77.html">第 77 页</option>
+ <option value="/manhua/list-page-78.html">第 78 页</option>
+<option value="/manhua/list-page-79.html">第 79 页</option>
+<option value="/manhua/list-page-80.html">第 80 页</option>
+<option value="/manhua/list-page-81.html">第 81 页</option>
+<option value="/manhua/list-page-82.html">第 82 页</option>
+<option value="/manhua/list-page-83.html">第 83 页</option>
+<option value="/manhua/list-page-84.html">第 84 页</option>
+<option value="/manhua/list-page-85.html">第 85 页</option>
+<option value="/manhua/list-page-86.html">第 86 页</option>
+<option value="/manhua/list-page-87.html">第 87 页</option>
+<option value="/manhua/list-page-88.html">第 88 页</option>
+<option value="/manhua/list-page-89.html">第 89 页</option>
+<option value="/manhua/list-page-90.html">第 90 页</option>
+<option value="/manhua/list-page-91.html">第 91 页</option>
+<option value="/manhua/list-page-92.html">第 92 页</option>
+<option value="/manhua/list-page-93.html">第 93 页</option>
+<option value="/manhua/list-page-94.html">第 94 页</option>
+<option value="/manhua/list-page-95.html">第 95 页</option>
+<option value="/manhua/list-page-96.html">第 96 页</option>
+<option value="/manhua/list-page-97.html">第 97 页</option>
+<option value="/manhua/list-page-98.html">第 98 页</option>
+<option value="/manhua/list-page-99.html">第 99 页</option>
+<option value="/manhua/list-page-100.html">第 100 页</option>
+<option value="/manhua/list-page-101.html">第 101 页</option>
+<option value="/manhua/list-page-102.html">第 102 页</option>
+<option value="/manhua/list-page-103.html">第 103 页</option>
+<option value="/manhua/list-page-104.html">第 104 页</option>
+<option value="/manhua/list-page-105.html">第 105 页</option>
+<option value="/manhua/list-page-106.html">第 106 页</option>
+<option value="/manhua/list-page-107.html">第 107 页</option>
+<option value="/manhua/list-page-108.html">第 108 页</option>
+<option value="/manhua/list-page-109.html">第 109 页</option>
+<option value="/manhua/list-page-110.html">第 110 页</option>
+<option value="/manhua/list-page-111.html">第 111 页</option>
+<option value="/manhua/list-page-112.html">第 112 页</option>
+<option value="/manhua/list-page-113.html">第 113 页</option>
+<option value="/manhua/list-page-114.html">第 114 页</option>
+<option value="/manhua/list-page-115.html">第 115 页</option>
+<option value="/manhua/list-page-116.html">第 116 页</option>
+<option value="/manhua/list-page-117.html">第 117 页</option>
+<option value="/manhua/list-page-118.html">第 118 页</option>
+<option value="/manhua/list-page-119.html">第 119 页</option> 
+<option value="/manhua/list-page-120.html">第 120 页</option>
+<option value="/manhua/list-page-121.html">第 121 页</option>
+<option value="/manhua/list-page-122.html">第 122 页</option>
+<option value="/manhua/list-page-123.html">第 123 页</option>
+<option value="/manhua/list-page-124.html">第 124 页</option>
+<option value="/manhua/list-page-125.html">第 125 页</option>
+<option value="/manhua/list-page-126.html">第 126 页</option>
+<option value="/manhua/list-page-127.html">第 127 页</option>
+<option value="/manhua/list-page-128.html">第 128 页</option>
+<option value="/manhua/list-page-129.html">第 129 页</option>
+<option value="/manhua/list-page-130.html">第 130 页</option>
+<option value="/manhua/list-page-131.html">第 131 页</option>
+<option value="/manhua/list-page-132.html">第 132 页</option>
+<option value="/manhua/list-page-133.html">第 133 页</option>
+<option value="/manhua/list-page-134.html">第 134 页</option>
+<option value="/manhua/list-page-135.html">第 135 页</option>
+<option value="/manhua/list-page-136.html">第 136 页</option>
+<option value="/manhua/list-page-137.html">第 137 页</option>
+<option value="/manhua/list-page-138.html">第 138 页</option>
+<option value="/manhua/list-page-139.html">第 139 页</option>
+<option value="/manhua/list-page-140.html">第 140 页</option>
+<option value="/manhua/list-page-141.html">第 141 页</option>
+<option value="/manhua/list-page-142.html">第 142 页</option>
+<option value="/manhua/list-page-143.html">第 143 页</option>
+<option value="/manhua/list-page-144.html">第 144 页</option>
+<option value="/manhua/list-page-145.html">第 145 页</option>
+<option value="/manhua/list-page-146.html">第 146 页</option>
+<option value="/manhua/list-page-147.html">第 147 页</option>
+<option value="/manhua/list-page-148.html">第 148 页</option>
+<option value="/manhua/list-page-149.html">第 149 页</option>
+<option value="/manhua/list-page-150.html">第 150 页</option>
+<option value="/manhua/list-page-151.html">第 151 页</option>
+<option value="/manhua/list-page-152.html">第 152 页</option>
+<option value="/manhua/list-page-153.html">第 153 页</option>
+<option value="/manhua/list-page-154.html">第 154 页</option>
+<option value="/manhua/list-page-155.html">第 155 页</option>
+<option value="/manhua/list-page-156.html">第 156 页</option>
+<option value="/manhua/list-page-157.html">第 157 页</option>
+<option value="/manhua/list-page-158.html">第 158 页</option>
+<option value="/manhua/list-page-159.html">第 159 页</option>
+<option value="/manhua/list-page-160.html">第 160 页</option>
+<option value="/manhua/list-page-161.html">第 161 页</option>
+<option value="/manhua/list-page-162.html">第 162 页</option>
+<option value="/manhua/list-page-163.html">第 163 页</option>
+<option value="/manhua/list-page-164.html">第 164 页</option>
+<option value="/manhua/list-page-165.html">第 165 页</option>
+<option value="/manhua/list-page-166.html">第 166 页</option>
+<option value="/manhua/list-page-167.html">第 167 页</option>
+<option value="/manhua/list-page-168.html">第 168 页</option>
+<option value="/manhua/list-page-169.html">第 169 页</option>
+<option value="/manhua/list-page-170.html">第 170 页</option>
+<option value="/manhua/list-page-171.html">第 171 页</option>
+<option value="/manhua/list-page-172.html">第 172 页</option>
+<option value="/manhua/list-page-173.html">第 173 页</option>
+<option value="/manhua/list-page-174.html">第 174 页</option>
+<option value="/manhua/list-page-175.html">第 175 页</option>
+<option value="/manhua/list-page-176.html">第 176 页</option>
+<option value="/manhua/list-page-177.html">第 177 页</option>
+<option value="/manhua/list-page-178.html">第 178 页</option>
+<option value="/manhua/list-page-179.html">第 179 页</option>
+<option value="/manhua/list-page-180.html">第 180 页</option>
+<option value="/manhua/list-page-181.html">第 181 页</option>
+<option value="/manhua/list-page-182.html">第 182 页</option>
+<option value="/manhua/list-page-183.html">第 183 页</option>
+<option value="/manhua/list-page-184.html">第 184 页</option>
+<option value="/manhua/list-page-185.html">第 185 页</option>
+<option value="/manhua/list-page-186.html">第 186 页</option>
+<option value="/manhua/list-page-187.html">第 187 页</option>
+<option value="/manhua/list-page-188.html">第 188 页</option>
+<option value="/manhua/list-page-189.html">第 189 页</option>
+<option value="/manhua/list-page-190.html">第 190 页</option>
+<option value="/manhua/list-page-191.html">第 191 页</option>
+<option value="/manhua/list-page-192.html">第 192 页</option>
+<option value="/manhua/list-page-193.html">第 193 页</option>
+<option value="/manhua/list-page-194.html">第 194 页</option>
+<option value="/manhua/list-page-195.html">第 195 页</option>
+<option value="/manhua/list-page-196.html">第 196 页</option>
+<option value="/manhua/list-page-197.html">第 197 页</option>
+<option value="/manhua/list-page-198.html">第 198 页</option>
+<option value="/manhua/list-page-199.html">第 199 页</option>
+<option value="/manhua/list-page-200.html">第 200 页</option>
+<option value="/manhua/list-page-201.html">第 201 页</option>
+<option value="/manhua/list-page-202.html">第 202 页</option>
+<option value="/manhua/list-page-203.html">第 203 页</option>
+<option value="/manhua/list-page-204.html">第 204 页</option>
+<option value="/manhua/list-page-205.html">第 205 页</option>
+<option value="/manhua/list-page-206.html">第 206 页</option>
+<option value="/manhua/list-page-207.html">第 207 页</option>
+<option value="/manhua/list-page-208.html">第 208 页</option>
+<option value="/manhua/list-page-209.html">第 209 页</option>
+<option value="/manhua/list-page-210.html">第 210 页</option>
+<option value="/manhua/list-page-211.html">第 211 页</option>
+<option value="/manhua/list-page-212.html">第 212 页</option>
+<option value="/manhua/list-page-213.html">第 213 页</option>
+<option value="/manhua/list-page-214.html">第 214 页</option>
+<option value="/manhua/list-page-215.html">第 215 页</option>
+<option value="/manhua/list-page-216.html">第 216 页</option>
+<option value="/manhua/list-page-217.html">第 217 页</option>
+<option value="/manhua/list-page-218.html">第 218 页</option>
+<option value="/manhua/list-page-219.html">第 219 页</option>
+<option value="/manhua/list-page-220.html">第 220 页</option>
+<option value="/manhua/list-page-221.html">第 221 页</option>
+<option value="/manhua/list-page-222.html">第 222 页</option>
+<option value="/manhua/list-page-223.html">第 223 页</option>
+<option value="/manhua/list-page-224.html">第 224 页</option>
+<option value="/manhua/list-page-225.html">第 225 页</option>
+<option value="/manhua/list-page-226.html">第 226 页</option>
+<option value="/manhua/list-page-227.html">第 227 页</option>
+<option value="/manhua/list-page-228.html">第 228 页</option>
+<option value="/manhua/list-page-229.html">第 229 页</option>
+<option value="/manhua/list-page-230.html">第 230 页</option>
+<option value="/manhua/list-page-231.html">第 231 页</option>
+<option value="/manhua/list-page-232.html">第 232 页</option>
+<option value="/manhua/list-page-233.html">第 233 页</option>
+<option value="/manhua/list-page-234.html">第 234 页</option>
+<option value="/manhua/list-page-235.html">第 235 页</option>
+<option value="/manhua/list-page-236.html">第 236 页</option>
+<option value="/manhua/list-page-237.html">第 237 页</option>
+<option value="/manhua/list-page-238.html">第 238 页</option>
+<option value="/manhua/list-page-239.html">第 239 页</option>
+<option value="/manhua/list-page-240.html">第 240 页</option>
+<option value="/manhua/list-page-241.html">第 241 页</option>
+<option value="/manhua/list-page-242.html">第 242 页</option>
+<option value="/manhua/list-page-243.html">第 243 页</option>
+ <option value="/manhua/list-page-244.html">第 244 页</option>
+<option value="/manhua/list-page-245.html">第 245 页</option>
+<option value="/manhua/list-page-246.html">第 246 页</option>
+<option value="/manhua/list-page-247.html">第 247 页</option>
+<option value="/manhua/list-page-248.html">第 248 页</option>
+<option value="/manhua/list-page-249.html">第 249 页</option>
+<option value="/manhua/list-page-250.html">第 250 页</option>
+<option value="/manhua/list-page-251.html">第 251 页</option>
+<option value="/manhua/list-page-252.html">第 252 页</option>
+<option value="/manhua/list-page-253.html">第 253 页</option>
+<option value="/manhua/list-page-254.html">第 254 页</option>
+<option value="/manhua/list-page-255.html">第 255 页</option>
+<option value="/manhua/list-page-256.html">第 256 页</option>
+<option value="/manhua/list-page-257.html">第 257 页</option>
+<option value="/manhua/list-page-258.html">第 258 页</option>
+<option value="/manhua/list-page-259.html">第 259 页</option>
+<option value="/manhua/list-page-260.html">第 260 页</option>
+<option value="/manhua/list-page-261.html">第 261 页</option>
+<option value="/manhua/list-page-262.html">第 262 页</option>
+<option value="/manhua/list-page-263.html">第 263 页</option>
+<option value="/manhua/list-page-264.html">第 264 页</option>
+<option value="/manhua/list-page-265.html">第 265 页</option>
+<option value="/manhua/list-page-266.html">第 266 页</option>
+<option value="/manhua/list-page-267.html">第 267 页</option>
+<option value="/manhua/list-page-268.html">第 268 页</option>
+<option value="/manhua/list-page-269.html">第 269 页</option>
+<option value="/manhua/list-page-270.html">第 270 页</option>
+<option value="/manhua/list-page-271.html">第 271 页</option>
+<option value="/manhua/list-page-272.html">第 272 页</option>
+<option value="/manhua/list-page-273.html">第 273 页</option>
+<option value="/manhua/list-page-274.html">第 274 页</option>
+<option value="/manhua/list-page-275.html">第 275 页</option>
+<option value="/manhua/list-page-276.html">第 276 页</option>
+<option value="/manhua/list-page-277.html">第 277 页</option>
+<option value="/manhua/list-page-278.html">第 278 页</option>
+<option value="/manhua/list-page-279.html">第 279 页</option>
+<option value="/manhua/list-page-280.html">第 280 页</option>
+<option value="/manhua/list-page-281.html">第 281 页</option>
+<option value="/manhua/list-page-282.html">第 282 页</option>
+<option value="/manhua/list-page-283.html">第 283 页</option>
+<option value="/manhua/list-page-284.html">第 284 页</option>
+<option value="/manhua/list-page-285.html">第 285 页</option>
+<option value="/manhua/list-page-286.html">第 286 页</option>
+<option value="/manhua/list-page-287.html">第 287 页</option>
+<option value="/manhua/list-page-288.html">第 288 页</option>
+<option value="/manhua/list-page-289.html">第 289 页</option>
+<option value="/manhua/list-page-290.html">第 290 页</option>
+<option value="/manhua/list-page-291.html">第 291 页</option>
+<option value="/manhua/list-page-292.html">第 292 页</option>
+<option value="/manhua/list-page-293.html">第 293 页</option>
+<option value="/manhua/list-page-294.html">第 294 页</option>
+<option value="/manhua/list-page-295.html">第 295 页</option>
+<option value="/manhua/list-page-296.html">第 296 页</option>
+<option value="/manhua/list-page-297.html">第 297 页</option>
+<option value="/manhua/list-page-298.html">第 298 页</option>
+<option value="/manhua/list-page-299.html">第 299 页</option>
+<option value="/manhua/list-page-300.html">第 300 页</option>
+<option value="/manhua/list-page-301.html">第 301 页</option>
+<option value="/manhua/list-page-302.html">第 302 页</option>
+<option value="/manhua/list-page-303.html">第 303 页</option>
+<option value="/manhua/list-page-304.html">第 304 页</option>
+<option value="/manhua/list-page-305.html">第 305 页</option>
+<option value="/manhua/list-page-306.html">第 306 页</option>
+<option value="/manhua/list-page-307.html">第 307 页</option>
+<option value="/manhua/list-page-308.html">第 308 页</option>
+<option value="/manhua/list-page-309.html">第 309 页</option>
+<option value="/manhua/list-page-310.html">第 310 页</option>
+<option value="/manhua/list-page-311.html">第 311 页</option>
+<option value="/manhua/list-page-312.html">第 312 页</option>
+<option value="/manhua/list-page-313.html">第 313 页</option>
+<option value="/manhua/list-page-314.html">第 314 页</option>
+<option value="/manhua/list-page-315.html">第 315 页</option>
+<option value="/manhua/list-page-316.html">第 316 页</option>
+<option value="/manhua/list-page-317.html">第 317 页</option>
+<option value="/manhua/list-page-318.html">第 318 页</option>
+<option value="/manhua/list-page-319.html">第 319 页</option>
+<option value="/manhua/list-page-320.html">第 320 页</option>
+<option value="/manhua/list-page-321.html">第 321 页</option>
+<option value="/manhua/list-page-322.html">第 322 页</option>
+<option value="/manhua/list-page-323.html">第 323 页</option>
+<option value="/manhua/list-page-324.html">第 324 页</option>
+<option value="/manhua/list-page-325.html">第 325 页</option>
+<option value="/manhua/list-page-326.html">第 326 页</option>
+<option value="/manhua/list-page-327.html">第 327 页</option>
+<option value="/manhua/list-page-328.html">第 328 页</option>
+<option value="/manhua/list-page-329.html">第 329 页</option>
+<option value="/manhua/list-page-330.html">第 330 页</option>
+<option value="/manhua/list-page-331.html">第 331 页</option>
+<option value="/manhua/list-page-332.html">第 332 页</option>
+<option value="/manhua/list-page-333.html">第 333 页</option>
+<option value="/manhua/list-page-334.html">第 334 页</option>
+<option value="/manhua/list-page-335.html">第 335 页</option>
+<option value="/manhua/list-page-336.html">第 336 页</option>
+<option value="/manhua/list-page-337.html">第 337 页</option>
+<option value="/manhua/list-page-338.html">第 338 页</option>
+<option value="/manhua/list-page-339.html">第 339 页</option>
+<option value="/manhua/list-page-340.html">第 340 页</option>
+<option value="/manhua/list-page-341.html">第 341 页</option>
+<option value="/manhua/list-page-342.html">第 342 页</option>
+<option value="/manhua/list-page-343.html">第 343 页</option>
+<option value="/manhua/list-page-344.html">第 344 页</option>
+<option value="/manhua/list-page-345.html">第 345 页</option>
+<option value="/manhua/list-page-346.html">第 346 页</option>
+<option value="/manhua/list-page-347.html">第 347 页</option>
+<option value="/manhua/list-page-348.html">第 348 页</option>
+<option value="/manhua/list-page-349.html">第 349 页</option>
+<option value="/manhua/list-page-350.html">第 350 页</option>
+<option value="/manhua/list-page-351.html">第 351 页</option>
+<option value="/manhua/list-page-352.html">第 352 页</option>
+<option value="/manhua/list-page-353.html">第 353 页</option>
+<option value="/manhua/list-page-354.html">第 354 页</option>
+<option value="/manhua/list-page-355.html">第 355 页</option>
+<option value="/manhua/list-page-356.html">第 356 页</option>
+<option value="/manhua/list-page-357.html">第 357 页</option>
+<option value="/manhua/list-page-358.html">第 358 页</option>
+<option value="/manhua/list-page-359.html">第 359 页</option>
+<option value="/manhua/list-page-360.html">第 360 页</option>
+<option value="/manhua/list-page-361.html">第 361 页</option>
+<option value="/manhua/list-page-362.html">第 362 页</option>
+<option value="/manhua/list-page-363.html">第 363 页</option>
+<option value="/manhua/list-page-364.html">第 364 页</option>
+<option value="/manhua/list-page-365.html">第 365 页</option>
+<option value="/manhua/list-page-366.html">第 366 页</option>
+<option value="/manhua/list-page-367.html">第 367 页</option>
+ <option value="/manhua/list-page-368.html">第 368 页</option>
+<option value="/manhua/list-page-369.html">第 369 页</option>
+<option value="/manhua/list-page-370.html">第 370 页</option>
+<option value="/manhua/list-page-371.html">第 371 页</option>
+<option value="/manhua/list-page-372.html">第 372 页</option>
+<option value="/manhua/list-page-373.html">第 373 页</option>
+<option value="/manhua/list-page-374.html">第 374 页</option>
+<option value="/manhua/list-page-375.html">第 375 页</option>
+<option value="/manhua/list-page-376.html">第 376 页</option>
+<option value="/manhua/list-page-377.html">第 377 页</option>
+<option value="/manhua/list-page-378.html">第 378 页</option>
+<option value="/manhua/list-page-379.html">第 379 页</option>
+<option value="/manhua/list-page-380.html">第 380 页</option>
+<option value="/manhua/list-page-381.html">第 381 页</option>
+<option value="/manhua/list-page-382.html">第 382 页</option>
+<option value="/manhua/list-page-383.html">第 383 页</option>
+<option value="/manhua/list-page-384.html">第 384 页</option>
+<option value="/manhua/list-page-385.html">第 385 页</option>
+<option value="/manhua/list-page-386.html">第 386 页</option>
+<option value="/manhua/list-page-387.html">第 387 页</option>
+<option value="/manhua/list-page-388.html">第 388 页</option>
+<option value="/manhua/list-page-389.html">第 389 页</option>
+<option value="/manhua/list-page-390.html">第 390 页</option>
+<option value="/manhua/list-page-391.html">第 391 页</option>
+<option value="/manhua/list-page-392.html">第 392 页</option>
+<option value="/manhua/list-page-393.html">第 393 页</option>
+<option value="/manhua/list-page-394.html">第 394 页</option>
+<option value="/manhua/list-page-395.html">第 395 页</option>
+<option value="/manhua/list-page-396.html">第 396 页</option>
+<option value="/manhua/list-page-397.html">第 397 页</option>
+<option value="/manhua/list-page-398.html">第 398 页</option>
+<option value="/manhua/list-page-399.html">第 399 页</option>
+<option value="/manhua/list-page-400.html">第 400 页</option>
+<option value="/manhua/list-page-401.html">第 401 页</option>
+<option value="/manhua/list-page-402.html">第 402 页</option>
+<option value="/manhua/list-page-403.html">第 403 页</option>
+<option value="/manhua/list-page-404.html">第 404 页</option>
+<option value="/manhua/list-page-405.html">第 405 页</option>
+<option value="/manhua/list-page-406.html">第 406 页</option>
+<option value="/manhua/list-page-407.html">第 407 页</option>
+<option value="/manhua/list-page-408.html">第 408 页</option>
+<option value="/manhua/list-page-409.html">第 409 页</option>
+<option value="/manhua/list-page-410.html">第 410 页</option>
+<option value="/manhua/list-page-411.html">第 411 页</option>
+<option value="/manhua/list-page-412.html">第 412 页</option>
+<option value="/manhua/list-page-413.html">第 413 页</option>
+<option value="/manhua/list-page-414.html">第 414 页</option>
+<option value="/manhua/list-page-415.html">第 415 页</option>
+<option value="/manhua/list-page-416.html">第 416 页</option>
+<option value="/manhua/list-page-417.html">第 417 页</option>
+<option value="/manhua/list-page-418.html">第 418 页</option>
+<option value="/manhua/list-page-419.html">第 419 页</option>
+<option value="/manhua/list-page-420.html">第 420 页</option>
+<option value="/manhua/list-page-421.html">第 421 页</option>
+<option value="/manhua/list-page-422.html">第 422 页</option>
+<option value="/manhua/list-page-423.html">第 423 页</option>
+<option value="/manhua/list-page-424.html">第 424 页</option>
+<option value="/manhua/list-page-425.html">第 425 页</option>
+<option value="/manhua/list-page-426.html">第 426 页</option>
+<option value="/manhua/list-page-427.html">第 427 页</option>
+<option value="/manhua/list-page-428.html">第 428 页</option>
+<option value="/manhua/list-page-429.html">第 429 页</option>
+<option value="/manhua/list-page-430.html">第 430 页</option>
+<option value="/manhua/list-page-431.html">第 431 页</option>
+<option value="/manhua/list-page-432.html">第 432 页</option>
+<option value="/manhua/list-page-433.html">第 433 页</option>
+<option value="/manhua/list-page-434.html">第 434 页</option>
+<option value="/manhua/list-page-435.html">第 435 页</option>
+<option value="/manhua/list-page-436.html">第 436 页</option>
+<option value="/manhua/list-page-437.html">第 437 页</option>
+<option value="/manhua/list-page-438.html">第 438 页</option>
+<option value="/manhua/list-page-439.html">第 439 页</option>
+<option value="/manhua/list-page-440.html">第 440 页</option>
+<option value="/manhua/list-page-441.html">第 441 页</option>
+<option value="/manhua/list-page-442.html">第 442 页</option>
+<option value="/manhua/list-page-443.html">第 443 页</option>
+<option value="/manhua/list-page-444.html">第 444 页</option>
+<option value="/manhua/list-page-445.html">第 445 页</option>
+<option value="/manhua/list-page-446.html">第 446 页</option>
+<option value="/manhua/list-page-447.html">第 447 页</option>
+<option value="/manhua/list-page-448.html">第 448 页</option>
+<option value="/manhua/list-page-449.html">第 449 页</option>
+<option value="/manhua/list-page-450.html">第 450 页</option>
+<option value="/manhua/list-page-451.html">第 451 页</option>
+<option value="/manhua/list-page-452.html">第 452 页</option>
+<option value="/manhua/list-page-453.html">第 453 页</option>
+<option value="/manhua/list-page-454.html">第 454 页</option>
+<option value="/manhua/list-page-455.html">第 455 页</option>
+<option value="/manhua/list-page-456.html">第 456 页</option>
+<option value="/manhua/list-page-457.html">第 457 页</option>
+<option value="/manhua/list-page-458.html">第 458 页</option>
+<option value="/manhua/list-page-459.html">第 459 页</option>
+<option value="/manhua/list-page-460.html">第 460 页</option>
+<option value="/manhua/list-page-461.html">第 461 页</option>
+<option value="/manhua/list-page-462.html">第 462 页</option>
+<option value="/manhua/list-page-463.html">第 463 页</option>
+<option value="/manhua/list-page-464.html">第 464 页</option>
+<option value="/manhua/list-page-465.html">第 465 页</option>
+<option value="/manhua/list-page-466.html">第 466 页</option>
+<option value="/manhua/list-page-467.html">第 467 页</option>
+<option value="/manhua/list-page-468.html">第 468 页</option>
+<option value="/manhua/list-page-469.html">第 469 页</option>
+<option value="/manhua/list-page-470.html">第 470 页</option>
+<option value="/manhua/list-page-471.html">第 471 页</option>
+<option value="/manhua/list-page-472.html">第 472 页</option>
+<option value="/manhua/list-page-473.html">第 473 页</option>
+<option value="/manhua/list-page-474.html">第 474 页</option>
+<option value="/manhua/list-page-475.html">第 475 页</option>
+<option value="/manhua/list-page-476.html">第 476 页</option>
+<option value="/manhua/list-page-477.html">第 477 页</option>
+<option value="/manhua/list-page-478.html">第 478 页</option>
+<option value="/manhua/list-page-479.html">第 479 页</option>
+<option value="/manhua/list-page-480.html">第 480 页</option>
+<option value="/manhua/list-page-481.html">第 481 页</option>
+<option value="/manhua/list-page-482.html">第 482 页</option>
+<option value="/manhua/list-page-483.html">第 483 页</option>
+<option value="/manhua/list-page-484.html">第 484 页</option>
+<option value="/manhua/list-page-485.html">第 485 页</option>
+<option value="/manhua/list-page-486.html">第 486 页</option>
+<option value="/manhua/list-page-487.html">第 487 页</option>
+<option value="/manhua/list-page-488.html">第 488 页</option>
+<option value="/manhua/list-page-489.html">第 489 页</option>
+<option value="/manhua/list-page-490.html">第 490 页</option>
+<option value="/manhua/list-page-491.html">第 491 页</option>
+<option value="/manhua/list-page-492.html">第 492 页</option>
+<option value="/manhua/list-page-493.html">第 493 页</option>
+<option value="/manhua/list-page-494.html">第 494 页</option>
+<option value="/manhua/list-page-495.html">第 495 页</option>
+<option value="/manhua/list-page-496.html">第 496 页</option>
+<option value="/manhua/list-page-497.html">第 497 页</option>
+<option value="/manhua/list-page-498.html">第 498 页</option>
+<option value="/manhua/list-page-499.html">第 499 页</option>
+<option value="/manhua/list-page-500.html">第 500 页</option>
+</select>
+</div>
+<a href="/manhua/list-page-2.html" class="btn btn-primary mb-1 " title="下一页">下页</a>
+<a href="/manhua/list-page-500.html" class="btn btn-light mb-1 ml-1 " title="最后一页">末页</a>
+</div>
+
+</nav>
+</div>
+</div>
+<div class="order-1 col-sm-5 col-lg-4 col-xl-3 px-0 pr-sm-3 mb-3">
+<div class="comic-filter-tool bg-white p-3 mt-0">
+<div class="d-flex justify-content-between align-items-center">
+<h4 class="m-0">漫画筛选工具</h4>
+<button class="btn btn-primary btn-sm d-sm-none selector" type="button" data-toggle="collapse" data-target="#comic-filters" aria-expanded="false" aria-controls="comic-filters">
+打开/收起</button>
+</div>
+<div class="d-none d-sm-block search_div"> 
+<hr class="mt-2 mb-0">
+<div class="mt-4">
+<h5 class="mb-2">按<span style="color: orangered">原作地区</span>找漫画</h5>
+<div class="row m-0">
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-r-4.html" class="badge badge-light" title="日本漫画">日本漫画</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-r-5.html" class="badge badge-light" title="香港漫画">香港漫画</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-r-6.html" class="badge badge-light" title="韩国漫画">韩国漫画</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-r-7.html" class="badge badge-light" title="台湾漫画">台湾漫画</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-r-8.html" class="badge badge-light" title="内地漫画">内地漫画</a>
+</div>
+</div>
+ <div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-r-9.html" class="badge badge-light" title="欧美漫画">欧美漫画</a>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<h5 class="mb-2">按<span style="color: orangered">面向读者</span>找漫画</h5>
+<div class="row m-0">
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-3.html" class="badge badge-light" title="少年漫画">少年</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-4.html" class="badge badge-light" title="青年漫画">青年</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-5.html" class="badge badge-light" title="少女漫画">少女</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-6.html" class="badge badge-light" title="男性漫画">男性</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-7.html" class="badge badge-light" title="女性漫画">女性</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-9.html" class="badge badge-light" title="通用漫画">通用</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-10.html" class="badge badge-light" title="儿童漫画">儿童</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-11.html" class="badge badge-light" title="女青漫画">女青</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-a-12.html" class="badge badge-light" title="18限漫画">18限</a>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<h5 class="mb-2">按<span style="color: orangered">连载状态</span>找漫画</h5>
+<div class="row m-0">
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-s-1.html" class="badge badge-light" title="连载中的漫画">连载中</a>
+</div>
+</div>
+<div class="col-4 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-s-2.html" class="badge badge-light" title="已完结的漫画">已完结</a>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<h5 class="mb-2">按<span style="color: orangered">类型</span>找漫画</h5>
+<div class="row m-0">
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-26.html" class="badge badge-light" title="爱情漫画">爱情</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-66.html" class="badge badge-light" title="东方漫画">东方</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-12.html" class="badge badge-light" title="冒险漫画">冒险</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-64.html" class="badge badge-light" title="欢乐向漫画">欢乐向</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-39.html" class="badge badge-light" title="百合漫画">百合</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-41.html" class="badge badge-light" title="搞笑漫画">搞笑</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-20.html" class="badge badge-light" title="科幻漫画">科幻</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-40.html" class="badge badge-light" title="校园漫画">校园</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-33.html" class="badge badge-light" title="生活漫画">生活</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-48.html" class="badge badge-light" title="魔幻漫画">魔幻</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-13.html" class="badge badge-light" title="奇幻漫画">奇幻</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-46.html" class="badge badge-light" title="热血漫画">热血</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-44.html" class="badge badge-light" title="格斗漫画">格斗</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-71.html" class="badge badge-light" title="其他漫画">其他</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-52.html" class="badge badge-light" title="神鬼漫画">神鬼</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-43.html" class="badge badge-light" title="魔法漫画">魔法</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-27.html" class="badge badge-light" title="悬疑漫画">悬疑</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-18.html" class="badge badge-light" title="动作漫画">动作</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-55.html" class="badge badge-light" title="竞技漫画">竞技</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-72.html" class="badge badge-light" title="纯爱漫画">纯爱</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-32.html" class="badge badge-light" title="喜剧漫画">喜剧</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-59.html" class="badge badge-light" title="萌系漫画">萌系</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-16.html" class="badge badge-light" title="恐怖漫画">恐怖</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-53.html" class="badge badge-light" title="耽美漫画">耽美</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-56.html" class="badge badge-light" title="四格漫画">四格</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-80.html" class="badge badge-light" title="ゆり漫画">ゆり</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-54.html" class="badge badge-light" title="治愈漫画">治愈</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-60.html" class="badge badge-light" title="伪娘漫画">伪娘</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-73.html" class="badge badge-light" title="舰娘漫画">舰娘</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-47.html" class="badge badge-light" title="励志漫画">励志</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-58.html" class="badge badge-light" title="职场漫画">职场</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-30.html" class="badge badge-light" title="战争漫画">战争</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-51.html" class="badge badge-light" title="侦探漫画">侦探</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-21.html" class="badge badge-light" title="惊悚漫画">惊悚</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-22.html" class="badge badge-light" title="职业漫画">职业</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-11.html" class="badge badge-light" title="体育漫画">体育</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-9.html" class="badge badge-light" title="历史漫画">历史</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-45.html" class="badge badge-light" title="美食漫画">美食</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-68.html" class="badge badge-light" title="秀吉漫画">秀吉</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-67.html" class="badge badge-light" title="性转换漫画">性转换</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-19.html" class="badge badge-light" title="推理漫画">推理</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-70.html" class="badge badge-light" title="音乐舞蹈漫画">音乐舞蹈</a>
+</div>
+</div>
+<div class="col-3 px-1">
+ <div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-57.html" class="badge badge-light" title="后宫漫画">后宫</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-29.html" class="badge badge-light" title="料理漫画">料理</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-61.html" class="badge badge-light" title="机战漫画">机战</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-78.html" class="badge badge-light" title="AA漫画">AA</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-37.html" class="badge badge-light" title="社会漫画">社会</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-76.html" class="badge badge-light" title="节操漫画">节操</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-17.html" class="badge badge-light" title="音乐漫画">音乐</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-65.html" class="badge badge-light" title="西方魔幻漫画">西方魔幻</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-23.html" class="badge badge-light" title="武侠漫画">武侠</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-28.html" class="badge badge-light" title="资料集漫画">资料集</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-49.html" class="badge badge-light" title="宅男漫画">宅男</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-10.html" class="badge badge-light" title="传记漫画">传记</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-69.html" class="badge badge-light" title="轻小说漫画">轻小说</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-62.html" class="badge badge-light" title="黑道漫画">黑道</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-34.html" class="badge badge-light" title="灾难漫画">灾难</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-42.html" class="badge badge-light" title="杂志漫画">杂志</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-50.html" class="badge badge-light" title="舞蹈漫画">舞蹈</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-77.html" class="badge badge-light" title="宅系漫画">宅系</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-74.html" class="badge badge-light" title="颜艺漫画">颜艺</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-81.html" class="badge badge-light" title="露营漫画">露营</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-82.html" class="badge badge-light" title="旅行漫画">旅行</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-83.html" class="badge badge-light" title="TS漫画">TS</a>
+</div>
+</div>
+<div class="col-3 px-1">
+<div class="one-line comic-filter-normal">
+<a href="/manhua/list-c-63.html" class="badge badge-light" title="腐女漫画">腐女</a>
+ </div>
+</div>
+</div>
+</div>
+<div class="mt-4">
+<h5 class="mb-2">按<span style="color: orangered">年份</span>找漫画</h5>
+<div class="form-row">
+<div class="col">
+<div class="form-group">
+<label for="pub-start-year" class="sr-only">面世时间</label>
+<select class="form-control form-control-sm" id="pub-start-year" onchange="window.location=this.value;">
+<option value="/manhua/list.html">面世时间</option>
+<option value="/manhua/list-t-1950.html">1950</option>
+<option value="/manhua/list-t-1951.html">1951</option>
+<option value="/manhua/list-t-1953.html">1953</option>
+<option value="/manhua/list-t-1954.html">1954</option>
+<option value="/manhua/list-t-1956.html">1956</option>
+<option value="/manhua/list-t-1960.html">1960</option>
+<option value="/manhua/list-t-1961.html">1961</option>
+<option value="/manhua/list-t-1963.html">1963</option>
+<option value="/manhua/list-t-1965.html">1965</option>
+<option value="/manhua/list-t-1967.html">1967</option>
+<option value="/manhua/list-t-1969.html">1969</option>
+<option value="/manhua/list-t-1970.html">1970</option>
+<option value="/manhua/list-t-1972.html">1972</option>
+<option value="/manhua/list-t-1973.html">1973</option>
+<option value="/manhua/list-t-1974.html">1974</option>
+<option value="/manhua/list-t-1975.html">1975</option>
+<option value="/manhua/list-t-1976.html">1976</option>
+<option value="/manhua/list-t-1977.html">1977</option>
+<option value="/manhua/list-t-1978.html">1978</option>
+<option value="/manhua/list-t-1979.html">1979</option>
+<option value="/manhua/list-t-1980.html">1980</option>
+<option value="/manhua/list-t-1981.html">1981</option>
+<option value="/manhua/list-t-1982.html">1982</option>
+<option value="/manhua/list-t-1983.html">1983</option>
+ <option value="/manhua/list-t-1984.html">1984</option>
+<option value="/manhua/list-t-1985.html">1985</option>
+<option value="/manhua/list-t-1986.html">1986</option>
+<option value="/manhua/list-t-1987.html">1987</option>
+<option value="/manhua/list-t-1988.html">1988</option>
+<option value="/manhua/list-t-1989.html">1989</option>
+<option value="/manhua/list-t-1990.html">1990</option>
+<option value="/manhua/list-t-1991.html">1991</option>
+<option value="/manhua/list-t-1992.html">1992</option>
+<option value="/manhua/list-t-1993.html">1993</option>
+<option value="/manhua/list-t-1994.html">1994</option>
+<option value="/manhua/list-t-1995.html">1995</option>
+<option value="/manhua/list-t-1996.html">1996</option>
+<option value="/manhua/list-t-1997.html">1997</option>
+<option value="/manhua/list-t-1998.html">1998</option>
+<option value="/manhua/list-t-1999.html">1999</option>
+<option value="/manhua/list-t-2000.html">2000</option>
+<option value="/manhua/list-t-2001.html">2001</option>
+<option value="/manhua/list-t-2002.html">2002</option>
+<option value="/manhua/list-t-2003.html">2003</option>
+<option value="/manhua/list-t-2004.html">2004</option>
+<option value="/manhua/list-t-2005.html">2005</option>
+<option value="/manhua/list-t-2006.html">2006</option>
+<option value="/manhua/list-t-2007.html">2007</option>
+<option value="/manhua/list-t-2008.html">2008</option>
+<option value="/manhua/list-t-2009.html">2009</option>
+<option value="/manhua/list-t-2010.html">2010</option>
+<option value="/manhua/list-t-2011.html">2011</option>
+<option value="/manhua/list-t-2012.html">2012</option>
+<option value="/manhua/list-t-2013.html">2013</option>
+ <option value="/manhua/list-t-2014.html">2014</option>
+<option value="/manhua/list-t-2015.html">2015</option>
+<option value="/manhua/list-t-2016.html">2016</option>
+<option value="/manhua/list-t-2017.html">2017</option>
+<option value="/manhua/list-t-2018.html">2018</option>
+<option value="/manhua/list-t-2019.html">2019</option>
+<option value="/manhua/list-t-2020.html">2020</option>
+<option value="/manhua/list-t-2021.html">2021</option>
+<option value="/manhua/list-t-2022.html">2022</option>
+</select>
+</div>
+</div>
+<div class="col">
+<div class="form-group">
+<label for="pub-end-year" class="sr-only">完结时间</label>
+<select class="form-control form-control-sm" id="pub-end-year" onchange="window.location=this.value;">
+<option value="/manhua/list.html">完结时间</option>
+<option value="/manhua/list-et-1951.html">1951</option>
+<option value="/manhua/list-et-1953.html">1953</option>
+<option value="/manhua/list-et-1954.html">1954</option>
+<option value="/manhua/list-et-1961.html">1961</option>
+<option value="/manhua/list-et-1962.html">1962</option>
+<option value="/manhua/list-et-1963.html">1963</option>
+<option value="/manhua/list-et-1964.html">1964</option>
+<option value="/manhua/list-et-1968.html">1968</option>
+<option value="/manhua/list-et-1970.html">1970</option>
+<option value="/manhua/list-et-1971.html">1971</option>
+<option value="/manhua/list-et-1972.html">1972</option>
+<option value="/manhua/list-et-1973.html">1973</option>
+<option value="/manhua/list-et-1974.html">1974</option>
+<option value="/manhua/list-et-1976.html">1976</option>
+<option value="/manhua/list-et-1978.html">1978</option>
+<option value="/manhua/list-et-1979.html">1979</option>
+ <option value="/manhua/list-et-1980.html">1980</option>
+<option value="/manhua/list-et-1981.html">1981</option>
+<option value="/manhua/list-et-1982.html">1982</option>
+<option value="/manhua/list-et-1983.html">1983</option>
+<option value="/manhua/list-et-1984.html">1984</option>
+<option value="/manhua/list-et-1985.html">1985</option>
+<option value="/manhua/list-et-1986.html">1986</option>
+<option value="/manhua/list-et-1987.html">1987</option>
+<option value="/manhua/list-et-1988.html">1988</option>
+<option value="/manhua/list-et-1989.html">1989</option>
+<option value="/manhua/list-et-1990.html">1990</option>
+<option value="/manhua/list-et-1991.html">1991</option>
+<option value="/manhua/list-et-1992.html">1992</option>
+<option value="/manhua/list-et-1993.html">1993</option>
+<option value="/manhua/list-et-1994.html">1994</option>
+<option value="/manhua/list-et-1995.html">1995</option>
+<option value="/manhua/list-et-1996.html">1996</option>
+<option value="/manhua/list-et-1997.html">1997</option>
+<option value="/manhua/list-et-1998.html">1998</option>
+<option value="/manhua/list-et-1999.html">1999</option>
+<option value="/manhua/list-et-2000.html">2000</option>
+<option value="/manhua/list-et-2001.html">2001</option>
+<option value="/manhua/list-et-2002.html">2002</option>
+<option value="/manhua/list-et-2003.html">2003</option>
+<option value="/manhua/list-et-2004.html">2004</option>
+<option value="/manhua/list-et-2005.html">2005</option>
+<option value="/manhua/list-et-2006.html">2006</option>
+<option value="/manhua/list-et-2007.html">2007</option>
+<option value="/manhua/list-et-2008.html">2008</option>
+<option value="/manhua/list-et-2009.html">2009</option>
+ <option value="/manhua/list-et-2010.html">2010</option>
+<option value="/manhua/list-et-2011.html">2011</option>
+<option value="/manhua/list-et-2012.html">2012</option>
+<option value="/manhua/list-et-2013.html">2013</option>
+<option value="/manhua/list-et-2014.html">2014</option>
+<option value="/manhua/list-et-2015.html">2015</option>
+<option value="/manhua/list-et-2016.html">2016</option>
+<option value="/manhua/list-et-2017.html">2017</option>
+<option value="/manhua/list-et-2018.html">2018</option>
+<option value="/manhua/list-et-2019.html">2019</option>
+<option value="/manhua/list-et-2020.html">2020</option>
+<option value="/manhua/list-et-2021.html">2021</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+<script type="text/javascript" src="/assets/www/js/popper.min.js"></script>
+<script type="text/javascript" src="/assets/www/js/bootstrap.min.js"></script>
+<script src="/assets/js/bootstrap.bundle.min.js"></script>
+<script>
+	var search_form = $(".search_form");
+	search_form.click(function() { 
+		
+		var keyword = $.trim($(this).parent().parent().find(".keyword").val().replace(/[~'!<>@#$%^&*()-+_=:]/g, ""));
+		if(keyword) {
+			location.href="/s/"+keyword+".html";
+		}
+		return false;
+	});
+
+</script>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?b09a6e73b4faec9edd5935dc45604b5b";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-99000019-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-99000019-2');
+</script>
+<script>
+(function(){
+var src = (document.location.protocol == "http:") ? "http://js.passport.qihucdn.com/11.0.1.js?d182b3f28525f2db83acfaaf6e696dba":"https://jspassport.ssl.qhimg.com/11.0.1.js?d182b3f28525f2db83acfaaf6e696dba";
+document.write('<script src="' + src + '" id="sozz"><\/script>');
+})();
+</script>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+	var search_div = $(".search_div");
+	var selector = $(".selector");
+	var i = 0;
+	selector.hover(function (){ 
+		$(this).css("cursor", "pointer");
+	}).click(function() { 
+		if(i == 0) {
+			search_div.removeClass("d-none");
+			i = 1;
+		} else {
+			search_div.addClass("d-none");
+			i = 0;
+		}
+	});
+	
+	$(function() {
+	    $("img").lazyload({
+	    	effect : "fadeIn"
+	    });
+	});
+	
+</script>
+</body>
+</html>

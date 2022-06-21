@@ -1,9 +1,8 @@
+import Base, { Plugin } from './base';
 import { MangaStatus } from '~/utils';
-import { Plugin } from '~/plugins';
 import queryString from 'query-string';
 import LZString from 'lz-string';
 import cheerio from 'cheerio';
-import Base from './base';
 
 const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:[0-9]*,block_cc:'' }/;
@@ -13,6 +12,8 @@ const PATTERN_READER_DATA = /^SMH\.reader\((.+)(?=\)\.preInit\(\);)/;
 
 class ManHuaGuiMobile extends Base {
   readonly useMock = false;
+  readonly userAgent =
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
   constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
     super(pluginID, pluginName, pluginShortName);
@@ -38,8 +39,7 @@ class ManHuaGuiMobile extends Base {
         order: 1,
       },
       headers: new Headers({
-        'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+        'user-agent': this.userAgent,
       }),
     };
   };
@@ -63,8 +63,7 @@ class ManHuaGuiMobile extends Base {
       method: 'POST',
       body: page > 1 ? body : undefined,
       headers: new Headers({
-        'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+        'user-agent': this.userAgent,
       }),
     };
   };
@@ -78,8 +77,7 @@ class ManHuaGuiMobile extends Base {
     return {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
       headers: new Headers({
-        'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+        'user-agent': this.userAgent,
       }),
     };
   };
@@ -94,8 +92,7 @@ class ManHuaGuiMobile extends Base {
     return {
       url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
       headers: new Headers({
-        'user-agent':
-          'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+        'user-agent': this.userAgent,
       }),
     };
   };
@@ -356,8 +353,7 @@ class ManHuaGuiMobile extends Base {
             'sec-fetch-mode': 'no-cors',
             'sec-fetch-site': 'cross-site',
             'Cache-control': 'no-store',
-            'user-agent':
-              'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
+            'user-agent': this.userAgent,
           },
           images: images.map((item: string) =>
             encodeURI(decodeURI('https://i.hamreus.com' + item + '?' + queryString.stringify(sl)))
@@ -374,4 +370,4 @@ class ManHuaGuiMobile extends Base {
   };
 }
 
-export default ManHuaGuiMobile;
+export default new ManHuaGuiMobile(Plugin.MHGM, 'manhuagui(mobile)', 'MHGM');

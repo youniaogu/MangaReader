@@ -1,6 +1,5 @@
+import Base, { Plugin } from './base';
 import { MangaStatus } from '~/utils';
-import { Plugin } from '~/plugins';
-import Base from './base';
 
 class CopyManga extends Base {
   readonly useMock = false;
@@ -277,4 +276,4 @@ class CopyManga extends Base {
   };
 }
 
-export default CopyManga;
+export default new CopyManga(Plugin.COPY, 'copymanga', 'COPY');
