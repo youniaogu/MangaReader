@@ -110,8 +110,15 @@ function* storageDataSaga() {
       const dict = ((state: RootState) => state.dict)(yield select());
       const plugin = ((state: RootState) => state.plugin)(yield select());
 
+      const storeDict: RootState['dict'] = { manga: {}, chapter: {} };
+      for (const key in dict.manga) {
+        if (favorites.includes(key)) {
+          storeDict.manga[key] = dict.manga[key];
+        }
+      }
+
       yield call(AsyncStorage.setItem, storageKey.favorites, JSON.stringify(favorites));
-      yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(dict));
+      yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(storeDict));
       yield call(AsyncStorage.setItem, storageKey.plugin, JSON.stringify(plugin));
     }
   );
