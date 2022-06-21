@@ -24,8 +24,8 @@ const Search = ({ route, navigation }: StackResultProps) => {
   }, [dispatch, keyword, source]);
 
   const handleLoadMore = useCallback(() => {
-    dispatch(loadSearch({ keyword, source }));
-  }, [dispatch, keyword, source]);
+    loadStatus !== AsyncStatus.Pending && dispatch(loadSearch({ keyword, source }));
+  }, [dispatch, keyword, source, loadStatus]);
   const handleDetail = useCallback(
     (mangaHash: string) => {
       navigation.navigate('Detail', { mangaHash });

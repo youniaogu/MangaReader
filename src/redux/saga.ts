@@ -124,6 +124,32 @@ function* clearCacheSaga() {
   });
 }
 
+function* loadUpdateSaga() {
+  yield takeLatest(
+    loadUpdate.type,
+    function* ({
+      payload: { source },
+    }: PayloadAction<{ isReset: boolean | undefined; source: Plugin }>) {
+      const plugin = PluginMap.get(source);
+      const { page, isEnd } = ((state: RootState) => state.update)(yield select());
+
+      if (!plugin) {
+        yield put(loadUpdateCompletion({ error: new Error('Missing Plugin') }));
+        return;
+      }
+      if (isEnd) {
+        yield put(loadUpdateCompletion({ error: new Error('No More') }));
+        return;
+      }
+
+      const { error: fetchError, data } = yield call(fetchData, plugin.prepareUpdateFetch(page));
+      const { error: pluginError, update } = plugin.handleUpdate(data);
+
+      yield put(loadUpdateCompletion({ error: fetchError || pluginError, data: update }));
+    }
+  );
+}
+
 function* loadSearchSaga() {
   yield takeLatest(
     loadSearch.type,
@@ -149,32 +175,6 @@ function* loadSearchSaga() {
       const { error: pluginError, search } = plugin.handleSearch(data);
 
       yield put(loadSearchCompletion({ error: fetchError || pluginError, data: search }));
-    }
-  );
-}
-
-function* loadUpdateSaga() {
-  yield takeLatest(
-    loadUpdate.type,
-    function* ({
-      payload: { source },
-    }: PayloadAction<{ isReset: boolean | undefined; source: Plugin }>) {
-      const plugin = PluginMap.get(source);
-      const { page, isEnd } = ((state: RootState) => state.update)(yield select());
-
-      if (!plugin) {
-        yield put(loadUpdateCompletion({ error: new Error('Missing Plugin') }));
-        return;
-      }
-      if (isEnd) {
-        yield put(loadUpdateCompletion({ error: new Error('No More') }));
-        return;
-      }
-
-      const { error: fetchError, data } = yield call(fetchData, plugin.prepareUpdateFetch(page));
-      const { error: pluginError, update } = plugin.handleUpdate(data);
-
-      yield put(loadUpdateCompletion({ error: fetchError || pluginError, data: update }));
     }
   );
 }
@@ -340,8 +340,8 @@ export default function* rootSaga() {
     fork(syncDataSaga),
     fork(storageDataSaga),
     fork(clearCacheSaga),
-    fork(loadSearchSaga),
     fork(loadUpdateSaga),
+    fork(loadSearchSaga),
     fork(loadMangaSaga),
     fork(loadMangaInfoSaga),
     fork(loadChapterListSaga),
