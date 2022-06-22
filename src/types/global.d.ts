@@ -8,9 +8,12 @@ declare global {
   type POST = 'POST' | 'post';
   type FetchResponseAction<T = undefined> = PayloadAction<
     undefined extends T
-      ? { error?: Error }
-      : { error: Error; data?: undefined } | { error?: undefined; data: T }
+      ? { error?: Error; taskId?: string }
+      :
+          | { error: Error; data?: undefined; taskId?: string }
+          | { error?: undefined; data: T; taskId?: string }
   >;
+  type ActionParameters<T = Function> = PayloadAction<Parameters<T>[0]>;
 
   type RootStackParamList = {
     Home: undefined;
@@ -70,6 +73,7 @@ declare global {
       launchStatus: AsyncStatus;
       syncStatus: AsyncStatus;
       clearStatus: AsyncStatus;
+      batchStatus: AsyncStatus;
     };
     plugin: {
       source: Plugin;
@@ -87,7 +91,7 @@ declare global {
       loadStatus: AsyncStatus;
       list: string[];
     };
-    favorites: string[];
+    favorites: { mangaHash: string; isTrend: boolean }[];
     manga: {
       loadStatus: AsyncStatus;
     };

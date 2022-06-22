@@ -10,11 +10,12 @@ const oneThirdWidth = (windowWidth - gap * 4) / 3;
 
 interface BookshelfProps {
   list: Manga[];
+  trends?: string[];
   loadMore?: (info: { distanceFromEnd: number }) => void;
   itemOnPress: (hash: string) => void;
 }
 
-const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
+const Bookshelf = ({ list, trends, loadMore, itemOnPress }: BookshelfProps) => {
   const handlePress = (hash: string) => {
     return () => {
       itemOnPress(hash);
@@ -36,14 +37,31 @@ const Bookshelf = ({ list, loadMore, itemOnPress }: BookshelfProps) => {
         return (
           <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.hash)}>
             <Box
-              shadow={0}
               width={oneThirdWidth}
               flexDirection="column"
               p={gap / 2}
               safeAreaBottom={index + 1 === list.length ? true : undefined}
             >
-              <CachedImage source={item.cover} style={styles.img} resizeMode="cover" />
-              <Text shadow="none" pt={1} fontSize="md" fontWeight="bold" numberOfLines={1}>
+              <Box position="relative" shadow={2}>
+                <CachedImage source={item.cover} style={styles.img} resizeMode="cover" />
+                {trends && trends.includes(item.hash) && (
+                  <Box
+                    shadow={0}
+                    position="absolute"
+                    left={0}
+                    bottom={0}
+                    borderRadius={3}
+                    borderBottomLeftRadius={6}
+                    px={2}
+                    background="#6200ee"
+                  >
+                    <Text fontSize="xs" fontWeight="bold" color="white">
+                      New
+                    </Text>
+                  </Box>
+                )}
+              </Box>
+              <Text pt={1} fontSize="md" fontWeight="bold" numberOfLines={1}>
                 {item.title}
               </Text>
             </Box>
@@ -59,7 +77,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: oneThirdWidth / coverAspectRatio,
     overflow: 'hidden',
-    borderRadius: 8,
+    borderRadius: 6,
   },
 });
 

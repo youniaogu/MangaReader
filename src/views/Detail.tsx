@@ -145,7 +145,7 @@ export const Heart = () => {
 
   useFirstRender(
     useCallback(() => {
-      favorites.includes(mangaHash) && dispatch(viewFavorites(mangaHash));
+      favorites.find((item) => item.mangaHash === mangaHash) && dispatch(viewFavorites(mangaHash));
     }, [dispatch, favorites, mangaHash])
   );
 
@@ -162,7 +162,7 @@ export const Heart = () => {
     });
   };
 
-  if (favorites.includes(mangaHash)) {
+  if (favorites.find((item) => item.mangaHash === mangaHash)) {
     return (
       <HStack>
         <IconButton

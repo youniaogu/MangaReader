@@ -7,6 +7,7 @@ const initialState: RootState = {
     launchStatus: AsyncStatus.Default,
     syncStatus: AsyncStatus.Default,
     clearStatus: AsyncStatus.Default,
+    batchStatus: AsyncStatus.Default,
   },
   plugin: {
     source: defaultPlugin,
@@ -39,7 +40,6 @@ const appSlice = createSlice({
         state.launchStatus = AsyncStatus.Rejected;
         return;
       }
-
       state.launchStatus = AsyncStatus.Fulfilled;
     },
     syncData(state) {
@@ -50,7 +50,6 @@ const appSlice = createSlice({
         state.syncStatus = AsyncStatus.Rejected;
         return;
       }
-
       state.syncStatus = AsyncStatus.Fulfilled;
     },
     clearCache(state) {
@@ -61,8 +60,17 @@ const appSlice = createSlice({
         state.clearStatus = AsyncStatus.Rejected;
         return;
       }
-
       state.clearStatus = AsyncStatus.Fulfilled;
+    },
+    batchUpdate(state) {
+      state.batchStatus = AsyncStatus.Pending;
+    },
+    batchUpdateCompletion(state, action: FetchResponseAction<string[]>) {
+      if (action.payload.error) {
+        state.batchStatus = AsyncStatus.Rejected;
+        return;
+      }
+      state.batchStatus = AsyncStatus.Fulfilled;
     },
   },
 });
@@ -153,18 +161,39 @@ const favoritesSlice = createSlice({
   initialState: initialState.favorites,
   reducers: {
     addFavorites(state, action: PayloadAction<string>) {
-      state.unshift(action.payload);
+      state.unshift({ mangaHash: action.payload, isTrend: false });
     },
     removeFavorites(state, action: PayloadAction<string>) {
-      return state.filter((item) => item !== action.payload);
+      return state.filter((item) => item.mangaHash !== action.payload);
     },
     viewFavorites(state, action: PayloadAction<string>) {
-      const stateAfterFiltered = state.filter((item) => item !== action.payload);
-      stateAfterFiltered.unshift(action.payload);
+      const stateAfterFiltered = state.filter((item) => item.mangaHash !== action.payload);
+      stateAfterFiltered.unshift({ mangaHash: action.payload, isTrend: false });
       return stateAfterFiltered;
     },
-    syncFavorites(_state, action: PayloadAction<string[]>) {
+    syncFavorites(_state, action: PayloadAction<RootState['favorites']>) {
       return action.payload;
+    },
+  },
+  extraReducers: {
+    [appSlice.actions.batchUpdateCompletion.type]: (
+      state,
+      action: FetchResponseAction<string[]>
+    ) => {
+      const { error, data } = action.payload;
+      if (error) {
+        return;
+      }
+
+      return state.map((item) => {
+        if (data.includes(item.mangaHash)) {
+          return {
+            ...item,
+            isTrend: true,
+          };
+        }
+        return item;
+      });
     },
   },
 });
@@ -173,7 +202,7 @@ const mangaSlice = createSlice({
   name: 'manga',
   initialState: initialState.manga,
   reducers: {
-    loadManga(state, _action: PayloadAction<{ mangaHash: string }>) {
+    loadManga(state, _action: PayloadAction<{ mangaHash: string; taskId?: string }>) {
       state.loadStatus = AsyncStatus.Pending;
     },
     loadMangaCompletion(state, action: FetchResponseAction<Manga>) {

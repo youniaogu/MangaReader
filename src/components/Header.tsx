@@ -9,7 +9,10 @@ const Header = (headerProps: NativeStackHeaderProps) => {
   const title = getHeaderTitle(options, route.name);
   const canGoBack = useMemo(() => navigation.canGoBack(), [navigation]);
 
-  const handleGoBack = () => {
+  const handleAbout = () => {
+    navigation.navigate('About');
+  };
+  const handleBack = () => {
     navigation.goBack();
   };
 
@@ -35,10 +38,20 @@ const Header = (headerProps: NativeStackHeaderProps) => {
           {canGoBack ? (
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
-              onPress={handleGoBack}
+              onPress={handleBack}
             />
           ) : (
-            <IconButton icon={<Icon as={MaterialIcons} name="home" size={30} color="white" />} />
+            <IconButton
+              icon={
+                <Icon
+                  as={MaterialIcons}
+                  name="home"
+                  size={30}
+                  color="white"
+                  onPress={handleAbout}
+                />
+              }
+            />
           )}
           <Text maxW="5/6" color="white" fontSize={25} fontWeight="bold" numberOfLines={1}>
             {title}

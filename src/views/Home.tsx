@@ -1,19 +1,27 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon } from 'native-base';
-import { isManga } from '~/utils';
+import { AsyncStatus, isManga } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
+import Rotate from '~/components/Rotate';
 import Empty from '~/components/Empty';
 import * as RootNavigation from '~/utils/navigation';
 
-const { launch } = action;
+const { launch, batchUpdate } = action;
 
 const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
-  const favoriteList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
+  const favoriteList = useMemo(
+    () => list.map((item) => dict[item.mangaHash]).filter(isManga),
+    [dict, list]
+  );
+  const trendList = useMemo(
+    () => list.filter((item) => item.isTrend === true).map((item) => item.mangaHash),
+    [list]
+  );
 
   useEffect(() => {
     dispatch(launch());
@@ -27,26 +35,37 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     return <Empty />;
   }
 
-  return <Bookshelf list={favoriteList} itemOnPress={handleDetail} />;
+  return <Bookshelf list={favoriteList} trends={trendList} itemOnPress={handleDetail} />;
 };
 
 export const SearchAndAbout = () => {
+  const [isRotate, setIsRotate] = useState(false);
+  const dispatch = useAppDispatch();
+  const batchStatus = useAppSelector((state) => state.app.batchStatus);
+
+  useEffect(() => {
+    setIsRotate(batchStatus === AsyncStatus.Pending);
+  }, [batchStatus]);
+
   const handleSearch = () => {
     RootNavigation.navigate('Search');
   };
-  const handleAbout = () => {
-    RootNavigation.navigate('About');
+  const handleUpdate = () => {
+    dispatch(batchUpdate());
   };
 
   return (
     <HStack flexShrink={0}>
+      <Rotate isRotate={isRotate}>
+        <IconButton
+          isDisabled={isRotate}
+          icon={<Icon as={MaterialIcons} name="autorenew" size={30} color="white" />}
+          onPress={handleUpdate}
+        />
+      </Rotate>
       <IconButton
         icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
         onPress={handleSearch}
-      />
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="info-outline" size={30} color="white" />}
-        onPress={handleAbout}
       />
     </HStack>
   );
