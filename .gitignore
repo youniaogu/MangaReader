@@ -63,3 +63,5 @@ buck-out/
 /vendor/bundle/
 
 .prettierignore
+
+server/
