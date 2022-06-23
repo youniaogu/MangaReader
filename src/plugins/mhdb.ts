@@ -68,7 +68,10 @@ class ManHuaDB extends Base {
 
           const title = a.text();
           const href = `https://www.manhuadb.com${a.attr('href')}/`;
-          const author = $$('div.comic-creators a').first().attr('title') || '';
+          const author = $$('div.comic-creators a')
+            .toArray()
+            .map((e: any) => e.attribs.title)
+            .join(',');
           const cover = img.attr('data-original') || img.attr('src') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
           const statusLabel = $$('div.comic-categories a span').first().text();

@@ -231,11 +231,14 @@ class ManHuaGui extends Base {
       const [, mangaId, title] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const latest = '更新至：' + $('div.chapter-bar a.blue').first().text();
       const updateTime = $('div.chapter-bar span.fr span.red').last().text();
-      const author = $('div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a').text();
+      const author = $('div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a')
+        .toArray()
+        .map((e: any) => e.attribs.title)
+        .join(',');
       const tag = $('div.book-detail ul.detail-list li:nth-child(2) span:nth-child(1) a')
         .toArray()
         .map((item) => (item as any).attribs.title)
-        .join(' ');
+        .join(',');
       const cover = 'https:' + $('p.hcover img').first().attr('src');
 
       const isAudit = $('#erroraudit_show').length > 0;
