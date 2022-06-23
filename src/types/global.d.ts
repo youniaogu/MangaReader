@@ -73,12 +73,18 @@ declare global {
       launchStatus: AsyncStatus;
       syncStatus: AsyncStatus;
       clearStatus: AsyncStatus;
-      batchStatus: AsyncStatus;
     };
     plugin: {
       source: Plugin;
       list: { name: string; label: string; value: Plugin; disabled: boolean }[];
     };
+    batch: {
+      loadStatus: AsyncStatus;
+      queue: string[];
+      success: string[];
+      fail: string[];
+    };
+    favorites: { mangaHash: string; isTrend: boolean }[];
     search: {
       page: number;
       isEnd: boolean;
@@ -91,7 +97,6 @@ declare global {
       loadStatus: AsyncStatus;
       list: string[];
     };
-    favorites: { mangaHash: string; isTrend: boolean }[];
     manga: {
       loadStatus: AsyncStatus;
     };

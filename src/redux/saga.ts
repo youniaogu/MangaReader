@@ -28,6 +28,7 @@ const {
   clearCacheCompletion,
   batchUpdate,
   batchUpdateCompletion,
+  batchRecord,
   viewChapter,
   viewPage,
   addFavorites,
@@ -135,37 +136,39 @@ function* clearCacheSaga() {
 }
 
 function* batchUpdateSaga() {
-  yield takeLeading([batchUpdate.type], function* () {
-    const [...favorites] = ((state: RootState) => state.favorites)(yield select());
-    const trends: string[] = [];
-
-    while (true) {
-      const favorite = favorites.shift();
-      if (!favorite) {
-        break;
-      }
-
-      const id = nanoid();
-      const dict = ((state: RootState) => state.dict)(yield select());
-      yield put(loadManga({ mangaHash: favorite.mangaHash, taskId: id }));
-      const {
-        payload: { error, data },
-      }: ActionParameters<typeof loadMangaCompletion> = yield take(
-        ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
-      );
-
-      if (!error) {
-        const prev = dict.manga[favorite.mangaHash]?.chapters || [];
-        const curr = data?.chapters || [];
-
-        if (curr.length > prev.length) {
-          trends.push(favorite.mangaHash);
+  yield takeLeading(
+    [batchUpdate.type],
+    function* ({ payload: [...batchList] }: ActionParameters<typeof batchUpdate>) {
+      while (true) {
+        const hash = batchList.shift();
+        if (!hash) {
+          break;
         }
-      }
-    }
 
-    yield put(batchUpdateCompletion({ data: trends }));
-  });
+        const id = nanoid();
+        const dict = ((state: RootState) => state.dict)(yield select());
+        yield put(loadManga({ mangaHash: hash, taskId: id }));
+        const {
+          payload: { error, data },
+        }: ActionParameters<typeof loadMangaCompletion> = yield take(
+          ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
+        );
+
+        let isTrend = false;
+        if (!error) {
+          const prev = dict.manga[hash]?.chapters || [];
+          const curr = data?.chapters || [];
+
+          if (curr.length > prev.length) {
+            isTrend = true;
+          }
+        }
+        yield put(batchRecord({ isSuccess: !error, isTrend, hash }));
+      }
+
+      yield put(batchUpdateCompletion());
+    }
+  );
 }
 
 function* loadUpdateSaga() {

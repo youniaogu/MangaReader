@@ -28,9 +28,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const data = mangaDict[mangaHash];
 
-  useEffect(() => {
-    dispatch(loadManga({ mangaHash }));
-  }, [dispatch, mangaHash]);
+  useFirstRender(() => {
+    if (!isManga(data) || (isManga(data) && data.chapters.length <= 0)) {
+      dispatch(loadManga({ mangaHash }));
+    }
+  });
 
   useEffect(() => {
     isManga(data) && navigation.setOptions({ title: data.title });
@@ -143,11 +145,9 @@ export const Heart = () => {
   const dict = useAppSelector((state) => state.dict.manga);
   const mangaHash = route.params.mangaHash;
 
-  useFirstRender(
-    useCallback(() => {
-      favorites.find((item) => item.mangaHash === mangaHash) && dispatch(viewFavorites(mangaHash));
-    }, [dispatch, favorites, mangaHash])
-  );
+  useFirstRender(() => {
+    favorites.find((item) => item.mangaHash === mangaHash) && dispatch(viewFavorites(mangaHash));
+  });
 
   const handleFavorite = () => {
     dispatch(addFavorites(mangaHash));

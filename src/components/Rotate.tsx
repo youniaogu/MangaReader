@@ -4,17 +4,15 @@ import Animated, {
   useAnimatedStyle,
   withRepeat,
   withTiming,
-  cancelAnimation,
   Easing,
 } from 'react-native-reanimated';
 
 interface RotateProps {
-  isRotate: boolean;
+  isRotate?: boolean;
 }
 
-const Rotate: FC<RotateProps> = ({ isRotate, children }) => {
+const Rotate: FC<RotateProps> = ({ isRotate = false, children }) => {
   const offset = useSharedValue(0);
-
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [{ rotate: `${offset.value}deg` }],
@@ -29,7 +27,7 @@ const Rotate: FC<RotateProps> = ({ isRotate, children }) => {
         false
       );
     } else {
-      cancelAnimation(offset);
+      offset.value = 0;
     }
   }, [isRotate, offset]);
 

@@ -7,11 +7,16 @@ const initialState: RootState = {
     launchStatus: AsyncStatus.Default,
     syncStatus: AsyncStatus.Default,
     clearStatus: AsyncStatus.Default,
-    batchStatus: AsyncStatus.Default,
   },
   plugin: {
     source: defaultPlugin,
     list: defaultPluginList,
+  },
+  batch: {
+    loadStatus: AsyncStatus.Default,
+    queue: [],
+    success: [],
+    fail: [],
   },
   search: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
   update: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
@@ -62,16 +67,6 @@ const appSlice = createSlice({
       }
       state.clearStatus = AsyncStatus.Fulfilled;
     },
-    batchUpdate(state) {
-      state.batchStatus = AsyncStatus.Pending;
-    },
-    batchUpdateCompletion(state, action: FetchResponseAction<string[]>) {
-      if (action.payload.error) {
-        state.batchStatus = AsyncStatus.Rejected;
-        return;
-      }
-      state.batchStatus = AsyncStatus.Fulfilled;
-    },
   },
 });
 
@@ -84,6 +79,34 @@ const pluginSlice = createSlice({
     },
     syncPlugin(_state, action: PayloadAction<RootState['plugin']>) {
       return action.payload;
+    },
+  },
+});
+
+const batchSlice = createSlice({
+  name: 'batch',
+  initialState: initialState.batch,
+  reducers: {
+    batchUpdate(state, action: PayloadAction<string[]>) {
+      state.loadStatus = AsyncStatus.Pending;
+      state.queue = action.payload;
+      state.success = [];
+      state.fail = [];
+    },
+    batchUpdateCompletion(state) {
+      state.loadStatus = AsyncStatus.Fulfilled;
+    },
+    batchRecord(
+      state,
+      action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>
+    ) {
+      const { isSuccess, hash } = action.payload;
+      state.queue = state.queue.filter((item) => item === hash);
+      if (isSuccess) {
+        state.success.push(hash);
+      } else {
+        state.fail.push(hash);
+      }
     },
   },
 });
@@ -176,24 +199,16 @@ const favoritesSlice = createSlice({
     },
   },
   extraReducers: {
-    [appSlice.actions.batchUpdateCompletion.type]: (
+    [batchSlice.actions.batchRecord.type]: (
       state,
-      action: FetchResponseAction<string[]>
+      action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>
     ) => {
-      const { error, data } = action.payload;
-      if (error) {
-        return;
+      const { isSuccess, isTrend, hash } = action.payload;
+      if (isSuccess && isTrend) {
+        const stateAfterFiltered = state.filter((item) => item.mangaHash !== hash);
+        stateAfterFiltered.unshift({ mangaHash: hash, isTrend: true });
+        return stateAfterFiltered;
       }
-
-      return state.map((item) => {
-        if (data.includes(item.mangaHash)) {
-          return {
-            ...item,
-            isTrend: true,
-          };
-        }
-        return item;
-      });
     },
   },
 });
@@ -322,6 +337,7 @@ const dictSlice = createSlice({
 
 const appAction = appSlice.actions;
 const pluginAction = pluginSlice.actions;
+const batchAction = batchSlice.actions;
 const searchAction = searchSlice.actions;
 const updateAction = updateSlice.actions;
 const favoritesAction = favoritesSlice.actions;
@@ -331,6 +347,7 @@ const dictAction = dictSlice.actions;
 
 const appReducer = appSlice.reducer;
 const pluginReducer = pluginSlice.reducer;
+const batchReducer = batchSlice.reducer;
 const searchReducer = searchSlice.reducer;
 const updateReducer = updateSlice.reducer;
 const favoritesReducer = favoritesSlice.reducer;
@@ -341,6 +358,7 @@ const dictReducer = dictSlice.reducer;
 export const action = {
   ...appAction,
   ...pluginAction,
+  ...batchAction,
   ...searchAction,
   ...updateAction,
   ...favoritesAction,
@@ -351,6 +369,7 @@ export const action = {
 export const reducer = combineReducers<RootState>({
   app: appReducer,
   plugin: pluginReducer,
+  batch: batchReducer,
   search: searchReducer,
   update: updateReducer,
   favorites: favoritesReducer,
