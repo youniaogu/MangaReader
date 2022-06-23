@@ -101,7 +101,7 @@ const batchSlice = createSlice({
       action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>
     ) {
       const { isSuccess, hash } = action.payload;
-      state.queue = state.queue.filter((item) => item === hash);
+      state.queue = state.queue.filter((item) => item !== hash);
       if (isSuccess) {
         state.success.push(hash);
       } else {

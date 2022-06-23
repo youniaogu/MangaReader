@@ -57,11 +57,11 @@ export const SearchAndAbout = () => {
 
   return (
     <HStack flexShrink={0}>
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
+        onPress={handleSearch}
+      />
       <View position="relative">
-        <IconButton
-          icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
-          onPress={handleSearch}
-        />
         <Rotate isRotate={isRotate}>
           <IconButton
             isDisabled={isRotate}
