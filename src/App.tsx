@@ -7,15 +7,25 @@ import { navigationRef } from '~/utils';
 import { StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from '~/redux';
+import loadable from '@loadable/component';
 
-import Header from '~/components/Header';
-import Home, { SearchAndAbout } from '~/views/Home';
-import Result from '~/views/Result';
-import Search, { SearchInput } from '~/views/Search';
-import Detail, { Heart } from '~/views/Detail';
-import Chapter from '~/views/Chapter';
-import Plugin from '~/views/Plugin';
-import About from '~/views/About';
+const Header = loadable(() => import('~/components/Header'));
+const Home = loadable(() => import('~/views/Home'));
+const SearchAndAbout = loadable(() => import('~/views/Home'), {
+  resolveComponent: (components) => components.SearchAndAbout,
+});
+const Result = loadable(() => import('~/views/Result'));
+const Search = loadable(() => import('~/views/Search'));
+const SearchInput = loadable(() => import('~/views/Search'), {
+  resolveComponent: (components) => components.SearchInput,
+});
+const Detail = loadable(() => import('~/views/Detail'));
+const Heart = loadable(() => import('~/views/Detail'), {
+  resolveComponent: (components) => components.Heart,
+});
+const Chapter = loadable(() => import('~/views/Chapter'));
+const Plugin = loadable(() => import('~/views/Plugin'));
+const About = loadable(() => import('~/views/About'));
 
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
