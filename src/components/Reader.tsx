@@ -66,7 +66,7 @@ const Reader = ({
       timeout.current = setTimeout(() => {
         setPage(newPage);
         pageSliderRef.current?.changePage(newPage);
-      }, 250);
+      }, 200);
     },
     [data.length, toast]
   );
