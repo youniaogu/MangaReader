@@ -1,8 +1,93 @@
-import Base, { Plugin } from './base';
+import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
 import cheerio from 'cheerio';
 import base64 from 'base-64';
 
+const options = {
+  type: [
+    { label: '全部', value: Options.Default },
+    { label: '爱情', value: 'c-26' },
+    { label: '东方', value: 'c-66' },
+    { label: '冒险', value: 'c-12' },
+    { label: '欢乐向', value: 'c-64' },
+    { label: '百合', value: 'c-39' },
+    { label: '搞笑', value: 'c-41' },
+    { label: '科幻', value: 'c-20' },
+    { label: '校园', value: 'c-40' },
+    { label: '生活', value: 'c-33' },
+    { label: '魔幻', value: 'c-48' },
+    { label: '奇幻', value: 'c-13' },
+    { label: '热血', value: 'c-46' },
+    { label: '格斗', value: 'c-44' },
+    { label: '其他', value: 'c-71' },
+    { label: '神鬼', value: 'c-52' },
+    { label: '魔法', value: 'c-43' },
+    { label: '悬疑', value: 'c-27' },
+    { label: '动作', value: 'c-18' },
+    { label: '竞技', value: 'c-55' },
+    { label: '纯爱', value: 'c-72' },
+    { label: '喜剧', value: 'c-32' },
+    { label: '萌系', value: 'c-59' },
+    { label: '恐怖', value: 'c-16' },
+    { label: '耽美', value: 'c-53' },
+    { label: '四格', value: 'c-56' },
+    { label: 'ゆり', value: 'c-80' },
+    { label: '治愈', value: 'c-54' },
+    { label: '伪娘', value: 'c-60' },
+    { label: '舰娘', value: 'c-73' },
+    { label: '励志', value: 'c-47' },
+    { label: '职场', value: 'c-58' },
+    { label: '战争', value: 'c-30' },
+    { label: '侦探', value: 'c-51' },
+    { label: '惊悚', value: 'c-21' },
+    { label: '职业', value: 'c-22' },
+    { label: '体育', value: 'c-11' },
+    { label: '历史', value: 'c-9' },
+    { label: '美食', value: 'c-45' },
+    { label: '秀吉', value: 'c-68' },
+    { label: '性转换', value: 'c-67' },
+    { label: '推理', value: 'c-19' },
+    { label: '音乐舞蹈', value: 'c-70' },
+    { label: '后宫', value: 'c-57' },
+    { label: '料理', value: 'c-29' },
+    { label: '机战', value: 'c-61' },
+    { label: 'AA', value: 'c-78' },
+    { label: '社会', value: 'c-37' },
+    { label: '节操', value: 'c-76' },
+    { label: '音乐', value: 'c-17' },
+    { label: '西方魔幻', value: 'c-65' },
+    { label: '武侠', value: 'c-23' },
+    { label: '资料集', value: 'c-28' },
+    { label: '宅男', value: 'c-49' },
+    { label: '传记', value: 'c-10' },
+    { label: '轻小说', value: 'c-69' },
+    { label: '黑道', value: 'c-62' },
+    { label: '灾难', value: 'c-34' },
+    { label: '杂志', value: 'c-42' },
+    { label: '舞蹈', value: 'c-50' },
+    { label: '宅系', value: 'c-77' },
+    { label: '颜艺', value: 'c-74' },
+    { label: '露营', value: 'c-81' },
+    { label: '旅行', value: 'c-82' },
+    { label: 'TS', value: 'c-83' },
+    { label: '腐女', value: 'c-63' },
+  ],
+  region: [
+    { label: '全部', value: Options.Default },
+    { label: '日本', value: 'r-4' },
+    { label: '香港', value: 'r-5' },
+    { label: '韩国', value: 'r-6' },
+    { label: '台湾', value: 'r-7' },
+    { label: '内地', value: 'r-8' },
+    { label: '欧美', value: 'r-9' },
+  ],
+  status: [
+    { label: '全部', value: Options.Default },
+    { label: '连载', value: 's-1' },
+    { label: '完结', value: 's-2' },
+  ],
+  sort: [{ label: '全部', value: Options.Default }],
+};
 const PATTERN_MANGA_ID = /^https:\/\/www\.manhuadb\.com\/manhua\/([0-9]+)/;
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.manhuadb\.com\/manhua\/[0-9]+\/([0-9_]+)\.html/;
 const PATTERN_SCRIPT = /var img_data =[\n ]*'(.+)';/;
@@ -13,12 +98,31 @@ class ManHuaDB extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
   constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
-    super(pluginID, pluginName, pluginShortName);
+    super(
+      pluginID,
+      pluginName,
+      pluginShortName,
+      options.type,
+      options.region,
+      options.status,
+      options.sort
+    );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page) => {
+  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, region, status, _sort) => {
+    let query = '';
+    if (region !== Options.Default) {
+      query += '-' + region;
+    }
+    if (status !== Options.Default) {
+      query += '-' + status;
+    }
+    if (type !== Options.Default) {
+      query += '-' + type;
+    }
+
     return {
-      url: `https://www.manhuadb.com/manhua/list-page-${page}.html`,
+      url: `https://www.manhuadb.com/manhua/list${query}-page-${page}.html`,
       headers: new Headers({
         referer: 'https://www.manhuadb.com/',
         'user-agent': this.userAgent,

@@ -1,21 +1,114 @@
-import Base, { Plugin } from './base';
+import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
+
+const options = {
+  type: [
+    { label: '全部', value: Options.Default },
+    { label: '愛情', value: 'aiqing' },
+    { label: '歡樂向', value: 'huanlexiang' },
+    { label: '冒险', value: 'maoxian' },
+    { label: '奇幻', value: 'qihuan' },
+    { label: '百合', value: 'baihe' },
+    { label: '校园', value: 'xiaoyuan' },
+    { label: '科幻', value: 'kehuan' },
+    { label: '東方', value: 'dongfang' },
+    { label: '生活', value: 'shenghuo' },
+    { label: '轻小说', value: 'qingxiaoshuo' },
+    { label: '格鬥', value: 'gedou' },
+    { label: '耽美', value: 'danmei' },
+    { label: '悬疑', value: 'xuanyi' },
+    { label: '神鬼', value: 'shengui' },
+    { label: '其他', value: 'qita' },
+    { label: '职场', value: 'zhichang' },
+    { label: '萌系', value: 'mengxi' },
+    { label: '治愈', value: 'zhiyu' },
+    { label: '長條', value: 'changtiao' },
+    { label: '四格', value: 'sige' },
+    { label: '舰娘', value: 'jianniang' },
+    { label: '节操', value: 'jiecao' },
+    { label: 'TL', value: 'teenslove' },
+    { label: '竞技', value: 'jingji' },
+    { label: '搞笑', value: 'gaoxiao' },
+    { label: '伪娘', value: 'weiniang' },
+    { label: '热血', value: 'rexue' },
+    { label: '後宮', value: 'hougong' },
+    { label: '美食', value: 'meishi' },
+    { label: '性转换', value: 'xingzhuanhuan' },
+    { label: '侦探', value: 'zhentan' },
+    { label: '励志', value: 'lizhi' },
+    { label: 'AA', value: 'aa' },
+    { label: '彩色', value: 'COLOR' },
+    { label: '音乐舞蹈', value: 'yinyuewudao' },
+    { label: '异世界', value: 'yishijie' },
+    { label: '战争', value: 'zhanzheng' },
+    { label: '历史', value: 'lishi' },
+    { label: '机战', value: 'jizhan' },
+    { label: '惊悚', value: 'jingsong' },
+    { label: 'C99', value: 'comiket99' },
+    { label: '恐怖', value: '恐怖' },
+    { label: '都市', value: 'dushi' },
+    { label: 'C97', value: 'comiket97' },
+    { label: '穿越', value: 'chuanyue' },
+    { label: 'C96', value: 'comiket96' },
+    { label: '重生', value: 'chongsheng' },
+    { label: '魔幻', value: 'mohuan' },
+    { label: '宅系', value: 'zhaixi' },
+    { label: '武侠', value: 'wuxia' },
+    { label: 'C98', value: 'C98' },
+    { label: '生存', value: 'shengcun' },
+    { label: 'C95', value: 'comiket95' },
+    { label: 'FATE', value: 'fate' },
+    { label: '無修正', value: 'Uncensored' },
+    { label: '转生', value: 'zhuansheng' },
+    { label: 'LoveLive', value: 'loveLive' },
+    { label: '男同', value: 'nantong' },
+    { label: '仙侠', value: 'xianxia' },
+    { label: '玄幻', value: 'xuanhuan' },
+    { label: '真人', value: 'zhenren' },
+  ],
+  region: [
+    { label: '全部', value: Options.Default },
+    { label: '日本', value: 'japan' },
+    { label: '韩国', value: 'korea' },
+    { label: '欧美', value: 'west' },
+    { label: '完结', value: 'finish' },
+  ],
+  status: [{ label: '全部', value: Options.Default }],
+  sort: [
+    { label: '更新时间⬇️', value: Options.Default },
+    { label: '更新时间⬆️', value: 'datetime_updated' },
+    { label: '热度⬇️', value: '-popular' },
+    { label: '热度⬆️', value: 'popular' },
+  ],
+};
 
 class CopyManga extends Base {
   readonly useMock = false;
+  readonly userAgent =
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
   constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
-    super(pluginID, pluginName, pluginShortName);
+    super(
+      pluginID,
+      pluginName,
+      pluginShortName,
+      options.type,
+      options.region,
+      options.status,
+      options.sort
+    );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page) => {
+  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, region, _status, sort) => {
     return {
       url: 'https://api.copymanga.org/api/v3/comics',
       body: {
         free_type: 1,
         limit: 21,
         offset: (page - 1) * 21,
-        ordering: '-datetime_updated',
+        ordering: sort === Options.Default ? '-datetime_updated' : sort,
+        theme: type === Options.Default ? undefined : type,
+        top: region === Options.Default ? undefined : region,
         _update: 'true',
       },
       headers: new Headers({

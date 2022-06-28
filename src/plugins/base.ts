@@ -7,6 +7,10 @@ export enum Plugin {
   MHDB = 'MHDB',
 }
 
+export enum Options {
+  Default = '$$DEFAULT$$',
+}
+
 abstract class Base {
   /**
    * @description key differences between plugins
@@ -15,7 +19,7 @@ abstract class Base {
    */
   readonly id: Plugin;
   /**
-   * @description
+   * @description full name, use for display
    * @type {string}
    * @memberof Base
    */
@@ -28,16 +32,57 @@ abstract class Base {
   readonly shortName: string;
 
   /**
+   * @description enum for type select
+   * @type {{ label: string; value: string }[]}
+   * @memberof Base
+   */
+  readonly typeOptions: { label: string; value: string }[];
+  /**
+   * @description enum for region select
+   * @type {{ label: string; value: string }[]}
+   * @memberof Base
+   */
+  readonly regionOptions: { label: string; value: string }[];
+  /**
+   * @description enum for status select
+   * @type {{ label: string; value: string }[]}
+   * @memberof Base
+   */
+  readonly statusOptions: { label: string; value: string }[];
+  /**
+   * @description enum for sort select
+   * @type {{ label: string; value: string }[]}
+   * @memberof Base
+   */
+  readonly sortOptions: { label: string; value: string }[];
+
+  /**
    * @description Creates an instance of Base.
    * @param {Plugin} id
    * @param {string} name
    * @param {string} shortName
+   * @param {{ label: string; value: string }[]} [typeOptions=[]]
+   * @param {{ label: string; value: string }[]} [regionOptions=[]]
+   * @param {{ label: string; value: string }[]} [statusOptions=[]]
+   * @param {{ label: string; value: string }[]} [sortOptions=[]]
    * @memberof Base
    */
-  constructor(id: Plugin, name: string, shortName: string) {
+  constructor(
+    id: Plugin,
+    name: string,
+    shortName: string,
+    typeOptions: { label: string; value: string }[] = [],
+    regionOptions: { label: string; value: string }[] = [],
+    statusOptions: { label: string; value: string }[] = [],
+    sortOptions: { label: string; value: string }[] = []
+  ) {
     this.id = id;
     this.name = name;
     this.shortName = shortName;
+    this.typeOptions = typeOptions;
+    this.regionOptions = regionOptions;
+    this.statusOptions = statusOptions;
+    this.sortOptions = sortOptions;
   }
 
   /**
@@ -76,7 +121,13 @@ abstract class Base {
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareUpdateFetch(page: number): FetchData;
+  abstract prepareUpdateFetch(
+    page: number,
+    type: string,
+    region: string,
+    status: string,
+    sort: string
+  ): FetchData;
 
   /**
    * @description accept keyword param, return body for search fetch

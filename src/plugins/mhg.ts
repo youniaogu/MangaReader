@@ -1,9 +1,72 @@
-import Base, { Plugin } from './base';
+import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
 import queryString from 'query-string';
 import LZString from 'lz-string';
 import cheerio from 'cheerio';
 
+const options = {
+  type: [
+    { label: '全部', value: Options.Default },
+    { label: '热血', value: 'rexue' },
+    { label: '冒险', value: 'maoxian' },
+    { label: '魔幻', value: 'mohuan' },
+    { label: '神鬼', value: 'shengui' },
+    { label: '搞笑', value: 'gaoxiao' },
+    { label: '萌系', value: 'mengxi' },
+    { label: '爱情', value: 'aiqing' },
+    { label: '科幻', value: 'kehuan' },
+    { label: '魔法', value: 'mofa' },
+    { label: '格斗', value: 'gedou' },
+    { label: '武侠', value: 'wuxia' },
+    { label: '机战', value: 'jizhan' },
+    { label: '战争', value: 'zhanzheng' },
+    { label: '竞技', value: 'jingji' },
+    { label: '体育', value: 'tiyu' },
+    { label: '校园', value: 'xiaoyuan' },
+    { label: '生活', value: 'shenghuo' },
+    { label: '励志', value: 'lizhi' },
+    { label: '历史', value: 'lishi' },
+    { label: '伪娘', value: 'weiniang' },
+    { label: '宅男', value: 'zhainan' },
+    { label: '腐女', value: 'funv' },
+    { label: '耽美', value: 'danmei' },
+    { label: '百合', value: 'baihe' },
+    { label: '后宫', value: 'hougong' },
+    { label: '治愈', value: 'zhiyu' },
+    { label: '美食', value: 'meishi' },
+    { label: '推理', value: 'tuili' },
+    { label: '悬疑', value: 'xuanyi' },
+    { label: '恐怖', value: 'kongbu' },
+    { label: '四格', value: 'sige' },
+    { label: '职场', value: 'zhichang' },
+    { label: '侦探', value: 'zhentan' },
+    { label: '社会', value: 'shehui' },
+    { label: '音乐', value: 'yinyue' },
+    { label: '舞蹈', value: 'wudao' },
+    { label: '杂志', value: 'zazhi' },
+    { label: '黑道', value: 'heidao' },
+  ],
+  region: [
+    { label: '全部', value: Options.Default },
+    { label: '日本', value: 'japan' },
+    { label: '港台', value: 'hongkong' },
+    { label: '其他', value: 'other' },
+    { label: '欧美', value: 'europe' },
+    { label: '内地', value: 'china' },
+    { label: '韩国', value: 'korea' },
+  ],
+  status: [
+    { label: '全部', value: Options.Default },
+    { label: '连载', value: 'lianzai' },
+    { label: '完结', value: 'wanjie' },
+  ],
+  sort: [
+    { label: '添加时间', value: Options.Default },
+    { label: '更新时间', value: 'update' },
+    { label: '浏览次数', value: 'view' },
+    { label: '评分最高', value: 'rate' },
+  ],
+};
 const PATTERN_MANGA_ID = /^https:\/\/www\.mhgui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ id: ([0-9]*), status:[0-9]*,block_cc:'.*', name: '(.+)', url: '.*' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.mhgui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
@@ -17,18 +80,33 @@ class ManHuaGui extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
   constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
-    super(pluginID, pluginName, pluginShortName);
+    super(
+      pluginID,
+      pluginName,
+      pluginShortName,
+      options.type,
+      options.region,
+      options.status,
+      options.sort
+    );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page) => {
+  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, region, status, sort) => {
     if (this.useMock) {
       return {
         url: process.env.PROXY + '/mhg/update',
       };
     }
 
+    let query = '';
+    if ([region, type, status].includes(Options.Default)) {
+      query += '/' + [region, type, status].filter((item) => item === Options.Default).join('_');
+    }
+
     return {
-      url: `https://www.mhgui.com/update/d${page}.html`,
+      url: `https://www.mhgui.com/list${query}/${
+        sort === Options.Default ? 'index' : sort
+      }_p${page}.html`,
       headers: new Headers({
         'user-agent': this.userAgent,
       }),
