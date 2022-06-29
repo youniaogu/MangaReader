@@ -98,13 +98,9 @@ class ManHuaGui extends Base {
       };
     }
 
-    let query = '';
-    if ([region, type, status].includes(Options.Default)) {
-      query += '/' + [region, type, status].filter((item) => item === Options.Default).join('_');
-    }
-
+    const query = [region, type, status].filter((item) => item !== Options.Default).join('_');
     return {
-      url: `https://www.mhgui.com/list${query}/${
+      url: `https://www.mhgui.com/list${query ? '/' + query : ''}/${
         sort === Options.Default ? 'index' : sort
       }_p${page}.html`,
       headers: new Headers({
@@ -163,7 +159,7 @@ class ManHuaGui extends Base {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
 
-      $('div.latest-list li')
+      $('ul#contList li')
         .toArray()
         .forEach((li) => {
           const $$ = cheerio.load(li);
