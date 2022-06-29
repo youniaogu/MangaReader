@@ -169,7 +169,7 @@ class ManHuaGuiMobile extends Base {
     };
   };
 
-  handleUpdate: Base['handleUpdate'] = (text: string | null) => {
+  handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];

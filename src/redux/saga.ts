@@ -35,8 +35,8 @@ const {
   removeFavorites,
   loadSearch,
   loadSearchCompletion,
-  loadUpdate,
-  loadUpdateCompletion,
+  loadDiscovery,
+  loadDiscoveryCompletion,
   loadManga,
   loadMangaCompletion,
   loadMangaInfo,
@@ -104,7 +104,7 @@ function* storageDataSaga() {
       addFavorites.type,
       removeFavorites.type,
       loadSearchCompletion.type,
-      loadUpdateCompletion.type,
+      loadDiscoveryCompletion.type,
       loadMangaCompletion.type,
       loadChapterCompletion.type,
     ],
@@ -171,26 +171,31 @@ function* batchUpdateSaga() {
   );
 }
 
-function* loadUpdateSaga() {
+function* loadDiscoverySaga() {
   yield takeLatest(
-    loadUpdate.type,
-    function* ({ payload: { source } }: ActionParameters<typeof loadUpdate>) {
+    loadDiscovery.type,
+    function* ({ payload: { source } }: ActionParameters<typeof loadDiscovery>) {
       const plugin = PluginMap.get(source);
-      const { page, isEnd } = ((state: RootState) => state.update)(yield select());
+      const { page, isEnd, type, region, status, sort } = ((state: RootState) => state.discovery)(
+        yield select()
+      );
 
       if (!plugin) {
-        yield put(loadUpdateCompletion({ error: new Error('Missing Plugin') }));
+        yield put(loadDiscoveryCompletion({ error: new Error('Missing Plugin') }));
         return;
       }
       if (isEnd) {
-        yield put(loadUpdateCompletion({ error: new Error('No More') }));
+        yield put(loadDiscoveryCompletion({ error: new Error('No More') }));
         return;
       }
 
-      const { error: fetchError, data } = yield call(fetchData, plugin.prepareUpdateFetch(page));
-      const { error: pluginError, update } = plugin.handleUpdate(data);
+      const { error: fetchError, data } = yield call(
+        fetchData,
+        plugin.prepareUpdateFetch(page, type, region, status, sort)
+      );
+      const { error: pluginError, update } = plugin.handleDiscovery(data);
 
-      yield put(loadUpdateCompletion({ error: fetchError || pluginError, data: update }));
+      yield put(loadDiscoveryCompletion({ error: fetchError || pluginError, data: update }));
     }
   );
 }
@@ -383,7 +388,7 @@ export default function* rootSaga() {
     fork(storageDataSaga),
     fork(clearCacheSaga),
     fork(batchUpdateSaga),
-    fork(loadUpdateSaga),
+    fork(loadDiscoverySaga),
     fork(loadSearchSaga),
     fork(loadMangaSaga),
     fork(loadMangaInfoSaga),

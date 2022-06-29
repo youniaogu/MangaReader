@@ -1,5 +1,5 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
-import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
+import { Plugin, Options, defaultPlugin, defaultPluginList } from '~/plugins';
 import { AsyncStatus } from '~/utils';
 
 const initialState: RootState = {
@@ -19,7 +19,16 @@ const initialState: RootState = {
     fail: [],
   },
   search: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
-  update: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
+  discovery: {
+    type: Options.Default,
+    region: Options.Default,
+    status: Options.Default,
+    sort: Options.Default,
+    page: 1,
+    isEnd: false,
+    loadStatus: AsyncStatus.Default,
+    list: [],
+  },
   favorites: [],
   manga: {
     loadStatus: AsyncStatus.Default,
@@ -74,7 +83,7 @@ const pluginSlice = createSlice({
   name: 'plugin',
   initialState: initialState.plugin,
   reducers: {
-    setCurrent(state, action: PayloadAction<Plugin>) {
+    setSource(state, action: PayloadAction<Plugin>) {
       state.source = action.payload;
     },
     syncPlugin(_state, action: PayloadAction<RootState['plugin']>) {
@@ -144,11 +153,23 @@ const searchSlice = createSlice({
   },
 });
 
-const updateSlice = createSlice({
-  name: 'update',
-  initialState: initialState.update,
+const discoverySlice = createSlice({
+  name: 'discovery',
+  initialState: initialState.discovery,
   reducers: {
-    loadUpdate(state, action: PayloadAction<{ isReset?: boolean; source: Plugin }>) {
+    setType(state, action: PayloadAction<string>) {
+      state.type = action.payload;
+    },
+    setRegion(state, action: PayloadAction<string>) {
+      state.region = action.payload;
+    },
+    setStatus(state, action: PayloadAction<string>) {
+      state.status = action.payload;
+    },
+    setSort(state, action: PayloadAction<string>) {
+      state.sort = action.payload;
+    },
+    loadDiscovery(state, action: PayloadAction<{ isReset?: boolean; source: Plugin }>) {
       const isReset = action.payload.isReset || false;
       if (isReset) {
         state.page = 1;
@@ -158,7 +179,7 @@ const updateSlice = createSlice({
 
       state.loadStatus = AsyncStatus.Pending;
     },
-    loadUpdateCompletion(state, action: FetchResponseAction<Manga[]>) {
+    loadDiscoveryCompletion(state, action: FetchResponseAction<Manga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
         state.loadStatus = AsyncStatus.Rejected;
@@ -173,8 +194,12 @@ const updateSlice = createSlice({
     },
   },
   extraReducers: {
-    [pluginSlice.actions.setCurrent.type]: (state) => {
+    [pluginSlice.actions.setSource.type]: (state) => {
       state.loadStatus = AsyncStatus.Default;
+      state.type = Options.Default;
+      state.region = Options.Default;
+      state.status = Options.Default;
+      state.sort = Options.Default;
     },
   },
 });
@@ -300,7 +325,7 @@ const dictSlice = createSlice({
         state.manga[item.hash] = { ...state.manga[item.hash], ...item };
       });
     },
-    [updateSlice.actions.loadUpdateCompletion.type]: (
+    [discoverySlice.actions.loadDiscoveryCompletion.type]: (
       state,
       action: FetchResponseAction<Manga[]>
     ) => {
@@ -339,7 +364,7 @@ const appAction = appSlice.actions;
 const pluginAction = pluginSlice.actions;
 const batchAction = batchSlice.actions;
 const searchAction = searchSlice.actions;
-const updateAction = updateSlice.actions;
+const discoveryAction = discoverySlice.actions;
 const favoritesAction = favoritesSlice.actions;
 const mangaAction = mangaSlice.actions;
 const chapterAction = chapterSlice.actions;
@@ -349,7 +374,7 @@ const appReducer = appSlice.reducer;
 const pluginReducer = pluginSlice.reducer;
 const batchReducer = batchSlice.reducer;
 const searchReducer = searchSlice.reducer;
-const updateReducer = updateSlice.reducer;
+const discoveryReducer = discoverySlice.reducer;
 const favoritesReducer = favoritesSlice.reducer;
 const mangaReducer = mangaSlice.reducer;
 const chapterReducer = chapterSlice.reducer;
@@ -360,7 +385,7 @@ export const action = {
   ...pluginAction,
   ...batchAction,
   ...searchAction,
-  ...updateAction,
+  ...discoveryAction,
   ...favoritesAction,
   ...mangaAction,
   ...chapterAction,
@@ -371,7 +396,7 @@ export const reducer = combineReducers<RootState>({
   plugin: pluginReducer,
   batch: batchReducer,
   search: searchReducer,
-  update: updateReducer,
+  discovery: discoveryReducer,
   favorites: favoritesReducer,
   manga: mangaReducer,
   chapter: chapterReducer,

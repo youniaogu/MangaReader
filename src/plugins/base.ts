@@ -175,7 +175,7 @@ abstract class Base {
    * @return {*}  {({ error: Error; update?: undefined } | { error?: undefined; update: Manga[] })}
    * @memberof Base
    */
-  abstract handleUpdate(
+  abstract handleDiscovery(
     response: any
   ): { error: Error; update?: undefined } | { error?: undefined; update: Manga[] };
 

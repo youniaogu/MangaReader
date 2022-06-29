@@ -49,7 +49,7 @@ export const SearchAndAbout = () => {
   }, [batchStatus]);
 
   const handleSearch = () => {
-    RootNavigation.navigate('Search');
+    RootNavigation.navigate('Discovery');
   };
   const handleUpdate = () => {
     dispatch(batchUpdate(favorites.map((item) => item.mangaHash)));

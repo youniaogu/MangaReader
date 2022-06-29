@@ -14,9 +14,9 @@ const Home = loadable(() => import('~/views/Home'));
 const SearchAndAbout = loadable(() => import('~/views/Home'), {
   resolveComponent: (components) => components.SearchAndAbout,
 });
-const Result = loadable(() => import('~/views/Result'));
 const Search = loadable(() => import('~/views/Search'));
-const SearchInput = loadable(() => import('~/views/Search'), {
+const Discovery = loadable(() => import('~/views/Discovery'));
+const SearchInput = loadable(() => import('~/views/Discovery'), {
   resolveComponent: (components) => components.SearchInput,
 });
 const Detail = loadable(() => import('~/views/Detail'));
@@ -48,11 +48,11 @@ const App = () => {
                 component={Home}
               />
               <Screen
-                name="Search"
+                name="Discovery"
                 options={{ title: '', headerLeft: () => <SearchInput /> }}
-                component={Search}
+                component={Discovery}
               />
-              <Screen name="Result" component={Result} />
+              <Screen name="Search" component={Search} />
               <Screen
                 name="Detail"
                 options={{ title: 'loading...', headerRight: () => <Heart /> }}

@@ -178,7 +178,7 @@ class CopyManga extends Base {
     };
   };
 
-  handleUpdate: Base['handleUpdate'] = (res: { code: number; results: { list: any[] } }) => {
+  handleDiscovery: Base['handleDiscovery'] = (res: { code: number; results: { list: any[] } }) => {
     try {
       if (res.code === 200) {
         return {

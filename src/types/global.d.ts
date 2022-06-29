@@ -17,16 +17,16 @@ declare global {
 
   type RootStackParamList = {
     Home: undefined;
-    Search: undefined;
-    Result: { keyword: string };
+    Discovery: undefined;
+    Search: { keyword: string };
     Detail: { mangaHash: string };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+  type StackDiscoveryProps = NativeStackScreenProps<RootStackParamList, 'Discovery'>;
   type StackSearchProps = NativeStackScreenProps<RootStackParamList, 'Search'>;
-  type StackResultProps = NativeStackScreenProps<RootStackParamList, 'Result'>;
   type StackDetailProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
   type StackChapterProps = NativeStackScreenProps<RootStackParamList, 'Chapter'>;
   type StackPluginProps = NativeStackScreenProps<RootStackParamList, 'Plugin'>;
@@ -91,7 +91,11 @@ declare global {
       loadStatus: AsyncStatus;
       list: string[];
     };
-    update: {
+    discovery: {
+      type: string;
+      region: string;
+      status: string;
+      sort: string;
       page: number;
       isEnd: boolean;
       loadStatus: AsyncStatus;
