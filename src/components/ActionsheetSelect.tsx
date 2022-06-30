@@ -1,5 +1,5 @@
 import React, { Fragment, FC, memo } from 'react';
-import { Box, Actionsheet } from 'native-base';
+import { Box, Actionsheet, ScrollView } from 'native-base';
 
 interface ActionsheetSelectProps {
   title?: string;
@@ -41,11 +41,13 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
               {title}
             </Box>
           )}
-          {options.map((item) => (
-            <Actionsheet.Item key={item.value} onPress={handleChange(item.value)}>
-              {item.label}
-            </Actionsheet.Item>
-          ))}
+          <ScrollView w="100%">
+            {options.map((item) => (
+              <Actionsheet.Item key={item.value} onPress={handleChange(item.value)}>
+                {item.label}
+              </Actionsheet.Item>
+            ))}
+          </ScrollView>
         </Actionsheet.Content>
       </Actionsheet>
     </Fragment>
