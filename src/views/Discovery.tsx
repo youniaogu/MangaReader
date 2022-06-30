@@ -38,7 +38,7 @@ const Discovery = ({ navigation: { navigate } }: StackHomeProps) => {
       <SearchOption />
       {loadStatus === AsyncStatus.Pending && list.length === 0 && <Loading />}
       {loadStatus === AsyncStatus.Fulfilled && list.length === 0 && <Empty />}
-      {loadStatus === AsyncStatus.Fulfilled && list.length > 0 && (
+      {list.length > 0 && (
         <Bookshelf list={updateList} loadMore={handleLoadMore} itemOnPress={handleDetail} />
       )}
     </Fragment>
