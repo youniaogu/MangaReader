@@ -6,7 +6,7 @@ import cheerio from 'cheerio';
 
 const options = {
   type: [
-    { label: '全部', value: Options.Default },
+    { label: '选择分类', value: Options.Default },
     { label: '热血', value: 'rexue' },
     { label: '冒险', value: 'maoxian' },
     { label: '魔幻', value: 'mohuan' },
@@ -47,7 +47,7 @@ const options = {
     { label: '黑道', value: 'heidao' },
   ],
   region: [
-    { label: '全部', value: Options.Default },
+    { label: '选择地区', value: Options.Default },
     { label: '日本', value: 'japan' },
     { label: '港台', value: 'hongkong' },
     { label: '其他', value: 'other' },
@@ -56,9 +56,9 @@ const options = {
     { label: '韩国', value: 'korea' },
   ],
   status: [
-    { label: '全部', value: Options.Default },
-    { label: '连载', value: 'lianzai' },
-    { label: '完结', value: 'wanjie' },
+    { label: '选择状态', value: Options.Default },
+    { label: '连载中', value: 'lianzai' },
+    { label: '已完结', value: 'wanjie' },
   ],
   sort: [
     { label: '添加时间', value: Options.Default },

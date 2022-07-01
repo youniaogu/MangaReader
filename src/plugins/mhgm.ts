@@ -6,7 +6,7 @@ import cheerio from 'cheerio';
 
 const options = {
   type: [
-    { label: '全部', value: Options.Default },
+    { label: '选择分类', value: Options.Default },
     { label: '连载', value: 'lianzai' },
     { label: '完结', value: 'wanjie' },
     { label: '日本', value: 'japan' },
@@ -59,8 +59,8 @@ const options = {
     { label: '儿童', value: 'ertong' },
     { label: '通用', value: 'tongyong' },
   ],
-  region: [{ label: '全部', value: Options.Default }],
-  status: [{ label: '全部', value: Options.Default }],
+  region: [{ label: '选择地区', value: Options.Default }],
+  status: [{ label: '选择状态', value: Options.Default }],
   sort: [
     { label: '添加时间', value: Options.Default },
     { label: '更新时间', value: 'update' },

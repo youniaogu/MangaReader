@@ -58,7 +58,7 @@ const Reader = ({
         toast.show({
           id: lastPageToastId,
           placement: 'bottom',
-          title: 'The Last Page',
+          title: '最后一页',
           duration: 3000,
         });
       }

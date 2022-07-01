@@ -40,7 +40,7 @@ const About = () => {
         leftIcon={<Icon as={MaterialIcons} name="image-not-supported" size="lg" />}
         onPress={handleImageCacheClear}
       >
-        Clear Image Cache
+        清理图片缓存
       </Button>
       <Button
         shadow={2}
@@ -51,7 +51,7 @@ const About = () => {
         leftIcon={<Icon as={MaterialIcons} name="hourglass-disabled" size="lg" />}
         onPress={handleReduxCacheClear}
       >
-        Clear Redux Cache
+        清理数据缓存
       </Button>
     </VStack>
   );

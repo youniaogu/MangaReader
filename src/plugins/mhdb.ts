@@ -5,7 +5,7 @@ import base64 from 'base-64';
 
 const options = {
   type: [
-    { label: '全部', value: Options.Default },
+    { label: '选择分类', value: Options.Default },
     { label: '爱情', value: 'c-26' },
     { label: '东方', value: 'c-66' },
     { label: '冒险', value: 'c-12' },
@@ -73,7 +73,7 @@ const options = {
     { label: '腐女', value: 'c-63' },
   ],
   region: [
-    { label: '全部', value: Options.Default },
+    { label: '选择地区', value: Options.Default },
     { label: '日本', value: 'r-4' },
     { label: '香港', value: 'r-5' },
     { label: '韩国', value: 'r-6' },
@@ -82,11 +82,11 @@ const options = {
     { label: '欧美', value: 'r-9' },
   ],
   status: [
-    { label: '全部', value: Options.Default },
-    { label: '连载', value: 's-1' },
-    { label: '完结', value: 's-2' },
+    { label: '选择状态', value: Options.Default },
+    { label: '连载中', value: 's-1' },
+    { label: '已完结', value: 's-2' },
   ],
-  sort: [{ label: '全部', value: Options.Default }],
+  sort: [{ label: '选择排序', value: Options.Default }],
 };
 const PATTERN_MANGA_ID = /^https:\/\/www\.manhuadb\.com\/manhua\/([0-9]+)/;
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.manhuadb\.com\/manhua\/[0-9]+\/([0-9_]+)\.html/;

@@ -109,28 +109,24 @@ export const SearchOption = () => {
       </Button>
 
       <ActionsheetSelect
-        title="Select Type"
         isOpen={isTypeOpen}
         onClose={onTypeClose}
         options={typeOptions}
         onChange={handleTypeChange}
       />
       <ActionsheetSelect
-        title="Select Region"
         isOpen={isRegionOpen}
         onClose={onRegionClose}
         options={regionOptions}
         onChange={handleRegionChange}
       />
       <ActionsheetSelect
-        title="Select Status"
         isOpen={isStatusOpen}
         onClose={onStatusClose}
         options={statusOptions}
         onChange={handleStatusChange}
       />
       <ActionsheetSelect
-        title="Select Sort"
         isOpen={isSortOpen}
         onClose={onSortClose}
         options={sortOptions}
@@ -174,7 +170,7 @@ export const SearchInput = () => {
         bg="#6200ee"
         color="white"
         variant="underlined"
-        placeholder="Enter To Search"
+        placeholder="请输入漫画名"
         onChangeText={setKeyword}
         onSubmitEditing={handleSearch}
       />

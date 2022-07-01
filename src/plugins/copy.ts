@@ -3,7 +3,7 @@ import { MangaStatus } from '~/utils';
 
 const options = {
   type: [
-    { label: '全部', value: Options.Default },
+    { label: '选择分类', value: Options.Default },
     { label: '愛情', value: 'aiqing' },
     { label: '歡樂向', value: 'huanlexiang' },
     { label: '冒险', value: 'maoxian' },
@@ -67,13 +67,13 @@ const options = {
     { label: '真人', value: 'zhenren' },
   ],
   region: [
-    { label: '全部', value: Options.Default },
+    { label: '选择地区', value: Options.Default },
     { label: '日本', value: 'japan' },
     { label: '韩国', value: 'korea' },
     { label: '欧美', value: 'west' },
     { label: '完结', value: 'finish' },
   ],
-  status: [{ label: '全部', value: Options.Default }],
+  status: [{ label: '选择状态', value: Options.Default }],
   sort: [
     { label: '更新时间⬇️', value: Options.Default },
     { label: '更新时间⬆️', value: 'datetime_updated' },
