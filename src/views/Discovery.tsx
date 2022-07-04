@@ -185,7 +185,7 @@ export const SearchInput = () => {
       <ActionsheetSelect
         isOpen={isOpen}
         onClose={handleClose}
-        title="Select Plugin"
+        title="选择插件"
         options={options}
         onChange={handleChange}
       />
