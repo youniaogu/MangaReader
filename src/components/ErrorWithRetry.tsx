@@ -3,14 +3,14 @@ import { Center, Icon, IconButton } from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 interface ErrorWithRetryProps {
-  onRetry: () => void;
+  onRetry?: () => void;
 }
 
 const ErrorWithRetry = ({ onRetry }: ErrorWithRetryProps) => {
   return (
-    <Center w="full" h={48}>
+    <Center w="full" h="full" bg="black">
       <IconButton
-        icon={<Icon as={MaterialIcons} name="replay" size="xl" color="gray.500" />}
+        icon={<Icon as={MaterialIcons} name="replay" size={30} color="white" />}
         onPress={onRetry}
       />
     </Center>

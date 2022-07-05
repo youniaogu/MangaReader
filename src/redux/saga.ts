@@ -9,6 +9,8 @@ import {
   takeLatest,
   takeLeading,
   delay,
+  race,
+  CallEffect,
 } from 'redux-saga/effects';
 import { splitHash, PluginMap, defaultPlugin } from '~/plugins';
 import { storageKey, fetchData } from '~/utils';
@@ -46,6 +48,19 @@ const {
   loadChapter,
   loadChapterCompletion,
 } = action;
+
+function* raceTimeout(fn: CallEffect, ms: number = 5000) {
+  const { result, timeout } = yield race({
+    result: fn,
+    timeout: delay(ms),
+  });
+
+  if (timeout) {
+    return { error: new Error('Timeouts') };
+  }
+
+  return result;
+}
 
 function* launchSaga() {
   yield takeLatest(launch.type, function* () {
@@ -370,10 +385,11 @@ function* loadChapterSaga() {
         return;
       }
 
-      const { error: fetchError, data } = yield call(
-        fetchData,
-        plugin.prepareChapterFetch(mangaId, chapterId)
+      const { error: fetchError, data } = yield raceTimeout(
+        call(fetchData, plugin.prepareChapterFetch(mangaId, chapterId)),
+        10000
       );
+
       const { error: pluginError, chapter } = plugin.handleChapter(data);
 
       yield put(loadChapterCompletion({ error: fetchError || pluginError, data: chapter }));

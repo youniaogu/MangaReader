@@ -1,10 +1,10 @@
 import React, { useState, memo } from 'react';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
-import { Center, IconButton, Icon } from 'native-base';
 import { AsyncStatus } from '~/utils';
 import { StyleSheet } from 'react-native';
 import { nanoid } from '@reduxjs/toolkit';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Center } from 'native-base';
+import ErrorWithRetry from '~/components/ErrorWithRetry';
 
 interface StatusImageProps {
   uri: string;
@@ -32,15 +32,7 @@ const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
   };
 
   if (loadStatus === AsyncStatus.Rejected) {
-    return (
-      <Center w="full" h="full" bg="black">
-        <IconButton
-          icon={
-            <Icon as={MaterialIcons} name="refresh" size={30} color="white" onPress={handleRetry} />
-          }
-        />
-      </Center>
-    );
+    return <ErrorWithRetry onRetry={handleRetry} />;
   }
 
   return (
