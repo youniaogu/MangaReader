@@ -117,6 +117,7 @@ const batchSlice = createSlice({
         state.fail.push(hash);
       }
     },
+    cancelLoadManga() {},
   },
 });
 
