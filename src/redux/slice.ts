@@ -96,13 +96,14 @@ const batchSlice = createSlice({
   name: 'batch',
   initialState: initialState.batch,
   reducers: {
-    batchUpdate(state, action: PayloadAction<string[]>) {
+    batchUpdate() {},
+    startBatchUpdate(state, action: PayloadAction<string[]>) {
       state.loadStatus = AsyncStatus.Pending;
       state.queue = action.payload;
       state.success = [];
       state.fail = [];
     },
-    batchUpdateCompletion(state) {
+    endBatchUpdate(state) {
       state.loadStatus = AsyncStatus.Fulfilled;
     },
     batchRecord(

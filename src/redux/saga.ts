@@ -29,7 +29,8 @@ const {
   clearCache,
   clearCacheCompletion,
   batchUpdate,
-  batchUpdateCompletion,
+  startBatchUpdate,
+  endBatchUpdate,
   batchRecord,
   cancelLoadManga,
   viewChapter,
@@ -152,51 +153,54 @@ function* clearCacheSaga() {
 }
 
 function* batchUpdateSaga() {
-  yield takeLeading(
-    [batchUpdate.type],
-    function* ({ payload: [...batchList] }: ActionParameters<typeof batchUpdate>) {
-      while (true) {
-        const hash = batchList.shift();
-        if (!hash) {
-          break;
-        }
+  yield takeLeading([batchUpdate.type], function* () {
+    const favorites = ((state: RootState) => state.favorites)(yield select());
+    const fail = ((state: RootState) => state.batch.fail)(yield select());
+    const batchList = fail.length > 0 ? fail : favorites.map((item) => item.mangaHash);
 
-        const id = nanoid();
-        const dict = ((state: RootState) => state.dict)(yield select());
-        yield put(loadManga({ mangaHash: hash, taskId: id }));
+    yield put(startBatchUpdate(batchList));
 
-        const { error: timeoutError, result } = yield raceTimeout(
-          take(
-            ({ type, payload: { taskId } }: any) =>
-              type === loadMangaCompletion.type && taskId === id
-          ),
-          10000
-        );
-
-        if (timeoutError) {
-          yield put(cancelLoadManga());
-          yield put(batchRecord({ isSuccess: false, isTrend: false, hash }));
-          continue;
-        }
-
-        const { error: fetchError, data } = result.payload;
-
-        let isTrend = false;
-        if (!fetchError) {
-          const prev = dict.manga[hash]?.chapters || [];
-          const curr = data?.chapters || [];
-
-          if (curr.length > prev.length) {
-            isTrend = true;
-          }
-        }
-
-        yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
+    let queue = [...batchList];
+    while (true) {
+      const hash = queue.shift();
+      if (!hash) {
+        break;
       }
 
-      yield put(batchUpdateCompletion());
+      const id = nanoid();
+      const dict = ((state: RootState) => state.dict)(yield select());
+      yield put(loadManga({ mangaHash: hash, taskId: id }));
+
+      const { error: timeoutError, result } = yield raceTimeout(
+        take(
+          ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
+        ),
+        10000
+      );
+
+      if (timeoutError) {
+        yield put(cancelLoadManga());
+        yield put(batchRecord({ isSuccess: false, isTrend: false, hash }));
+        continue;
+      }
+
+      const { error: fetchError, data } = result.payload;
+
+      let isTrend = false;
+      if (!fetchError) {
+        const prev = dict.manga[hash]?.chapters || [];
+        const curr = data?.chapters || [];
+
+        if (curr.length > prev.length) {
+          isTrend = true;
+        }
+      }
+
+      yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
     }
-  );
+
+    yield put(endBatchUpdate());
+  });
 }
 
 function* loadDiscoverySaga() {

@@ -41,8 +41,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
 export const SearchAndAbout = () => {
   const [isRotate, setIsRotate] = useState(false);
   const dispatch = useAppDispatch();
-  const favorites = useAppSelector((state) => state.favorites);
-  const { loadStatus: batchStatus, queue } = useAppSelector((state) => state.batch);
+  const { loadStatus: batchStatus, queue, fail } = useAppSelector((state) => state.batch);
 
   useEffect(() => {
     setIsRotate(batchStatus === AsyncStatus.Pending);
@@ -52,7 +51,7 @@ export const SearchAndAbout = () => {
     RootNavigation.navigate('Discovery');
   };
   const handleUpdate = () => {
-    dispatch(batchUpdate(favorites.map((item) => item.mangaHash)));
+    dispatch(batchUpdate());
   };
 
   return (
@@ -72,6 +71,11 @@ export const SearchAndAbout = () => {
         {batchStatus === AsyncStatus.Pending && (
           <Text position="absolute" top={0} right={0} color="white" fontWeight="extrabold">
             {queue.length}
+          </Text>
+        )}
+        {batchStatus !== AsyncStatus.Pending && fail.length > 0 && (
+          <Text position="absolute" top={0} right={0} color="red.500" fontWeight="extrabold">
+            {fail.length}
           </Text>
         )}
       </View>
