@@ -1,14 +1,15 @@
 import React from 'react';
-import { Center, Heading, Icon, IconButton } from 'native-base';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { Center, Heading, Image } from 'native-base';
+
+const beeGif = require('~/assets/bee.gif');
 
 const Empty = () => {
   return (
-    <Center w="full" h={48}>
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="sentiment-neutral" size="4xl" color="gray.500" />}
-      />
-      <Heading color="gray.500">Not Found</Heading>
+    <Center w="full" h="full" pb={48}>
+      <Image w="1/3" h="1/3" resizeMode="contain" source={beeGif} alt="bee" />
+      <Heading color="gray.500" fontWeight="bold" fontSize="2xl" pt={1}>
+        404
+      </Heading>
     </Center>
   );
 };
