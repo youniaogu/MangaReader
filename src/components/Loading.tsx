@@ -1,14 +1,12 @@
 import React from 'react';
-import { Spinner, Center } from 'native-base';
+import { Image, Center } from 'native-base';
 
-interface LoadingProps {
-  color?: string;
-}
+const readingGif = require('~/assets/reading.gif');
 
-const Loading = ({ color = '#6200ee' }: LoadingProps) => {
+const Loading = () => {
   return (
-    <Center w="full" h={48}>
-      <Spinner color={color} size="lg" accessibilityLabel="loading" />
+    <Center w="full" h="full" pb={48}>
+      <Image w="1/3" h="1/3" resizeMode="contain" source={readingGif} alt="bee" />
     </Center>
   );
 };

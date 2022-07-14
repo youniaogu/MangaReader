@@ -13,7 +13,7 @@ import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Loading from '~/components/Loading';
+import SpinLoading from '~/components/SpinLoading';
 
 const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
 const gap = 4;
@@ -45,7 +45,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   if (!isManga(data)) {
     return (
       <Flex w="full" h="full" alignItems="center" justifyContent="center">
-        <Loading />
+        <SpinLoading />
       </Flex>
     );
   }

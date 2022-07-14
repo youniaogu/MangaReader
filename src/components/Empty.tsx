@@ -1,7 +1,7 @@
 import React from 'react';
 import { Center, Heading, Image } from 'native-base';
 
-const beeGif = require('~/assets/bee.gif');
+const beeGif = require('~/assets/tap_tap.gif');
 
 const Empty = () => {
   return (

@@ -5,7 +5,6 @@ import { AsyncStatus, isManga } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import Rotate from '~/components/Rotate';
-import Empty from '~/components/Empty';
 import * as RootNavigation from '~/utils/navigation';
 
 const { launch, batchUpdate } = action;
@@ -14,6 +13,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
+  const loadStatus = useAppSelector((state) => state.app.launchStatus);
   const favoriteList = useMemo(
     () => list.map((item) => dict[item.mangaHash]).filter(isManga),
     [dict, list]
@@ -31,11 +31,14 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     navigate('Detail', { mangaHash });
   };
 
-  if (list.length === 0) {
-    return <Empty />;
-  }
-
-  return <Bookshelf list={favoriteList} trends={trendList} itemOnPress={handleDetail} />;
+  return (
+    <Bookshelf
+      list={favoriteList}
+      trends={trendList}
+      itemOnPress={handleDetail}
+      loading={loadStatus === AsyncStatus.Pending}
+    />
+  );
 };
 
 export const SearchAndAbout = () => {

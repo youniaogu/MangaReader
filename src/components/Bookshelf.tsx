@@ -3,6 +3,8 @@ import { StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { Box, Text, FlatList } from 'native-base';
 import { coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
+import Loading from '~/components/Loading';
+import Empty from '~/components/Empty';
 
 const gap = 2;
 const windowWidth = Dimensions.get('window').width;
@@ -11,23 +13,34 @@ const oneThirdWidth = (windowWidth - gap * 4) / 3;
 interface BookshelfProps {
   list: Manga[];
   trends?: string[];
-  loadMore?: (info: { distanceFromEnd: number }) => void;
+  loadMore?: () => void;
   itemOnPress: (hash: string) => void;
+  loading?: boolean;
 }
 
-const Bookshelf = ({ list, trends, loadMore, itemOnPress }: BookshelfProps) => {
+const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: BookshelfProps) => {
   const handlePress = (hash: string) => {
     return () => {
       itemOnPress(hash);
     };
   };
+  const handleEndReached = () => {
+    !loading && loadMore && loadMore();
+  };
+
+  if (loading && list.length === 0) {
+    return <Loading />;
+  }
+  if (!loading && list.length === 0) {
+    return <Empty />;
+  }
 
   return (
     <FlatList
       p={gap / 2}
       numColumns={3}
       data={list}
-      onEndReached={loadMore}
+      onEndReached={handleEndReached}
       onEndReachedThreshold={1}
       windowSize={3}
       initialNumToRender={12}

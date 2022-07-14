@@ -3,7 +3,7 @@ import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFirstRender, isChapter, AsyncStatus } from '~/utils';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
-import Loading from '~/components/Loading';
+import SpinLoading from '~/components/SpinLoading';
 import Reader from '~/components/Reader';
 
 const { loadChapter, viewChapter, viewPage } = action;
@@ -41,7 +41,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
     return (
       <Center w="full" h="full" bg="black">
-        <Loading color="white" />
+        <SpinLoading color="white" />
       </Center>
     );
   }

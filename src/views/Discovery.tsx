@@ -5,11 +5,9 @@ import { isManga, AsyncStatus } from '~/utils';
 import { Plugin, PluginMap } from '~/plugins';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import Bookshelf from '~/components/Bookshelf';
-import Loading from '~/components/Loading';
-import Empty from '~/components/Empty';
 import * as RootNavigation from '~/utils/navigation';
 
-const { loadDiscovery, setSource, setType, setRegion, setStatus, setSort } = action;
+const { loadDiscovery, loadSearch, setSource, setType, setRegion, setStatus, setSort } = action;
 
 const Discovery = ({ navigation: { navigate } }: StackHomeProps) => {
   const { list } = useAppSelector((state) => state.discovery);
@@ -24,8 +22,8 @@ const Discovery = ({ navigation: { navigate } }: StackHomeProps) => {
   }, [dispatch, loadStatus, source]);
 
   const handleLoadMore = useCallback(() => {
-    loadStatus !== AsyncStatus.Pending && dispatch(loadDiscovery({ source }));
-  }, [dispatch, source, loadStatus]);
+    dispatch(loadDiscovery({ source }));
+  }, [dispatch, source]);
   const handleDetail = useCallback(
     (mangaHash: string) => {
       navigate('Detail', { mangaHash });
@@ -36,11 +34,12 @@ const Discovery = ({ navigation: { navigate } }: StackHomeProps) => {
   return (
     <Fragment>
       <SearchOption />
-      {loadStatus === AsyncStatus.Pending && list.length === 0 && <Loading />}
-      {loadStatus === AsyncStatus.Fulfilled && list.length === 0 && <Empty />}
-      {list.length > 0 && (
-        <Bookshelf list={updateList} loadMore={handleLoadMore} itemOnPress={handleDetail} />
-      )}
+      <Bookshelf
+        list={updateList}
+        loadMore={handleLoadMore}
+        itemOnPress={handleDetail}
+        loading={loadStatus === AsyncStatus.Pending}
+      />
     </Fragment>
   );
 };
@@ -149,6 +148,7 @@ export const SearchInput = () => {
   }, [list, source]);
 
   const handleSearch = () => {
+    dispatch(loadSearch({ keyword, source, isReset: true }));
     RootNavigation.navigate('Search', { keyword });
   };
   const handleOpen = () => {
