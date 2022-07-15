@@ -6,9 +6,8 @@
 一个漫画 APP📱，基于 react-native 构建，兼容 Android、Ios 平台
 
 - 插件式设计
-- 支持收藏、搜索
-- 友好的图片手势控制
-- 图片本地缓存
+- 收藏、搜索、批量更新
+- 图片手势控制、本地缓存
 
 <p align="center">
   <img src="./demo.gif" alt="demo" />
@@ -33,18 +32,18 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 ## TodoList
 
 - [x] 更多的插件
-
+  
   - [x] manhuagui（无需代理，但外网 ip 会转到 manhuaguimobile）
-
+  
   - [x] manhuaguimobile（需要代理）
-
+  
   - [x] copymanga
-
+  
   - [x] manhuadb
+  
+  - [ ] jmcomic
 
-- [ ] 更完善的错误处理
-
-- [ ] 插件速率支持
+- [ ] 完善的错误处理
 
 - [ ] 后台更新提示
 
@@ -53,3 +52,7 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 - [x] 发现页支持分类搜索
 
 - [ ] 章节预加载
+
+- [ ] 夜间模式
+
+- [ ] 插件配置页
