@@ -73,12 +73,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     };
   };
 
-  const renderItem = ({ item, index }: ListRenderItemInfo<ChapterItem>) => {
+  const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.hash === data.lastWatchChapter;
-    const isLastone = index + 1 === data.chapters.length;
     return (
       <TouchableOpacity activeOpacity={0.8} onPress={handleChapter(item.hash)}>
-        <Box w={quarterWidth} p={gap / 2} safeAreaBottom={isLastone ? true : undefined}>
+        <Box w={quarterWidth} p={gap / 2}>
           <Text
             bg={isActived ? '#6200ee' : 'transparent'}
             color={isActived ? 'white' : '#717171'}
@@ -132,6 +131,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           />
         }
         renderItem={renderItem}
+        ListFooterComponent={<Box safeAreaBottom />}
         keyExtractor={(item) => item.hash}
       />
     </Box>
