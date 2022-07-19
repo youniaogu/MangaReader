@@ -646,7 +646,7 @@ SPEC CHECKSUMS:
   ReactCommon: e30ec17dfb1d4c4f3419eac254350d6abca6d5a2
   RNCAsyncStorage: d81ee5c3db1060afd49ea7045ad460eff82d2b7d
   RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
-  RNReanimated: 2cf7451318bb9cc430abeec8d67693f9cf4e039c
+  RNReanimated: 44fc7bfc7f2c63ba76e93f8ceaaecdd59dce902f
   RNScreens: 4a1af06327774490d97342c00aee0c2bafb497b7
   RNSVG: 3dd44d99d1c18e1342aee4bfa53ab3f6a8c4865f
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
