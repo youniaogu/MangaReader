@@ -1,3 +1,5 @@
+import { delay, race, Effect } from 'redux-saga/effects';
+
 /**
  * @description enum of any async status
  * @enum {number}
@@ -78,4 +80,17 @@ export function scaleToFit(
     dWidth: img.width * scale,
     dHeight: img.height * scale,
   };
+}
+
+export function* raceTimeout(fn: Effect, ms: number = 5000) {
+  const { result, timeout } = yield race({
+    result: fn,
+    timeout: delay(ms),
+  });
+
+  if (timeout) {
+    return { error: new Error('Timeouts') };
+  }
+
+  return { result };
 }

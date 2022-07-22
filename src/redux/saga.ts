@@ -10,7 +10,6 @@ import {
   takeLeading,
   delay,
   race,
-  Effect,
 } from 'redux-saga/effects';
 import { splitHash, PluginMap, defaultPlugin } from '~/plugins';
 import { storageKey, fetchData } from '~/utils';
@@ -50,19 +49,6 @@ const {
   loadChapter,
   loadChapterCompletion,
 } = action;
-
-function* raceTimeout(fn: Effect, ms: number = 5000) {
-  const { result, timeout } = yield race({
-    result: fn,
-    timeout: delay(ms),
-  });
-
-  if (timeout) {
-    return { error: new Error('Timeouts') };
-  }
-
-  return { result };
-}
 
 function* launchSaga() {
   yield takeLatest(launch.type, function* () {
@@ -171,20 +157,11 @@ function* batchUpdateSaga() {
       const dict = ((state: RootState) => state.dict)(yield select());
       yield put(loadManga({ mangaHash: hash, taskId: id }));
 
-      const { error: timeoutError, result } = yield raceTimeout(
-        take(
-          ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
-        ),
-        10000
+      const {
+        payload: { error: fetchError, data },
+      }: ActionParameters<typeof loadMangaCompletion> = yield take(
+        ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
       );
-
-      if (timeoutError) {
-        yield put(cancelLoadManga());
-        yield put(batchRecord({ isSuccess: false, isTrend: false, hash }));
-        continue;
-      }
-
-      const { error: fetchError, data } = result.payload;
 
       let isTrend = false;
       if (!fetchError) {
@@ -265,13 +242,13 @@ function* loadMangaSaga() {
     function* ({ payload: { mangaHash, taskId } }: ActionParameters<typeof loadManga>) {
       function* loadMangaEffect() {
         yield put(loadMangaInfo({ mangaHash }));
+        yield put(loadChapterList({ mangaHash, page: 1 }));
+
         const {
           payload: { error: loadMangaInfoError, data: mangaInfo },
         }: ActionParameters<typeof loadMangaInfoCompletion> = yield take(
           loadMangaInfoCompletion.type
         );
-
-        yield put(loadChapterList({ mangaHash, page: 1 }));
         const {
           payload: { error: loadChapterListError, data: chapterInfo },
         }: ActionParameters<typeof loadChapterListCompletion> = yield take(
@@ -409,17 +386,10 @@ function* loadChapterSaga() {
         return;
       }
 
-      const { error: timeoutError, result } = yield raceTimeout(
-        call(fetchData, plugin.prepareChapterFetch(mangaId, chapterId)),
-        10000
+      const { error: fetchError, data } = yield call(
+        fetchData,
+        plugin.prepareChapterFetch(mangaId, chapterId)
       );
-
-      if (timeoutError) {
-        yield put(loadChapterCompletion({ error: timeoutError }));
-        return;
-      }
-
-      const { error: fetchError, data } = result;
       const { error: pluginError, chapter } = plugin.handleChapter(data);
 
       yield put(loadChapterCompletion({ error: fetchError || pluginError, data: chapter }));

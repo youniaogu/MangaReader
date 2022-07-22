@@ -5,6 +5,7 @@ export interface FetchData {
   method?: GET | POST;
   body?: FormData | { [key: string]: any };
   headers?: Headers;
+  timeout?: number;
 }
 
 export const fetchData = ({
@@ -12,8 +13,14 @@ export const fetchData = ({
   method = 'GET',
   body = {},
   headers = new Headers(),
+  timeout = 5000,
 }: FetchData) => {
-  const init: RequestInit & { headers: Headers } = { method: method.toUpperCase(), headers };
+  const controller = new AbortController();
+  const init: RequestInit & { headers: Headers } = {
+    method: method.toUpperCase(),
+    headers,
+    signal: controller.signal,
+  };
 
   if (Object.keys(body).length > 0) {
     if (init.method === 'GET') {
@@ -46,7 +53,14 @@ export const fetchData = ({
         })
         .catch((error) => {
           res({ error, data: undefined });
+        })
+        .finally(() => {
+          clearTimeout(delay);
         });
+
+      const delay = setTimeout(() => {
+        controller.abort();
+      }, timeout);
     } catch (error) {
       res({ error, data: undefined });
     }
