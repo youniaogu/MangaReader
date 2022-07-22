@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
-import { StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
-import { Box, Text, FlatList } from 'native-base';
+import { Box, Text, FlatList, Pressable } from 'native-base';
+import { StyleSheet, Dimensions } from 'react-native';
 import { coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import SpinLoading from '~/components/SpinLoading';
@@ -51,7 +51,7 @@ const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: Boo
         loading ? <SpinLoading height={24} safeAreaBottom /> : <Box height={0} safeAreaBottom />
       }
       renderItem={({ item }) => (
-        <TouchableOpacity activeOpacity={0.8} onPress={handlePress(item.hash)}>
+        <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
           <Box width={oneThirdWidth} flexDirection="column" p={gap / 2}>
             <Box position="relative" shadow={2}>
               <CachedImage source={item.cover} style={styles.img} resizeMode="cover" />
@@ -64,7 +64,7 @@ const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: Boo
                   borderRadius={3}
                   borderBottomLeftRadius={6}
                   px={2}
-                  background="#6200ee"
+                  background="purple.500"
                 >
                   <Text fontSize="xs" fontWeight="bold" color="white">
                     New
@@ -76,7 +76,7 @@ const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: Boo
               {item.title}
             </Text>
           </Box>
-        </TouchableOpacity>
+        </Pressable>
       )}
     />
   );

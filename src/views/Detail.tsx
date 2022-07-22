@@ -1,14 +1,17 @@
 import React, { useCallback, useEffect } from 'react';
 import {
-  StyleSheet,
-  TouchableOpacity,
-  Dimensions,
-  RefreshControl,
-  Linking,
-  ListRenderItemInfo,
-} from 'react-native';
+  Box,
+  Flex,
+  Text,
+  IconButton,
+  Icon,
+  FlatList,
+  HStack,
+  Pressable,
+  useTheme,
+} from 'native-base';
+import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
 import { coverAspectRatio, useFirstRender, isManga, MangaStatus, AsyncStatus } from '~/utils';
-import { Box, Flex, Text, IconButton, Icon, FlatList, HStack } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
@@ -21,6 +24,7 @@ const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
+  const { colors } = useTheme();
   const mangaHash = route.params.mangaHash;
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
@@ -76,10 +80,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.hash === data.lastWatchChapter;
     return (
-      <TouchableOpacity activeOpacity={0.8} onPress={handleChapter(item.hash)}>
+      <Pressable _pressed={{ opacity: 0.8 }} onPress={handleChapter(item.hash)}>
         <Box w={quarterWidth} p={gap / 2}>
           <Text
-            bg={isActived ? '#6200ee' : 'transparent'}
+            bg={isActived ? 'purple.500' : 'transparent'}
             color={isActived ? 'white' : '#717171'}
             borderColor="#717171"
             overflow="hidden"
@@ -93,13 +97,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             {item.title}
           </Text>
         </Box>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
   return (
     <Box w="full" h="full">
-      <Flex w="full" bg="#6200ee" flexDirection="row" pl={4} pr={4} pb={5}>
+      <Flex w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
         <CachedImage source={data.cover} style={styles.img} resizeMode="cover" />
         <Flex flexGrow={1} flexShrink={1} pl={4}>
           <Text color="white" fontSize={20} fontWeight="bold" numberOfLines={2}>
@@ -127,7 +131,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           <RefreshControl
             refreshing={loadStatus === AsyncStatus.Pending}
             onRefresh={handleReload}
-            tintColor="#6200ee"
+            tintColor={colors.purple[500]}
           />
         }
         renderItem={renderItem}

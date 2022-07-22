@@ -2,7 +2,7 @@ import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
 import queryString from 'query-string';
 import LZString from 'lz-string';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 const options = {
   type: [
@@ -300,8 +300,9 @@ class ManHuaGui extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent = $('script:not([src])').get($('script:not([src])').length - 2)
-        .children[0].data;
+      const scriptContent = (
+        $('script:not([src])').get($('script:not([src])').length - 2).children[0] as any
+      ).data;
       const [, mangaId, title] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const latest = '更新至：' + $('div.chapter-bar a.blue').first().text();
       const updateTime = $('div.chapter-bar span.fr span.red').last().text();

@@ -18,14 +18,14 @@ const Header = (headerProps: NativeStackHeaderProps) => {
 
   const { headerLeft, headerRight } = options;
 
-  const Left = headerLeft ? headerLeft({ tintColor: '#6200ee', canGoBack }) : null;
-  const Right = headerRight ? headerRight({ tintColor: '#6200ee', canGoBack }) : null;
+  const Left = headerLeft ? headerLeft({ canGoBack }) : null;
+  const Right = headerRight ? headerRight({ canGoBack }) : null;
 
   return (
     <Fragment>
       <StatusBar animated backgroundColor="black" barStyle="light-content" />
       <HStack
-        bg="#6200ee"
+        bg="purple.500"
         p={1}
         w="full"
         justifyContent="space-between"

@@ -1,7 +1,7 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
-import cheerio from 'cheerio';
 import base64 from 'base-64';
+import * as cheerio from 'cheerio';
 
 const options = {
   type: [
@@ -287,8 +287,9 @@ class ManHuaDB extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent: string = $('script:not([src])[type=application/ld+json]').get(1)
-        .children[0].data;
+      const scriptContent: string = (
+        $('script:not([src])[type=application/ld+json]').get(1).children[0] as any
+      ).data;
       const {
         name = '',
         creator = [],
@@ -371,7 +372,7 @@ class ManHuaDB extends Base {
       const chapterId = `${data.attr('data-ccid')}_${data.attr('data-id')}`;
       const host = data.attr('data-host') || '';
       const path = data.attr('data-img_pre') || '';
-      const script = $('script:not([src]):not([type])').get(2).children[0].data;
+      const script = ($('script:not([src]):not([type])').get(2).children[0] as any).data;
       const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
       const images: { img: string; p: number }[] = JSON.parse(base64.decode(scriptContent));
 

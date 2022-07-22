@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,9 +9,10 @@ import Animated, {
 
 interface RotateProps {
   isRotate?: boolean;
+  children: ReactNode;
 }
 
-const Rotate: FC<RotateProps> = ({ isRotate = false, children }) => {
+const Rotate = ({ isRotate = false, children }: RotateProps) => {
   const offset = useSharedValue(0);
   const animatedStyles = useAnimatedStyle(() => {
     return {

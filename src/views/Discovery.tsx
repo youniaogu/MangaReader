@@ -93,7 +93,7 @@ export const SearchOption = () => {
   };
 
   return (
-    <HStack px={2} pb={2} bg="#6200ee">
+    <HStack px={2} pb={2} bg="purple.500">
       <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onTypeOpen}>
         {typeLabel}
       </Button>
@@ -167,7 +167,7 @@ export const SearchInput = () => {
         w={0}
         flex={1}
         size="xl"
-        bg="#6200ee"
+        bg="purple.500"
         color="white"
         variant="underlined"
         placeholder="请输入漫画名"

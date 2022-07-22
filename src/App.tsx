@@ -1,9 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { navigationRef, customTheme } from '~/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
-import { navigationRef } from '~/utils';
 import { StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import { store } from '~/redux';
@@ -34,7 +34,7 @@ const App = () => {
   return (
     <GestureHandlerRootView style={styles.wrapper}>
       <Provider store={store}>
-        <NativeBaseProvider>
+        <NativeBaseProvider theme={customTheme}>
           <NavigationContainer ref={navigationRef}>
             <Navigator
               initialRouteName="Home"

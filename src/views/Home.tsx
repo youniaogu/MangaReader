@@ -77,7 +77,7 @@ export const SearchAndAbout = () => {
           </Text>
         )}
         {batchStatus !== AsyncStatus.Pending && fail.length > 0 && (
-          <Text position="absolute" top={0} right={0} color="red.500" fontWeight="extrabold">
+          <Text position="absolute" top={0} right={0} color="red.400" fontWeight="extrabold">
             {fail.length}
           </Text>
         )}

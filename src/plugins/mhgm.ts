@@ -2,7 +2,7 @@ import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
 import queryString from 'query-string';
 import LZString from 'lz-string';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 const options = {
   type: [
@@ -303,7 +303,8 @@ class ManHuaGuiMobile extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent: string = $('script:not([src]):not([type])').get(1).children[0].data;
+      const scriptContent: string = ($('script:not([src]):not([type])').get(1).children[0] as any)
+        .data;
       const [, mangaId] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const statusLabel = $('div.book-detail div.thumb i').first().text(); // 连载 or 完结
 

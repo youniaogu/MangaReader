@@ -1,7 +1,13 @@
-import { AsyncStatus, MangaStatus } from '~/utils';
+import { AsyncStatus, MangaStatus, customTheme } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
+
+type CustomTheme = typeof customTheme;
+
+declare module 'native-base' {
+  interface ICustomTheme extends CustomTheme {}
+}
 
 declare global {
   type GET = 'GET' | 'get';
