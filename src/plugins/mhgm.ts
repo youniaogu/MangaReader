@@ -303,8 +303,12 @@ class ManHuaGuiMobile extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent: string = ($('script:not([src]):not([type])').get(1).children[0] as any)
-        .data;
+      const scriptContent: string = (
+        $('script:not([src]):not([type])')
+          .toArray()
+          .filter((item) => PATTERN_MANGA_INFO.test((item.children[0] as any).data))[0]
+          .children[0] as any
+      ).data;
       const [, mangaId] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const statusLabel = $('div.book-detail div.thumb i').first().text(); // 连载 or 完结
 
