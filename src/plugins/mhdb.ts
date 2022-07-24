@@ -109,7 +109,7 @@ class ManHuaDB extends Base {
     );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, region, status, _sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
     let query = '';
     if (region !== Options.Default) {
       query += '-' + region;
@@ -209,7 +209,7 @@ class ManHuaDB extends Base {
           });
         });
 
-      return { update: list };
+      return { discovery: list };
     } catch (error) {
       if (error instanceof Error) {
         return { error };

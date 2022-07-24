@@ -200,11 +200,11 @@ function* loadDiscoverySaga() {
 
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareUpdateFetch(page, type, region, status, sort)
+        plugin.prepareDiscoveryFetch(page, type, region, status, sort)
       );
-      const { error: pluginError, update } = plugin.handleDiscovery(data);
+      const { error: pluginError, discovery } = plugin.handleDiscovery(data);
 
-      yield put(loadDiscoveryCompletion({ error: fetchError || pluginError, data: update }));
+      yield put(loadDiscoveryCompletion({ error: fetchError || pluginError, data: discovery }));
     }
   );
 }
@@ -242,13 +242,13 @@ function* loadMangaSaga() {
     function* ({ payload: { mangaHash, taskId } }: ActionParameters<typeof loadManga>) {
       function* loadMangaEffect() {
         yield put(loadMangaInfo({ mangaHash }));
-        yield put(loadChapterList({ mangaHash, page: 1 }));
-
         const {
           payload: { error: loadMangaInfoError, data: mangaInfo },
         }: ActionParameters<typeof loadMangaInfoCompletion> = yield take(
           loadMangaInfoCompletion.type
         );
+
+        yield put(loadChapterList({ mangaHash, page: 1 }));
         const {
           payload: { error: loadChapterListError, data: chapterInfo },
         }: ActionParameters<typeof loadChapterListCompletion> = yield take(

@@ -90,7 +90,7 @@ class ManHuaGuiMobile extends Base {
     );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, _region, _status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
     if (this.useMock) {
       return {
         url: process.env.PROXY + '/mhgm/update',
@@ -216,7 +216,7 @@ class ManHuaGuiMobile extends Base {
           });
         });
 
-      return { update: list };
+      return { discovery: list };
     } catch (error) {
       if (error instanceof Error) {
         return { error };

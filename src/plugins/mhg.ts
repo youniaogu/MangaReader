@@ -91,7 +91,7 @@ class ManHuaGui extends Base {
     );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, region, status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
     if (this.useMock) {
       return {
         url: process.env.PROXY + '/mhg/update',
@@ -202,7 +202,7 @@ class ManHuaGui extends Base {
           });
         });
 
-      return { update: list };
+      return { discovery: list };
     } catch (error) {
       if (error instanceof Error) {
         return { error };

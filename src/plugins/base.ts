@@ -5,6 +5,7 @@ export enum Plugin {
   MHGM = 'MHGM',
   COPY = 'COPY',
   MHDB = 'MHDB',
+  DMZJ = 'DMZJ',
 }
 
 export enum Options {
@@ -115,13 +116,13 @@ abstract class Base {
   }
 
   /**
-   * @description accept page param, return body for update fetch
+   * @description accept page param, return body for discovery fetch
    * @abstract
    * @param {number} page
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareUpdateFetch(
+  abstract prepareDiscoveryFetch(
     page: number,
     type: string,
     region: string,
@@ -177,7 +178,7 @@ abstract class Base {
    */
   abstract handleDiscovery(
     response: any
-  ): { error: Error; update?: undefined } | { error?: undefined; update: Manga[] };
+  ): { error: Error; discovery?: undefined } | { error?: undefined; discovery: Manga[] };
 
   /**
    * @description crawl data from website or interface

@@ -99,7 +99,7 @@ class CopyManga extends Base {
     );
   }
 
-  prepareUpdateFetch: Base['prepareUpdateFetch'] = (page, type, region, _status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, _status, sort) => {
     return {
       url: 'https://api.copymanga.org/api/v3/comics',
       body: {
@@ -182,7 +182,7 @@ class CopyManga extends Base {
     try {
       if (res.code === 200) {
         return {
-          update: res.results.list.map((item: any) => {
+          discovery: res.results.list.map((item: any) => {
             return {
               href: `https://copymanga.com/h5/details/comic/${item.path_word}`,
               hash: Base.combineHash(this.id, item.path_word),
