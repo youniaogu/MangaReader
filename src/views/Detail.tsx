@@ -29,6 +29,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
+  const favorites = useAppSelector((state) => state.favorites);
 
   const data = mangaDict[mangaHash];
 
@@ -69,6 +70,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const handleChapter = (chapterHash: string) => {
     return () => {
+      if (favorites.find((item) => item.mangaHash === mangaHash)) {
+        dispatch(viewFavorites(mangaHash));
+      }
+
       navigation.navigate('Chapter', {
         mangaHash,
         chapterHash,
@@ -148,10 +153,6 @@ export const Heart = () => {
   const favorites = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const mangaHash = route.params.mangaHash;
-
-  useFirstRender(() => {
-    favorites.find((item) => item.mangaHash === mangaHash) && dispatch(viewFavorites(mangaHash));
-  });
 
   const handleFavorite = () => {
     dispatch(addFavorites(mangaHash));
