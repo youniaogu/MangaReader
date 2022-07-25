@@ -33,17 +33,19 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 
 - [x] 更多的插件
   
-  - [x] manhuagui（无需代理，但外网 ip 会转到 manhuaguimobile）
+  - [x] [manhuagui](https://www.mhgui.com/)（大陆版，非大陆 ip 会转到 manhuaguimobile）
   
-  - [x] manhuaguimobile（需要代理）
+  - [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
   
-  - [x] copymanga
+  - [x] [copymanga](https://www.copymanga.org/)
   
-  - [x] manhuadb
+  - [x] [manhuadb](https://www.manhuadb.com/)
   
   - [ ] jmcomic
+  
+  - [x] [dongmanzhijia](https://m.dmzj.com/)
 
-- [ ] 完善的错误处理
+- [ ] 完善错误处理
 
 - [ ] 后台更新提示
 
@@ -56,3 +58,5 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 - [ ] 夜间模式
 
 - [ ] 插件配置页
+
+- [ ] Jest脚本
