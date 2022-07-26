@@ -20,7 +20,7 @@
     "@react-navigation/native-stack": "^6.6.2",
     "@reduxjs/toolkit": "^1.8.1",
     "base-64": "^1.0.0",
-    "cheerio": "^1.0.0-rc.10",
+    "cheerio": "1.0.0-rc.10",
     "lz-string": "^1.4.4",
     "moment": "^2.29.4",
     "native-base": "^3.4.4",
