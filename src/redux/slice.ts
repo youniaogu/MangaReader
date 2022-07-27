@@ -59,7 +59,7 @@ const appSlice = createSlice({
     syncData(state) {
       state.syncStatus = AsyncStatus.Pending;
     },
-    syncDataCompletion(state, action: FetchResponseAction): any {
+    syncDataCompletion(state, action: FetchResponseAction) {
       if (action.payload.error) {
         state.syncStatus = AsyncStatus.Rejected;
         return;

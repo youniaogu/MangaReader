@@ -232,13 +232,15 @@ class ManHuaGui extends Base {
           const [updateTime] = fullUpdateTime.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          const author = $$('div.book-detail dd:nth-child(4) a')
-            .toArray()
-            .map((item) => (item as any).attribs.title)
+          const author = ($$('div.book-detail dd:nth-child(4) a').toArray() as cheerio.TagElement[])
+            .map((item) => item.attribs.title)
             .join(' ');
-          const tag = $$('div.book-detail dd:nth-child(3) span:nth-child(3) a')
-            .toArray()
-            .map((item) => (item as any).attribs.title)
+          const tag = (
+            $$(
+              'div.book-detail dd:nth-child(3) span:nth-child(3) a'
+            ).toArray() as cheerio.TagElement[]
+          )
+            .map((item) => item.attribs.title)
             .join(' ');
 
           let status = MangaStatus.Unknown;
@@ -300,19 +302,25 @@ class ManHuaGui extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent = (
-        $('script:not([src])').get($('script:not([src])').length - 2).children[0] as any
-      ).data;
+      const scriptContent =
+        ($('script:not([src])').get($('script:not([src])').length - 2) as cheerio.TagElement)
+          .children[0].data || '';
       const [, mangaId, title] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const latest = '更新至：' + $('div.chapter-bar a.blue').first().text();
       const updateTime = $('div.chapter-bar span.fr span.red').last().text();
-      const author = $('div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a')
-        .toArray()
-        .map((e: any) => e.attribs.title)
+      const author = (
+        $(
+          'div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a'
+        ).toArray() as cheerio.TagElement[]
+      )
+        .map((a) => a.attribs.title)
         .join(',');
-      const tag = $('div.book-detail ul.detail-list li:nth-child(2) span:nth-child(1) a')
-        .toArray()
-        .map((item) => (item as any).attribs.title)
+      const tag = (
+        $(
+          'div.book-detail ul.detail-list li:nth-child(2) span:nth-child(1) a'
+        ).toArray() as cheerio.TagElement[]
+      )
+        .map((a) => a.attribs.title)
         .join(',');
       const cover = 'https:' + $('p.hcover img').first().attr('src');
 
@@ -336,21 +344,20 @@ class ManHuaGui extends Base {
                 .forEach((ul) => {
                   const $$$$ = cheerio.load(ul);
 
-                  $$$$('li a')
-                    .toArray()
-                    .forEach((a) => {
-                      const href = 'https://www.mhgui.com' + (a as any).attribs.href;
-                      const chapterTitle = (a as any).children[0].children[0].data;
-                      const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+                  ($$$$('li a').toArray() as cheerio.TagElement[]).forEach((a) => {
+                    const href = 'https://www.mhgui.com' + a.attribs.href;
+                    const chapterTitle =
+                      (a.children[0] as cheerio.TagElement).children[0].data || '';
+                    const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
 
-                      chapters.push({
-                        hash: Base.combineHash(this.id, mangaId, chapterId),
-                        mangaId,
-                        chapterId,
-                        href,
-                        title: chapterTitle,
-                      });
+                    chapters.push({
+                      hash: Base.combineHash(this.id, mangaId, chapterId),
+                      mangaId,
+                      chapterId,
+                      href,
+                      title: chapterTitle,
                     });
+                  });
                 });
             });
         }
@@ -366,21 +373,19 @@ class ManHuaGui extends Base {
               .forEach((ul) => {
                 const $$$ = cheerio.load(ul);
 
-                $$$('li a')
-                  .toArray()
-                  .forEach((a) => {
-                    const href = 'https://www.mhgui.com' + (a as any).attribs.href;
-                    const chapterTitle = (a as any).children[0].children[0].data;
-                    const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+                ($$$('li a').toArray() as cheerio.TagElement[]).forEach((a) => {
+                  const href = 'https://www.mhgui.com' + a.attribs.href;
+                  const chapterTitle = (a.children[0] as cheerio.TagElement).children[0].data || '';
+                  const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
 
-                    chapters.push({
-                      hash: Base.combineHash(this.id, mangaId, chapterId),
-                      mangaId,
-                      chapterId,
-                      href,
-                      title: chapterTitle,
-                    });
+                  chapters.push({
+                    hash: Base.combineHash(this.id, mangaId, chapterId),
+                    mangaId,
+                    chapterId,
+                    href,
+                    title: chapterTitle,
                   });
+                });
               });
           });
       }
@@ -420,14 +425,14 @@ class ManHuaGui extends Base {
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const scriptAfterFilter = (
-        $('script:not([src])').toArray() as unknown as HTMLSpanElement[]
-      ).filter((item) => PATTERN_SCRIPT.test((item.children[0] as any).data));
+      const scriptAfterFilter = ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
+        (script) => PATTERN_SCRIPT.test(script.children[0].data || '')
+      );
 
       if (scriptAfterFilter.length <= 0) {
         throw new Error('without chapter info');
       }
-      const script = (scriptAfterFilter[0].children[0] as any).data;
+      const script = scriptAfterFilter[0].children[0].data || '';
       const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
 
       // eslint-disable-next-line no-eval

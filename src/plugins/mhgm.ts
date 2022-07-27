@@ -174,47 +174,45 @@ class ManHuaGuiMobile extends Base {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
 
-      $('li > a')
-        .toArray()
-        .forEach((a) => {
-          const $$ = cheerio.load(a);
-          const href = 'https://m.manhuagui.com' + (a as any).attribs.href;
-          const title = $$('h3').first().text();
-          const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
-          const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-          const [author, tag, latest, updateTime] = $$('dl')
-            .toArray()
-            .map((dl) => cheerio.load(dl).root().text());
-          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+      ($('li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
+        const $$ = cheerio.load(a);
+        const href = 'https://m.manhuagui.com' + a.attribs.href;
+        const title = $$('h3').first().text();
+        const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
+        const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
+        const [author, tag, latest, updateTime] = $$('dl')
+          .toArray()
+          .map((dl) => cheerio.load(dl).root().text());
+        const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          let status = MangaStatus.Unknown;
-          if (statusLabel === '连载') {
-            status = MangaStatus.Serial;
-          }
-          if (statusLabel === '完结') {
-            status = MangaStatus.End;
-          }
+        let status = MangaStatus.Unknown;
+        if (statusLabel === '连载') {
+          status = MangaStatus.Serial;
+        }
+        if (statusLabel === '完结') {
+          status = MangaStatus.End;
+        }
 
-          if (!mangaId || !title) {
-            return;
-          }
+        if (!mangaId || !title) {
+          return;
+        }
 
-          list.push({
-            href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            mangaId,
-            title,
-            status,
-            cover,
-            latest,
-            updateTime,
-            author,
-            tag,
-            chapters: [],
-          });
+        list.push({
+          href,
+          hash: Base.combineHash(this.id, mangaId),
+          source: this.id,
+          sourceName: this.name,
+          mangaId,
+          title,
+          status,
+          cover,
+          latest,
+          updateTime,
+          author,
+          tag,
+          chapters: [],
         });
+      });
 
       return { discovery: list };
     } catch (error) {
@@ -231,47 +229,45 @@ class ManHuaGuiMobile extends Base {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
 
-      $('li > a')
-        .toArray()
-        .forEach((a) => {
-          const $$ = cheerio.load(a);
-          const href = 'https://m.manhuagui.com' + (a as any).attribs.href;
-          const title = $$('h3').first().text();
-          const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
-          const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-          const [author, tag, latest, updateTime] = $$('dl')
-            .toArray()
-            .map((dl) => cheerio.load(dl).root().text());
-          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+      ($('li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
+        const $$ = cheerio.load(a);
+        const href = 'https://m.manhuagui.com' + a.attribs.href;
+        const title = $$('h3').first().text();
+        const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
+        const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
+        const [author, tag, latest, updateTime] = $$('dl')
+          .toArray()
+          .map((dl) => cheerio.load(dl).root().text());
+        const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          let status = MangaStatus.Unknown;
-          if (statusLabel === '连载') {
-            status = MangaStatus.Serial;
-          }
-          if (statusLabel === '完结') {
-            status = MangaStatus.End;
-          }
+        let status = MangaStatus.Unknown;
+        if (statusLabel === '连载') {
+          status = MangaStatus.Serial;
+        }
+        if (statusLabel === '完结') {
+          status = MangaStatus.End;
+        }
 
-          if (!mangaId || !title) {
-            return;
-          }
+        if (!mangaId || !title) {
+          return;
+        }
 
-          list.push({
-            href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            mangaId,
-            title,
-            status,
-            cover,
-            latest,
-            updateTime,
-            author,
-            tag,
-            chapters: [],
-          });
+        list.push({
+          href,
+          hash: Base.combineHash(this.id, mangaId),
+          source: this.id,
+          sourceName: this.name,
+          mangaId,
+          title,
+          status,
+          cover,
+          latest,
+          updateTime,
+          author,
+          tag,
+          chapters: [],
         });
+      });
 
       return { search: list };
     } catch (error) {
@@ -303,12 +299,10 @@ class ManHuaGuiMobile extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent: string = (
-        $('script:not([src]):not([type])')
-          .toArray()
-          .filter((item) => PATTERN_MANGA_INFO.test((item.children[0] as any).data))[0]
-          .children[0] as any
-      ).data;
+      const scriptContent =
+        ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter((script) =>
+          PATTERN_MANGA_INFO.test(script.children[0].data || '')
+        )[0].children[0].data || '';
       const [, mangaId] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const statusLabel = $('div.book-detail div.thumb i').first().text(); // 连载 or 完结
 
@@ -325,30 +319,10 @@ class ManHuaGuiMobile extends Base {
         if (decodeHtml) {
           const $$ = cheerio.load(decodeHtml);
 
-          $$('ul > li > a')
-            .toArray()
-            .forEach((item) => {
-              const $$$ = cheerio.load(item);
-              const title = $$$('b').first().text();
-              const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
-              const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
-
-              chapters.push({
-                hash: Base.combineHash(this.id, mangaId, chapterId),
-                mangaId,
-                chapterId,
-                href,
-                title,
-              });
-            });
-        }
-      } else {
-        $('#chapterList > ul > li > a')
-          .toArray()
-          .forEach((item) => {
-            const $$ = cheerio.load(item);
-            const title = $$('b').first().text();
-            const href = 'https://m.manhuagui.com' + (item as any).attribs.href;
+          ($$('ul > li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
+            const $$$ = cheerio.load(a);
+            const title = $$$('b').first().text();
+            const href = 'https://m.manhuagui.com' + a.attribs.href;
             const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
 
             chapters.push({
@@ -359,6 +333,22 @@ class ManHuaGuiMobile extends Base {
               title,
             });
           });
+        }
+      } else {
+        ($('#chapterList > ul > li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
+          const $$ = cheerio.load(a);
+          const title = $$('b').first().text();
+          const href = 'https://m.manhuagui.com' + a.attribs.href;
+          const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
+
+          chapters.push({
+            hash: Base.combineHash(this.id, mangaId, chapterId),
+            mangaId,
+            chapterId,
+            href,
+            title,
+          });
+        });
       }
 
       if (statusLabel === '连载') {
@@ -396,14 +386,14 @@ class ManHuaGuiMobile extends Base {
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const scriptAfterFilter = (
-        $('script:not([src])').toArray() as unknown as HTMLSpanElement[]
-      ).filter((item) => PATTERN_SCRIPT.test((item.children[0] as any).data));
+      const scriptAfterFilter = ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
+        (item) => PATTERN_SCRIPT.test(item.children[0].data || '')
+      );
 
       if (scriptAfterFilter.length <= 0) {
         throw new Error('without chapter info');
       }
-      const script = (scriptAfterFilter[0].children[0] as any).data;
+      const script = scriptAfterFilter[0].children[0].data || '';
       const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
 
       // eslint-disable-next-line no-eval

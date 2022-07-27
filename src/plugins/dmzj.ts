@@ -3,6 +3,42 @@ import { MangaStatus } from '~/utils';
 import moment from 'moment';
 import * as cheerio from 'cheerio';
 
+interface DiscoveryItem {
+  id: number;
+  name: string;
+  zone: string;
+  status: '连载中' | '已完结';
+  last_update_chapter_name: string;
+  last_update_chapter_id: number;
+  last_updatetime: number;
+  hidden: 0 | 1;
+  cover: string;
+  first_letter: string;
+  comic_py: string;
+  authors: string;
+  types: string;
+  readergroup: string;
+  copyright: 0 | 1;
+  hot_hits: number;
+  app_click_count: number;
+  num: string;
+}
+interface SearchItem {
+  id: number;
+  name: string;
+  comic_py: string;
+  alias_name: string;
+  authors: string;
+  types: string;
+  status: '连载中' | '已完结';
+  last_update_chapter_name: string;
+  last_update_chapter_id: number;
+  hot_hits: number;
+  last_updatetime: number;
+  description: string;
+  cover: string;
+}
+
 const options = {
   type: [
     { label: '选择分类', value: Options.Default },
@@ -45,7 +81,7 @@ const options = {
     { label: '已完结', value: '2' },
   ],
   sort: [
-    { label: '添加时间', value: Options.Default },
+    { label: '选择排序', value: Options.Default },
     { label: '浏览次数', value: '0' },
     { label: '更新时间', value: '1' },
   ],
@@ -122,15 +158,15 @@ class DongManZhiJia extends Base {
 
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
-      const list: any[] = JSON.parse(text || '') || [];
+      const list: DiscoveryItem[] = JSON.parse(text || '') || [];
 
       return {
         discovery: list.map((item) => ({
           href: `https://m.dmzj.com/info/${item.id}.html`,
-          hash: Base.combineHash(this.id, item.id),
+          hash: Base.combineHash(this.id, String(item.id)),
           source: this.id,
           sourceName: this.name,
-          mangaId: item.id,
+          mangaId: String(item.id),
           cover: `https://images.dmzj.com/${item.cover}`,
           title: item.name,
           latest: '更新至：' + item.last_update_chapter_name,
@@ -159,38 +195,36 @@ class DongManZhiJia extends Base {
     try {
       const $ = cheerio.load(text || '');
 
-      const scriptContent = (
-        $('script:not([src]):not([type])')
-          .toArray()
-          .filter((item) => PATTERN_SEARCH_SCRIPT.test((item.children[0] as any).data))[0]
-          .children[0] as any
-      ).data;
-      const [, stringifyData] = scriptContent.match(PATTERN_SEARCH_SCRIPT);
+      const scriptContent =
+        ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter((item) =>
+          PATTERN_SEARCH_SCRIPT.test(item.children[0].data || '')
+        )[0].children[0].data || '';
+      const [, stringifyData] = scriptContent.match(PATTERN_SEARCH_SCRIPT) || [];
 
-      const list: Manga[] = (JSON.parse(stringifyData.replace(/[\n|\s]/g, '')) || []).map(
-        (item: any) => {
-          return {
-            href: `https://m.dmzj.com/info/${item.id}.html`,
-            hash: Base.combineHash(this.id, item.id),
-            source: this.id,
-            sourceName: this.name,
-            mangaId: item.id,
-            title: item.name,
-            status:
-              item.status === '连载中'
-                ? MangaStatus.Serial
-                : item.status === '已完结'
-                ? MangaStatus.End
-                : MangaStatus.Unknown,
-            cover: `https://images.dmzj.com/${item.cover}`,
-            latest: '更新至：' + item.last_update_chapter_name,
-            updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
-            author: item.authors.replaceAll('/', ','),
-            tag: item.types.replaceAll('/', ','),
-            chapters: [],
-          };
-        }
-      );
+      const list: Manga[] = (
+        (JSON.parse(stringifyData.replace(/[\n|\s]/g, '')) || []) as SearchItem[]
+      ).map((item) => {
+        return {
+          href: `https://m.dmzj.com/info/${item.id}.html`,
+          hash: Base.combineHash(this.id, String(item.id)),
+          source: this.id,
+          sourceName: this.name,
+          mangaId: String(item.id),
+          title: item.name,
+          status:
+            item.status === '连载中'
+              ? MangaStatus.Serial
+              : item.status === '已完结'
+              ? MangaStatus.End
+              : MangaStatus.Unknown,
+          cover: `https://images.dmzj.com/${item.cover}`,
+          latest: '更新至：' + item.last_update_chapter_name,
+          updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
+          author: item.authors.replaceAll('/', ','),
+          tag: item.types.replaceAll('/', ','),
+          chapters: [],
+        };
+      });
 
       return { search: list };
     } catch (error) {
@@ -221,58 +255,68 @@ class DongManZhiJia extends Base {
         chapters: [],
       };
 
-      const chapterScriptContent = (
-        $('script:not([src])')
-          .toArray()
-          .filter((item) => {
-            if (item.children.length <= 0) {
-              return false;
-            }
+      const chapterScriptContent =
+        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter((item) => {
+          if (item.children.length <= 0) {
+            return false;
+          }
 
-            return PATTERN_INFO_SCRIPT.test((item.children[0] as any).data);
-          })[0].children[0] as any
-      ).data;
+          return PATTERN_INFO_SCRIPT.test(item.children[0].data || '');
+        })[0].children[0].data || '';
       const [, stringifyData] = chapterScriptContent.match(PATTERN_INFO_SCRIPT) || [];
-      const { title: statusLabel, data }: { title: string; data: any[] } =
-        JSON.parse(stringifyData)[0];
-      const chapters: ChapterItem[] = data.map((item: any) => ({
-        hash: Base.combineHash(this.id, item.comic_id, item.id),
-        mangaId: item.comic_id,
-        chapterId: item.id,
+      const {
+        title: statusLabel,
+        data,
+      }: {
+        title: '连载' | '完结';
+        data: {
+          id: number;
+          comic_id: number;
+          chapter_name: string;
+          chapter_order: number;
+          chaptertype: number;
+          title: string;
+          sort: number;
+        }[];
+      } = JSON.parse(stringifyData)[0];
+      const chapters: ChapterItem[] = data.map((item) => ({
+        hash: Base.combineHash(this.id, String(item.comic_id), String(item.id)),
+        mangaId: String(item.comic_id),
+        chapterId: String(item.id),
         href: `https://m.dmzj.com/view/${item.comic_id}/${item.id}.html`,
         title: item.chapter_name,
       }));
 
-      const infoScriptContent = (
-        $('script:not([src])')
-          .toArray()
-          .filter((item) => {
-            if (item.children.length <= 0) {
-              return false;
-            }
+      const infoScriptContent =
+        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter((item) => {
+          if (item.children.length <= 0) {
+            return false;
+          }
 
-            return PATTERN_MANGAID_SCRIPT.test((item.children[0] as any).data);
-          })[0].children[0] as any
-      ).data;
+          return PATTERN_MANGAID_SCRIPT.test(item.children[0].data || '');
+        })[0].children[0].data || '';
       const [, mangaId] = infoScriptContent.match(PATTERN_MANGAID_SCRIPT) || [];
 
-      const img: any = $('div.Introduct_Sub div#Cover img').get(0);
+      const img: cheerio.TagElement = $('div.Introduct_Sub div#Cover img').get(0);
       const title = img.attribs.title;
       const cover = img.attribs.src;
-      const [text1, text2, , text4] = $('div.Introduct_Sub div.sub_r p.txtItme').toArray();
+      const [text1, text2, , text4] = $(
+        'div.Introduct_Sub div.sub_r p.txtItme'
+      ).toArray() as cheerio.TagElement[];
       const author = text1.children
-        .filter((item: any) => item.type === 'tag' && item.name === 'a')
-        .map((item: any) => item.children[0].data)
+        .filter((item) => item.type === 'tag' && item.name === 'a')
+        .map((item) => (item as cheerio.TagElement).children[0].data)
         .join(',');
       const tag = text2.children
-        .filter((item: any) => item.type === 'tag' && item.name === 'a')
-        .map((item: any) => item.children[0].data)
+        .filter((item) => item.type === 'tag' && item.name === 'a')
+        .map((item) => (item as cheerio.TagElement).children[0].data)
         .join(',');
-      const updateTime = (
-        text4.children.filter(
-          (item: any) => item.type === 'tag' && item.name === 'span' && item.children.length > 0
-        )[0] as any
-      ).children[0].data;
+      const updateTime =
+        (
+          text4.children.filter(
+            (item) => item.type === 'tag' && item.name === 'span' && item.children.length > 0
+          )[0] as cheerio.TagElement
+        ).children[0].data || '';
 
       if (statusLabel === '连载') {
         manga.status = MangaStatus.Serial;
@@ -309,15 +353,11 @@ class DongManZhiJia extends Base {
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const scriptContent = (
-        $('script:not([src])')
-          .toArray()
-          .filter(
-            (item) =>
-              item.children.length > 0 &&
-              PATTERN_CHAPTER_SCRIPT.test((item.children[0] as any).data)
-          )[0].children[0] as any
-      ).data;
+      const scriptContent =
+        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
+          (item) =>
+            item.children.length > 0 && PATTERN_CHAPTER_SCRIPT.test(item.children[0].data || '')
+        )[0].children[0].data || '';
       const [, stringifyData] = scriptContent.match(PATTERN_CHAPTER_SCRIPT) || [];
 
       const data = JSON.parse(stringifyData);

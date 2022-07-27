@@ -1,6 +1,68 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
 
+interface BaseResponse<T> {
+  code: number;
+  message: string;
+  results: T;
+}
+interface DiscoveryResponse
+  extends BaseResponse<{
+    total: number;
+    list: {
+      name: string;
+      cover: string;
+      path_word: string;
+      datetime_updated: string;
+      author: { name: string; path_word: string }[];
+      theme: { name: string; path_word: string }[];
+    }[];
+  }> {}
+interface SearchResponse
+  extends BaseResponse<{
+    limit: number;
+    list: {
+      name: string;
+      cover: string;
+      path_word: string;
+      author: { name: string; path_word: string }[];
+      theme: { name: string; path_word: string }[];
+    }[];
+  }> {}
+interface MangaInfoResponse
+  extends BaseResponse<{
+    comic: {
+      name: string;
+      path_word: string;
+      status: { value: 0 | 1; display: string };
+      author: { name: string; path_word: string }[];
+      theme: { name: string; path_word: string }[];
+      datetime_updated: string;
+      cover: string;
+      last_chapter: { uuid: string; name: string };
+    };
+  }> {}
+interface ChapterListResponse
+  extends BaseResponse<{
+    total: number;
+    limit: number;
+    offset: number;
+    list: { uuid: string; name: string; comic_path_word: string }[];
+  }> {}
+interface ChapterResponse
+  extends BaseResponse<{
+    comic: {
+      name: string;
+      path_word: string;
+    };
+    chapter: {
+      name: string;
+      uuid: string;
+      contents: { url: string }[];
+      words: number[];
+    };
+  }> {}
+
 const options = {
   type: [
     { label: '选择分类', value: Options.Default },
@@ -178,11 +240,11 @@ class CopyManga extends Base {
     };
   };
 
-  handleDiscovery: Base['handleDiscovery'] = (res: { code: number; results: { list: any[] } }) => {
+  handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse) => {
     try {
       if (res.code === 200) {
         return {
-          discovery: res.results.list.map((item: any) => {
+          discovery: res.results.list.map((item) => {
             return {
               href: `https://copymanga.com/h5/details/comic/${item.path_word}`,
               hash: Base.combineHash(this.id, item.path_word),
@@ -193,8 +255,8 @@ class CopyManga extends Base {
               title: item.name,
               latest: '',
               updateTime: item.datetime_updated,
-              author: item.author.map((obj: any) => obj.name).join(','),
-              tag: item.theme.map((obj: any) => obj.name).join(','),
+              author: item.author.map((obj) => obj.name).join(','),
+              tag: item.theme.map((obj) => obj.name).join(','),
               status: MangaStatus.Unknown,
               chapters: [],
             };
@@ -212,11 +274,11 @@ class CopyManga extends Base {
     }
   };
 
-  handleSearch: Base['handleSearch'] = (res: { code: number; results: { list: any[] } }) => {
+  handleSearch: Base['handleSearch'] = (res: SearchResponse) => {
     try {
       if (res.code === 200) {
         return {
-          search: res.results.list.map((item: any) => {
+          search: res.results.list.map((item) => {
             return {
               href: `https://copymanga.com/h5/details/comic/${item.path_word}`,
               hash: Base.combineHash(this.id, item.path_word),
@@ -246,10 +308,10 @@ class CopyManga extends Base {
     }
   };
 
-  handleMangaInfo: Base['handleMangaInfo'] = (res: { [key: string]: any }) => {
+  handleMangaInfo: Base['handleMangaInfo'] = (res: MangaInfoResponse) => {
     try {
       if (res.code === 200) {
-        const { name, status, cover, path_word, author, theme, datetime_updated } =
+        const { name, status, cover, path_word, author, theme, datetime_updated, last_chapter } =
           res.results.comic;
 
         let mangaStatus = MangaStatus.Unknown;
@@ -269,10 +331,10 @@ class CopyManga extends Base {
             mangaId: path_word,
             cover,
             title: name,
-            latest: '',
+            latest: '更新至：' + last_chapter.name,
             updateTime: datetime_updated,
-            author: author.map((obj: any) => obj.name).join(','),
-            tag: theme.map((obj: any) => obj.name).join(','),
+            author: author.map((obj) => obj.name).join(','),
+            tag: theme.map((obj) => obj.name).join(','),
             status: mangaStatus,
             chapters: [],
           },
@@ -289,13 +351,13 @@ class CopyManga extends Base {
     }
   };
 
-  handleChapterList: Base['handleChapterList'] = (res: { [key: string]: any }) => {
+  handleChapterList: Base['handleChapterList'] = (res: ChapterListResponse) => {
     try {
       if (res.code === 200) {
         const { list, total, limit, offset } = res.results;
 
         return {
-          chapterList: list.reverse().map((item: any) => {
+          chapterList: list.reverse().map((item) => {
             const { name, comic_path_word, uuid } = item;
 
             return {
@@ -320,19 +382,19 @@ class CopyManga extends Base {
     }
   };
 
-  handleChapter: Base['handleChapter'] = (res: { [key: string]: any }) => {
+  handleChapter: Base['handleChapter'] = (res: ChapterResponse) => {
     try {
       if (res.code === 200) {
         const { comic, chapter } = res.results;
         const { contents, words } = chapter;
 
-        const ziped = words.map((item: any, index: number) => {
+        const ziped = words.map((item, index: number) => {
           return {
             url: contents[index].url,
             index: item,
           };
         });
-        const sorted = ziped.sort((a: any, b: any) => a.index - b.index);
+        const sorted = ziped.sort((a, b) => a.index - b.index);
 
         return {
           chapter: {
@@ -353,7 +415,7 @@ class CopyManga extends Base {
               'user-agent':
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
             },
-            images: sorted.map((item: any) => item.url),
+            images: sorted.map((item) => item.url),
           },
         };
       } else {

@@ -172,16 +172,15 @@ class ManHuaDB extends Base {
 
           const title = a.text();
           const href = `https://www.manhuadb.com${a.attr('href')}/`;
-          const author = $$('div.comic-creators a')
-            .toArray()
-            .map((e: any) => e.attribs.title)
+          const author = ($$('div.comic-creators a').toArray() as cheerio.TagElement[])
+            .map((e) => e.attribs.title)
             .join(',');
           const cover = img.attr('data-original') || img.attr('src') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
           const statusLabel = $$('div.comic-categories a span').first().text();
-          const tag = ($$('div.comic-categories a span').toArray() as unknown as HTMLSpanElement[])
+          const tag = ($$('div.comic-categories a span').toArray() as cheerio.TagElement[])
             .filter((_item, index) => index !== 0)
-            .map((span) => (span.children[0] as any).data)
+            .map((span) => span.children[0].data || '')
             .join(',');
 
           let status = MangaStatus.Unknown;
@@ -233,9 +232,8 @@ class ManHuaDB extends Base {
 
           const title = a.attr('title') || '';
           const href = `https://www.manhuadb.com${a.attr('href')}/`;
-          const author = $$('div.comic-author a')
-            .toArray()
-            .map((e: any) => e.attribs.title)
+          const author = ($$('div.comic-author a').toArray() as cheerio.TagElement[])
+            .map((item) => item.attribs.title)
             .join(',');
           const cover = img.attr('data-original') || img.attr('src') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
@@ -287,9 +285,9 @@ class ManHuaDB extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const scriptContent: string = (
-        $('script:not([src])[type=application/ld+json]').get(1).children[0] as any
-      ).data;
+      const scriptContent: string =
+        ($('script:not([src])[type=application/ld+json]').get(1) as cheerio.TagElement).children[0]
+          .data || '';
       const {
         name = '',
         creator = [],
@@ -312,11 +310,10 @@ class ManHuaDB extends Base {
         .forEach((div) => {
           const $$ = cheerio.load(div);
 
-          $$('ol.links-of-books li a')
-            .toArray()
+          ($$('ol.links-of-books li a').toArray() as cheerio.TagElement[])
             .reverse()
             .forEach((a) => {
-              const { href: pathname, title } = (a as any).attribs;
+              const { href: pathname, title } = a.attribs;
               const href = 'https://www.manhuadb.com' + pathname;
               const [, chapterId] = href.match(PATTERN_CHAPTER_ID) || [];
 
@@ -372,7 +369,8 @@ class ManHuaDB extends Base {
       const chapterId = `${data.attr('data-ccid')}_${data.attr('data-id')}`;
       const host = data.attr('data-host') || '';
       const path = data.attr('data-img_pre') || '';
-      const script = ($('script:not([src]):not([type])').get(2).children[0] as any).data;
+      const script =
+        ($('script:not([src]):not([type])').get(2) as cheerio.TagElement).children[0].data || '';
       const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
       const images: { img: string; p: number }[] = JSON.parse(base64.decode(scriptContent));
 
