@@ -92,6 +92,7 @@ const PATTERN_INFO_SCRIPT = /initIntroData\((.*)\);/;
 const PATTERN_MANGAID_SCRIPT = /var obj_id = "(\d*)";/;
 const PATTERN_CHAPTER_SCRIPT = /mReader.initData\(({.*}),/;
 const PATTERN_MANGA_TITLE = /\/(.*)\//;
+const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 
 class DongManZhiJia extends Base {
   readonly userAgent =
@@ -124,7 +125,7 @@ class DongManZhiJia extends Base {
     }
 
     return {
-      url: `https://m.dmzj.com/classify/${type}-0-${status}-${region}-${sort}-${page}.json`,
+      url: `https://m.dmzj.com/classify/${type}-0-${status}-${region}-${sort}-${page - 1}.json`,
       headers: new Headers({
         'user-agent': this.userAgent,
       }),
@@ -169,7 +170,7 @@ class DongManZhiJia extends Base {
           mangaId: String(item.id),
           cover: `https://images.dmzj.com/${item.cover}`,
           title: item.name,
-          latest: '更新至：' + item.last_update_chapter_name,
+          latest: item.last_update_chapter_name,
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
           author: item.authors,
           tag: item.types,
@@ -218,7 +219,7 @@ class DongManZhiJia extends Base {
               ? MangaStatus.End
               : MangaStatus.Unknown,
           cover: `https://images.dmzj.com/${item.cover}`,
-          latest: '更新至：' + item.last_update_chapter_name,
+          latest: item.last_update_chapter_name,
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
           author: item.authors.replaceAll('/', ','),
           tag: item.types.replaceAll('/', ','),
@@ -311,12 +312,13 @@ class DongManZhiJia extends Base {
         .filter((item) => item.type === 'tag' && item.name === 'a')
         .map((item) => (item as cheerio.TagElement).children[0].data)
         .join(',');
-      const updateTime =
+      const fullTime =
         (
           text4.children.filter(
             (item) => item.type === 'tag' && item.name === 'span' && item.children.length > 0
           )[0] as cheerio.TagElement
         ).children[0].data || '';
+      const [updateTime] = fullTime.match(PATTERN_FULL_TIME) || [];
 
       if (statusLabel === '连载') {
         manga.status = MangaStatus.Serial;
@@ -330,7 +332,7 @@ class DongManZhiJia extends Base {
       manga.hash = Base.combineHash(this.id, mangaId);
       manga.title = title;
       manga.cover = cover;
-      manga.latest = '更新至：' + chapters[0].title;
+      manga.latest = chapters[0].title;
       manga.updateTime = updateTime;
       manga.author = author;
       manga.tag = tag;

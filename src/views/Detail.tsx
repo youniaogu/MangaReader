@@ -115,14 +115,17 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             {data.title}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            {data.author}
+            作者：{data.author}
           </Text>
           <Box flexGrow={1} />
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            {data.sourceName}
+            来源：{data.sourceName}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            {data.updateTime}【{StatusToLabel(data.status)}】
+            状态：{StatusToLabel(data.status)}
+          </Text>
+          <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
+            最近更新：{data.updateTime}
           </Text>
         </Flex>
       </Flex>

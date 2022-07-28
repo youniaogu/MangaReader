@@ -72,6 +72,8 @@ const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:[0-9]*,block_cc:'' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/m\.manhuagui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
 const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\](.+)(?=$)/;
 const PATTERN_READER_DATA = /^SMH\.reader\((.+)(?=\)\.preInit\(\);)/;
+const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
+const PATTERN_AUTHOR = /作者：(.*)/;
 
 class ManHuaGuiMobile extends Base {
   readonly useMock = false;
@@ -180,9 +182,11 @@ class ManHuaGuiMobile extends Base {
         const title = $$('h3').first().text();
         const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
         const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-        const [author, tag, latest, updateTime] = $$('dl')
+        const [authorLabel = '', tag, latest, updateTimeLabel = ''] = $$('dl')
           .toArray()
           .map((dl) => cheerio.load(dl).root().text());
+        const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
+        const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
         const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
         let status = MangaStatus.Unknown;
@@ -235,9 +239,11 @@ class ManHuaGuiMobile extends Base {
         const title = $$('h3').first().text();
         const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
         const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-        const [author, tag, latest, updateTime] = $$('dl')
+        const [authorLabel = '', tag, latest, updateTimeLabel = ''] = $$('dl')
           .toArray()
           .map((dl) => cheerio.load(dl).root().text());
+        const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+        const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
         const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
         let status = MangaStatus.Unknown;
@@ -306,9 +312,11 @@ class ManHuaGuiMobile extends Base {
       const [, mangaId] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const statusLabel = $('div.book-detail div.thumb i').first().text(); // 连载 or 完结
 
-      const [latest, updateTime, author, tag] = $('div.cont-list dl')
+      const [latest, updateTimeLabel = '', authorLabel = '', tag] = $('div.cont-list dl')
         .toArray()
         .map((dl) => cheerio.load(dl).root().text());
+      const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
+      const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
 
       const isAudit = $('#erroraudit_show').length > 0;
 

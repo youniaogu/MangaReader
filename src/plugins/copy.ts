@@ -331,7 +331,7 @@ class CopyManga extends Base {
             mangaId: path_word,
             cover,
             title: name,
-            latest: '更新至：' + last_chapter.name,
+            latest: last_chapter.name,
             updateTime: datetime_updated,
             author: author.map((obj) => obj.name).join(','),
             tag: theme.map((obj) => obj.name).join(','),

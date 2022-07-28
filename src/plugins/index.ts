@@ -8,11 +8,11 @@ import DMZJ from './dmzj';
 export * from './base';
 
 export const PluginMap = new Map([
-  [Plugin.MHG, MHG],
-  [Plugin.MHGM, MHGM],
+  [Plugin.DMZJ, DMZJ],
   [Plugin.COPY, COPY],
   [Plugin.MHDB, MHDB],
-  [Plugin.DMZJ, DMZJ],
+  [Plugin.MHG, MHG],
+  [Plugin.MHGM, MHGM],
 ]);
 export const combineHash = Base.combineHash;
 export const splitHash = Base.splitHash;

@@ -170,7 +170,8 @@ class ManHuaGui extends Base {
           const title = a.attr('title');
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
           const latest = $$('span.tt').first().text();
-          const updateTime = $$('span.dt').first().text();
+          const updateTimeLabel = $$('span.dt').first().text() || '';
+          const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           let status = MangaStatus.Unknown;
@@ -227,21 +228,21 @@ class ManHuaGui extends Base {
           const href = `https://www.mhgui.com${a.attr('href')}`;
           const title = a.attr('title');
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
-          const fullUpdateTime = $$('div.book-detail dd.status span.red').last().text();
-          const latest = '更新至：' + $$('div.book-detail dd.status a.blue').first().text();
+          const fullUpdateTime = $$('div.book-detail dd.status span.red').last().text() || '';
+          const latest = $$('div.book-detail dd.status a.blue').first().text();
           const [updateTime] = fullUpdateTime.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = ($$('div.book-detail dd:nth-child(4) a').toArray() as cheerio.TagElement[])
             .map((item) => item.attribs.title)
-            .join(' ');
+            .join(',');
           const tag = (
             $$(
               'div.book-detail dd:nth-child(3) span:nth-child(3) a'
             ).toArray() as cheerio.TagElement[]
           )
             .map((item) => item.attribs.title)
-            .join(' ');
+            .join(',');
 
           let status = MangaStatus.Unknown;
           if ($$('div.book-cover span.sl').toArray().length > 0) {
@@ -306,8 +307,9 @@ class ManHuaGui extends Base {
         ($('script:not([src])').get($('script:not([src])').length - 2) as cheerio.TagElement)
           .children[0].data || '';
       const [, mangaId, title] = scriptContent.match(PATTERN_MANGA_INFO) || [];
-      const latest = '更新至：' + $('div.chapter-bar a.blue').first().text();
-      const updateTime = $('div.chapter-bar span.fr span.red').last().text();
+      const latest = $('div.chapter-bar a.blue').first().text();
+      const updateTimeLabel = $('div.chapter-bar span.fr span.red').last().text() || '';
+      const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
       const author = (
         $(
           'div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a'
