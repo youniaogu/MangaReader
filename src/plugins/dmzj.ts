@@ -364,7 +364,7 @@ class DongManZhiJia extends Base {
 
       const data = JSON.parse(stringifyData);
       const { id, comic_id, folder, chapter_name, page_url } = data;
-      const [, name] = folder.match(PATTERN_MANGA_TITLE) || [];
+      const [, name] = (folder || '').match(PATTERN_MANGA_TITLE) || [];
 
       return {
         chapter: {
