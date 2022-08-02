@@ -22,6 +22,8 @@ export const defaultPluginList = Array.from(PluginMap.values()).map((item) => {
     label: item.shortName,
     name: item.name,
     value: item.id,
-    disabled: false,
+    score: item.score,
+    description: item.description,
+    disabled: item.disabled,
   };
 });

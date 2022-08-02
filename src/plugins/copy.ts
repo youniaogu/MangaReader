@@ -149,11 +149,19 @@ class CopyManga extends Base {
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
-  constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
+  constructor(
+    pluginID: Plugin,
+    pluginName: string,
+    pluginScore: number,
+    pluginShortName: string,
+    pluginDescription: string
+  ) {
     super(
       pluginID,
       pluginName,
+      pluginScore,
       pluginShortName,
+      pluginDescription,
       options.type,
       options.region,
       options.status,
@@ -428,4 +436,10 @@ class CopyManga extends Base {
   };
 }
 
-export default new CopyManga(Plugin.COPY, 'copymanga', 'COPY');
+export default new CopyManga(
+  Plugin.COPY,
+  'copymanga',
+  5,
+  'COPY',
+  '拷贝漫画，资源全，甚至有本子分类'
+);

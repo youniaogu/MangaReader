@@ -86,6 +86,13 @@ const pluginSlice = createSlice({
     setSource(state, action: PayloadAction<Plugin>) {
       state.source = action.payload;
     },
+    disablePlugin(state, action: PayloadAction<Plugin>) {
+      const index = state.list.findIndex((item) => item.value === action.payload);
+
+      if (index !== -1) {
+        state.list[index].disabled = !state.list[index].disabled;
+      }
+    },
     syncPlugin(_state, action: PayloadAction<RootState['plugin']>) {
       return action.payload;
     },

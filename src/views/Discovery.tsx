@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { Input, Button, HStack, useDisclose } from 'native-base';
 import { isManga, AsyncStatus } from '~/utils';
 import { Plugin, PluginMap } from '~/plugins';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import * as RootNavigation from '~/utils/navigation';
 
@@ -141,7 +142,9 @@ export const SearchInput = () => {
   const { isOpen, onOpen, onClose } = useDisclose();
   const dispatch = useAppDispatch();
   const options = useMemo<{ label: string; value: string }[]>(() => {
-    return list.map((item) => ({ label: item.label, value: item.value }));
+    return list
+      .filter((item) => !item.disabled)
+      .map((item) => ({ label: item.label, value: item.value }));
   }, [list]);
   const pluginLabel = useMemo(() => {
     return list.find((item) => item.value === source)?.label || source;
@@ -159,6 +162,10 @@ export const SearchInput = () => {
   };
   const handleChange = (newSource: string) => {
     dispatch(setSource(newSource as Plugin));
+  };
+  const handleSetting = () => {
+    handleClose();
+    RootNavigation.navigate('Plugin');
   };
 
   return (
@@ -184,10 +191,20 @@ export const SearchInput = () => {
       </Button>
       <ActionsheetSelect
         isOpen={isOpen}
-        onClose={handleClose}
-        title="选择插件"
         options={options}
+        onClose={handleClose}
         onChange={handleChange}
+        headerComponent={
+          <HStack w="full" pl={4} alignItems="center" justifyContent="space-between">
+            <Text color="gray.500" fontSize={16}>
+              选择插件
+            </Text>
+            <IconButton
+              icon={<Icon as={MaterialIcons} name="settings" size="lg" color="gray.500" />}
+              onPress={handleSetting}
+            />
+          </HStack>
+        }
       />
     </HStack>
   );

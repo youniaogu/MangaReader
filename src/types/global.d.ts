@@ -82,7 +82,14 @@ declare global {
     };
     plugin: {
       source: Plugin;
-      list: { name: string; label: string; value: Plugin; disabled: boolean }[];
+      list: {
+        name: string;
+        label: string;
+        value: Plugin;
+        score: number;
+        description: string;
+        disabled: boolean;
+      }[];
     };
     batch: {
       loadStatus: AsyncStatus;

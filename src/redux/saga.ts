@@ -32,6 +32,8 @@ const {
   endBatchUpdate,
   batchRecord,
   cancelLoadManga,
+  setSource,
+  disablePlugin,
   viewChapter,
   viewPage,
   addFavorites,
@@ -87,6 +89,8 @@ function* syncDataSaga() {
             name: item.name,
             label: item.shortName,
             value: item.id,
+            score: item.score,
+            description: item.description,
             disabled: finded ? finded.disabled : true,
           });
         });
@@ -102,6 +106,8 @@ function* syncDataSaga() {
 function* storageDataSaga() {
   yield takeLatest(
     [
+      setSource.type,
+      disablePlugin.type,
       viewChapter.type,
       viewPage.type,
       addFavorites.type,

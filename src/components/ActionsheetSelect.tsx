@@ -1,20 +1,20 @@
-import React, { Fragment, FC, memo } from 'react';
-import { Box, Actionsheet, ScrollView } from 'native-base';
+import React, { Fragment, FC, memo, ReactNode } from 'react';
+import { Actionsheet, ScrollView } from 'native-base';
 
 interface ActionsheetSelectProps {
-  title?: string;
   isOpen?: boolean;
   options: { label: string; value: string }[];
   onClose?: () => void;
   onChange?: (value: string) => void;
+  headerComponent?: ReactNode;
 }
 
 const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
-  title,
   options,
   isOpen,
   onClose,
   onChange,
+  headerComponent,
 }) => {
   const handleClose = () => {
     onClose && onClose();
@@ -30,18 +30,8 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
     <Fragment>
       <Actionsheet isOpen={isOpen} onClose={handleClose}>
         <Actionsheet.Content>
-          {title && (
-            <Box
-              w="100%"
-              h={60}
-              px={4}
-              _text={{ color: 'gray.500', fontSize: 16 }}
-              justifyContent="center"
-            >
-              {title}
-            </Box>
-          )}
-          <ScrollView w="100%">
+          {headerComponent}
+          <ScrollView w="full">
             {options.map((item) => (
               <Actionsheet.Item key={item.value} onPress={handleChange(item.value)}>
                 {item.label}

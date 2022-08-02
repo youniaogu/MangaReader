@@ -26,11 +26,23 @@ abstract class Base {
    */
   readonly name: string;
   /**
+   * @description score rate of plugin
+   * @type {number}
+   * @memberof Base
+   */
+  readonly score: number;
+  /**
    * @description short name of plugin, like icon
    * @type {string}
    * @memberof Base
    */
   readonly shortName: string;
+  /**
+   * @description description of the plugin
+   * @type {string}
+   * @memberof Base
+   */
+  readonly description: string;
 
   /**
    * @description enum for type select
@@ -56,6 +68,7 @@ abstract class Base {
    * @memberof Base
    */
   readonly sortOptions: { label: string; value: string }[];
+  readonly disabled: boolean;
 
   /**
    * @description Creates an instance of Base.
@@ -71,19 +84,25 @@ abstract class Base {
   constructor(
     id: Plugin,
     name: string,
+    score: number,
     shortName: string,
+    description: string,
     typeOptions: { label: string; value: string }[] = [],
     regionOptions: { label: string; value: string }[] = [],
     statusOptions: { label: string; value: string }[] = [],
-    sortOptions: { label: string; value: string }[] = []
+    sortOptions: { label: string; value: string }[] = [],
+    disabled = false
   ) {
     this.id = id;
     this.name = name;
+    this.score = score;
     this.shortName = shortName;
+    this.description = description;
     this.typeOptions = typeOptions;
     this.regionOptions = regionOptions;
     this.statusOptions = statusOptions;
     this.sortOptions = sortOptions;
+    this.disabled = disabled;
   }
 
   /**

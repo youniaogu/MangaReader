@@ -98,11 +98,19 @@ class DongManZhiJia extends Base {
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
-  constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
+  constructor(
+    pluginID: Plugin,
+    pluginName: string,
+    pluginScore: number,
+    pluginShortName: string,
+    pluginDescription: string
+  ) {
     super(
       pluginID,
       pluginName,
+      pluginScore,
       pluginShortName,
+      pluginDescription,
       options.type,
       options.region,
       options.status,
@@ -396,4 +404,10 @@ class DongManZhiJia extends Base {
   };
 }
 
-export default new DongManZhiJia(Plugin.DMZJ, 'dongmanzhijia', 'DMZJ');
+export default new DongManZhiJia(
+  Plugin.DMZJ,
+  'dongmanzhijia',
+  4,
+  'DMZJ',
+  '动漫之家，资源不如以前，访问速度快'
+);

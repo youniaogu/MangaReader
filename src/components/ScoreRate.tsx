@@ -12,13 +12,13 @@ const ScoreRate = ({ score = 0, max = 5 }: ScoreRateProps) => {
   return (
     <HStack>
       {rateList.map((actived, index) => (
-        <Center w={4} h={3} overflow="hidden">
+        <Center w={3} h={3} overflow="hidden" key={index}>
           <Box
             w={2}
-            h={5}
-            style={{ transform: [{ rotate: '30deg' }] }}
+            h={6}
+            style={{ transform: [{ rotate: '20deg' }] }}
             key={index}
-            bgColor={actived ? 'purple.300' : 'gray.300'}
+            bgColor={actived ? `purple.${score}00` : 'gray.200'}
           />
         </Center>
       ))}

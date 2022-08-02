@@ -97,11 +97,19 @@ class ManHuaDB extends Base {
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
 
-  constructor(pluginID: Plugin, pluginName: string, pluginShortName: string) {
+  constructor(
+    pluginID: Plugin,
+    pluginName: string,
+    pluginScore: number,
+    pluginShortName: string,
+    pluginDescription: string
+  ) {
     super(
       pluginID,
       pluginName,
+      pluginScore,
       pluginShortName,
+      pluginDescription,
       options.type,
       options.region,
       options.status,
@@ -403,4 +411,10 @@ class ManHuaDB extends Base {
   };
 }
 
-export default new ManHuaDB(Plugin.MHDB, 'manhuadb', 'MHDB');
+export default new ManHuaDB(
+  Plugin.MHDB,
+  'manhuadb',
+  3,
+  'MHDB',
+  '漫画DB，资源较少，实在找不到可以来这里看下'
+);
