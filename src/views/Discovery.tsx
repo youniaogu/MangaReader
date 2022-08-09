@@ -95,18 +95,34 @@ export const SearchOption = () => {
 
   return (
     <HStack px={2} pb={2} bg="purple.500">
-      <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onTypeOpen}>
-        {typeLabel}
-      </Button>
-      <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onRegionOpen}>
-        {regionLabel}
-      </Button>
-      <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onStatusOpen}>
-        {statusLabel}
-      </Button>
-      <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onSortOpen}>
-        {sortLabel}
-      </Button>
+      {typeOptions.length > 1 && (
+        <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onTypeOpen}>
+          {typeLabel}
+        </Button>
+      )}
+      {regionOptions.length > 1 && (
+        <Button
+          variant="ghost"
+          _text={{ color: 'white', fontWeight: 'bold' }}
+          onPress={onRegionOpen}
+        >
+          {regionLabel}
+        </Button>
+      )}
+      {statusOptions.length > 1 && (
+        <Button
+          variant="ghost"
+          _text={{ color: 'white', fontWeight: 'bold' }}
+          onPress={onStatusOpen}
+        >
+          {statusLabel}
+        </Button>
+      )}
+      {sortOptions.length > 1 && (
+        <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onSortOpen}>
+          {sortLabel}
+        </Button>
+      )}
 
       <ActionsheetSelect
         isOpen={isTypeOpen}
