@@ -6,6 +6,7 @@ export enum Plugin {
   COPY = 'COPY',
   MHDB = 'MHDB',
   DMZJ = 'DMZJ',
+  JMC = 'JMC',
 }
 
 export enum Options {

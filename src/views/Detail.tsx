@@ -115,7 +115,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             {data.title}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            作者：{data.author}
+            作者：{data.author || '未知'}
           </Text>
           <Box flexGrow={1} />
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
@@ -125,7 +125,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             状态：{StatusToLabel(data.status)}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            最近更新：{data.updateTime}
+            最近更新：{data.updateTime || '未知'}
           </Text>
         </Flex>
       </Flex>

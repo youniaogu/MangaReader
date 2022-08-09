@@ -4,6 +4,7 @@ import MHG from './mhg';
 import COPY from './copy';
 import MHDB from './mhdb';
 import DMZJ from './dmzj';
+import JMC from './jmc';
 
 export * from './base';
 
@@ -13,6 +14,7 @@ export const PluginMap = new Map([
   [Plugin.MHDB, MHDB],
   [Plugin.MHG, MHG],
   [Plugin.MHGM, MHGM],
+  [Plugin.JMC, JMC],
 ]);
 export const combineHash = Base.combineHash;
 export const splitHash = Base.splitHash;
