@@ -11,6 +11,16 @@ export const useFirstRender = (fn: () => void) => {
   }, [fn]);
 };
 
+export const useOnce = (fn: () => boolean) => {
+  const firstRender = useRef(false);
+
+  useEffect(() => {
+    if (!firstRender.current) {
+      firstRender.current = fn();
+    }
+  }, [fn]);
+};
+
 const calculateCache = (index: number, cacheSize: number) => {
   const min = Math.max(index - cacheSize, 0);
   const max = index + cacheSize;

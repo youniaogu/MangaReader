@@ -1,5 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus } from '~/utils';
+import md5 from 'blueimp-md5';
 import * as cheerio from 'cheerio';
 
 const options = {
@@ -52,6 +53,18 @@ class CopyManga extends Base {
       options.status,
       options.sort
     );
+  }
+
+  /**
+   * @description verify hash belong to the plugin
+   * @abstract
+   * @param {string} hash
+   * @return {*}  {boolean}
+   * @memberof Base
+   */
+  is(hash: string): boolean {
+    const [plugin] = Base.splitHash(hash);
+    return plugin === Plugin.JMC;
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
@@ -371,6 +384,87 @@ class CopyManga extends Base {
       }
     }
   };
+}
+
+function getChapterId(uri: string) {
+  const [, id] = uri.match(/\/([0-9]+)\//) || [];
+  return Number(id);
+}
+function getPicIndex(uri: string) {
+  const [, index] = uri.match(/\/([0-9]+)\./) || [];
+  return index;
+}
+function getSplitNum(id: number, index: string) {
+  var a = 10;
+  if (id >= 268850) {
+    const str = md5(id + index);
+    const nub = str.substring(str.length - 1).charCodeAt(0) % 10;
+
+    switch (nub) {
+      case 0:
+        a = 2;
+        break;
+      case 1:
+        a = 4;
+        break;
+      case 2:
+        a = 6;
+        break;
+      case 3:
+        a = 8;
+        break;
+      case 4:
+        a = 10;
+        break;
+      case 5:
+        a = 12;
+        break;
+      case 6:
+        a = 14;
+        break;
+      case 7:
+        a = 16;
+        break;
+      case 8:
+        a = 18;
+        break;
+      case 9:
+        a = 20;
+    }
+  }
+  return a;
+}
+export function unscramble(uri: string, width: number, height: number) {
+  const step = [];
+  const id = getChapterId(uri);
+  const index = getPicIndex(uri);
+  const numSplit = getSplitNum(id, index);
+  const perheight = height % numSplit;
+
+  for (let i = 0; i < numSplit; i++) {
+    let sy = Math.floor(height / numSplit);
+    let sHeight = sy * i;
+    const dy = height - sy * (i + 1) - perheight;
+
+    if (i === 0) {
+      sy += perheight;
+    } else {
+      sHeight += perheight;
+    }
+
+    step.push({
+      dx: 0,
+      dy,
+      sx: width,
+      sy,
+      sWidth: 0,
+      sHeight,
+      dWidth: width,
+      dHeight: sy,
+    });
+  }
+
+  return step;
 }
 
 export default new CopyManga(Plugin.JMC, 'jmcomic', 5, 'JMC', '禁漫天堂，主打韩漫、本子类');

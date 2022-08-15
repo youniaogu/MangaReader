@@ -1,9 +1,8 @@
-import React, { useState, memo } from 'react';
+import React, { ReactNode, useState, memo } from 'react';
 import { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { Dimensions } from 'react-native';
 import { Box } from 'native-base';
-import ImageWithRetry from '~/components/ImageWithRetry';
 import Animated from 'react-native-reanimated';
 
 const doubleTapScaleValue = 2;
@@ -11,14 +10,11 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 
 interface ControllerProps {
-  uri: string;
-  headers: {
-    [index: string]: string;
-  };
   onTap?: () => void;
+  children: ReactNode;
 }
 
-const Controller = ({ uri, headers, onTap }: ControllerProps) => {
+const Controller = ({ onTap, children }: ControllerProps) => {
   const [enabled, setEnabled] = useState(false);
   const width = useSharedValue(windowWidth);
   const height = useSharedValue(windowHeight);
@@ -162,9 +158,7 @@ const Controller = ({ uri, headers, onTap }: ControllerProps) => {
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
           <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
-            <Animated.View style={animatedStyle}>
-              <ImageWithRetry uri={uri} headers={headers} />
-            </Animated.View>
+            <Animated.View style={animatedStyle}>{children}</Animated.View>
           </Box>
         </GestureDetector>
       </GestureDetector>

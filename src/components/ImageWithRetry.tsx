@@ -6,12 +6,12 @@ import { nanoid } from '@reduxjs/toolkit';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 
-interface StatusImageProps {
+interface ImageWithRetryProps {
   uri: string;
   headers?: { [name: string]: string };
 }
 
-const ImageWithRetry = ({ uri, headers }: StatusImageProps) => {
+const ImageWithRetry = ({ uri, headers }: ImageWithRetryProps) => {
   const [retryHash, setRetryHash] = useState(nanoid());
   const [loadStatus, setLoadStatus] = useState(AsyncStatus.Pending);
 

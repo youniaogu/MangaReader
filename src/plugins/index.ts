@@ -16,6 +16,7 @@ export const PluginMap = new Map([
   [Plugin.MHGM, MHGM],
   [Plugin.JMC, JMC],
 ]);
+export const isJMC = JMC.is;
 export const combineHash = Base.combineHash;
 export const splitHash = Base.splitHash;
 export const defaultPlugin: Plugin = PluginMap.entries().next().value[0];

@@ -63,6 +63,7 @@ export function scaleToFill(
     dy,
     dWidth: img.width * scale,
     dHeight: img.height * scale,
+    scale,
   };
 }
 
@@ -79,6 +80,7 @@ export function scaleToFit(
     dy,
     dWidth: img.width * scale,
     dHeight: img.height * scale,
+    scale,
   };
 }
 

@@ -8,6 +8,8 @@ import {
 } from 'react-native';
 import { Box, Text, Flex, Icon, IconButton, FlatList, StatusBar, useToast } from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ImageWithRetry from '~/components/ImageWithRetry';
+import JMComicImage from '~/components/JMComicImage';
 import Controller from '~/components/Controller';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 
@@ -23,6 +25,7 @@ interface ReaderProps {
   };
   onPageChange?: (page: number) => void;
   goBack: () => void;
+  ImageComponent: typeof JMComicImage | typeof ImageWithRetry;
 }
 
 const Reader = ({
@@ -32,6 +35,7 @@ const Reader = ({
   headers = {},
   goBack,
   onPageChange,
+  ImageComponent,
 }: ReaderProps) => {
   const toast = useToast();
   const [page, setPage] = useState(initPage);
@@ -77,9 +81,13 @@ const Reader = ({
   }, []);
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<typeof data[0]>) => {
-      return <Controller uri={item} headers={headers} onTap={toggleExtra} />;
+      return (
+        <Controller onTap={toggleExtra}>
+          <ImageComponent uri={item} headers={headers} />
+        </Controller>
+      );
     },
-    [toggleExtra, headers]
+    [toggleExtra, headers, ImageComponent]
   );
 
   return (
