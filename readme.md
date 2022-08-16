@@ -32,18 +32,20 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 ## TodoList
 
 - [x] 更多的插件
-  
+
   - [x] [manhuagui](https://www.mhgui.com/)（大陆版，非大陆 ip 会转到 manhuaguimobile）
-  
+
   - [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
-  
+
   - [x] [copymanga](https://www.copymanga.org/)
-  
+
   - [x] [manhuadb](https://www.manhuadb.com/)
-  
-  - [ ] jmcomic
-  
+
+  - [x] [jmcomic](https://jmcomic.asia)
+
   - [x] [dongmanzhijia](https://m.dmzj.com/)
+
+  - [ ] [manhuamao](https://www.maofly.com/)
 
 - [ ] 完善错误处理
 
@@ -57,6 +59,6 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 
 - [ ] 夜间模式
 
-- [ ] 插件配置页
+- [x] 插件配置页
 
-- [ ] Jest脚本
+- [ ] Jest 脚本
