@@ -78,6 +78,7 @@ class ManHuaGui extends Base {
   readonly useMock = false;
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+  readonly defaultHeaders = { 'user-agent': this.userAgent };
 
   constructor(
     pluginID: Plugin,
@@ -100,6 +101,11 @@ class ManHuaGui extends Base {
     );
   }
 
+  is(hash: string) {
+    const [plugin] = Base.splitHash(hash);
+    return plugin === Plugin.MHG;
+  }
+
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
     if (this.useMock) {
       return {
@@ -112,9 +118,7 @@ class ManHuaGui extends Base {
       url: `https://www.mhgui.com/list${query ? '/' + query : ''}/${
         sort === Options.Default ? 'index' : sort
       }_p${page}.html`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
@@ -128,9 +132,7 @@ class ManHuaGui extends Base {
     return {
       url: `https://www.mhgui.com/s/${keyword}_p${page}.html`,
       method: 'POST',
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
@@ -142,9 +144,7 @@ class ManHuaGui extends Base {
 
     return {
       url: `https://www.mhgui.com/comic/${mangaId}/`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
@@ -157,9 +157,7 @@ class ManHuaGui extends Base {
 
     return {
       url: `https://www.mhgui.com/comic/${mangaId}/${chapterId}.html`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
 
@@ -461,6 +459,7 @@ class ManHuaGui extends Base {
           name: bname,
           title: cname,
           headers: {
+            ...this.defaultHeaders,
             host: 'i.hamreus.com',
             referer: 'https://www.mhgui.com/',
             accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
@@ -468,7 +467,6 @@ class ManHuaGui extends Base {
             'cache-control': 'no-cache',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'user-agent': this.userAgent,
           },
           images: files.map((item: string) =>
             encodeURI(

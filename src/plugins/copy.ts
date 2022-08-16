@@ -145,9 +145,18 @@ const options = {
 };
 
 class CopyManga extends Base {
-  readonly useMock = false;
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+  readonly defaultHeaders = {
+    pragma: 'no-cache',
+    accept: 'application/json',
+    referer: 'https://copymanga.site/',
+    'user-agent': this.userAgent,
+    'cache-control': 'no-cache',
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+    'content-encoding': 'gzip, compress, br',
+  };
 
   constructor(
     pluginID: Plugin,
@@ -169,9 +178,14 @@ class CopyManga extends Base {
     );
   }
 
+  is(hash: string) {
+    const [plugin] = Base.splitHash(hash);
+    return plugin === Plugin.COPY;
+  }
+
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, _status, sort) => {
     return {
-      url: 'https://api.copymanga.org/api/v3/comics',
+      url: 'https://api.copymanga.net/api/v3/comics',
       body: {
         free_type: 1,
         limit: 21,
@@ -181,15 +195,12 @@ class CopyManga extends Base {
         top: region === Options.Default ? undefined : region,
         _update: 'true',
       },
-      headers: new Headers({
-        referer: 'https://copymanga.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
     return {
-      url: 'https://api.copymanga.info/api/v3/search/comic',
+      url: 'https://api.copymanga.net/api/v3/search/comic',
       body: {
         platform: 1,
         q: keyword,
@@ -198,35 +209,26 @@ class CopyManga extends Base {
         q_type: '',
         _update: 'true',
       },
-      headers: new Headers({
-        referer: 'https://copymanga.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://api.copymanga.org/api/v3/comic2/${mangaId}`,
+      url: `https://api.copymanga.net/api/v3/comic2/${mangaId}`,
       body: {
         platform: 1,
       },
-      headers: new Headers({
-        referer: 'https://copymanga.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId, page) => {
     return {
-      url: `https://api.copymanga.info/api/v3/comic/${mangaId}/group/default/chapters`,
+      url: `https://api.copymanga.net/api/v3/comic/${mangaId}/group/default/chapters`,
       body: {
-        limit: 500,
-        offset: (page - 1) * 500,
+        limit: 100,
+        offset: (page - 1) * 100,
       },
-      headers: new Headers({
-        referer: 'https://copymanga.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
@@ -236,10 +238,7 @@ class CopyManga extends Base {
         platform: 1,
         _update: 'true',
       },
-      headers: new Headers({
-        referer: 'https://copymanga.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
 
@@ -249,7 +248,7 @@ class CopyManga extends Base {
         return {
           discovery: res.results.list.map((item) => {
             return {
-              href: `https://copymanga.com/h5/details/comic/${item.path_word}`,
+              href: `https://copymanga.site/h5/details/comic/${item.path_word}`,
               hash: Base.combineHash(this.id, item.path_word),
               source: this.id,
               sourceName: this.name,
@@ -283,7 +282,7 @@ class CopyManga extends Base {
         return {
           search: res.results.list.map((item) => {
             return {
-              href: `https://copymanga.com/h5/details/comic/${item.path_word}`,
+              href: `https://copymanga.site/h5/details/comic/${item.path_word}`,
               hash: Base.combineHash(this.id, item.path_word),
               source: this.id,
               sourceName: this.name,
@@ -327,7 +326,7 @@ class CopyManga extends Base {
 
         return {
           manga: {
-            href: `https://copymanga.com/h5/details/comic/${path_word}`,
+            href: `https://copymanga.site/h5/details/comic/${path_word}`,
             hash: Base.combineHash(this.id, path_word),
             source: this.id,
             sourceName: this.name,
@@ -367,7 +366,7 @@ class CopyManga extends Base {
               hash: Base.combineHash(this.id, comic_path_word, uuid),
               mangaId: comic_path_word,
               chapterId: uuid,
-              href: `https://copymanga.com/h5/comicContent/${comic_path_word}/${uuid}`,
+              href: `https://copymanga.site/h5/comicContent/${comic_path_word}/${uuid}`,
               title: name,
             };
           }),
@@ -407,13 +406,8 @@ class CopyManga extends Base {
             name: comic.name,
             title: chapter.name,
             headers: {
-              referer: 'https://copymanga.com/',
+              ...this.defaultHeaders,
               accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-              pragma: 'no-cache',
-              'cache-control': 'no-cache',
-              'accept-encoding': 'gzip, deflate, br',
-              'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-              'user-agent': this.userAgent,
             },
             images: sorted.map((item) => item.url),
           },

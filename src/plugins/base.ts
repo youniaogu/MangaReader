@@ -136,6 +136,15 @@ abstract class Base {
   }
 
   /**
+   * @description verify hash belong to the plugin
+   * @abstract
+   * @param {string} hash
+   * @return {*}  {boolean}
+   * @memberof Base
+   */
+  abstract is(hash: string): boolean;
+
+  /**
    * @description accept page param, return body for discovery fetch
    * @abstract
    * @param {number} page

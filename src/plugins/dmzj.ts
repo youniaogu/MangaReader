@@ -97,6 +97,7 @@ const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 class DongManZhiJia extends Base {
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+  readonly defaultHeaders = { 'user-agent': this.userAgent };
 
   constructor(
     pluginID: Plugin,
@@ -118,6 +119,11 @@ class DongManZhiJia extends Base {
     );
   }
 
+  is(hash: string) {
+    const [plugin] = Base.splitHash(hash);
+    return plugin === Plugin.JMC;
+  }
+
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
     if (type === Options.Default) {
       type = '0';
@@ -134,34 +140,26 @@ class DongManZhiJia extends Base {
 
     return {
       url: `https://m.dmzj.com/classify/${type}-0-${status}-${region}-${sort}-${page - 1}.json`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, _page) => {
     return {
       url: `https://m.dmzj.com/search/${keyword}.html`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
       url: `https://m.dmzj.com/info/${mangaId}.html`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
       url: `https://m.dmzj.com/view/${mangaId}/${chapterId}.html`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
 
@@ -382,6 +380,7 @@ class DongManZhiJia extends Base {
           name,
           title: chapter_name,
           headers: {
+            ...this.defaultHeaders,
             host: 'images.dmzj.com',
             referer: 'https://m.dmzj.com/',
             accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
@@ -389,7 +388,6 @@ class DongManZhiJia extends Base {
             'cache-control': 'no-cache',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'user-agent': this.userAgent,
           },
           images: page_url.map((item: string) => encodeURI(item)),
         },

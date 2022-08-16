@@ -93,9 +93,9 @@ const PATTERN_CHAPTER_ID = /^https:\/\/www\.manhuadb\.com\/manhua\/[0-9]+\/([0-9
 const PATTERN_SCRIPT = /var img_data =[\n ]*'(.+)';/;
 
 class ManHuaDB extends Base {
-  readonly useMock = false;
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+  readonly defaultHeaders = { referer: 'https://www.manhuadb.com/', 'user-agent': this.userAgent };
 
   constructor(
     pluginID: Plugin,
@@ -117,6 +117,11 @@ class ManHuaDB extends Base {
     );
   }
 
+  is(hash: string) {
+    const [plugin] = Base.splitHash(hash);
+    return plugin === Plugin.MHDB;
+  }
+
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
     let query = '';
     if (region !== Options.Default) {
@@ -131,38 +136,26 @@ class ManHuaDB extends Base {
 
     return {
       url: `https://www.manhuadb.com/manhua/list${query}-page-${page}.html`,
-      headers: new Headers({
-        referer: 'https://www.manhuadb.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
     return {
       url: `https://www.manhuadb.com/search?q=${keyword}&p=${page}`,
-      headers: new Headers({
-        referer: 'https://www.manhuadb.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
       url: `https://www.manhuadb.com/manhua/${mangaId}`,
-      headers: new Headers({
-        referer: 'https://www.manhuadb.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
       url: `https://www.manhuadb.com/manhua/${mangaId}/${chapterId}.html`,
-      headers: new Headers({
-        referer: 'https://www.manhuadb.com/',
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
 
@@ -390,13 +383,12 @@ class ManHuaDB extends Base {
           name,
           title,
           headers: {
-            referer: 'https://www.manhuadb.com/',
+            ...this.defaultHeaders,
             accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             pragma: 'no-cache',
             'cache-control': 'no-cache',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'user-agent': this.userAgent,
           },
           images: images.map((image) => encodeURI(decodeURI(host + path + image.img))),
         },

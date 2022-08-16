@@ -34,6 +34,7 @@ const PATTERN_SCRIPT_CHAPTER_ID = /var aid = (.+);/;
 class CopyManga extends Base {
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+  readonly defaultHeaders = { 'user-agent': this.userAgent };
 
   constructor(
     pluginID: Plugin,
@@ -55,14 +56,7 @@ class CopyManga extends Base {
     );
   }
 
-  /**
-   * @description verify hash belong to the plugin
-   * @abstract
-   * @param {string} hash
-   * @return {*}  {boolean}
-   * @memberof Base
-   */
-  is(hash: string): boolean {
+  is(hash: string) {
     const [plugin] = Base.splitHash(hash);
     return plugin === Plugin.JMC;
   }
@@ -74,9 +68,7 @@ class CopyManga extends Base {
         o: sort,
         page,
       },
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
@@ -87,26 +79,20 @@ class CopyManga extends Base {
         search_query: keyword,
         page,
       },
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
       url: `https://jmcomic.asia/album/${mangaId}`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (_mangaId, chapterId) => {
     return {
       url: `https://jmcomic.asia/photo/${chapterId}`,
-      headers: new Headers({
-        'user-agent': this.userAgent,
-      }),
+      headers: new Headers(this.defaultHeaders),
     };
   };
 
@@ -365,13 +351,13 @@ class CopyManga extends Base {
           name: '',
           title,
           headers: {
+            ...this.defaultHeaders,
             referer: 'https://jmcomic.asia/',
             accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             pragma: 'no-cache',
             'cache-control': 'no-cache',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-            'user-agent': this.userAgent,
           },
           images,
         },
