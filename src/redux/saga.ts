@@ -160,27 +160,30 @@ function* batchUpdateSaga() {
         break;
       }
 
-      const id = nanoid();
-      const dict = ((state: RootState) => state.dict)(yield select());
-      yield put(loadManga({ mangaHash: hash, taskId: id }));
+      const loadMangaEffect = function* () {
+        const id = nanoid();
+        const dict = ((state: RootState) => state.dict)(yield select());
+        yield put(loadManga({ mangaHash: hash, taskId: id }));
 
-      const {
-        payload: { error: fetchError, data },
-      }: ActionParameters<typeof loadMangaCompletion> = yield take(
-        ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
-      );
+        const {
+          payload: { error: fetchError, data },
+        }: ActionParameters<typeof loadMangaCompletion> = yield take(
+          ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
+        );
 
-      let isTrend = false;
-      if (!fetchError) {
-        const prev = dict.manga[hash]?.chapters || [];
-        const curr = data?.chapters || [];
+        let isTrend = false;
+        if (!fetchError) {
+          const prev = dict.manga[hash]?.chapters || [];
+          const curr = data?.chapters || [];
 
-        if (curr.length > prev.length) {
-          isTrend = true;
+          if (curr.length > prev.length) {
+            isTrend = true;
+          }
         }
-      }
 
-      yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
+        yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
+      };
+      yield all([loadMangaEffect(), delay(1000)]);
     }
 
     yield put(endBatchUpdate());
