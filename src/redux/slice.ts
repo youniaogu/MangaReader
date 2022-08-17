@@ -7,6 +7,7 @@ const initialState: RootState = {
     launchStatus: AsyncStatus.Default,
     syncStatus: AsyncStatus.Default,
     clearStatus: AsyncStatus.Default,
+    errorMessage: [],
   },
   plugin: {
     source: defaultPlugin,
@@ -75,6 +76,9 @@ const appSlice = createSlice({
         return;
       }
       state.clearStatus = AsyncStatus.Fulfilled;
+    },
+    toastError(state, action: PayloadAction<string>) {
+      state.errorMessage.unshift(action.payload);
     },
   },
 });

@@ -96,3 +96,7 @@ export function* raceTimeout(fn: Effect, ms: number = 5000) {
 
   return { result };
 }
+
+export function haveError(payload: any): payload is { error: Error } {
+  return payload && payload.error instanceof Error;
+}

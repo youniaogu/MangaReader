@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { AsyncStatus, isManga, useErrorMessageToast } from '~/utils';
 import { HStack, IconButton, Icon, View, Text } from 'native-base';
-import { AsyncStatus, isManga } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import Rotate from '~/components/Rotate';
@@ -14,6 +14,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const loadStatus = useAppSelector((state) => state.app.launchStatus);
+
   const favoriteList = useMemo(
     () => list.map((item) => dict[item.mangaHash]).filter(isManga),
     [dict, list]
@@ -23,6 +24,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     [list]
   );
 
+  useErrorMessageToast();
   useEffect(() => {
     dispatch(launch());
   }, [dispatch]);

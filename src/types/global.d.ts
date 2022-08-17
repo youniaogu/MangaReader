@@ -79,6 +79,7 @@ declare global {
       launchStatus: AsyncStatus;
       syncStatus: AsyncStatus;
       clearStatus: AsyncStatus;
+      errorMessage: string[];
     };
     plugin: {
       source: Plugin;

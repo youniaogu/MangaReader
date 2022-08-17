@@ -12,8 +12,8 @@ import {
   race,
 } from 'redux-saga/effects';
 import { splitHash, PluginMap, defaultPlugin } from '~/plugins';
-import { storageKey, fetchData } from '~/utils';
-import { nanoid } from '@reduxjs/toolkit';
+import { storageKey, fetchData, haveError } from '~/utils';
+import { nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -27,6 +27,7 @@ const {
   syncPlugin,
   clearCache,
   clearCacheCompletion,
+  toastError,
   batchUpdate,
   startBatchUpdate,
   endBatchUpdate,
@@ -403,6 +404,21 @@ function* loadChapterSaga() {
   );
 }
 
+function* catchErrorSaga() {
+  yield takeEvery('*', function* ({ payload }: PayloadAction<any>) {
+    if (!haveError(payload)) {
+      return;
+    }
+
+    const error = payload.error;
+    if (error.message === 'Aborted') {
+      yield put(toastError('请求超时'));
+    } else {
+      yield put(toastError(error.message));
+    }
+  });
+}
+
 export default function* rootSaga() {
   yield all([
     fork(launchSaga),
@@ -416,5 +432,7 @@ export default function* rootSaga() {
     fork(loadMangaInfoSaga),
     fork(loadChapterListSaga),
     fork(loadChapterSaga),
+
+    fork(catchErrorSaga),
   ]);
 }
