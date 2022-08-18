@@ -428,25 +428,25 @@ export function unscramble(uri: string, width: number, height: number) {
   const perheight = height % numSplit;
 
   for (let i = 0; i < numSplit; i++) {
-    let sy = Math.floor(height / numSplit);
-    let sHeight = sy * i;
-    const dy = height - sy * (i + 1) - perheight;
+    let sHeight = Math.floor(height / numSplit);
+    let dy = sHeight * i;
+    const sy = height - sHeight * (i + 1) - perheight;
 
     if (i === 0) {
-      sy += perheight;
-    } else {
       sHeight += perheight;
+    } else {
+      dy += perheight;
     }
 
     step.push({
+      sx: 0,
+      sy,
+      sWidth: width,
+      sHeight,
       dx: 0,
       dy,
-      sx: width,
-      sy,
-      sWidth: 0,
-      sHeight,
       dWidth: width,
-      dHeight: sy,
+      dHeight: sHeight,
     });
   }
 

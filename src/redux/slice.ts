@@ -348,7 +348,12 @@ const dictSlice = createSlice({
       }
 
       data.forEach((item) => {
-        state.manga[item.hash] = { ...state.manga[item.hash], ...item };
+        state.manga[item.hash] = {
+          ...state.manga[item.hash],
+          ...item,
+          chapters:
+            item.chapters.length > 0 ? item.chapters : state.manga[item.hash]?.chapters || [],
+        };
       });
     },
     [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
@@ -357,7 +362,11 @@ const dictSlice = createSlice({
         return;
       }
 
-      state.manga[data.hash] = { ...state.manga[data.hash], ...data };
+      state.manga[data.hash] = {
+        ...state.manga[data.hash],
+        ...data,
+        chapters: data.chapters.length > 0 ? data.chapters : state.manga[data.hash]?.chapters || [],
+      };
     },
     [chapterSlice.actions.loadChapterCompletion.type]: (
       state,
