@@ -115,7 +115,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             {data.title}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            作者：{data.author || '未知'}
+            作者：{data.author.length > 0 ? data.author.join(',') : '未知'}
           </Text>
           <Box flexGrow={1} />
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>

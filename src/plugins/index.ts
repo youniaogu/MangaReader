@@ -5,6 +5,7 @@ import COPY from './copy';
 import MHDB from './mhdb';
 import DMZJ from './dmzj';
 import JMC from './jmc';
+import MHM from './mhm';
 
 export * from './base';
 
@@ -15,6 +16,7 @@ export const PluginMap = new Map([
   [Plugin.MHG, MHG],
   [Plugin.MHGM, MHGM],
   [Plugin.JMC, JMC],
+  [Plugin.MHM, MHM],
 ]);
 export const isJMC = JMC.is;
 export const combineHash = Base.combineHash;

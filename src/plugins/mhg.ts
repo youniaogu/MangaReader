@@ -204,8 +204,8 @@ class ManHuaGui extends Base {
             cover,
             latest,
             updateTime,
-            author: '',
-            tag: '',
+            author: [],
+            tag: [],
             chapters: [],
           });
         });
@@ -240,16 +240,14 @@ class ManHuaGui extends Base {
           const [updateTime] = fullUpdateTime.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          const author = ($$('div.book-detail dd:nth-child(4) a').toArray() as cheerio.TagElement[])
-            .map((item) => item.attribs.title)
-            .join(',');
+          const author = (
+            $$('div.book-detail dd:nth-child(4) a').toArray() as cheerio.TagElement[]
+          ).map((item) => item.attribs.title);
           const tag = (
             $$(
               'div.book-detail dd:nth-child(3) span:nth-child(3) a'
             ).toArray() as cheerio.TagElement[]
-          )
-            .map((item) => item.attribs.title)
-            .join(',');
+          ).map((item) => item.attribs.title);
 
           let status = MangaStatus.Unknown;
           if ($$('div.book-cover span.sl').toArray().length > 0) {
@@ -303,8 +301,8 @@ class ManHuaGui extends Base {
         title: '',
         latest: '',
         updateTime: '',
-        author: '',
-        tag: '',
+        author: [],
+        tag: [],
         status: MangaStatus.Unknown,
         chapters: [],
       };
@@ -321,16 +319,12 @@ class ManHuaGui extends Base {
         $(
           'div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a'
         ).toArray() as cheerio.TagElement[]
-      )
-        .map((a) => a.attribs.title)
-        .join(',');
+      ).map((a) => a.attribs.title);
       const tag = (
         $(
           'div.book-detail ul.detail-list li:nth-child(2) span:nth-child(1) a'
         ).toArray() as cheerio.TagElement[]
-      )
-        .map((a) => a.attribs.title)
-        .join(',');
+      ).map((a) => a.attribs.title);
       const cover = 'https:' + $('p.hcover img').first().attr('src');
 
       const isAudit = $('#erroraudit_show').length > 0;

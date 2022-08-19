@@ -173,16 +173,15 @@ class ManHuaDB extends Base {
 
           const title = a.text();
           const href = `https://www.manhuadb.com${a.attr('href')}/`;
-          const author = ($$('div.comic-creators a').toArray() as cheerio.TagElement[])
-            .map((e) => e.attribs.title)
-            .join(',');
+          const author = ($$('div.comic-creators a').toArray() as cheerio.TagElement[]).map(
+            (e) => e.attribs.title
+          );
           const cover = img.attr('data-original') || img.attr('src') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
           const statusLabel = $$('div.comic-categories a span').first().text();
           const tag = ($$('div.comic-categories a span').toArray() as cheerio.TagElement[])
             .filter((_item, index) => index !== 0)
-            .map((span) => span.children[0].data || '')
-            .join(',');
+            .map((span) => span.children[0].data || '');
 
           let status = MangaStatus.Unknown;
           if (statusLabel === '连载中') {
@@ -233,9 +232,9 @@ class ManHuaDB extends Base {
 
           const title = a.attr('title') || '';
           const href = `https://www.manhuadb.com${a.attr('href')}/`;
-          const author = ($$('div.comic-author a').toArray() as cheerio.TagElement[])
-            .map((item) => item.attribs.title)
-            .join(',');
+          const author = ($$('div.comic-author a').toArray() as cheerio.TagElement[]).map(
+            (item) => item.attribs.title
+          );
           const cover = img.attr('data-original') || img.attr('src') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
@@ -251,7 +250,7 @@ class ManHuaDB extends Base {
             latest: '',
             updateTime: '',
             author,
-            tag: '',
+            tag: [],
             chapters: [],
           });
         });
@@ -279,8 +278,8 @@ class ManHuaDB extends Base {
         title: '',
         latest: '',
         updateTime: '',
-        author: '',
-        tag: '',
+        author: [],
+        tag: [],
         status: MangaStatus.Unknown,
         chapters: [],
       };
@@ -342,8 +341,8 @@ class ManHuaDB extends Base {
       manga.cover = cover;
       manga.latest = latest;
       manga.updateTime = updateTime;
-      manga.author = creator.map((item) => item.name).join(',');
-      manga.tag = genre.join(',');
+      manga.author = creator.map((item) => item.name);
+      manga.tag = genre;
       manga.chapters = chapters;
 
       return { manga };

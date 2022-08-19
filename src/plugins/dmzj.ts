@@ -178,8 +178,8 @@ class DongManZhiJia extends Base {
           title: item.name,
           latest: item.last_update_chapter_name,
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
-          author: item.authors,
-          tag: item.types,
+          author: item.authors.split('/'),
+          tag: item.types.split('/'),
           status:
             item.status === '连载中'
               ? MangaStatus.Serial
@@ -227,8 +227,8 @@ class DongManZhiJia extends Base {
           cover: `https://images.dmzj.com/${item.cover}`,
           latest: item.last_update_chapter_name,
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
-          author: item.authors.replaceAll('/', ','),
-          tag: item.types.replaceAll('/', ','),
+          author: item.authors.split('/'),
+          tag: item.types.split('/'),
           chapters: [],
         };
       });
@@ -256,8 +256,8 @@ class DongManZhiJia extends Base {
         title: '',
         latest: '',
         updateTime: '',
-        author: '',
-        tag: '',
+        author: [],
+        tag: [],
         status: MangaStatus.Unknown,
         chapters: [],
       };
@@ -312,12 +312,10 @@ class DongManZhiJia extends Base {
       ).toArray() as cheerio.TagElement[];
       const author = text1.children
         .filter((item) => item.type === 'tag' && item.name === 'a')
-        .map((item) => (item as cheerio.TagElement).children[0].data)
-        .join(',');
+        .map((item) => (item as cheerio.TagElement).children[0].data || '');
       const tag = text2.children
         .filter((item) => item.type === 'tag' && item.name === 'a')
-        .map((item) => (item as cheerio.TagElement).children[0].data)
-        .join(',');
+        .map((item) => (item as cheerio.TagElement).children[0].data || '');
       const fullTime =
         (
           text4.children.filter(

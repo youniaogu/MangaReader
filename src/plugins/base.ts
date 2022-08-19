@@ -7,6 +7,7 @@ export enum Plugin {
   MHDB = 'MHDB',
   DMZJ = 'DMZJ',
   JMC = 'JMC',
+  MHM = 'MHM',
 }
 
 export enum Options {

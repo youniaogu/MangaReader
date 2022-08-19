@@ -119,14 +119,10 @@ class CopyManga extends Base {
             ).toArray() as cheerio.TagElement[]
           )
             .filter((item) => item.children[0])
-            .map((item) => item.children[0].data)
-            .join(',');
+            .map((item) => item.children[0].data || '');
           const tag = ($$('div.title-truncate.tags a').toArray() as cheerio.TagElement[])
             .filter((item) => item.children[0])
-            .map((item) => {
-              return item.children[0].data;
-            })
-            .join(',');
+            .map((item) => item.children[0].data || '');
 
           let status = MangaStatus.Unknown;
           if (tag.includes('連載中')) {
@@ -185,14 +181,10 @@ class CopyManga extends Base {
             ).toArray() as cheerio.TagElement[]
           )
             .filter((item) => item.children[0])
-            .map((item) => item.children[0].data)
-            .join(',');
+            .map((item) => item.children[0].data || '');
           const tag = ($$('div.title-truncate.tags a').toArray() as cheerio.TagElement[])
             .filter((item) => item.children[0])
-            .map((item) => {
-              return item.children[0].data;
-            })
-            .join(',');
+            .map((item) => item.children[0].data || '');
 
           let status = MangaStatus.Unknown;
           if (tag.includes('連載中')) {
@@ -239,16 +231,12 @@ class CopyManga extends Base {
       const cover = $('div.show_zoom img').first().attr('src') || '';
       const tag = (
         $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
-      )
-        .map((item) => item.children[0].data)
-        .join(',');
+      ).map((item) => item.children[0].data || '');
       const author = (
         $(
           'div#intro-block div.tag-block span[data-type=author] a'
         ).toArray() as cheerio.TagElement[]
-      )
-        .map((item) => item.children[0].data)
-        .join(',');
+      ).map((item) => item.children[0].data || '');
       const chapters = (
         $('div#episode-block div.episode ul.btn-toolbar a').toArray() as cheerio.TagElement[]
       )

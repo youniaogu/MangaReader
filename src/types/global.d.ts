@@ -48,8 +48,8 @@ declare global {
     title: string;
     latest: string;
     updateTime: string;
-    author: string;
-    tag: string;
+    author: string[];
+    tag: string[];
     status: MangaStatus;
     chapters: ChapterItem[];
     lastWatchChapter?: string;

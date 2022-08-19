@@ -218,8 +218,8 @@ class ManHuaGuiMobile extends Base {
           cover,
           latest,
           updateTime,
-          author,
-          tag,
+          author: author.split(','),
+          tag: tag.split(','),
           chapters: [],
         });
       });
@@ -275,8 +275,8 @@ class ManHuaGuiMobile extends Base {
           cover,
           latest,
           updateTime,
-          author,
-          tag,
+          author: author.split(','),
+          tag: tag.split(','),
           chapters: [],
         });
       });
@@ -304,8 +304,8 @@ class ManHuaGuiMobile extends Base {
         title: '',
         latest: '',
         updateTime: '',
-        author: '',
-        tag: '',
+        author: [],
+        tag: [],
         status: MangaStatus.Unknown,
         chapters: [],
       };
@@ -379,8 +379,8 @@ class ManHuaGuiMobile extends Base {
       manga.cover = 'https:' + $('div.thumb img').first().attr('src');
       manga.latest = latest;
       manga.updateTime = updateTime;
-      manga.author = author;
-      manga.tag = tag;
+      manga.author = author.split(',');
+      manga.tag = tag.split(',');
       manga.chapters = chapters;
 
       return { manga };
@@ -452,7 +452,7 @@ class ManHuaGuiMobile extends Base {
 export default new ManHuaGuiMobile(
   Plugin.MHGM,
   'manhuagui(mobile)',
-  4,
+  5,
   'MHGM',
   '漫画柜移动版（主站），漫画资源全，频繁访问会封IP，需要代理'
 );

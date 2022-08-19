@@ -33,9 +33,9 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 
 - [x] 更多的插件
 
-  - [x] [manhuagui](https://www.mhgui.com/)（大陆版，非大陆 ip 会转到 manhuaguimobile）
+  - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，目前网站 403，无法访问）~~
 
-  - [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
+  - [x] [manhuaguimobile](https://m.manhuagui.com/)（主站，访问需要代理）
 
   - [x] [copymanga](https://www.copymanga.org/)
 
@@ -45,7 +45,7 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 
   - [x] [dongmanzhijia](https://m.dmzj.com/)
 
-  - [ ] [manhuamao](https://www.maofly.com/)
+  - [x] [manhuamao](https://www.maofly.com/)
 
 - [ ] 漫画更新提示
 
