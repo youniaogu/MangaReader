@@ -77,8 +77,11 @@ const appSlice = createSlice({
       }
       state.clearStatus = AsyncStatus.Fulfilled;
     },
-    toastError(state, action: PayloadAction<string>) {
+    catchError(state, action: PayloadAction<string>) {
       state.errorMessage.unshift(action.payload);
+    },
+    throwError(state) {
+      state.errorMessage = [];
     },
   },
 });

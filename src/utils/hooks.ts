@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useAppSelector } from '~/redux';
+import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Toast } from 'native-base';
+
+const { throwError } = action;
 
 export const useFirstRender = (fn: () => void) => {
   const firstRender = useRef(true);
@@ -59,14 +61,18 @@ export const useUpdate = (fn: () => void) => {
 };
 
 export function useErrorMessageToast() {
+  const dispatch = useAppDispatch();
   const errorMessage = useAppSelector((state) => state.app.errorMessage);
 
   useEffect(() => {
     if (errorMessage.length > 0) {
-      Toast.show({
-        title: errorMessage[0],
-        placement: 'bottom',
+      errorMessage.forEach((message) => {
+        Toast.show({
+          title: message,
+          placement: 'bottom',
+        });
       });
+      dispatch(throwError());
     }
-  }, [errorMessage]);
+  }, [errorMessage, dispatch]);
 }

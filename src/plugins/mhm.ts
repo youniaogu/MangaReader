@@ -247,7 +247,7 @@ class ManHuaMao extends Base {
       };
       const chapters: ChapterItem[] = [];
 
-      const title = $('meta[property=og:title]').first().attr('content') || '';
+      const title = $('meta[property=og:novel:book_name]').first().attr('content') || '';
       const cover = $('meta[property=og:image]').first().attr('content') || '';
       const author = [$('meta[property=og:novel:author]').first().attr('content') || ''];
       const statusLabel = $('meta[property=og:novel:status]').first().attr('content') || '';

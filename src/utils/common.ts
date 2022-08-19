@@ -100,3 +100,22 @@ export function* raceTimeout(fn: Effect, ms: number = 5000) {
 export function haveError(payload: any): payload is { error: Error } {
   return payload && payload.error instanceof Error;
 }
+
+export function fixDictShape(dict: RootState['dict']): RootState['dict'] {
+  const mangaDict = dict.manga;
+  for (let key in mangaDict) {
+    const manga = mangaDict[key];
+    if (!manga) {
+      continue;
+    }
+
+    if (!Array.isArray(manga.author)) {
+      manga.author = [];
+    }
+    if (!Array.isArray(manga.tag)) {
+      manga.tag = [];
+    }
+  }
+
+  return dict;
+}

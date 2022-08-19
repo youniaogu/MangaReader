@@ -11,8 +11,8 @@ import {
   delay,
   race,
 } from 'redux-saga/effects';
+import { storageKey, fetchData, haveError, fixDictShape } from '~/utils';
 import { splitHash, PluginMap, defaultPlugin } from '~/plugins';
-import { storageKey, fetchData, haveError } from '~/utils';
 import { nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,7 +27,7 @@ const {
   syncPlugin,
   clearCache,
   clearCacheCompletion,
-  toastError,
+  catchError,
   batchUpdate,
   startBatchUpdate,
   endBatchUpdate,
@@ -77,7 +77,7 @@ function* syncDataSaga() {
       }
       if (dictData) {
         dict = JSON.parse(dictData);
-        yield put(syncDict(dict));
+        yield put(syncDict(fixDictShape(dict)));
       }
       if (pluginData) {
         const pluginCache: RootState['plugin'] = JSON.parse(pluginData);
@@ -183,7 +183,7 @@ function* batchUpdateSaga() {
 
         yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
       };
-      yield all([loadMangaEffect(), delay(1000)]);
+      yield all([loadMangaEffect(), delay(1500)]);
     }
 
     yield put(endBatchUpdate());
@@ -415,9 +415,9 @@ function* catchErrorSaga() {
 
     const error = payload.error;
     if (error.message === 'Aborted') {
-      yield put(toastError('请求超时'));
+      yield put(catchError('请求超时~'));
     } else {
-      yield put(toastError(error.message));
+      yield put(catchError(error.message));
     }
   });
 }
