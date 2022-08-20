@@ -134,7 +134,7 @@ class ManHuaMao extends Base {
         const img = $$('a img.comic-book-cover');
 
         const href = $$('a.d-block').attr('href') || '';
-        const title = img.attr('alt') || '';
+        const title = $$('div.media-body h2 a').first().text() || '';
         const cover = img.attr('src') || img.attr('data-original') || '';
         const author = (
           $$('div.media-body div.comic-creators ul a').toArray() as cheerio.TagElement[]
