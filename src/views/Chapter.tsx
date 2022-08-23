@@ -2,10 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFirstRender, isChapter, AsyncStatus } from '~/utils';
 import { Center } from 'native-base';
-import { isJMC } from '~/plugins';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
-import ImageWithRetry from '~/components/ImageWithRetry';
-import JMComicImage from '~/components/JMComicImage';
 import SpinLoading from '~/components/SpinLoading';
 import Reader from '~/components/Reader';
 
@@ -52,7 +49,6 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   return (
     <Reader
       title={data.title}
-      ImageComponent={isJMC(mangaHash) ? JMComicImage : ImageWithRetry}
       initPage={page}
       data={data.images}
       headers={data.headers}

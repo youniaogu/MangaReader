@@ -387,7 +387,7 @@ class DongManZhiJia extends Base {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
-          images: page_url.map((item: string) => encodeURI(item)),
+          images: page_url.map((item: string) => ({ uri: encodeURI(item) })),
         },
       };
     } catch (error) {

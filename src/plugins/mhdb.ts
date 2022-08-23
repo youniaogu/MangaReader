@@ -389,7 +389,7 @@ class ManHuaDB extends Base {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
-          images: images.map((image) => encodeURI(decodeURI(host + path + image.img))),
+          images: images.map((image) => ({ uri: encodeURI(decodeURI(host + path + image.img)) })),
         },
       };
     } catch (error) {

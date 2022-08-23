@@ -30,6 +30,7 @@ const PATTERN_MANGA_ID = /\/album\/([0-9]+)/;
 const PATTERN_CHAPTER_ID = /\/photo\/(.+)/;
 const PATTERN_SCRIPT_MANGA_ID = /var series_id = (.+);/;
 const PATTERN_SCRIPT_CHAPTER_ID = /var aid = (.+);/;
+const PATTERN_SCRIPT_SCRAMBLE_ID = /var scramble_id = (.+);/;
 
 class CopyManga extends Base {
   readonly userAgent =
@@ -316,10 +317,12 @@ class CopyManga extends Base {
         ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter(
           (script) =>
             PATTERN_SCRIPT_MANGA_ID.test(script.children[0].data || '') &&
-            PATTERN_SCRIPT_CHAPTER_ID.test(script.children[0].data || '')
+            PATTERN_SCRIPT_CHAPTER_ID.test(script.children[0].data || '') &&
+            PATTERN_SCRIPT_SCRAMBLE_ID.test(script.children[0].data || '')
         )[0].children[0].data || '';
       let [, mangaId] = scriptContent.match(PATTERN_SCRIPT_MANGA_ID) || [];
       const [, chapterId] = scriptContent.match(PATTERN_SCRIPT_CHAPTER_ID) || [];
+      const [, scrambleId] = scriptContent.match(PATTERN_SCRIPT_SCRAMBLE_ID) || [];
       const title = $('div.container div.panel-heading div.pull-left').text().replaceAll('\n', '');
       const images = (
         $(
@@ -347,7 +350,10 @@ class CopyManga extends Base {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
-          images,
+          images: images.map((uri) => ({
+            uri,
+            needUnscramble: !uri.includes('.gif') && chapterId >= scrambleId,
+          })),
         },
       };
     } catch (error) {

@@ -338,7 +338,7 @@ class ManHuaMao extends Base {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
-          images,
+          images: images.map((uri) => ({ uri })),
         },
       };
     } catch (error) {

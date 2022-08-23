@@ -414,7 +414,7 @@ class CopyManga extends Base {
               ...this.defaultHeaders,
               accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             },
-            images: sorted.map((item) => item.url),
+            images: sorted.map((item) => ({ uri: item.url })),
           },
         };
       } else {

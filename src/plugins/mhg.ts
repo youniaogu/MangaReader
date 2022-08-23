@@ -462,11 +462,11 @@ class ManHuaGui extends Base {
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
-          images: files.map((item: string) =>
-            encodeURI(
+          images: files.map((item: string) => ({
+            uri: encodeURI(
               decodeURI('https://i.hamreus.com/' + path + item + '?' + queryString.stringify(sl))
-            )
-          ),
+            ),
+          })),
         },
       };
     } catch (error) {

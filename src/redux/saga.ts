@@ -168,7 +168,7 @@ function* batchUpdateSaga() {
         const {
           payload: { error: fetchError, data },
         }: ActionParameters<typeof loadMangaCompletion> = yield take(
-          ({ type, payload: { taskId } }: any) => type === loadMangaCompletion.type && taskId === id
+          ({ type, payload }: any) => type === loadMangaCompletion.type && payload.taskId === id
         );
 
         let isTrend = false;
@@ -183,7 +183,7 @@ function* batchUpdateSaga() {
 
         yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
       };
-      yield all([loadMangaEffect(), delay(1500)]);
+      yield all([loadMangaEffect(), delay(1000)]);
     }
 
     yield put(endBatchUpdate());
@@ -262,11 +262,11 @@ function* loadMangaSaga() {
         const {
           payload: { error: loadChapterListError, data: chapterInfo },
         }: ActionParameters<typeof loadChapterListCompletion> = yield take(
-          ({ type, payload: { data } }: any) => {
+          ({ type, payload }: any) => {
             return (
               type === loadChapterListCompletion.type &&
-              data.mangaHash === mangaHash &&
-              data.page === 1
+              payload.data.mangaHash === mangaHash &&
+              payload.data.page === 1
             );
           }
         );

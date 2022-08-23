@@ -19,13 +19,10 @@ const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 interface ReaderProps {
   title?: string;
   initPage?: number;
-  data?: string[];
-  headers?: {
-    [index: string]: string;
-  };
+  data?: Chapter['images'];
+  headers?: Chapter['headers'];
   onPageChange?: (page: number) => void;
   goBack: () => void;
-  ImageComponent: typeof JMComicImage | typeof ImageWithRetry;
 }
 
 const Reader = ({
@@ -35,7 +32,6 @@ const Reader = ({
   headers = {},
   goBack,
   onPageChange,
-  ImageComponent,
 }: ReaderProps) => {
   const toast = useToast();
   const [page, setPage] = useState(initPage);
@@ -81,13 +77,18 @@ const Reader = ({
   }, []);
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<typeof data[0]>) => {
+      const { uri, needUnscramble } = item;
       return (
         <Controller onTap={toggleExtra}>
-          <ImageComponent uri={item} headers={headers} />
+          {needUnscramble ? (
+            <JMComicImage uri={uri} headers={headers} />
+          ) : (
+            <ImageWithRetry uri={uri} headers={headers} />
+          )}
         </Controller>
       );
     },
-    [toggleExtra, headers, ImageComponent]
+    [toggleExtra, headers]
   );
 
   return (
@@ -110,7 +111,7 @@ const Reader = ({
         })}
         onScroll={handleScroll}
         renderItem={renderItem}
-        keyExtractor={(item) => item}
+        keyExtractor={(item) => item.uri}
       />
 
       {showExtra && (

@@ -71,7 +71,7 @@ declare global {
     headers: {
       [index: string]: string;
     };
-    images: string[];
+    images: { uri: string; needUnscramble?: boolean }[];
   }
 
   declare interface RootState {
