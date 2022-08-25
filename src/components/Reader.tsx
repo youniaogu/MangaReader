@@ -46,7 +46,7 @@ const Reader = ({
 
   const toggleExtra = useCallback(() => {
     setShowExtra((prev) => !prev);
-  }, [setShowExtra]);
+  }, []);
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const contentOffset = event.nativeEvent.contentOffset;
@@ -73,7 +73,15 @@ const Reader = ({
   const handleSliderChangeEnd = useCallback((newStep: number) => {
     const newPage = Math.floor(newStep);
     setPage(newPage);
-    flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
+    if (newStep > 1) {
+      flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
+    } else {
+      // bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
+      flatListRef.current?.scrollToOffset({
+        offset: (newPage - 1) * windowWidth + 1,
+        animated: false,
+      });
+    }
   }, []);
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<typeof data[0]>) => {
@@ -103,7 +111,7 @@ const Reader = ({
         windowSize={3}
         initialNumToRender={1}
         maxToRenderPerBatch={1}
-        updateCellsBatchingPeriod={500}
+        updateCellsBatchingPeriod={200}
         getItemLayout={(_data, index) => ({
           length: windowWidth,
           offset: windowWidth * index,
