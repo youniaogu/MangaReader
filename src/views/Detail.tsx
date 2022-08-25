@@ -11,10 +11,11 @@ import {
   useTheme,
 } from 'native-base';
 import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
-import { coverAspectRatio, useFirstRender, isManga, MangaStatus, AsyncStatus } from '~/utils';
+import { coverAspectRatio, isManga, MangaStatus, AsyncStatus } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
+import { useOnce } from '~/hooks';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 
@@ -33,7 +34,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const data = mangaDict[mangaHash];
 
-  useFirstRender(() => {
+  useOnce(() => {
     if (!isManga(data) || (isManga(data) && data.chapters.length <= 0)) {
       dispatch(loadManga({ mangaHash }));
     }

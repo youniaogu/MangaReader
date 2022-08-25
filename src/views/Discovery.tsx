@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
 import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { isManga, AsyncStatus, useErrorMessageToast } from '~/utils';
+import { isManga, AsyncStatus } from '~/utils';
+import { useErrorMessageToast } from '~/hooks';
 import { Plugin, PluginMap } from '~/plugins';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';

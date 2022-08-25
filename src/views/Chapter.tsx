@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { useFirstRender, isChapter, AsyncStatus } from '~/utils';
+import { isChapter, AsyncStatus } from '~/utils';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
@@ -15,11 +15,12 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
 
-  const loadAndViewChapter = () => {
-    !isChapter(data) && dispatch(loadChapter({ chapterHash }));
+  useEffect(() => {
     dispatch(viewChapter({ mangaHash, chapterHash }));
-  };
-  useFirstRender(loadAndViewChapter);
+  }, [dispatch, mangaHash, chapterHash]);
+  useEffect(() => {
+    !isChapter(data) && dispatch(loadChapter({ chapterHash }));
+  }, [data, dispatch, chapterHash]);
 
   const handlePageChange = useCallback(
     (currentPage: number) => {
@@ -30,6 +31,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const handleGoBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
+
   const handleRetry = () => {
     dispatch(loadChapter({ chapterHash }));
   };
