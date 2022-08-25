@@ -43,14 +43,13 @@ const JMComicImage = ({ uri, headers = {} }: JMComicImageProps) => {
       image.addEventListener('load', () => {
         let prevDy: number = 0;
         let prevDh: number = 0;
-        step.reverse().forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, index) => {
+        step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, index) => {
           if (index <= 0) {
-            prevDy = dy * container.scale;
-            prevDh = dHeight * container.scale;
+            prevDy = Math.round(dy * container.scale * 1000) / 1000;
           } else {
             prevDy = prevDh + prevDy;
-            prevDh = dHeight * container.scale;
           }
+          prevDh = Math.round(dHeight * container.scale * 1000) / 1000;
 
           ctx.drawImage(
             image,
@@ -59,9 +58,9 @@ const JMComicImage = ({ uri, headers = {} }: JMComicImageProps) => {
             sWidth,
             sHeight,
             dx * container.scale,
-            Math.round(dy * container.scale * 1000) / 1000,
+            prevDy,
             dWidth * container.scale,
-            Math.round(dHeight * container.scale * 1000) / 1000
+            prevDh
           );
         });
 

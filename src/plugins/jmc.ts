@@ -66,7 +66,7 @@ class CopyManga extends Base {
     return {
       url: `https://jmcomic.asia/albums${type === Options.Default ? '' : `/${type}`}`,
       body: {
-        o: sort,
+        o: sort === Options.Default ? 'mr' : sort,
         page,
       },
       headers: new Headers(this.defaultHeaders),
@@ -225,8 +225,9 @@ class CopyManga extends Base {
     try {
       const $ = cheerio.load(text || '');
 
-      const href = $('meta[property=og:url]').attr('content') || '';
-      const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+      const [, mangaId] =
+        ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
+      const href = `https://jmcomic.asia/album/${mangaId}`;
       const title = $('h1#book-name').text() || '';
       const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
       const cover = $('div.show_zoom img').first().attr('src') || '';
@@ -352,7 +353,7 @@ class CopyManga extends Base {
           },
           images: images.map((uri) => ({
             uri,
-            needUnscramble: !uri.includes('.gif') && chapterId >= scrambleId,
+            needUnscramble: !uri.includes('.gif') && Number(chapterId) >= Number(scrambleId),
           })),
         },
       };
