@@ -14,11 +14,13 @@ import Controller from '~/components/Controller';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 
 interface ReaderProps {
   title?: string;
   initPage?: number;
+  horizontal?: boolean;
   data?: Chapter['images'];
   headers?: Chapter['headers'];
   onPageChange?: (page: number) => void;
@@ -28,6 +30,7 @@ interface ReaderProps {
 const Reader = ({
   title = '',
   initPage = 1,
+  horizontal = false,
   data = [],
   headers = {},
   goBack,
@@ -36,9 +39,13 @@ const Reader = ({
   const toast = useToast();
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
-  const pageSliderRef = useRef<PageSliderRef>(null);
-  const flatListRef = useRef<FlatListRN>(null);
+  const [layout, setLayout] = useState(
+    data.map((_, index) => ({ length: windowHeight, offset: index * windowHeight, index }))
+  );
   const timeout = useRef<NodeJS.Timeout | null>(null);
+  const flatListRef = useRef<FlatListRN>(null);
+  const pageSliderRef = useRef<PageSliderRef>(null);
+  const initialScrollIndex = Math.max(Math.min(initPage - 1, data.length - 1), 0);
 
   useEffect(() => {
     onPageChange && onPageChange(page);
@@ -47,20 +54,14 @@ const Reader = ({
   const toggleExtra = useCallback(() => {
     setShowExtra((prev) => !prev);
   }, []);
-  const handleScroll = useCallback(
+  const handleHorizontalScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const contentOffset = event.nativeEvent.contentOffset;
       const viewSize = event.nativeEvent.layoutMeasurement;
       const index = Math.floor(contentOffset.x / viewSize.width);
       const newPage = Math.min(Math.max(index + 1, 1), data.length);
-
       if (newPage === data.length && !toast.isActive(lastPageToastId)) {
-        toast.show({
-          id: lastPageToastId,
-          placement: 'bottom',
-          title: '最后一页',
-          duration: 3000,
-        });
+        toast.show({ id: lastPageToastId, placement: 'bottom', title: '最后一页', duration: 3000 });
       }
       timeout.current && clearTimeout(timeout.current);
       timeout.current = setTimeout(() => {
@@ -70,6 +71,69 @@ const Reader = ({
     },
     [data.length, toast]
   );
+  const handleVerticalScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const contentOffset = event.nativeEvent.contentOffset;
+      const viewSize = event.nativeEvent.layoutMeasurement;
+      const index = layout.findIndex(
+        (item) => item.offset + item.length >= contentOffset.y + viewSize.height
+      );
+      const newPage = Math.min(Math.max(index + 1, 1), data.length);
+      if (newPage === data.length && !toast.isActive(lastPageToastId)) {
+        toast.show({ id: lastPageToastId, placement: 'bottom', title: '最后一页', duration: 3000 });
+      }
+      timeout.current && clearTimeout(timeout.current);
+      timeout.current = setTimeout(() => {
+        setPage(newPage);
+        pageSliderRef.current?.changePage(newPage);
+      }, 200);
+    },
+    [data.length, toast, layout]
+  );
+  const renderVerticalItem = useCallback(
+    ({ item, index }: ListRenderItemInfo<typeof data[0]>) => {
+      const { uri, needUnscramble } = item;
+      const handleSuccess = (image: { width: number; height: number }) => {
+        const prevIndex = layout[index].index;
+        const prevLength = layout[index].length;
+        const newLayout = layout.map((curr) => {
+          if (curr.index < prevIndex) {
+            return curr;
+          }
+          return {
+            ...curr,
+            length: image.height,
+            offset: curr.offset - prevLength + image.height,
+          };
+        });
+
+        setLayout(newLayout);
+      };
+
+      return needUnscramble ? (
+        <JMComicImage uri={uri} headers={headers} onSuccess={handleSuccess} />
+      ) : (
+        <ImageWithRetry uri={uri} headers={headers} onSuccess={handleSuccess} />
+      );
+    },
+    [headers, layout]
+  );
+  const renderHorizontalItem = useCallback(
+    ({ item }: ListRenderItemInfo<typeof data[0]>) => {
+      const { uri, needUnscramble } = item;
+
+      return (
+        <Controller horizontal onTap={toggleExtra}>
+          {needUnscramble ? (
+            <JMComicImage horizontal uri={uri} headers={headers} />
+          ) : (
+            <ImageWithRetry horizontal uri={uri} headers={headers} />
+          )}
+        </Controller>
+      );
+    },
+    [headers, toggleExtra]
+  );
   const handleSliderChangeEnd = useCallback((newStep: number) => {
     const newPage = Math.floor(newStep);
     setPage(newPage);
@@ -77,50 +141,63 @@ const Reader = ({
       flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
     } else {
       // bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
-      flatListRef.current?.scrollToOffset({
-        offset: (newPage - 1) * windowWidth + 1,
-        animated: false,
-      });
+      flatListRef.current?.scrollToOffset({ offset: 1, animated: false });
     }
   }, []);
-  const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<typeof data[0]>) => {
-      const { uri, needUnscramble } = item;
-      return (
-        <Controller onTap={toggleExtra}>
-          {needUnscramble ? (
-            <JMComicImage uri={uri} headers={headers} />
-          ) : (
-            <ImageWithRetry uri={uri} headers={headers} />
-          )}
-        </Controller>
-      );
-    },
-    [toggleExtra, headers]
-  );
 
   return (
     <Box w="full" h="full" bg="black">
       <StatusBar backgroundColor="black" barStyle={showExtra ? 'light-content' : 'dark-content'} />
-      <FlatList
-        ref={flatListRef}
-        horizontal
-        data={data}
-        pagingEnabled
-        initialScrollIndex={initPage - 1}
-        windowSize={3}
-        initialNumToRender={1}
-        maxToRenderPerBatch={1}
-        updateCellsBatchingPeriod={200}
-        getItemLayout={(_data, index) => ({
-          length: windowWidth,
-          offset: windowWidth * index,
-          index,
-        })}
-        onScroll={handleScroll}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.uri}
-      />
+      {horizontal ? (
+        <FlatList
+          w="full"
+          h="full"
+          ref={flatListRef}
+          data={data}
+          horizontal
+          pagingEnabled
+          initialScrollIndex={initialScrollIndex}
+          windowSize={3}
+          initialNumToRender={1}
+          maxToRenderPerBatch={1}
+          updateCellsBatchingPeriod={200}
+          getItemLayout={(_data, index) => {
+            if (index === -1) {
+              return { index, length: 0, offset: 0 };
+            }
+            return {
+              length: windowWidth,
+              offset: windowWidth * index,
+              index,
+            };
+          }}
+          onScroll={handleHorizontalScroll}
+          renderItem={renderHorizontalItem}
+          keyExtractor={(item) => item.uri}
+        />
+      ) : (
+        <Controller onTap={toggleExtra}>
+          <FlatList
+            w="full"
+            h="full"
+            ref={flatListRef}
+            data={data}
+            windowSize={5}
+            initialScrollIndex={initialScrollIndex}
+            initialNumToRender={2}
+            maxToRenderPerBatch={1}
+            getItemLayout={(_data, index) => {
+              if (index === -1) {
+                return { index, length: 0, offset: 0 };
+              }
+              return layout[index];
+            }}
+            onScroll={handleVerticalScroll}
+            renderItem={renderVerticalItem}
+            keyExtractor={(item) => item.uri}
+          />
+        </Controller>
+      )}
 
       {showExtra && (
         <Fragment>
@@ -138,7 +215,7 @@ const Reader = ({
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
               onPress={goBack}
             />
-            <Text fontSize="md" color="white" fontWeight="bold">
+            <Text fontSize="md" w="2/3" numberOfLines={1} color="white" fontWeight="bold">
               {title}
             </Text>
             <Box flex={1} />

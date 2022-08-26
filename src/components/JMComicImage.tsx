@@ -14,6 +14,8 @@ const windowHeight = Dimensions.get('window').height;
 interface JMComicImageProps {
   uri: string;
   headers?: { [name: string]: string };
+  horizontal?: boolean;
+  onSuccess?: ({ width, height }: { width: number; height: number }) => void;
 }
 interface Source {
   base64: string;
@@ -21,11 +23,12 @@ interface Source {
   height: number;
 }
 
-const JMComicImage = ({ uri, headers = {} }: JMComicImageProps) => {
+const JMComicImage = ({ uri, headers = {}, horizontal = false, onSuccess }: JMComicImageProps) => {
   const [source, setSource] = useState<Source>();
   const [dataUrl, setDataUrl] = useState<string>();
   const [retryHash, setRetryHash] = useState(nanoid());
   const [loadStatus, setLoadStatus] = useState(AsyncStatus.Default);
+  const [imageHeight, setImageHeight] = useState(windowHeight);
   const canvasRef = useRef<Canvas>(null);
 
   useEffect(() => {
@@ -85,13 +88,16 @@ const JMComicImage = ({ uri, headers = {} }: JMComicImageProps) => {
           }
           base64 = 'data:image/png;base64,' + base64;
 
-          ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) =>
-            setSource({ base64: base64 as string, width, height })
-          );
+          ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
+            const fillHeight = (height / width) * windowWidth;
+            setSource({ base64: base64 as string, width, height });
+            setImageHeight(fillHeight);
+            onSuccess && onSuccess({ width: windowWidth, height: fillHeight });
+          });
         })
         .catch(handleError);
     }
-  }, [uri, headers, loadStatus]);
+  }, [uri, headers, loadStatus, onSuccess]);
 
   const handleError = () => {
     setLoadStatus(AsyncStatus.Rejected);
@@ -112,7 +118,7 @@ const JMComicImage = ({ uri, headers = {} }: JMComicImageProps) => {
 
   if (!dataUrl || loadStatus === AsyncStatus.Pending) {
     return (
-      <Center w="full" h="full" bg="black">
+      <Center w={windowWidth} h={windowHeight} bg="black">
         <CachedImage
           source="https://raw.githubusercontent.com/youniaogu/walfie-gif/master/ground%20pound.gif"
           resizeMode="contain"
@@ -124,7 +130,14 @@ const JMComicImage = ({ uri, headers = {} }: JMComicImageProps) => {
   }
 
   return (
-    <Image w="full" h="full" resizeMode="contain" source={{ uri: dataUrl }} alt="page" bg="black" />
+    <Image
+      w={horizontal ? 'full' : windowWidth}
+      h={horizontal ? 'full' : imageHeight}
+      resizeMode={horizontal ? 'contain' : 'cover'}
+      source={{ uri: dataUrl }}
+      alt="page"
+      bg="black"
+    />
   );
 };
 
@@ -135,8 +148,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   loading: {
-    width: '30%',
-    height: '100%',
+    width: windowWidth * 0.3,
+    height: windowHeight,
   },
 });
 

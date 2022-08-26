@@ -12,9 +12,10 @@ const windowHeight = Dimensions.get('window').height;
 interface ControllerProps {
   onTap?: () => void;
   children: ReactNode;
+  horizontal?: boolean;
 }
 
-const Controller = ({ onTap, children }: ControllerProps) => {
+const Controller = ({ onTap, children, horizontal = false }: ControllerProps) => {
   const [enabled, setEnabled] = useState(false);
   const width = useSharedValue(windowWidth);
   const height = useSharedValue(windowHeight);
@@ -157,9 +158,13 @@ const Controller = ({ onTap, children }: ControllerProps) => {
     <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap)}>
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
-          <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
+          {horizontal ? (
+            <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
+              <Animated.View style={animatedStyle}>{children}</Animated.View>
+            </Box>
+          ) : (
             <Animated.View style={animatedStyle}>{children}</Animated.View>
-          </Box>
+          )}
         </GestureDetector>
       </GestureDetector>
     </GestureDetector>
