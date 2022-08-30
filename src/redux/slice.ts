@@ -1,13 +1,16 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, Options, defaultPlugin, defaultPluginList } from '~/plugins';
-import { AsyncStatus } from '~/utils';
+import { AsyncStatus, ReaderMode } from '~/utils';
 
-const initialState: RootState = {
+export const initialState: RootState = {
   app: {
     launchStatus: AsyncStatus.Default,
     syncStatus: AsyncStatus.Default,
     clearStatus: AsyncStatus.Default,
     errorMessage: [],
+  },
+  setting: {
+    readerMode: ReaderMode.Horizontal,
   },
   plugin: {
     source: defaultPlugin,
@@ -82,6 +85,19 @@ const appSlice = createSlice({
     },
     throwError(state) {
       state.errorMessage = [];
+    },
+  },
+});
+
+const settingSlice = createSlice({
+  name: 'setting',
+  initialState: initialState.setting,
+  reducers: {
+    setReaderMode(state, action: PayloadAction<ReaderMode>) {
+      state.readerMode = action.payload;
+    },
+    syncSetting(_state, action: PayloadAction<RootState['setting']>) {
+      return action.payload;
     },
   },
 });
@@ -386,6 +402,7 @@ const dictSlice = createSlice({
 });
 
 const appAction = appSlice.actions;
+const settingAction = settingSlice.actions;
 const pluginAction = pluginSlice.actions;
 const batchAction = batchSlice.actions;
 const searchAction = searchSlice.actions;
@@ -396,6 +413,7 @@ const chapterAction = chapterSlice.actions;
 const dictAction = dictSlice.actions;
 
 const appReducer = appSlice.reducer;
+const settingReducer = settingSlice.reducer;
 const pluginReducer = pluginSlice.reducer;
 const batchReducer = batchSlice.reducer;
 const searchReducer = searchSlice.reducer;
@@ -407,6 +425,7 @@ const dictReducer = dictSlice.reducer;
 
 export const action = {
   ...appAction,
+  ...settingAction,
   ...pluginAction,
   ...batchAction,
   ...searchAction,
@@ -418,6 +437,7 @@ export const action = {
 };
 export const reducer = combineReducers<RootState>({
   app: appReducer,
+  setting: settingReducer,
   plugin: pluginReducer,
   batch: batchReducer,
   search: searchReducer,

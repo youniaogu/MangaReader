@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, Fragment } from 'react';
-import {
-  FlatList as FlatListRN,
-  Dimensions,
-  ListRenderItemInfo,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-} from 'react-native';
 import { Box, Text, Flex, Icon, IconButton, FlatList, StatusBar, useToast } from 'native-base';
+import { FlatList as FlatListRN, Dimensions, ListRenderItemInfo } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ImageWithRetry from '~/components/ImageWithRetry';
 import JMComicImage from '~/components/JMComicImage';
@@ -23,8 +17,9 @@ interface ReaderProps {
   horizontal?: boolean;
   data?: Chapter['images'];
   headers?: Chapter['headers'];
-  onPageChange?: (page: number) => void;
   goBack: () => void;
+  onModeChange: (horizontal: boolean) => void;
+  onPageChange?: (page: number) => void;
 }
 
 const Reader = ({
@@ -35,17 +30,22 @@ const Reader = ({
   headers = {},
   goBack,
   onPageChange,
+  onModeChange,
 }: ReaderProps) => {
   const toast = useToast();
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
-  const [layout, setLayout] = useState(
+  const layout = useRef(
     data.map((_, index) => ({ length: windowHeight, offset: index * windowHeight, index }))
   );
   const timeout = useRef<NodeJS.Timeout | null>(null);
   const flatListRef = useRef<FlatListRN>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
   const initialScrollIndex = Math.max(Math.min(initPage - 1, data.length - 1), 0);
+  const toastRef = useRef(toast);
+  const dataRef = useRef(data);
+  toastRef.current = toast;
+  dataRef.current = data;
 
   useEffect(() => {
     onPageChange && onPageChange(page);
@@ -54,49 +54,33 @@ const Reader = ({
   const toggleExtra = useCallback(() => {
     setShowExtra((prev) => !prev);
   }, []);
-  const handleHorizontalScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const contentOffset = event.nativeEvent.contentOffset;
-      const viewSize = event.nativeEvent.layoutMeasurement;
-      const index = Math.floor(contentOffset.x / viewSize.width);
-      const newPage = Math.min(Math.max(index + 1, 1), data.length);
-      if (newPage === data.length && !toast.isActive(lastPageToastId)) {
-        toast.show({ id: lastPageToastId, placement: 'bottom', title: '最后一页', duration: 3000 });
-      }
-      timeout.current && clearTimeout(timeout.current);
-      timeout.current = setTimeout(() => {
-        setPage(newPage);
-        pageSliderRef.current?.changePage(newPage);
-      }, 200);
-    },
-    [data.length, toast]
-  );
-  const handleVerticalScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const contentOffset = event.nativeEvent.contentOffset;
-      const viewSize = event.nativeEvent.layoutMeasurement;
-      const index = layout.findIndex(
-        (item) => item.offset + item.length >= contentOffset.y + viewSize.height
-      );
-      const newPage = Math.min(Math.max(index + 1, 1), data.length);
-      if (newPage === data.length && !toast.isActive(lastPageToastId)) {
-        toast.show({ id: lastPageToastId, placement: 'bottom', title: '最后一页', duration: 3000 });
-      }
-      timeout.current && clearTimeout(timeout.current);
-      timeout.current = setTimeout(() => {
-        setPage(newPage);
-        pageSliderRef.current?.changePage(newPage);
-      }, 200);
-    },
-    [data.length, toast, layout]
-  );
+  const HandleViewableItemsChanged = useCallback(({ viewableItems }) => {
+    if (!viewableItems) {
+      return;
+    }
+    const last = viewableItems[viewableItems.length - 1];
+    const newPage = last.index + 1;
+    if (newPage === dataRef.current.length && !toastRef.current.isActive(lastPageToastId)) {
+      toastRef.current.show({
+        id: lastPageToastId,
+        placement: 'bottom',
+        title: '最后一页',
+        duration: 3000,
+      });
+    }
+    timeout.current && clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
+      setPage(newPage);
+      pageSliderRef.current?.changePage(newPage);
+    }, 200);
+  }, []);
   const renderVerticalItem = useCallback(
     ({ item, index }: ListRenderItemInfo<typeof data[0]>) => {
       const { uri, needUnscramble } = item;
       const handleSuccess = (image: { width: number; height: number }) => {
-        const prevIndex = layout[index].index;
-        const prevLength = layout[index].length;
-        const newLayout = layout.map((curr) => {
+        const prevIndex = layout.current[index].index;
+        const prevLength = layout.current[index].length;
+        const newLayout = layout.current.map((curr) => {
           if (curr.index < prevIndex) {
             return curr;
           }
@@ -106,8 +90,7 @@ const Reader = ({
             offset: curr.offset - prevLength + image.height,
           };
         });
-
-        setLayout(newLayout);
+        layout.current === newLayout;
       };
 
       return needUnscramble ? (
@@ -134,8 +117,9 @@ const Reader = ({
     },
     [headers, toggleExtra]
   );
-  const handleSliderChangeEnd = useCallback((newStep: number) => {
+  const handleSliderChangeEndHor = useCallback((newStep: number) => {
     const newPage = Math.floor(newStep);
+
     setPage(newPage);
     if (newStep > 1) {
       flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
@@ -144,6 +128,22 @@ const Reader = ({
       flatListRef.current?.scrollToOffset({ offset: 1, animated: false });
     }
   }, []);
+  const handleSliderChangeEndVer = useCallback((newStep: number) => {
+    const newPage = Math.floor(newStep);
+    const offset = layout.current[newPage].offset;
+
+    setPage(newPage);
+    flatListRef.current?.scrollToOffset({
+      offset: offset <= 0 ? 1 : offset,
+    });
+  }, []);
+
+  const handleVertical = () => {
+    onModeChange(false);
+  };
+  const handleHorizontal = () => {
+    onModeChange(true);
+  };
 
   return (
     <Box w="full" h="full" bg="black">
@@ -159,8 +159,7 @@ const Reader = ({
           initialScrollIndex={initialScrollIndex}
           windowSize={3}
           initialNumToRender={1}
-          maxToRenderPerBatch={1}
-          updateCellsBatchingPeriod={200}
+          maxToRenderPerBatch={3}
           getItemLayout={(_data, index) => {
             if (index === -1) {
               return { index, length: 0, offset: 0 };
@@ -171,7 +170,7 @@ const Reader = ({
               index,
             };
           }}
-          onScroll={handleHorizontalScroll}
+          onViewableItemsChanged={HandleViewableItemsChanged}
           renderItem={renderHorizontalItem}
           keyExtractor={(item) => item.uri}
         />
@@ -182,19 +181,14 @@ const Reader = ({
             h="full"
             ref={flatListRef}
             data={data}
-            windowSize={5}
-            initialScrollIndex={initialScrollIndex}
-            initialNumToRender={2}
-            maxToRenderPerBatch={1}
-            getItemLayout={(_data, index) => {
-              if (index === -1) {
-                return { index, length: 0, offset: 0 };
-              }
-              return layout[index];
-            }}
-            onScroll={handleVerticalScroll}
+            windowSize={3}
+            initialNumToRender={1}
+            maxToRenderPerBatch={3}
+            onViewableItemsChanged={HandleViewableItemsChanged}
             renderItem={renderVerticalItem}
             keyExtractor={(item) => item.uri}
+            ListHeaderComponent={<Box height={0} safeAreaTop />}
+            ListFooterComponent={<Box height={0} safeAreaBottom />}
           />
         </Controller>
       )}
@@ -209,26 +203,46 @@ const Reader = ({
             safeAreaTop
             safeAreaLeft
             safeAreaRight
-            pr={3}
           >
             <IconButton
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
               onPress={goBack}
             />
-            <Text fontSize="md" w="2/3" numberOfLines={1} color="white" fontWeight="bold">
+            <Text fontSize="md" w="3/5" numberOfLines={1} color="white" fontWeight="bold">
+              {title}
+              {title}
+              {title}
+              {title}
+              {title}
+              {title}
               {title}
             </Text>
             <Box flex={1} />
             <Text color="white" fontWeight="bold">
               {page} / {data.length}
             </Text>
+            {horizontal ? (
+              <IconButton
+                icon={
+                  <Icon as={MaterialIcons} name="stay-primary-portrait" size="lg" color="white" />
+                }
+                onPress={handleVertical}
+              />
+            ) : (
+              <IconButton
+                icon={
+                  <Icon as={MaterialIcons} name="stay-primary-landscape" size="lg" color="white" />
+                }
+                onPress={handleHorizontal}
+              />
+            )}
           </Flex>
 
           <PageSlider
             ref={pageSliderRef}
             max={data.length}
             defaultValue={page}
-            onSliderChangeEnd={handleSliderChangeEnd}
+            onSliderChangeEnd={horizontal ? handleSliderChangeEndHor : handleSliderChangeEndVer}
           />
         </Fragment>
       )}

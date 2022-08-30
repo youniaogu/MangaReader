@@ -1,16 +1,17 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { isChapter, AsyncStatus } from '~/utils';
+import { isChapter, AsyncStatus, ReaderMode } from '~/utils';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import Reader from '~/components/Reader';
 
-const { loadChapter, viewChapter, viewPage } = action;
+const { loadChapter, viewChapter, viewPage, setReaderMode } = action;
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash, page } = route.params || {};
   const dispatch = useAppDispatch();
+  const readerMode = useAppSelector((state) => state.setting.readerMode);
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
@@ -23,14 +24,15 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   }, [data, dispatch, chapterHash]);
 
   const handlePageChange = useCallback(
-    (currentPage: number) => {
-      dispatch(viewPage({ mangaHash, page: currentPage }));
-    },
+    (currentPage: number) => dispatch(viewPage({ mangaHash, page: currentPage })),
     [dispatch, mangaHash]
   );
-  const handleGoBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
+  const handleGoBack = useCallback(() => navigation.goBack(), [navigation]);
+  const handleModeChange = useCallback(
+    (isHorizontal) =>
+      dispatch(setReaderMode(isHorizontal ? ReaderMode.Horizontal : ReaderMode.Vertical)),
+    [dispatch]
+  );
 
   const handleRetry = () => {
     dispatch(loadChapter({ chapterHash }));
@@ -50,12 +52,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   return (
     <Reader
+      horizontal={readerMode === ReaderMode.Horizontal}
       title={data.title}
       initPage={page}
       data={data.images}
       headers={data.headers}
-      onPageChange={handlePageChange}
       goBack={handleGoBack}
+      onModeChange={handleModeChange}
+      onPageChange={handlePageChange}
     />
   );
 };

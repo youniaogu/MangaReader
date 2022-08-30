@@ -1,4 +1,4 @@
-import { AsyncStatus, MangaStatus, customTheme } from '~/utils';
+import { AsyncStatus, MangaStatus, ReaderMode, customTheme } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
@@ -80,6 +80,9 @@ declare global {
       syncStatus: AsyncStatus;
       clearStatus: AsyncStatus;
       errorMessage: string[];
+    };
+    setting: {
+      readerMode: ReaderMode;
     };
     plugin: {
       source: Plugin;

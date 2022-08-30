@@ -12,8 +12,8 @@ import {
   race,
 } from 'redux-saga/effects';
 import { storageKey, fetchData, haveError, fixDictShape } from '~/utils';
-import { splitHash, PluginMap, defaultPlugin } from '~/plugins';
 import { nanoid, PayloadAction } from '@reduxjs/toolkit';
+import { splitHash, PluginMap } from '~/plugins';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -25,6 +25,7 @@ const {
   syncFavorites,
   syncDict,
   syncPlugin,
+  syncSetting,
   clearCache,
   clearCacheCompletion,
   catchError,
@@ -33,6 +34,7 @@ const {
   endBatchUpdate,
   batchRecord,
   cancelLoadManga,
+  setReaderMode,
   setSource,
   disablePlugin,
   viewChapter,
@@ -67,26 +69,24 @@ function* syncDataSaga() {
       const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
       const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
       const pluginData: string | null = yield call(AsyncStorage.getItem, storageKey.plugin);
+      const settingData: string | null = yield call(AsyncStorage.getItem, storageKey.setting);
 
-      let favorites: RootState['favorites'] = [];
-      let dict: RootState['dict'] = { manga: {}, chapter: {} };
-      let plugin: RootState['plugin'] = { list: [], source: defaultPlugin };
       if (favoritesData) {
-        favorites = JSON.parse(favoritesData);
+        const favorites: RootState['favorites'] = JSON.parse(favoritesData);
         yield put(syncFavorites(favorites));
       }
       if (dictData) {
-        dict = JSON.parse(dictData);
+        const dict: RootState['dict'] = JSON.parse(dictData);
         yield put(syncDict(fixDictShape(dict)));
       }
       if (pluginData) {
         const pluginCache: RootState['plugin'] = JSON.parse(pluginData);
+        const list: RootState['plugin']['list'] = [];
 
-        plugin.source = pluginCache.source;
         PluginMap.forEach((item) => {
           const finded = pluginCache.list.find((obj) => obj.value === item.id);
 
-          plugin.list.push({
+          list.push({
             name: item.name,
             label: item.shortName,
             value: item.id,
@@ -95,18 +95,28 @@ function* syncDataSaga() {
             disabled: finded ? finded.disabled : true,
           });
         });
-        yield put(syncPlugin(plugin));
+        yield put(
+          syncPlugin({
+            source: pluginCache.source,
+            list,
+          })
+        );
+      }
+      if (settingData) {
+        const setting: RootState['setting'] = JSON.parse(settingData);
+        yield put(syncSetting(setting));
       }
 
       yield put(syncDataCompletion({ error: undefined }));
-    } catch (e) {
-      yield put(syncDataCompletion({ error: new Error('launch fail') }));
+    } catch (error) {
+      yield put(syncDataCompletion({ error: new Error('syncData fail') }));
     }
   });
 }
 function* storageDataSaga() {
   yield takeLatest(
     [
+      setReaderMode.type,
       setSource.type,
       disablePlugin.type,
       viewChapter.type,

@@ -1,40 +1,11 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 
-/**
- * @description enum of any async status
- * @enum {number}
- */
-export enum AsyncStatus {
-  Default,
-  Pending,
-  Fulfilled,
-  Rejected,
-}
-
-/**
- * @description enum of manga serial status
- * @enum {number}
- */
-export enum MangaStatus {
-  Unknown,
-  Serial,
-  End,
-}
-
-/**
- * @description enum of nodejs env
- * @enum {number}
- */
-export enum env {
-  DEV = 'development',
-  PROD = 'production',
-}
-
 export const coverAspectRatio = 210 / 297;
 export const storageKey = {
   favorites: '@favorites',
   dict: '@dict',
   plugin: '@plugin',
+  setting: '@setting',
 };
 
 export function isManga(item: Manga | undefined | null): item is Manga {
