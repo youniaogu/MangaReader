@@ -20,6 +20,7 @@ export const fetchData = ({
     method: method.toUpperCase(),
     headers,
     signal: controller.signal,
+    redirect: 'follow',
   };
 
   if (Object.keys(body).length > 0) {

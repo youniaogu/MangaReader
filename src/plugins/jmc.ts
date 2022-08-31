@@ -64,7 +64,7 @@ class CopyManga extends Base {
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
     return {
-      url: `https://jmcomic.asia/albums${type === Options.Default ? '' : `/${type}`}`,
+      url: `https://18comic.vip/albums${type === Options.Default ? '' : `/${type}`}`,
       body: {
         o: sort === Options.Default ? 'mr' : sort,
         page,
@@ -74,7 +74,7 @@ class CopyManga extends Base {
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
     return {
-      url: 'https://jmcomic.asia/search/photos',
+      url: 'https://18comic.vip/search/photos',
       body: {
         main_tag: 0,
         search_query: keyword,
@@ -85,14 +85,14 @@ class CopyManga extends Base {
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://jmcomic.asia/album/${mangaId}`,
+      url: `https://18comic.vip/album/${mangaId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (_mangaId, chapterId) => {
     return {
-      url: `https://jmcomic.asia/photo/${chapterId}`,
+      url: `https://18comic.vip/photo/${chapterId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -133,7 +133,7 @@ class CopyManga extends Base {
           }
 
           list.push({
-            href: 'https://jmcomic.asia' + href,
+            href: 'https://18comic.vip' + href,
             hash: Base.combineHash(this.id, mangaId),
             source: this.id,
             sourceName: this.name,
@@ -195,7 +195,7 @@ class CopyManga extends Base {
           }
 
           list.push({
-            href: 'https://jmcomic.asia' + href,
+            href: 'https://18comic.vip' + href,
             hash: Base.combineHash(this.id, mangaId),
             source: this.id,
             sourceName: this.name,
@@ -227,7 +227,7 @@ class CopyManga extends Base {
 
       const [, mangaId] =
         ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
-      const href = `https://jmcomic.asia/album/${mangaId}`;
+      const href = `https://18comic.vip/album/${mangaId}`;
       const title = $('h1#book-name').text() || '';
       const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
       const cover = $('div.show_zoom img').first().attr('src') || '';
@@ -252,7 +252,7 @@ class CopyManga extends Base {
             hash: Base.combineHash(this.id, mangaId, chapterId),
             mangaId,
             chapterId,
-            href: `https://jmcomic.asia${chapterHref}`,
+            href: `https://18comic.vip${chapterHref}`,
             title: chapterTitle.replaceAll('\n', ''),
           };
         })
@@ -274,7 +274,7 @@ class CopyManga extends Base {
           hash: Base.combineHash(this.id, mangaId, firstChapterId),
           mangaId,
           chapterId: firstChapterId,
-          href: `https://jmcomic.asia${firstChapterHref}`,
+          href: `https://18comic.vip${firstChapterHref}`,
           title: '开始阅读',
         });
       }
@@ -344,7 +344,7 @@ class CopyManga extends Base {
           title,
           headers: {
             ...this.defaultHeaders,
-            referer: 'https://jmcomic.asia/',
+            referer: 'https://18comic.vip/',
             accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             pragma: 'no-cache',
             'cache-control': 'no-cache',
