@@ -188,11 +188,13 @@ class ManHuaGuiMobile extends Base {
         const title = $$('h3').first().text();
         const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
         const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-        const [authorLabel = '', tag, latest, updateTimeLabel = ''] = $$('dl')
+        const [authorLabel, tagLabel, latestLabel, updateTimeLabel] = $$('dl')
           .toArray()
-          .map((dl) => cheerio.load(dl).root().text());
-        const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
-        const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+          .map((dl) => cheerio.load(dl)('dd').toArray()) as cheerio.TagElement[][];
+        const author = authorLabel.map((item) => item.children[0].data || '');
+        const tag = tagLabel.map((item) => item.children[0].data || '');
+        const latest = latestLabel[0].children[0].data || '';
+        const updateTime = updateTimeLabel[0].children[0].data || '';
         const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
         let status = MangaStatus.Unknown;
@@ -218,8 +220,8 @@ class ManHuaGuiMobile extends Base {
           cover,
           latest,
           updateTime,
-          author: author.split(','),
-          tag: tag.split(','),
+          author,
+          tag,
           chapters: [],
         });
       });
@@ -239,17 +241,19 @@ class ManHuaGuiMobile extends Base {
       const $ = cheerio.load(text || '');
       const list: Manga[] = [];
 
-      ($('li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
+      ($('ul#detail > li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
         const $$ = cheerio.load(a);
         const href = 'https://m.manhuagui.com' + a.attribs.href;
         const title = $$('h3').first().text();
         const statusLabel = $$('div.thumb i').first().text(); // 连载 or 完结
         const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
-        const [authorLabel = '', tag, latest, updateTimeLabel = ''] = $$('dl')
+        const [authorLabel, tagLabel, latestLabel, updateTimeLabel] = $$('dl')
           .toArray()
-          .map((dl) => cheerio.load(dl).root().text());
-        const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
-        const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
+          .map((dl) => cheerio.load(dl)('dd').toArray()) as cheerio.TagElement[][];
+        const author = authorLabel.map((item) => item.children[0].data || '');
+        const tag = tagLabel.map((item) => item.children[0].data || '');
+        const latest = latestLabel[0].children[0].data || '';
+        const updateTime = updateTimeLabel[0].children[0].data || '';
         const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
         let status = MangaStatus.Unknown;
@@ -275,8 +279,8 @@ class ManHuaGuiMobile extends Base {
           cover,
           latest,
           updateTime,
-          author: author.split(','),
-          tag: tag.split(','),
+          author,
+          tag,
           chapters: [],
         });
       });

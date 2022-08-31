@@ -95,8 +95,8 @@ const styles = StyleSheet.create({
     width: windowWidth,
   },
   loading: {
-    width: windowWidth * 0.3,
-    height: windowHeight,
+    width: '30%',
+    height: '100%',
   },
 });
 

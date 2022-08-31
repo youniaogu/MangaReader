@@ -224,14 +224,14 @@ const Reader = ({
             {horizontal ? (
               <IconButton
                 icon={
-                  <Icon as={MaterialIcons} name="stay-primary-portrait" size="lg" color="white" />
+                  <Icon as={MaterialIcons} name="stay-primary-landscape" size="lg" color="white" />
                 }
                 onPress={handleVertical}
               />
             ) : (
               <IconButton
                 icon={
-                  <Icon as={MaterialIcons} name="stay-primary-landscape" size="lg" color="white" />
+                  <Icon as={MaterialIcons} name="stay-primary-portrait" size="lg" color="white" />
                 }
                 onPress={handleHorizontal}
               />

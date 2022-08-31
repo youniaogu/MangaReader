@@ -21,6 +21,7 @@ export const fetchData = ({
     headers,
     signal: controller.signal,
     redirect: 'follow',
+    credentials: 'omit',
   };
 
   if (Object.keys(body).length > 0) {
