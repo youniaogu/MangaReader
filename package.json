@@ -1,6 +1,6 @@
 {
   "name": "mangareader",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "scripts": {
     "android": "react-native run-android",

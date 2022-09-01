@@ -41,7 +41,7 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 
   - [x] [manhuadb](https://www.manhuadb.com/)
 
-  - [x] [jmcomic](https://jmcomic.asia)
+  - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip）
 
   - [x] [dongmanzhijia](https://m.dmzj.com/)
 
@@ -59,4 +59,4 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 
 - [x] 插件配置页
 
-- [ ] 竖屏模式
+- [x] 竖屏模式
