@@ -159,7 +159,7 @@ const Controller = ({ onTap, children, horizontal = false }: ControllerProps) =>
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
           {horizontal ? (
-            <Box w={windowWidth} h={windowHeight} bg="black" safeArea>
+            <Box w={windowWidth} h={windowHeight} safeArea>
               <Animated.View style={animatedStyle}>{children}</Animated.View>
             </Box>
           ) : (

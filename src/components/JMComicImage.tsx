@@ -48,11 +48,11 @@ const JMComicImage = ({ uri, headers = {}, horizontal = false, onSuccess }: JMCo
         let prevDh: number = 0;
         step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, index) => {
           if (index <= 0) {
-            prevDy = Math.round(dy * container.scale * 1000) / 1000;
+            prevDy = dy * container.scale;
           } else {
             prevDy = prevDh + prevDy;
           }
-          prevDh = Math.round(dHeight * container.scale * 1000) / 1000;
+          prevDh = dHeight * container.scale;
 
           ctx.drawImage(
             image,

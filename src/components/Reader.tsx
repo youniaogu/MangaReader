@@ -8,7 +8,6 @@ import Controller from '~/components/Controller';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 
 const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 
 interface ReaderProps {
@@ -35,13 +34,10 @@ const Reader = ({
   const toast = useToast();
   const [page, setPage] = useState(initPage);
   const [showExtra, setShowExtra] = useState(false);
-  const layout = useRef(
-    data.map((_, index) => ({ length: windowHeight, offset: index * windowHeight, index }))
-  );
   const timeout = useRef<NodeJS.Timeout | null>(null);
   const flatListRef = useRef<FlatListRN>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
-  const initialScrollIndex = Math.max(Math.min(initPage - 1, data.length - 1), 0);
+  const initialScrollIndex = Math.max(Math.min(page - 1, data.length - 1), 0);
   const toastRef = useRef(toast);
   const dataRef = useRef(data);
   toastRef.current = toast;
@@ -75,31 +71,16 @@ const Reader = ({
     }, 200);
   }, []);
   const renderVerticalItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<typeof data[0]>) => {
+    ({ item }: ListRenderItemInfo<typeof data[0]>) => {
       const { uri, needUnscramble } = item;
-      const handleSuccess = (image: { width: number; height: number }) => {
-        const prevIndex = layout.current[index].index;
-        const prevLength = layout.current[index].length;
-        const newLayout = layout.current.map((curr) => {
-          if (curr.index < prevIndex) {
-            return curr;
-          }
-          return {
-            ...curr,
-            length: image.height,
-            offset: curr.offset - prevLength + image.height,
-          };
-        });
-        layout.current === newLayout;
-      };
 
       return needUnscramble ? (
-        <JMComicImage uri={uri} headers={headers} onSuccess={handleSuccess} />
+        <JMComicImage uri={uri} headers={headers} />
       ) : (
-        <ImageWithRetry uri={uri} headers={headers} onSuccess={handleSuccess} />
+        <ImageWithRetry uri={uri} headers={headers} />
       );
     },
-    [headers, layout]
+    [headers]
   );
   const renderHorizontalItem = useCallback(
     ({ item }: ListRenderItemInfo<typeof data[0]>) => {
@@ -117,7 +98,7 @@ const Reader = ({
     },
     [headers, toggleExtra]
   );
-  const handleSliderChangeEndHor = useCallback((newStep: number) => {
+  const handleSliderChangeEnd = useCallback((newStep: number) => {
     const newPage = Math.floor(newStep);
 
     setPage(newPage);
@@ -127,15 +108,6 @@ const Reader = ({
       // bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
       flatListRef.current?.scrollToOffset({ offset: 1, animated: false });
     }
-  }, []);
-  const handleSliderChangeEndVer = useCallback((newStep: number) => {
-    const newPage = Math.floor(newStep);
-    const offset = layout.current[newPage].offset;
-
-    setPage(newPage);
-    flatListRef.current?.scrollToOffset({
-      offset: offset <= 0 ? 1 : offset,
-    });
   }, []);
 
   const handleVertical = () => {
@@ -210,12 +182,6 @@ const Reader = ({
             />
             <Text fontSize="md" w="3/5" numberOfLines={1} color="white" fontWeight="bold">
               {title}
-              {title}
-              {title}
-              {title}
-              {title}
-              {title}
-              {title}
             </Text>
             <Box flex={1} />
             <Text color="white" fontWeight="bold">
@@ -238,12 +204,14 @@ const Reader = ({
             )}
           </Flex>
 
-          <PageSlider
-            ref={pageSliderRef}
-            max={data.length}
-            defaultValue={page}
-            onSliderChangeEnd={horizontal ? handleSliderChangeEndHor : handleSliderChangeEndVer}
-          />
+          {horizontal && (
+            <PageSlider
+              ref={pageSliderRef}
+              max={data.length}
+              defaultValue={page}
+              onSliderChangeEnd={handleSliderChangeEnd}
+            />
+          )}
         </Fragment>
       )}
     </Box>
