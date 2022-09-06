@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isChapter, AsyncStatus, ReaderMode } from '~/utils';
+import { useFocusEffect } from '@react-navigation/native';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
@@ -16,12 +17,16 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
 
-  useEffect(() => {
-    dispatch(viewChapter({ mangaHash, chapterHash }));
-  }, [dispatch, mangaHash, chapterHash]);
-  useEffect(() => {
-    !isChapter(data) && dispatch(loadChapter({ chapterHash }));
-  }, [data, dispatch, chapterHash]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(viewChapter({ mangaHash, chapterHash }));
+    }, [dispatch, mangaHash, chapterHash])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      !isChapter(data) && dispatch(loadChapter({ chapterHash }));
+    }, [data, dispatch, chapterHash])
+  );
 
   const handlePageChange = useCallback(
     (currentPage: number) => dispatch(viewPage({ mangaHash, page: currentPage })),

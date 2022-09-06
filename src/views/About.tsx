@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { action, useAppDispatch, useAppSelector } from '~/redux';
 import { Button, VStack, Icon } from 'native-base';
+import { useFocusEffect } from '@react-navigation/native';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -13,11 +14,13 @@ const About = () => {
   const clearStatus = useAppSelector((state) => state.app.clearStatus);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    if (clearStatus !== AsyncStatus.Pending) {
-      setTimeout(() => setClearRedux(false), 500);
-    }
-  }, [clearStatus]);
+  useFocusEffect(
+    useCallback(() => {
+      if (clearStatus !== AsyncStatus.Pending) {
+        setTimeout(() => setClearRedux(false), 500);
+      }
+    }, [clearStatus])
+  );
 
   const handleImageCacheClear = () => {
     setClearImage(true);

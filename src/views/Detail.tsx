@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   Box,
   Flex,
@@ -13,6 +13,7 @@ import {
 import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
 import { coverAspectRatio, isManga, MangaStatus, AsyncStatus } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
 import { useOnce } from '~/hooks';
@@ -40,9 +41,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     }
   });
 
-  useEffect(() => {
-    isManga(data) && navigation.setOptions({ title: data.title });
-  }, [navigation, data]);
+  useFocusEffect(
+    useCallback(() => {
+      isManga(data) && navigation.setOptions({ title: data.title });
+    }, [navigation, data])
+  );
 
   const handleReload = useCallback(() => {
     isManga(data) && dispatch(loadManga({ mangaHash }));

@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback, Fragment } from 'react';
+import React, { useState, useRef, useCallback, Fragment } from 'react';
 import { Box, Text, Flex, Icon, IconButton, FlatList, StatusBar, useToast } from 'native-base';
 import { FlatList as FlatListRN, Dimensions, ListRenderItemInfo } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ImageWithRetry from '~/components/ImageWithRetry';
 import JMComicImage from '~/components/JMComicImage';
@@ -43,9 +44,11 @@ const Reader = ({
   toastRef.current = toast;
   dataRef.current = data;
 
-  useEffect(() => {
-    onPageChange && onPageChange(page);
-  }, [page, onPageChange]);
+  useFocusEffect(
+    useCallback(() => {
+      onPageChange && onPageChange(page);
+    }, [page, onPageChange])
+  );
 
   const toggleExtra = useCallback(() => {
     setShowExtra((prev) => !prev);

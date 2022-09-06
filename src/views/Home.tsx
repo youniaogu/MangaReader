@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon, View, Text } from 'native-base';
 import { AsyncStatus, isManga } from '~/utils';
 import { useErrorMessageToast } from '~/hooks';
+import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import Rotate from '~/components/Rotate';
@@ -26,9 +27,11 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   );
 
   useErrorMessageToast();
-  useEffect(() => {
-    dispatch(launch());
-  }, [dispatch]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(launch());
+    }, [dispatch])
+  );
 
   const handleDetail = (mangaHash: string) => {
     navigate('Detail', { mangaHash });
@@ -49,9 +52,11 @@ export const SearchAndAbout = () => {
   const dispatch = useAppDispatch();
   const { loadStatus: batchStatus, queue, fail } = useAppSelector((state) => state.batch);
 
-  useEffect(() => {
-    setIsRotate(batchStatus === AsyncStatus.Pending);
-  }, [batchStatus]);
+  useFocusEffect(
+    useCallback(() => {
+      setIsRotate(batchStatus === AsyncStatus.Pending);
+    }, [batchStatus])
+  );
 
   const handleSearch = () => {
     RootNavigation.navigate('Discovery');

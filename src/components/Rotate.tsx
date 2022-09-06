@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -6,6 +6,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface RotateProps {
   isRotate?: boolean;
@@ -20,17 +21,19 @@ const Rotate = ({ isRotate = false, children }: RotateProps) => {
     };
   });
 
-  useEffect(() => {
-    if (isRotate) {
-      offset.value = withRepeat(
-        withTiming(360, { duration: 1500, easing: Easing.linear }),
-        -1,
-        false
-      );
-    } else {
-      offset.value = 0;
-    }
-  }, [isRotate, offset]);
+  useFocusEffect(
+    useCallback(() => {
+      if (isRotate) {
+        offset.value = withRepeat(
+          withTiming(360, { duration: 1500, easing: Easing.linear }),
+          -1,
+          false
+        );
+      } else {
+        offset.value = 0;
+      }
+    }, [isRotate, offset])
+  );
 
   return <Animated.View style={animatedStyles}>{children}</Animated.View>;
 };

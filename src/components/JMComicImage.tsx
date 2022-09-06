@@ -1,7 +1,8 @@
-import React, { useRef, useState, memo, useEffect } from 'react';
+import React, { useRef, useState, useCallback, memo } from 'react';
 import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus, scaleToFit } from '~/utils';
+import { useFocusEffect } from '@react-navigation/native';
 import { Image, Center } from 'native-base';
 import { unscramble } from '~/plugins/jmc';
 import { nanoid } from '@reduxjs/toolkit';
@@ -31,73 +32,80 @@ const JMComicImage = ({ uri, headers = {}, horizontal = false, onSuccess }: JMCo
   const [imageHeight, setImageHeight] = useState(windowHeight);
   const canvasRef = useRef<Canvas>(null);
 
-  useEffect(() => {
-    if (canvasRef.current && source) {
-      const { base64, width, height } = source;
-      const ctx = canvasRef.current.getContext('2d');
-      const step = unscramble(uri, width, height);
-      const image = new CanvasImage(canvasRef.current, height, width);
-      image.src = base64;
+  useFocusEffect(
+    useCallback(() => {
+      if (canvasRef.current && source) {
+        const { base64, width, height } = source;
+        const ctx = canvasRef.current.getContext('2d');
+        const step = unscramble(uri, width, height);
+        const image = new CanvasImage(canvasRef.current, height, width);
+        image.src = base64;
 
-      const container = scaleToFit({ width, height }, { width: windowWidth, height: windowHeight });
-      canvasRef.current.width = container.dWidth;
-      canvasRef.current.height = container.dHeight;
+        const container = scaleToFit(
+          { width, height },
+          { width: windowWidth, height: windowHeight }
+        );
+        canvasRef.current.width = container.dWidth;
+        canvasRef.current.height = container.dHeight;
 
-      image.addEventListener('load', () => {
-        let prevDy: number = 0;
-        let prevDh: number = 0;
-        step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, index) => {
-          if (index <= 0) {
-            prevDy = dy * container.scale;
-          } else {
-            prevDy = prevDh + prevDy;
+        image.addEventListener('load', () => {
+          let prevDy: number = 0;
+          let prevDh: number = 0;
+          step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, index) => {
+            if (index <= 0) {
+              prevDy = dy * container.scale;
+            } else {
+              prevDy = prevDh + prevDy;
+            }
+            prevDh = dHeight * container.scale;
+
+            ctx.drawImage(
+              image,
+              sx,
+              sy,
+              sWidth,
+              sHeight,
+              dx * container.scale,
+              prevDy,
+              dWidth * container.scale,
+              prevDh
+            );
+          });
+
+          if (canvasRef.current) {
+            canvasRef.current.toDataURL().then((res) => {
+              setDataUrl(res.replace(/^"|"$/g, ''));
+              setLoadStatus(AsyncStatus.Fulfilled);
+            });
           }
-          prevDh = dHeight * container.scale;
-
-          ctx.drawImage(
-            image,
-            sx,
-            sy,
-            sWidth,
-            sHeight,
-            dx * container.scale,
-            prevDy,
-            dWidth * container.scale,
-            prevDh
-          );
         });
+      }
+    }, [uri, source])
+  );
 
-        if (canvasRef.current) {
-          canvasRef.current.toDataURL().then((res) => {
-            setDataUrl(res.replace(/^"|"$/g, ''));
-            setLoadStatus(AsyncStatus.Fulfilled);
-          });
-        }
-      });
-    }
-  }, [uri, source]);
+  useFocusEffect(
+    useCallback(() => {
+      if (loadStatus === AsyncStatus.Default) {
+        setLoadStatus(AsyncStatus.Pending);
+        CacheManager.prefetchBlob(uri, { headers })
+          .then((base64) => {
+            if (!base64) {
+              handleError();
+              return;
+            }
+            base64 = 'data:image/png;base64,' + base64;
 
-  useEffect(() => {
-    if (loadStatus === AsyncStatus.Default) {
-      setLoadStatus(AsyncStatus.Pending);
-      CacheManager.prefetchBlob(uri, { headers })
-        .then((base64) => {
-          if (!base64) {
-            handleError();
-            return;
-          }
-          base64 = 'data:image/png;base64,' + base64;
-
-          ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
-            const fillHeight = (height / width) * windowWidth;
-            setSource({ base64: base64 as string, width, height });
-            setImageHeight(fillHeight);
-            onSuccess && onSuccess({ width: windowWidth, height: fillHeight });
-          });
-        })
-        .catch(handleError);
-    }
-  }, [uri, headers, loadStatus, onSuccess]);
+            ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
+              const fillHeight = (height / width) * windowWidth;
+              setSource({ base64: base64 as string, width, height });
+              setImageHeight(fillHeight);
+              onSuccess && onSuccess({ width: windowWidth, height: fillHeight });
+            });
+          })
+          .catch(handleError);
+      }
+    }, [uri, headers, loadStatus, onSuccess])
+  );
 
   const handleError = () => {
     setLoadStatus(AsyncStatus.Rejected);

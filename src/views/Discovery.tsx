@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo, Fragment } from 'react';
+import React, { useMemo, useState, useCallback, Fragment } from 'react';
 import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga, AsyncStatus } from '~/utils';
 import { useErrorMessageToast } from '~/hooks';
 import { Plugin, PluginMap } from '~/plugins';
+import { useFocusEffect } from '@react-navigation/native';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
@@ -20,9 +21,11 @@ const Discovery = ({ navigation: { navigate } }: StackHomeProps) => {
   const updateList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useErrorMessageToast();
-  useEffect(() => {
-    loadStatus === AsyncStatus.Default && dispatch(loadDiscovery({ isReset: true, source }));
-  }, [dispatch, loadStatus, source]);
+  useFocusEffect(
+    useCallback(() => {
+      loadStatus === AsyncStatus.Default && dispatch(loadDiscovery({ isReset: true, source }));
+    }, [dispatch, loadStatus, source])
+  );
 
   const handleLoadMore = useCallback(() => {
     dispatch(loadDiscovery({ source }));

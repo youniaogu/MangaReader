@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga, AsyncStatus } from '~/utils';
+import { useFocusEffect } from '@react-navigation/native';
 import Bookshelf from '~/components/Bookshelf';
 
 const { loadSearch } = action;
@@ -14,9 +15,11 @@ const Search = ({ route, navigation }: StackSearchProps) => {
   const { source } = useAppSelector((state) => state.plugin);
   const searchList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
-  useEffect(() => {
-    navigation.setOptions({ title: keyword });
-  }, [keyword, navigation]);
+  useFocusEffect(
+    useCallback(() => {
+      navigation.setOptions({ title: keyword });
+    }, [keyword, navigation])
+  );
 
   const handleLoadMore = useCallback(() => {
     dispatch(loadSearch({ keyword, source }));
