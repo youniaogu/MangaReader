@@ -418,8 +418,11 @@ function* loadChapterSaga() {
 }
 
 function* catchErrorSaga() {
-  yield takeEvery('*', function* ({ payload }: PayloadAction<any>) {
-    if (!haveError(payload)) {
+  yield takeEvery('*', function* ({ type, payload }: PayloadAction<any>) {
+    if (
+      !haveError(payload) ||
+      [loadMangaInfoCompletion.type, loadChapterListCompletion.type].includes(type)
+    ) {
       return;
     }
 
