@@ -1,18 +1,17 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon, View, Text } from 'native-base';
-import { AsyncStatus, isManga } from '~/utils';
 import { useErrorMessageToast } from '~/hooks';
+import { AsyncStatus, isManga } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import Rotate from '~/components/Rotate';
 import * as RootNavigation from '~/utils/navigation';
 
-const { launch, batchUpdate } = action;
+const { batchUpdate } = action;
 
 const Home = ({ navigation: { navigate } }: StackHomeProps) => {
-  const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const loadStatus = useAppSelector((state) => state.app.launchStatus);
@@ -27,11 +26,6 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   );
 
   useErrorMessageToast();
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(launch());
-    }, [dispatch])
-  );
 
   const handleDetail = (mangaHash: string) => {
     navigate('Detail', { mangaHash });

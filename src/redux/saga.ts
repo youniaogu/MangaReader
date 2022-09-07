@@ -55,6 +55,10 @@ const {
   loadChapterCompletion,
 } = action;
 
+function* initSaga() {
+  yield put(launch());
+}
+
 function* launchSaga() {
   yield takeLatest(launch.type, function* () {
     yield put(syncData());
@@ -437,6 +441,8 @@ function* catchErrorSaga() {
 
 export default function* rootSaga() {
   yield all([
+    fork(initSaga),
+
     fork(launchSaga),
     fork(syncDataSaga),
     fork(storageDataSaga),

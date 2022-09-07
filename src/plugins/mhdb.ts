@@ -117,11 +117,6 @@ class ManHuaDB extends Base {
     );
   }
 
-  is(hash: string) {
-    const [plugin] = Base.splitHash(hash);
-    return plugin === Plugin.MHDB;
-  }
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
     let query = '';
     if (region !== Options.Default) {

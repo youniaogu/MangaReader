@@ -57,11 +57,6 @@ class CopyManga extends Base {
     );
   }
 
-  is(hash: string) {
-    const [plugin] = Base.splitHash(hash);
-    return plugin === Plugin.JMC;
-  }
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
     return {
       url: `https://18comic.vip/albums${type === Options.Default ? '' : `/${type}`}`,

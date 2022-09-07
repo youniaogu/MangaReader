@@ -10,13 +10,13 @@ import MHM from './mhm';
 export * from './base';
 
 export const PluginMap = new Map([
-  [Plugin.DMZJ, DMZJ],
-  [Plugin.COPY, COPY],
-  [Plugin.MHDB, MHDB],
-  [Plugin.MHG, MHG],
-  [Plugin.MHGM, MHGM],
-  [Plugin.JMC, JMC],
-  [Plugin.MHM, MHM],
+  [DMZJ.id, DMZJ],
+  [COPY.id, COPY],
+  [MHDB.id, MHDB],
+  [MHG.id, MHG],
+  [MHGM.id, MHGM],
+  [JMC.id, JMC],
+  [MHM.id, MHM],
 ]);
 export const isJMC = JMC.is;
 export const combineHash = Base.combineHash;

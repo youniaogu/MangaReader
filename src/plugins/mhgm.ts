@@ -101,11 +101,6 @@ class ManHuaGuiMobile extends Base {
     );
   }
 
-  is(hash: string) {
-    const [plugin] = Base.splitHash(hash);
-    return plugin === Plugin.MHGM;
-  }
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
     if (this.useMock) {
       return {

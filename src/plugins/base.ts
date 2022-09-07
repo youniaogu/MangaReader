@@ -143,7 +143,10 @@ abstract class Base {
    * @return {*}  {boolean}
    * @memberof Base
    */
-  abstract is(hash: string): boolean;
+  public is(hash: string): boolean {
+    const [plugin] = Base.splitHash(hash);
+    return plugin === this.id;
+  }
 
   /**
    * @description accept page param, return body for discovery fetch

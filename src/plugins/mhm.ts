@@ -91,11 +91,6 @@ class ManHuaMao extends Base {
     );
   }
 
-  is(hash: string) {
-    const [plugin] = Base.splitHash(hash);
-    return plugin === Plugin.MHGM;
-  }
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
     return {
       url: `https://www.maofly.com/list/a-${region === Options.Default ? 0 : region}-c-${

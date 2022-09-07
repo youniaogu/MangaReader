@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isChapter, AsyncStatus, ReaderMode } from '~/utils';
+import { useErrorMessageToast } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
@@ -17,6 +18,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
 
+  useErrorMessageToast();
   useFocusEffect(
     useCallback(() => {
       dispatch(viewChapter({ mangaHash, chapterHash }));

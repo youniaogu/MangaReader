@@ -119,11 +119,6 @@ class DongManZhiJia extends Base {
     );
   }
 
-  is(hash: string) {
-    const [plugin] = Base.splitHash(hash);
-    return plugin === Plugin.JMC;
-  }
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
     if (type === Options.Default) {
       type = '0';

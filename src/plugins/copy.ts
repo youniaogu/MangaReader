@@ -183,11 +183,6 @@ class CopyManga extends Base {
     );
   }
 
-  is(hash: string) {
-    const [plugin] = Base.splitHash(hash);
-    return plugin === Plugin.COPY;
-  }
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, _status, sort) => {
     return {
       url: 'https://api.copymanga.net/api/v3/comics',
