@@ -11,10 +11,11 @@ import {
   delay,
   race,
 } from 'redux-saga/effects';
-import { storageKey, fetchData, haveError, fixDictShape } from '~/utils';
+import { storageKey, fetchData, haveError, fixDictShape, ErrorMessage } from '~/utils';
 import { nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { splitHash, PluginMap } from '~/plugins';
 import { action } from './slice';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {
@@ -113,7 +114,7 @@ function* syncDataSaga() {
 
       yield put(syncDataCompletion({ error: undefined }));
     } catch (error) {
-      yield put(syncDataCompletion({ error: new Error('syncData fail') }));
+      yield put(syncDataCompletion({ error: new Error(ErrorMessage.SyncFail) }));
     }
   });
 }
@@ -214,11 +215,11 @@ function* loadDiscoverySaga() {
       );
 
       if (!plugin) {
-        yield put(loadDiscoveryCompletion({ error: new Error('Missing Plugin') }));
+        yield put(loadDiscoveryCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
         return;
       }
       if (isEnd) {
-        yield put(loadDiscoveryCompletion({ error: new Error('No More') }));
+        yield put(loadDiscoveryCompletion({ error: new Error(ErrorMessage.NoMore) }));
         return;
       }
 
@@ -241,11 +242,11 @@ function* loadSearchSaga() {
       const { page, isEnd } = ((state: RootState) => state.search)(yield select());
 
       if (!plugin) {
-        yield put(loadSearchCompletion({ error: new Error('Missing Plugin') }));
+        yield put(loadSearchCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
         return;
       }
       if (isEnd) {
-        yield put(loadSearchCompletion({ error: new Error('No More') }));
+        yield put(loadSearchCompletion({ error: new Error(ErrorMessage.NoMore) }));
         return;
       }
 
@@ -323,7 +324,7 @@ function* loadMangaInfoSaga() {
       const plugin = PluginMap.get(source);
 
       if (!plugin) {
-        yield put(loadMangaInfoCompletion({ error: new Error('Missing Plugin') }));
+        yield put(loadMangaInfoCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
         return;
       }
 
@@ -346,7 +347,7 @@ function* loadChapterListSaga() {
       const plugin = PluginMap.get(source);
 
       if (!plugin) {
-        yield put(loadChapterListCompletion({ error: new Error('Missing Plugin') }));
+        yield put(loadChapterListCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
         return;
       }
 
@@ -406,7 +407,7 @@ function* loadChapterSaga() {
       const plugin = PluginMap.get(source);
 
       if (!plugin) {
-        yield put(loadChapterCompletion({ error: new Error('Missing Plugin') }));
+        yield put(loadChapterCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
         return;
       }
 
@@ -425,14 +426,15 @@ function* catchErrorSaga() {
   yield takeEvery('*', function* ({ type, payload }: PayloadAction<any>) {
     if (
       !haveError(payload) ||
-      [loadMangaInfoCompletion.type, loadChapterListCompletion.type].includes(type)
+      [loadMangaInfoCompletion.type, loadChapterListCompletion.type].includes(type) ||
+      payload.error.message === ErrorMessage.NoMore
     ) {
       return;
     }
 
     const error = payload.error;
     if (error.message === 'Aborted') {
-      yield put(catchError('请求超时~'));
+      yield put(catchError(ErrorMessage.RequestTimeout));
     } else {
       yield put(catchError(error.message));
     }

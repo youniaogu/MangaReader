@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { MangaStatus } from '~/utils';
+import { MangaStatus, ErrorMessage } from '~/utils';
 import md5 from 'blueimp-md5';
 import * as cheerio from 'cheerio';
 
@@ -149,7 +149,7 @@ class CopyManga extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -211,7 +211,7 @@ class CopyManga extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -296,13 +296,13 @@ class CopyManga extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
-    return { error: new Error('Plugin JMC not support handleChapterList') };
+    return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
@@ -356,7 +356,7 @@ class CopyManga extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };

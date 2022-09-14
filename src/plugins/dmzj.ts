@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { MangaStatus } from '~/utils';
+import { MangaStatus, ErrorMessage } from '~/utils';
 import moment from 'moment';
 import * as cheerio from 'cheerio';
 
@@ -188,7 +188,7 @@ class DongManZhiJia extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -233,7 +233,7 @@ class DongManZhiJia extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -342,13 +342,13 @@ class DongManZhiJia extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
-    return { error: new Error('Plugin DMZJ not support handleChapterList') };
+    return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
@@ -389,7 +389,7 @@ class DongManZhiJia extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };

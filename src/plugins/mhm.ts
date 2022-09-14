@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { MangaStatus } from '~/utils';
+import { MangaStatus, ErrorMessage } from '~/utils';
 import LZString from 'lz-string';
 import * as cheerio from 'cheerio';
 
@@ -171,7 +171,7 @@ class ManHuaMao extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -217,7 +217,7 @@ class ManHuaMao extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -290,13 +290,13 @@ class ManHuaMao extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
-    return { error: new Error('Plugin MHGM not support handleChapterList') };
+    return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
@@ -340,7 +340,7 @@ class ManHuaMao extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };

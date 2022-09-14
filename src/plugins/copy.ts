@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { MangaStatus } from '~/utils';
+import { MangaStatus, ErrorMessage } from '~/utils';
 
 interface BaseResponse<T> {
   code: number;
@@ -265,13 +265,13 @@ class CopyManga extends Base {
           }),
         };
       } else {
-        throw new Error('Wrong response data: ' + JSON.stringify(res));
+        throw new Error(ErrorMessage.WrongResponse + res.message);
       }
     } catch (error) {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -299,13 +299,13 @@ class CopyManga extends Base {
           }),
         };
       } else {
-        throw new Error('Wrong response data: ' + JSON.stringify(res));
+        throw new Error(ErrorMessage.WrongResponse + res.message);
       }
     } catch (error) {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -342,13 +342,13 @@ class CopyManga extends Base {
           },
         };
       } else {
-        throw new Error('Wrong response data: ' + JSON.stringify(res));
+        throw new Error(ErrorMessage.WrongResponse + res.message);
       }
     } catch (error) {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -373,13 +373,13 @@ class CopyManga extends Base {
           canLoadMore: total > limit + offset,
         };
       } else {
-        throw new Error('Wrong response data: ' + JSON.stringify(res));
+        throw new Error(ErrorMessage.WrongResponse + res.message);
       }
     } catch (error) {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -413,13 +413,13 @@ class CopyManga extends Base {
           },
         };
       } else {
-        throw new Error('Wrong response data: ' + JSON.stringify(res));
+        throw new Error(ErrorMessage.WrongResponse + res.message);
       }
     } catch (error) {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };

@@ -36,3 +36,15 @@ export enum ReaderMode {
   Horizontal,
   Vertical,
 }
+
+export enum ErrorMessage {
+  Unknown = '未知错误~',
+  NoMore = '没有更多~',
+  PluginMissing = '缺少插件~',
+  Timeout = '超时~',
+  RequestTimeout = '请求超时~',
+  NoSupport = '插件不支持',
+  MissingChapterInfo = '缺少章节信息~',
+  SyncFail = '同步数据失败～',
+  WrongResponse = '响应失败: ',
+}

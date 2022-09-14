@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { MangaStatus } from '~/utils';
+import { MangaStatus, ErrorMessage } from '~/utils';
 import queryString from 'query-string';
 import LZString from 'lz-string';
 import * as cheerio from 'cheerio';
@@ -226,7 +226,7 @@ class ManHuaGuiMobile extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -285,7 +285,7 @@ class ManHuaGuiMobile extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
@@ -387,13 +387,13 @@ class ManHuaGuiMobile extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
-    return { error: new Error('Plugin MHGM not support handleChapterList') };
+    return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
@@ -404,7 +404,7 @@ class ManHuaGuiMobile extends Base {
       );
 
       if (scriptAfterFilter.length <= 0) {
-        throw new Error('without chapter info');
+        throw new Error(ErrorMessage.MissingChapterInfo);
       }
       const script = scriptAfterFilter[0].children[0].data || '';
       const [, scriptContent] = script.match(PATTERN_SCRIPT) || [];
@@ -444,7 +444,7 @@ class ManHuaGuiMobile extends Base {
       if (error instanceof Error) {
         return { error };
       } else {
-        return { error: new Error('Unknown Error') };
+        return { error: new Error(ErrorMessage.Unknown) };
       }
     }
   };

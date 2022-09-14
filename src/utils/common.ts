@@ -1,4 +1,5 @@
 import { delay, race, Effect } from 'redux-saga/effects';
+import { ErrorMessage } from './enum';
 
 export const coverAspectRatio = 210 / 297;
 export const storageKey = {
@@ -62,7 +63,7 @@ export function* raceTimeout(fn: Effect, ms: number = 5000) {
   });
 
   if (timeout) {
-    return { error: new Error('Timeouts') };
+    return { error: new Error(ErrorMessage.Timeout) };
   }
 
   return { result };
