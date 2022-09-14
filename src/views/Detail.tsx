@@ -19,6 +19,7 @@ import { useRoute } from '@react-navigation/native';
 import { useOnce } from '~/hooks';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
+import RedHeart from '~/components/RedHeart';
 
 const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
 const gap = 4;
@@ -154,18 +155,16 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   );
 };
 
-export const Heart = () => {
+export const HeartAndBrowser = () => {
   const route = useRoute<StackDetailProps['route']>();
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const mangaHash = route.params.mangaHash;
+  const actived = Boolean(favorites.find((item) => item.mangaHash === mangaHash));
 
-  const handleFavorite = () => {
-    dispatch(addFavorites(mangaHash));
-  };
-  const handleUnfavorite = () => {
-    dispatch(removeFavorites(mangaHash));
+  const toggleFavorite = () => {
+    dispatch(actived ? removeFavorites(mangaHash) : addFavorites(mangaHash));
   };
   const handleToBrowser = () => {
     const href = dict[mangaHash]?.href || '';
@@ -174,26 +173,9 @@ export const Heart = () => {
     });
   };
 
-  if (favorites.find((item) => item.mangaHash === mangaHash)) {
-    return (
-      <HStack>
-        <IconButton
-          icon={<Icon as={MaterialIcons} name="favorite" size={30} color="red.500" />}
-          onPress={handleUnfavorite}
-        />
-        <IconButton
-          icon={<Icon as={MaterialIcons} name="open-in-browser" size={30} color="white" />}
-          onPress={handleToBrowser}
-        />
-      </HStack>
-    );
-  }
   return (
     <HStack>
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="favorite-outline" size={30} color="white" />}
-        onPress={handleFavorite}
-      />
+      <RedHeart actived={actived} onPress={toggleFavorite} />
       <IconButton
         icon={<Icon as={MaterialIcons} name="open-in-browser" size={30} color="white" />}
         onPress={handleToBrowser}

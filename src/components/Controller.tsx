@@ -1,9 +1,13 @@
 import React, { ReactNode, useState, memo } from 'react';
-import { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { Dimensions } from 'react-native';
 import { Box } from 'native-base';
-import Animated from 'react-native-reanimated';
 
 const doubleTapScaleValue = 2;
 const windowWidth = Dimensions.get('window').width;
