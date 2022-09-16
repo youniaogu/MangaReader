@@ -192,18 +192,27 @@ const Reader = ({
             safeAreaRight
           >
             <IconButton
+              shadow={0}
               icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
               onPress={goBack}
             />
-            <Text fontSize="md" w="3/5" numberOfLines={1} color="white" fontWeight="bold">
+            <Text
+              shadow={0}
+              fontSize="md"
+              w="3/5"
+              numberOfLines={1}
+              color="white"
+              fontWeight="bold"
+            >
               {title}
             </Text>
             <Box flex={1} />
-            <Text color="white" fontWeight="bold">
+            <Text shadow={0} color="white" fontWeight="bold">
               {page} / {data.length}
             </Text>
             {horizontal ? (
               <IconButton
+                shadow={0}
                 icon={
                   <Icon as={MaterialIcons} name="stay-primary-landscape" size="lg" color="white" />
                 }
@@ -211,6 +220,7 @@ const Reader = ({
               />
             ) : (
               <IconButton
+                shadow={0}
                 icon={
                   <Icon as={MaterialIcons} name="stay-primary-portrait" size="lg" color="white" />
                 }
@@ -232,6 +242,7 @@ const Reader = ({
           >
             {onPrev ? (
               <IconButton
+                shadow={0}
                 icon={<Icon as={MaterialIcons} name="skip-previous" size="lg" color="white" />}
                 onPress={handlePrev}
               />
@@ -249,6 +260,7 @@ const Reader = ({
             </Box>
             {onNext ? (
               <IconButton
+                shadow={0}
                 icon={<Icon as={MaterialIcons} name="skip-next" size="lg" color="white" />}
                 onPress={handleNext}
               />

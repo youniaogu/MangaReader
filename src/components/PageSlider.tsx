@@ -37,6 +37,7 @@ const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
 
   return (
     <Slider
+      shadow={9}
       w="full"
       size="sm"
       defaultValue={page}
