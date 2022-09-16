@@ -1,7 +1,7 @@
 import React, { useMemo, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isChapter, AsyncStatus, ReaderMode } from '~/utils';
-import { useErrorMessageToast } from '~/hooks';
+import { useErrorMessageToast, usePrevNext } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
@@ -13,10 +13,13 @@ const { loadChapter, viewChapter, viewPage, setReaderMode } = action;
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash, page } = route.params || {};
   const dispatch = useAppDispatch();
+  const mangaDict = useAppSelector((state) => state.dict.manga);
   const readerMode = useAppSelector((state) => state.setting.readerMode);
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
+  const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
+  const [prev, next] = usePrevNext(chapterList, chapterHash);
 
   useErrorMessageToast();
   useFocusEffect(
@@ -40,6 +43,30 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       dispatch(setReaderMode(isHorizontal ? ReaderMode.Horizontal : ReaderMode.Vertical)),
     [dispatch]
   );
+  const handlePrevChapter = useMemo(() => {
+    if (prev) {
+      return () => {
+        navigation.setParams({
+          mangaHash,
+          chapterHash: prev.hash,
+          page: 1,
+        });
+      };
+    }
+    return undefined;
+  }, [prev, mangaHash, navigation]);
+  const handleNextChapter = useMemo(() => {
+    if (next) {
+      return () => {
+        navigation.setParams({
+          mangaHash,
+          chapterHash: next.hash,
+          page: 1,
+        });
+      };
+    }
+    return undefined;
+  }, [next, mangaHash, navigation]);
 
   const handleRetry = () => {
     dispatch(loadChapter({ chapterHash }));
@@ -67,6 +94,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       goBack={handleGoBack}
       onModeChange={handleModeChange}
       onPageChange={handlePageChange}
+      onPrev={handlePrevChapter}
+      onNext={handleNextChapter}
     />
   );
 };

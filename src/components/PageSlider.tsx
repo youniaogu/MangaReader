@@ -5,7 +5,7 @@ import React, {
   useImperativeHandle,
   ForwardRefRenderFunction,
 } from 'react';
-import { Flex, Slider } from 'native-base';
+import { Slider } from 'native-base';
 
 export interface PageSliderRef {
   changePage: (newPage: number) => void;
@@ -15,10 +15,11 @@ interface PageSliderProps {
   onSliderChangeEnd?: (page: number) => void;
   min?: number;
   max: number;
+  disabled?: boolean;
 }
 
 const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
-  { defaultValue, min = 1, max, onSliderChangeEnd },
+  { defaultValue, min = 1, max, onSliderChangeEnd, disabled = false },
   ref
 ) => {
   const [page, setPage] = useState(defaultValue);
@@ -28,38 +29,30 @@ const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
   }));
 
   const handleSliderChange = (value: number) => {
-    setPage(Math.floor(value));
+    !disabled && setPage(Math.floor(value));
+  };
+  const handleSliderChangeEnd = (newPage: number) => {
+    !disabled && onSliderChangeEnd && onSliderChangeEnd(newPage);
   };
 
   return (
-    <Flex
+    <Slider
       w="full"
-      position="absolute"
-      bottom={12}
-      alignItems="center"
-      justifyContent="center"
-      safeAreaLeft
-      safeAreaRight
-      safeAreaBottom
+      size="sm"
+      defaultValue={page}
+      value={page}
+      step={1}
+      minValue={min}
+      maxValue={max}
+      colorScheme={disabled ? 'gray' : 'purple'}
+      onChange={handleSliderChange}
+      onChangeEnd={handleSliderChangeEnd}
     >
-      <Slider
-        w="3/4"
-        size="sm"
-        defaultValue={page}
-        value={page}
-        step={1}
-        minValue={min}
-        maxValue={max}
-        colorScheme="purple"
-        onChange={handleSliderChange}
-        onChangeEnd={onSliderChangeEnd}
-      >
-        <Slider.Track>
-          <Slider.FilledTrack />
-        </Slider.Track>
-        <Slider.Thumb />
-      </Slider>
-    </Flex>
+      <Slider.Track>
+        <Slider.FilledTrack />
+      </Slider.Track>
+      <Slider.Thumb />
+    </Slider>
   );
 };
 

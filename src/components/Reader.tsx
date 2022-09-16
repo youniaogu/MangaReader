@@ -20,6 +20,8 @@ interface ReaderProps {
   goBack: () => void;
   onModeChange: (horizontal: boolean) => void;
   onPageChange?: (page: number) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
 }
 
 const Reader = ({
@@ -31,6 +33,8 @@ const Reader = ({
   goBack,
   onPageChange,
   onModeChange,
+  onPrev,
+  onNext,
 }: ReaderProps) => {
   const toast = useToast();
   const [page, setPage] = useState(initPage);
@@ -54,7 +58,7 @@ const Reader = ({
     setShowExtra((prev) => !prev);
   }, []);
   const HandleViewableItemsChanged = useCallback(({ viewableItems }) => {
-    if (!viewableItems) {
+    if (!viewableItems || viewableItems.length <= 0) {
       return;
     }
     const last = viewableItems[viewableItems.length - 1];
@@ -118,6 +122,14 @@ const Reader = ({
   };
   const handleHorizontal = () => {
     onModeChange(true);
+  };
+  const handlePrev = () => {
+    onPrev && onPrev();
+    setPage(1);
+  };
+  const handleNext = () => {
+    onNext && onNext();
+    setPage(1);
   };
 
   return (
@@ -207,14 +219,43 @@ const Reader = ({
             )}
           </Flex>
 
-          {horizontal && (
-            <PageSlider
-              ref={pageSliderRef}
-              max={data.length}
-              defaultValue={page}
-              onSliderChangeEnd={handleSliderChangeEnd}
-            />
-          )}
+          <Flex
+            w="full"
+            position="absolute"
+            bottom={8}
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="center"
+            safeAreaLeft
+            safeAreaRight
+            safeAreaBottom
+          >
+            {onPrev ? (
+              <IconButton
+                icon={<Icon as={MaterialIcons} name="skip-previous" size="lg" color="white" />}
+                onPress={handlePrev}
+              />
+            ) : (
+              <Box w={45} />
+            )}
+            <Box w={0} flexGrow={1} px={1}>
+              <PageSlider
+                ref={pageSliderRef}
+                max={data.length}
+                defaultValue={page}
+                disabled={!horizontal}
+                onSliderChangeEnd={handleSliderChangeEnd}
+              />
+            </Box>
+            {onNext ? (
+              <IconButton
+                icon={<Icon as={MaterialIcons} name="skip-next" size="lg" color="white" />}
+                onPress={handleNext}
+              />
+            ) : (
+              <Box w={45} />
+            )}
+          </Flex>
         </Fragment>
       )}
     </Box>
