@@ -1,6 +1,6 @@
 {
   "name": "mangareader",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
@@ -68,6 +68,9 @@
     "react-native-clean-project": "^4.0.1",
     "react-test-renderer": "17.0.2",
     "typescript": "^4.4.4"
+  },
+  "resolutions": {
+    "@types/react": "17"
   },
   "jest": {
     "preset": "react-native",

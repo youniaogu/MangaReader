@@ -12,7 +12,7 @@ import * as RootNavigation from '~/utils/navigation';
 
 const { loadDiscovery, loadSearch, setSource, setType, setRegion, setStatus, setSort } = action;
 
-const Discovery = ({ navigation: { navigate } }: StackHomeProps) => {
+const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
   const { list } = useAppSelector((state) => state.discovery);
   const { source } = useAppSelector((state) => state.plugin);
   const dict = useAppSelector((state) => state.dict.manga);
