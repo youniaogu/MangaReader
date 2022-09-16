@@ -53,6 +53,9 @@ const Reader = ({
       onPageChange && onPageChange(page);
     }, [page, onPageChange])
   );
+  useFocusEffect(() => {
+    return () => timeout.current && clearTimeout(timeout.current);
+  });
 
   const toggleExtra = useCallback(() => {
     setShowExtra((prev) => !prev);
@@ -125,11 +128,9 @@ const Reader = ({
   };
   const handlePrev = () => {
     onPrev && onPrev();
-    setPage(1);
   };
   const handleNext = () => {
     onNext && onNext();
-    setPage(1);
   };
 
   return (

@@ -86,6 +86,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   return (
     <Reader
+      key={chapterHash}
       horizontal={readerMode === ReaderMode.Horizontal}
       title={data.title}
       initPage={page}
