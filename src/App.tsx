@@ -16,8 +16,11 @@ const SearchAndAbout = loadable(() => import('~/views/Home'), {
 });
 const Search = loadable(() => import('~/views/Search'));
 const Discovery = loadable(() => import('~/views/Discovery'));
-const SearchInput = loadable(() => import('~/views/Discovery'), {
-  resolveComponent: (components) => components.SearchInput,
+const SearchAndPlugin = loadable(() => import('~/views/Discovery'), {
+  resolveComponent: (components) => components.SearchAndPlugin,
+});
+const PluginSelect = loadable(() => import('~/views/Discovery'), {
+  resolveComponent: (components) => components.PluginSelect,
 });
 const Detail = loadable(() => import('~/views/Detail'));
 const HeartAndBrowser = loadable(() => import('~/views/Detail'), {
@@ -49,10 +52,14 @@ const App = () => {
               />
               <Screen
                 name="Discovery"
-                options={{ title: '', headerLeft: () => <SearchInput /> }}
+                options={{ title: '', headerLeft: () => <SearchAndPlugin /> }}
                 component={Discovery}
               />
-              <Screen name="Search" component={Search} />
+              <Screen
+                name="Search"
+                options={{ headerRight: () => <PluginSelect /> }}
+                component={Search}
+              />
               <Screen
                 name="Detail"
                 options={{ title: 'loading...', headerRight: () => <HeartAndBrowser /> }}

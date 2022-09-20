@@ -20,6 +20,11 @@ const Search = ({ route, navigation }: StackSearchProps) => {
       navigation.setOptions({ title: keyword });
     }, [keyword, navigation])
   );
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(loadSearch({ keyword, source, isReset: true }));
+    }, [dispatch, keyword, source])
+  );
 
   const handleLoadMore = useCallback(() => {
     dispatch(loadSearch({ keyword, source }));

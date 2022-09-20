@@ -10,7 +10,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import * as RootNavigation from '~/utils/navigation';
 
-const { loadDiscovery, loadSearch, setSource, setType, setRegion, setStatus, setSort } = action;
+const { loadDiscovery, setSource, setType, setRegion, setStatus, setSort } = action;
 
 const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
   const { list } = useAppSelector((state) => state.discovery);
@@ -157,8 +157,7 @@ export const SearchOption = () => {
   );
 };
 
-export const SearchInput = () => {
-  const [keyword, setKeyword] = useState('');
+export const PluginSelect = () => {
   const { source, list } = useAppSelector((state) => state.plugin);
   const { isOpen, onOpen, onClose } = useDisclose();
   const dispatch = useAppDispatch();
@@ -171,10 +170,6 @@ export const SearchInput = () => {
     return list.find((item) => item.value === source)?.label || source;
   }, [list, source]);
 
-  const handleSearch = () => {
-    dispatch(loadSearch({ keyword, source, isReset: true }));
-    RootNavigation.navigate('Search', { keyword });
-  };
   const handleOpen = () => {
     onOpen();
   };
@@ -190,20 +185,9 @@ export const SearchInput = () => {
   };
 
   return (
-    <HStack pl={1} pr={2} space={2} flex={1} alignItems="center">
-      <Input
-        w={0}
-        flex={1}
-        size="xl"
-        bg="purple.500"
-        color="white"
-        variant="underlined"
-        placeholder="请输入漫画名"
-        onChangeText={setKeyword}
-        onSubmitEditing={handleSearch}
-      />
+    <>
       <Button
-        p={0}
+        pr={2}
         variant="ghost"
         _text={{ color: 'white', fontSize: 'sm', fontWeight: 'bold' }}
         onPress={handleOpen}
@@ -227,6 +211,32 @@ export const SearchInput = () => {
           </HStack>
         }
       />
+    </>
+  );
+};
+
+export const SearchAndPlugin = () => {
+  const [keyword, setKeyword] = useState('');
+
+  const handleSearch = () => {
+    RootNavigation.navigate('Search', { keyword });
+  };
+
+  return (
+    <HStack space={2} flex={1} alignItems="center">
+      <Input
+        pl={1}
+        w={0}
+        flex={1}
+        size="xl"
+        bg="purple.500"
+        color="white"
+        variant="underlined"
+        placeholder="请输入漫画名"
+        onChangeText={setKeyword}
+        onSubmitEditing={handleSearch}
+      />
+      <PluginSelect />
     </HStack>
   );
 };
