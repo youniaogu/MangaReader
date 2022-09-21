@@ -8,6 +8,7 @@ import {
   FlatList,
   HStack,
   Pressable,
+  Toast,
   useTheme,
 } from 'native-base';
 import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
@@ -21,7 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import RedHeart from '~/components/RedHeart';
 
-const { loadManga, addFavorites, removeFavorites, viewFavorites } = action;
+const { loadManga, addFavorites, removeFavorites, pushQueque, popQueue, viewFavorites } = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
@@ -161,7 +162,8 @@ export const HeartAndBrowser = () => {
   const favorites = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const mangaHash = route.params.mangaHash;
-  const actived = Boolean(favorites.find((item) => item.mangaHash === mangaHash));
+  const manga = favorites.find((item) => item.mangaHash === mangaHash);
+  const actived = Boolean(manga);
 
   const toggleFavorite = () => {
     dispatch(actived ? removeFavorites(mangaHash) : addFavorites(mangaHash));
@@ -172,9 +174,29 @@ export const HeartAndBrowser = () => {
       supported && Linking.openURL(href);
     });
   };
+  const toggleQueue = () => {
+    dispatch(manga?.inQueue ? popQueue(mangaHash) : pushQueque(mangaHash));
+    Toast.show({
+      title: manga?.inQueue ? '已禁用批量更新' : '已启用批量更新',
+      placement: 'bottom',
+    });
+  };
 
   return (
     <HStack>
+      {actived && (
+        <IconButton
+          icon={
+            <Icon
+              as={MaterialIcons}
+              name={manga?.inQueue ? 'lock-open' : 'lock-outline'}
+              size={30}
+              color={manga?.inQueue ? 'white' : 'purple.200'}
+            />
+          }
+          onPress={toggleQueue}
+        />
+      )}
       <RedHeart actived={actived} onPress={toggleFavorite} />
       <IconButton
         icon={<Icon as={MaterialIcons} name="open-in-browser" size={30} color="white" />}

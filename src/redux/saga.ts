@@ -78,7 +78,13 @@ function* syncDataSaga() {
 
       if (favoritesData) {
         const favorites: RootState['favorites'] = JSON.parse(favoritesData);
-        yield put(syncFavorites(favorites));
+        yield put(
+          syncFavorites(
+            favorites.map((item) =>
+              item.inQueue === undefined ? { ...item, inQueue: true } : item
+            )
+          )
+        );
       }
       if (dictData) {
         const dict: RootState['dict'] = JSON.parse(dictData);
@@ -164,7 +170,10 @@ function* batchUpdateSaga() {
   yield takeLeading([batchUpdate.type], function* () {
     const favorites = ((state: RootState) => state.favorites)(yield select());
     const fail = ((state: RootState) => state.batch.fail)(yield select());
-    const batchList = fail.length > 0 ? fail : favorites.map((item) => item.mangaHash);
+    const batchList =
+      fail.length > 0
+        ? fail
+        : favorites.filter((item) => item.inQueue).map((item) => item.mangaHash);
 
     yield put(startBatchUpdate(batchList));
 

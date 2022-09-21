@@ -241,15 +241,43 @@ const favoritesSlice = createSlice({
   initialState: initialState.favorites,
   reducers: {
     addFavorites(state, action: PayloadAction<string>) {
-      state.unshift({ mangaHash: action.payload, isTrend: false });
+      state.unshift({ mangaHash: action.payload, isTrend: false, inQueue: true });
     },
     removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item.mangaHash !== action.payload);
     },
+    pushQueque(state, action: PayloadAction<string>) {
+      return state.map((item) => {
+        if (item.mangaHash === action.payload) {
+          return {
+            ...item,
+            inQueue: true,
+          };
+        }
+        return item;
+      });
+    },
+    popQueue(state, action: PayloadAction<string>) {
+      return state.map((item) => {
+        if (item.mangaHash === action.payload) {
+          return {
+            ...item,
+            inQueue: false,
+          };
+        }
+        return item;
+      });
+    },
     viewFavorites(state, action: PayloadAction<string>) {
-      const stateAfterFiltered = state.filter((item) => item.mangaHash !== action.payload);
-      stateAfterFiltered.unshift({ mangaHash: action.payload, isTrend: false });
-      return stateAfterFiltered;
+      state.sort((a, b) => {
+        if (a.mangaHash === action.payload) {
+          return -1;
+        }
+        if (b.mangaHash === action.payload) {
+          return 1;
+        }
+        return 0;
+      });
     },
     syncFavorites(_state, action: PayloadAction<RootState['favorites']>) {
       return action.payload;
@@ -262,9 +290,12 @@ const favoritesSlice = createSlice({
     ) => {
       const { isSuccess, isTrend, hash } = action.payload;
       if (isSuccess && isTrend) {
-        const stateAfterFiltered = state.filter((item) => item.mangaHash !== hash);
-        stateAfterFiltered.unshift({ mangaHash: hash, isTrend: true });
-        return stateAfterFiltered;
+        return state.reduce<RootState['favorites']>((dict, item) => {
+          if (item.mangaHash === hash) {
+            return [{ ...item, isTrend: true }, ...dict];
+          }
+          return [...dict, item];
+        }, []);
       }
     },
   },

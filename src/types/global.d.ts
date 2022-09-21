@@ -101,7 +101,7 @@ declare global {
       success: string[];
       fail: string[];
     };
-    favorites: { mangaHash: string; isTrend: boolean }[];
+    favorites: { mangaHash: string; isTrend: boolean; inQueue: boolean }[];
     search: {
       page: number;
       isEnd: boolean;
