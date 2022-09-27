@@ -43,6 +43,8 @@ const {
   viewPage,
   addFavorites,
   removeFavorites,
+  pushQueque,
+  popQueue,
   loadSearch,
   loadSearchCompletion,
   loadDiscovery,
@@ -135,6 +137,8 @@ function* storageDataSaga() {
       viewPage.type,
       addFavorites.type,
       removeFavorites.type,
+      pushQueque.type,
+      popQueue.type,
       loadSearchCompletion.type,
       loadDiscoveryCompletion.type,
       loadMangaCompletion.type,
@@ -145,6 +149,7 @@ function* storageDataSaga() {
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const dict = ((state: RootState) => state.dict)(yield select());
       const plugin = ((state: RootState) => state.plugin)(yield select());
+      const setting = ((state: RootState) => state.setting)(yield select());
 
       const storeDict: RootState['dict'] = { manga: {}, chapter: {} };
       for (const hash in dict.manga) {
@@ -156,6 +161,7 @@ function* storageDataSaga() {
       yield call(AsyncStorage.setItem, storageKey.favorites, JSON.stringify(favorites));
       yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(storeDict));
       yield call(AsyncStorage.setItem, storageKey.plugin, JSON.stringify(plugin));
+      yield call(AsyncStorage.setItem, storageKey.setting, JSON.stringify(setting));
     }
   );
 }
