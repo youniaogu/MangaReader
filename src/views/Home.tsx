@@ -14,6 +14,7 @@ const { batchUpdate } = action;
 const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
+  const activeList = useAppSelector((state) => state.batch.stack);
   const loadStatus = useAppSelector((state) => state.app.launchStatus);
 
   const favoriteList = useMemo(
@@ -21,7 +22,11 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     [dict, list]
   );
   const trendList = useMemo(
-    () => list.filter((item) => item.isTrend === true).map((item) => item.mangaHash),
+    () => list.filter((item) => item.isTrend).map((item) => item.mangaHash),
+    [list]
+  );
+  const negativeList = useMemo(
+    () => list.filter((item) => !item.inQueue).map((item) => item.mangaHash),
     [list]
   );
 
@@ -34,7 +39,9 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   return (
     <Bookshelf
       list={favoriteList}
-      trends={trendList}
+      trendList={trendList}
+      activeList={activeList}
+      negativeList={negativeList}
       itemOnPress={handleDetail}
       loading={loadStatus === AsyncStatus.Pending}
     />
@@ -44,7 +51,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
 export const SearchAndAbout = () => {
   const [isRotate, setIsRotate] = useState(false);
   const dispatch = useAppDispatch();
-  const { loadStatus: batchStatus, queue, fail } = useAppSelector((state) => state.batch);
+  const { loadStatus: batchStatus, stack, queue, fail } = useAppSelector((state) => state.batch);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,7 +82,7 @@ export const SearchAndAbout = () => {
         </Rotate>
         {batchStatus === AsyncStatus.Pending && (
           <Text position="absolute" top={0} right={0} color="white" fontWeight="extrabold">
-            {queue.length}
+            {queue.length + stack.length}
           </Text>
         )}
         {batchStatus !== AsyncStatus.Pending && fail.length > 0 && (

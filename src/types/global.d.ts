@@ -97,6 +97,7 @@ declare global {
     };
     batch: {
       loadStatus: AsyncStatus;
+      stack: string[];
       queue: string[];
       success: string[];
       fail: string[];

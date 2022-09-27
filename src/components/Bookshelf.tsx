@@ -1,8 +1,10 @@
 import React, { memo } from 'react';
-import { Box, Text, FlatList, Pressable } from 'native-base';
+import { Box, Text, Icon, FlatList, Pressable } from 'native-base';
 import { StyleSheet, Dimensions } from 'react-native';
 import { coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import WhiteCurtain from '~/components/WhiteCurtain';
 import SpinLoading from '~/components/SpinLoading';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
@@ -13,13 +15,23 @@ const oneThirdWidth = (windowWidth - gap * 4) / 3;
 
 interface BookshelfProps {
   list: Manga[];
-  trends?: string[];
+  trendList?: string[];
+  activeList?: string[];
+  negativeList?: string[];
   loadMore?: () => void;
   itemOnPress: (hash: string) => void;
   loading?: boolean;
 }
 
-const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: BookshelfProps) => {
+const Bookshelf = ({
+  list,
+  trendList,
+  activeList,
+  negativeList,
+  loadMore,
+  itemOnPress,
+  loading = false,
+}: BookshelfProps) => {
   const handlePress = (hash: string) => {
     return () => {
       itemOnPress(hash);
@@ -55,7 +67,7 @@ const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: Boo
           <Box width={oneThirdWidth} flexDirection="column" p={gap / 2}>
             <Box position="relative" shadow={2}>
               <CachedImage source={item.cover} style={styles.img} resizeMode="cover" />
-              {trends && trends.includes(item.hash) && (
+              {trendList && trendList.includes(item.hash) && (
                 <Box
                   shadow={0}
                   position="absolute"
@@ -71,6 +83,30 @@ const Bookshelf = ({ list, trends, loadMore, itemOnPress, loading = false }: Boo
                   </Text>
                 </Box>
               )}
+              {negativeList && negativeList.includes(item.hash) && (
+                <Icon
+                  shadow={1}
+                  position="absolute"
+                  top={1}
+                  right={1}
+                  as={MaterialIcons}
+                  name="lock"
+                  size="sm"
+                  color="purple.700"
+                />
+              )}
+              <WhiteCurtain actived={activeList && activeList.includes(item.hash)}>
+                <Box
+                  position="absolute"
+                  w="full"
+                  h="full"
+                  top={0}
+                  left={0}
+                  backgroundColor="white"
+                  opacity={0.3}
+                />
+                <SpinLoading />
+              </WhiteCurtain>
             </Box>
             <Text pt={1} fontSize="md" fontWeight="bold" numberOfLines={1}>
               {item.title}

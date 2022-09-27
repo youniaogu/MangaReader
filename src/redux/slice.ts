@@ -18,6 +18,7 @@ export const initialState: RootState = {
   },
   batch: {
     loadStatus: AsyncStatus.Default,
+    stack: [],
     queue: [],
     success: [],
     fail: [],
@@ -136,12 +137,13 @@ const batchSlice = createSlice({
     endBatchUpdate(state) {
       state.loadStatus = AsyncStatus.Fulfilled;
     },
-    batchRecord(
-      state,
-      action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>
-    ) {
+    inStack(state, action: PayloadAction<string>) {
+      state.stack.push(action.payload);
+      state.queue = state.queue.filter((item) => item !== action.payload);
+    },
+    outStack(state, action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>) {
       const { isSuccess, hash } = action.payload;
-      state.queue = state.queue.filter((item) => item !== hash);
+      state.stack = state.stack.filter((item) => item !== hash);
       if (isSuccess) {
         state.success.push(hash);
       } else {
@@ -284,7 +286,7 @@ const favoritesSlice = createSlice({
     },
   },
   extraReducers: {
-    [batchSlice.actions.batchRecord.type]: (
+    [batchSlice.actions.outStack.type]: (
       state,
       action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>
     ) => {

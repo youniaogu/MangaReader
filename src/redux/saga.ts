@@ -33,7 +33,8 @@ const {
   batchUpdate,
   startBatchUpdate,
   endBatchUpdate,
-  batchRecord,
+  inStack,
+  outStack,
   cancelLoadManga,
   setReaderMode,
   setSource,
@@ -187,6 +188,7 @@ function* batchUpdateSaga() {
       const loadMangaEffect = function* () {
         const id = nanoid();
         const dict = ((state: RootState) => state.dict)(yield select());
+        yield put(inStack(hash));
         yield put(loadManga({ mangaHash: hash, taskId: id }));
 
         const {
@@ -205,7 +207,7 @@ function* batchUpdateSaga() {
           }
         }
 
-        yield put(batchRecord({ isSuccess: !fetchError, isTrend, hash }));
+        yield put(outStack({ isSuccess: !fetchError, isTrend, hash }));
       };
       yield all([loadMangaEffect(), delay(1000)]);
     }
