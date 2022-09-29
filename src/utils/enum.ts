@@ -47,4 +47,5 @@ export enum ErrorMessage {
   MissingChapterInfo = '缺少章节信息~',
   SyncFail = '同步数据失败～',
   WrongResponse = '响应失败: ',
+  WrongDataType = '错误的数据格式',
 }

@@ -1,4 +1,4 @@
-import { AsyncStatus, MangaStatus, ReaderMode, customTheme } from '~/utils';
+import { AsyncStatus, MangaStatus, ReaderMode, customTheme, env } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
@@ -73,6 +73,23 @@ declare global {
     };
     images: { uri: string; needUnscramble?: boolean }[];
   }
+  declare interface Release {
+    loadStatus: AsyncStatus;
+    name: string;
+    version: string;
+    publishTime: string;
+    latest?: LatestRelease;
+  }
+  declare interface LatestRelease {
+    url: string;
+    version: string;
+    changeLog: string;
+    publishTime: string;
+    file?: {
+      size: number;
+      downloadUrl: string;
+    };
+  }
 
   declare interface RootState {
     app: {
@@ -81,6 +98,7 @@ declare global {
       clearStatus: AsyncStatus;
       errorMessage: string[];
     };
+    release: Release;
     setting: {
       readerMode: ReaderMode;
     };
@@ -137,5 +155,15 @@ declare global {
 
   interface String {
     splic(f: string): string[];
+  }
+
+  namespace NodeJS {
+    interface ProcessEnv {
+      NODE_ENV: env;
+      PROXY: string;
+      NAME: string;
+      VERSION: string;
+      PUBLISH_TIME: string;
+    }
   }
 }

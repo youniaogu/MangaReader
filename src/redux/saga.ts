@@ -11,7 +11,14 @@ import {
   delay,
   race,
 } from 'redux-saga/effects';
-import { storageKey, fetchData, haveError, fixDictShape, ErrorMessage } from '~/utils';
+import {
+  storageKey,
+  fetchData,
+  haveError,
+  fixDictShape,
+  getLatestRelease,
+  ErrorMessage,
+} from '~/utils';
 import { nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { splitHash, PluginMap } from '~/plugins';
 import { action } from './slice';
@@ -19,44 +26,57 @@ import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {
+  // app
   launch,
   launchCompletion,
   syncData,
   syncDataCompletion,
-  syncFavorites,
-  syncDict,
-  syncPlugin,
-  syncSetting,
   clearCache,
   clearCacheCompletion,
   catchError,
+  // release
+  loadLatestRelease,
+  loadLatestReleaseCompletion,
+  // setting
+  setReaderMode,
+  syncSetting,
+  // plugin
+  setSource,
+  disablePlugin,
+  syncPlugin,
+  // batch
   batchUpdate,
   startBatchUpdate,
   endBatchUpdate,
   inStack,
   outStack,
   cancelLoadManga,
-  setReaderMode,
-  setSource,
-  disablePlugin,
-  viewChapter,
-  viewPage,
+  // search
+  loadSearch,
+  loadSearchCompletion,
+  // discovery
+  loadDiscovery,
+  loadDiscoveryCompletion,
+  // favorites
   addFavorites,
   removeFavorites,
   pushQueque,
   popQueue,
-  loadSearch,
-  loadSearchCompletion,
-  loadDiscovery,
-  loadDiscoveryCompletion,
+  syncFavorites,
+  // manga
   loadManga,
   loadMangaCompletion,
   loadMangaInfo,
   loadMangaInfoCompletion,
   loadChapterList,
   loadChapterListCompletion,
+  // chapter
   loadChapter,
   loadChapterCompletion,
+  // dict
+  viewChapter,
+  viewPage,
+  syncDict,
 } = action;
 
 function* initSaga() {
@@ -170,6 +190,17 @@ function* clearCacheSaga() {
     yield call(AsyncStorage.clear);
     yield put(launch());
     yield put(clearCacheCompletion({}));
+  });
+}
+
+function* loadLatestReleaseSaga() {
+  yield takeLatest([loadLatestRelease.type], function* () {
+    const { error: fetchError, data } = yield call(fetchData, {
+      url: 'https://api.github.com/repos/youniaogu/MangaReader/releases',
+    });
+    const { error: DataError, release } = getLatestRelease(data);
+
+    yield put(loadLatestReleaseCompletion({ error: fetchError || DataError, data: release }));
   });
 }
 
@@ -466,6 +497,7 @@ export default function* rootSaga() {
     fork(syncDataSaga),
     fork(storageDataSaga),
     fork(clearCacheSaga),
+    fork(loadLatestReleaseSaga),
     fork(batchUpdateSaga),
     fork(loadDiscoverySaga),
     fork(loadSearchSaga),

@@ -39,7 +39,7 @@ export const fetchData = ({
     }
   }
 
-  return new Promise((res) => {
+  return new Promise<{ error: Error; data: undefined } | { error: undefined; data: any }>((res) => {
     try {
       fetch(url, init)
         .then((response) => {
@@ -64,7 +64,7 @@ export const fetchData = ({
         controller.abort();
       }, timeout);
     } catch (error) {
-      res({ error, data: undefined });
+      res({ error: error as Error, data: undefined });
     }
   });
 };

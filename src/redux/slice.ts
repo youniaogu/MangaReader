@@ -9,6 +9,12 @@ export const initialState: RootState = {
     clearStatus: AsyncStatus.Default,
     errorMessage: [],
   },
+  release: {
+    loadStatus: AsyncStatus.Default,
+    name: process.env.NAME,
+    version: process.env.VERSION,
+    publishTime: process.env.PUBLISH_TIME,
+  },
   setting: {
     readerMode: ReaderMode.Horizontal,
   },
@@ -86,6 +92,28 @@ const appSlice = createSlice({
     },
     throwError(state) {
       state.errorMessage = [];
+    },
+  },
+});
+
+const releaseSlice = createSlice({
+  name: 'release',
+  initialState: initialState.release,
+  reducers: {
+    loadLatestRelease(state) {
+      state.loadStatus = AsyncStatus.Pending;
+      state.latest = undefined;
+    },
+    loadLatestReleaseCompletion(state, action: FetchResponseAction<LatestRelease>) {
+      const { error, data } = action.payload;
+
+      if (error) {
+        state.loadStatus = AsyncStatus.Rejected;
+        return;
+      }
+
+      state.loadStatus = AsyncStatus.Fulfilled;
+      state.latest = data;
     },
   },
 });
@@ -432,6 +460,7 @@ const dictSlice = createSlice({
 });
 
 const appAction = appSlice.actions;
+const releaseAction = releaseSlice.actions;
 const settingAction = settingSlice.actions;
 const pluginAction = pluginSlice.actions;
 const batchAction = batchSlice.actions;
@@ -443,6 +472,7 @@ const chapterAction = chapterSlice.actions;
 const dictAction = dictSlice.actions;
 
 const appReducer = appSlice.reducer;
+const releaseReducer = releaseSlice.reducer;
 const settingReducer = settingSlice.reducer;
 const pluginReducer = pluginSlice.reducer;
 const batchReducer = batchSlice.reducer;
@@ -455,6 +485,7 @@ const dictReducer = dictSlice.reducer;
 
 export const action = {
   ...appAction,
+  ...releaseAction,
   ...settingAction,
   ...pluginAction,
   ...batchAction,
@@ -467,6 +498,7 @@ export const action = {
 };
 export const reducer = combineReducers<RootState>({
   app: appReducer,
+  release: releaseReducer,
   setting: settingReducer,
   plugin: pluginReducer,
   batch: batchReducer,

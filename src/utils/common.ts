@@ -1,6 +1,8 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 import { ErrorMessage } from './enum';
 
+export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)$/;
+export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
 export const coverAspectRatio = 210 / 297;
 export const storageKey = {
   favorites: '@favorites',
@@ -90,4 +92,57 @@ export function fixDictShape(dict: RootState['dict']): RootState['dict'] {
   }
 
   return dict;
+}
+
+export function getLatestRelease(
+  data: any[]
+): { error: Error; release?: undefined } | { error?: undefined; release?: LatestRelease } {
+  try {
+    if (!data || !Array.isArray(data)) {
+      return { error: new Error(ErrorMessage.WrongDataType) };
+    }
+
+    const latest = data.find((item) => {
+      return compareVersion(item.tag_name, process.env.VERSION);
+    });
+
+    if (!latest) {
+      return { release: undefined };
+    }
+
+    const [, y, m, d] = latest.published_at.match(PATTERN_PUBLISH_TIME) || [];
+    const apk = (latest.assets as any[]).find(
+      (item) => item.content_type === 'application/vnd.android.package-archive'
+    );
+
+    return {
+      release: {
+        url: latest.html_url,
+        version: latest.tag_name,
+        changeLog: latest.body,
+        publishTime: `${y}-${m}-${d}`,
+        file: {
+          size: apk.size,
+          downloadUrl: apk.browser_download_url,
+        },
+      },
+    };
+  } catch {
+    return { error: new Error(ErrorMessage.Unknown) };
+  }
+}
+
+export function compareVersion(prev: string, current: string) {
+  const [, A1 = 0, B1 = 0, C1 = 0] = prev.match(PATTERN_VERSION) || [];
+  const [, A2 = 0, B2 = 0, C2 = 0] = current.match(PATTERN_VERSION) || [];
+
+  if (A1 < A2) {
+    return false;
+  } else if (B1 < B2) {
+    return false;
+  } else if (C1 <= C2) {
+    return false;
+  }
+
+  return true;
 }
