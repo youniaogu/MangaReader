@@ -271,15 +271,12 @@ const favoritesSlice = createSlice({
       });
     },
     viewFavorites(state, action: PayloadAction<string>) {
-      state.sort((a, b) => {
-        if (a.mangaHash === action.payload) {
-          return -1;
+      return state.reduce<RootState['favorites']>((dict, item) => {
+        if (item.mangaHash === action.payload) {
+          return [{ ...item, isTrend: false }, ...dict];
         }
-        if (b.mangaHash === action.payload) {
-          return 1;
-        }
-        return 0;
-      });
+        return [...dict, item];
+      }, []);
     },
     syncFavorites(_state, action: PayloadAction<RootState['favorites']>) {
       return action.payload;
