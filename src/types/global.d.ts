@@ -160,7 +160,6 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       NODE_ENV: env;
-      PROXY: string;
       NAME: string;
       VERSION: string;
       PUBLISH_TIME: string;

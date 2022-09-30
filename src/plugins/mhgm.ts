@@ -76,7 +76,6 @@ const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 const PATTERN_AUTHOR = /作者：(.*)/;
 
 class ManHuaGuiMobile extends Base {
-  readonly useMock = false;
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
@@ -102,17 +101,6 @@ class ManHuaGuiMobile extends Base {
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhgm/update',
-        body: {
-          page,
-          ajax: 1,
-          order: 1,
-        },
-      };
-    }
-
     return {
       url: `https://m.manhuagui.com/list/${type !== Options.Default ? type + '/' : ''}`,
       body: {
@@ -131,14 +119,6 @@ class ManHuaGuiMobile extends Base {
     body.append('ajax', '1');
     body.append('order', '1');
 
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhgm/search',
-        method: 'POST',
-        body: page > 1 ? body : undefined,
-      };
-    }
-
     return {
       url: `https://m.manhuagui.com/s/${keyword}.html/`,
       method: 'POST',
@@ -147,12 +127,6 @@ class ManHuaGuiMobile extends Base {
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhgm/manga',
-      };
-    }
-
     return {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
       headers: new Headers(this.defaultHeaders),
@@ -160,12 +134,6 @@ class ManHuaGuiMobile extends Base {
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhgm/chapter',
-      };
-    }
-
     return {
       url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
       headers: new Headers(this.defaultHeaders),

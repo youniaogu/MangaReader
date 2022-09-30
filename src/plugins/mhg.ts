@@ -75,7 +75,6 @@ const PATTERN_READER_DATA = /^SMH\.imgData\((.+)(?=\)\.preInit\(\);)/;
 const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 
 class ManHuaGui extends Base {
-  readonly useMock = false;
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
@@ -102,12 +101,6 @@ class ManHuaGui extends Base {
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhg/update',
-      };
-    }
-
     const query = [region, type, status].filter((item) => item !== Options.Default).join('_');
     return {
       url: `https://www.mhgui.com/list${query ? '/' + query : ''}/${
@@ -117,13 +110,6 @@ class ManHuaGui extends Base {
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhg/search',
-        method: 'POST',
-      };
-    }
-
     return {
       url: `https://www.mhgui.com/s/${keyword}_p${page}.html`,
       method: 'POST',
@@ -131,12 +117,6 @@ class ManHuaGui extends Base {
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhg/manga',
-      };
-    }
-
     return {
       url: `https://www.mhgui.com/comic/${mangaId}/`,
       headers: new Headers(this.defaultHeaders),
@@ -144,12 +124,6 @@ class ManHuaGui extends Base {
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
-    if (this.useMock) {
-      return {
-        url: process.env.PROXY + '/mhg/chapter',
-      };
-    }
-
     return {
       url: `https://www.mhgui.com/comic/${mangaId}/${chapterId}.html`,
       headers: new Headers(this.defaultHeaders),
