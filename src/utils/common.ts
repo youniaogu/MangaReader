@@ -1,5 +1,6 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 import { ErrorMessage } from './enum';
+import queryString from 'query-string';
 
 export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)$/;
 export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
@@ -145,4 +146,10 @@ export function compareVersion(prev: string, current: string) {
   }
 
   return true;
+}
+
+export function mergeQuery(uri: string, key: string, value: string) {
+  const { url, query } = queryString.parseUrl(uri);
+
+  return queryString.stringifyUrl({ url, query: { ...query, [key]: value } });
 }

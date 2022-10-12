@@ -2,11 +2,11 @@ import React, { useState, useRef, useCallback, Fragment } from 'react';
 import { Box, Text, Flex, Icon, IconButton, FlatList, StatusBar, useToast } from 'native-base';
 import { FlatList as FlatListRN, Dimensions, ListRenderItemInfo } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { AsyncStatus } from '~/utils';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ImageWithRetry from '~/components/ImageWithRetry';
-import JMComicImage from '~/components/JMComicImage';
-import Controller from '~/components/Controller';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
+import ComicImage, { ImageState } from '~/components/ComicImage';
+import Controller from '~/components/Controller';
 
 const windowWidth = Dimensions.get('window').width;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -42,6 +42,7 @@ const Reader = ({
   const timeout = useRef<NodeJS.Timeout | null>(null);
   const flatListRef = useRef<FlatListRN>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
+  const itemStateRef = useRef<ImageState[]>([]);
   const initialScrollIndex = Math.max(Math.min(page - 1, data.length - 1), 0);
   const toastRef = useRef(toast);
   const dataRef = useRef(data);
@@ -81,13 +82,25 @@ const Reader = ({
     }, 200);
   }, []);
   const renderVerticalItem = useCallback(
-    ({ item }: ListRenderItemInfo<typeof data[0]>) => {
+    ({ item, index }: ListRenderItemInfo<typeof data[0]>) => {
       const { uri, needUnscramble } = item;
+      const cacheState = itemStateRef.current[index];
 
-      return needUnscramble ? (
-        <JMComicImage uri={uri} headers={headers} />
-      ) : (
-        <ImageWithRetry uri={uri} headers={headers} />
+      return (
+        <ComicImage
+          useJMC={needUnscramble}
+          uri={uri}
+          headers={headers}
+          prevState={cacheState}
+          onSuccess={({ height, hash, dataUrl }) => {
+            itemStateRef.current[index] = {
+              defaulthHash: hash,
+              defaultHeight: height,
+              defaultStatus: AsyncStatus.Fulfilled,
+              defaultDataUrl: dataUrl,
+            };
+          }}
+        />
       );
     },
     [headers]
@@ -98,11 +111,7 @@ const Reader = ({
 
       return (
         <Controller horizontal onTap={toggleExtra}>
-          {needUnscramble ? (
-            <JMComicImage horizontal uri={uri} headers={headers} />
-          ) : (
-            <ImageWithRetry horizontal uri={uri} headers={headers} />
-          )}
+          <ComicImage horizontal useJMC={needUnscramble} uri={uri} headers={headers} />
         </Controller>
       );
     },
@@ -115,7 +124,8 @@ const Reader = ({
     if (newStep > 1) {
       flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
     } else {
-      // bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
+      // offset use 1, no 0
+      // for bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
       flatListRef.current?.scrollToOffset({ offset: 1, animated: false });
     }
   }, []);
