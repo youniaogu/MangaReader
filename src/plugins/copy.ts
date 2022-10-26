@@ -148,19 +148,23 @@ class CopyManga extends Base {
   readonly userAgent =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = {
+    referer: 'https://copymanga.site/',
+    'user-agent': this.userAgent,
+    'accept-encoding': 'gzip, deflate, br',
+    'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+  };
+  readonly fetchHeaders = {
+    ...this.defaultHeaders,
     webp: '1',
     region: '1',
     platform: '1',
-    version: '2022.08.14',
-    pragma: 'no-cache',
+    version: '2022.10.20',
     accept: 'application/json',
-    origin: 'https://copymanga.site',
-    referer: 'https://copymanga.site/',
-    'user-agent': this.userAgent,
-    'cache-control': 'no-cache',
-    'accept-encoding': 'gzip, deflate, br',
-    'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
     'content-encoding': 'gzip, compress, br',
+  };
+  readonly imageHeaders = {
+    ...this.defaultHeaders,
+    accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
   };
 
   constructor(
@@ -195,7 +199,7 @@ class CopyManga extends Base {
         top: region === Options.Default ? undefined : region,
         _update: 'true',
       },
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers(this.fetchHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
@@ -209,7 +213,7 @@ class CopyManga extends Base {
         q_type: '',
         _update: 'true',
       },
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers(this.fetchHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
@@ -218,7 +222,7 @@ class CopyManga extends Base {
       body: {
         platform: 1,
       },
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers(this.fetchHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId, page) => {
@@ -228,7 +232,7 @@ class CopyManga extends Base {
         limit: 100,
         offset: (page - 1) * 100,
       },
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers(this.fetchHeaders),
     };
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
@@ -238,7 +242,7 @@ class CopyManga extends Base {
         platform: 1,
         _update: 'true',
       },
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers(this.fetchHeaders),
     };
   };
 
@@ -405,10 +409,7 @@ class CopyManga extends Base {
             chapterId: chapter.uuid,
             name: comic.name,
             title: chapter.name,
-            headers: {
-              ...this.defaultHeaders,
-              accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-            },
+            headers: this.imageHeaders,
             images: sorted.map((item) => ({ uri: item.url })),
           },
         };

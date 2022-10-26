@@ -341,8 +341,6 @@ class CopyManga extends Base {
             ...this.defaultHeaders,
             referer: 'https://18comic.vip/',
             accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-            pragma: 'no-cache',
-            'cache-control': 'no-cache',
             'accept-encoding': 'gzip, deflate, br',
             'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
