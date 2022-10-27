@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useEffect, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga, AsyncStatus } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
@@ -20,11 +20,9 @@ const Search = ({ route, navigation }: StackSearchProps) => {
       navigation.setOptions({ title: keyword });
     }, [keyword, navigation])
   );
-  useFocusEffect(
-    useCallback(() => {
-      dispatch(loadSearch({ keyword, source, isReset: true }));
-    }, [dispatch, keyword, source])
-  );
+  useEffect(() => {
+    dispatch(loadSearch({ keyword, source, isReset: true }));
+  }, [dispatch, keyword, source]);
 
   const handleLoadMore = useCallback(() => {
     dispatch(loadSearch({ keyword, source }));
