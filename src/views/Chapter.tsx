@@ -1,8 +1,8 @@
 import React, { useMemo, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isChapter, AsyncStatus, ReaderMode } from '~/utils';
-import { useErrorMessageToast, usePrevNext } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
+import { usePrevNext } from '~/hooks';
 import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
@@ -21,7 +21,6 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const [prev, next] = usePrevNext(chapterList, chapterHash);
 
-  useErrorMessageToast();
   useFocusEffect(
     useCallback(() => {
       dispatch(viewChapter({ mangaHash, chapterHash }));

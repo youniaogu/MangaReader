@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { navigationRef, customTheme } from '~/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useErrorMessageToast } from '~/hooks';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
 import { StyleSheet } from 'react-native';
@@ -33,42 +34,43 @@ const About = loadable(() => import('~/views/About'));
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
+const NavigationScreen = () => {
+  useErrorMessageToast();
+
+  return (
+    <Navigator initialRouteName="Home" screenOptions={{ header: (props) => <Header {...props} /> }}>
+      <Screen
+        name="Home"
+        options={{
+          headerRight: () => <SearchAndAbout />,
+        }}
+        component={Home}
+      />
+      <Screen
+        name="Discovery"
+        options={{ title: '', headerLeft: () => <SearchAndPlugin /> }}
+        component={Discovery}
+      />
+      <Screen name="Search" options={{ headerRight: () => <PluginSelect /> }} component={Search} />
+      <Screen
+        name="Detail"
+        options={{ title: 'loading...', headerRight: () => <HeartAndBrowser /> }}
+        component={Detail}
+      />
+      <Screen name="Chapter" options={{ headerShown: false }} component={Chapter} />
+      <Screen name="Plugin" component={Plugin} />
+      <Screen name="About" component={About} />
+    </Navigator>
+  );
+};
+
 const App = () => {
   return (
     <GestureHandlerRootView style={styles.wrapper}>
       <Provider store={store}>
         <NativeBaseProvider theme={customTheme}>
           <NavigationContainer ref={navigationRef}>
-            <Navigator
-              initialRouteName="Home"
-              screenOptions={{ header: (props) => <Header {...props} /> }}
-            >
-              <Screen
-                name="Home"
-                options={{
-                  headerRight: () => <SearchAndAbout />,
-                }}
-                component={Home}
-              />
-              <Screen
-                name="Discovery"
-                options={{ title: '', headerLeft: () => <SearchAndPlugin /> }}
-                component={Discovery}
-              />
-              <Screen
-                name="Search"
-                options={{ headerRight: () => <PluginSelect /> }}
-                component={Search}
-              />
-              <Screen
-                name="Detail"
-                options={{ title: 'loading...', headerRight: () => <HeartAndBrowser /> }}
-                component={Detail}
-              />
-              <Screen name="Chapter" options={{ headerShown: false }} component={Chapter} />
-              <Screen name="Plugin" component={Plugin} />
-              <Screen name="About" component={About} />
-            </Navigator>
+            <NavigationScreen />
           </NavigationContainer>
         </NativeBaseProvider>
       </Provider>

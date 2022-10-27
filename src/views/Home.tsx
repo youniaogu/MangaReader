@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon, View, Text } from 'native-base';
-import { useErrorMessageToast } from '~/hooks';
 import { AsyncStatus, isManga } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -29,8 +28,6 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     () => list.filter((item) => !item.inQueue).map((item) => item.mangaHash),
     [list]
   );
-
-  useErrorMessageToast();
 
   const handleDetail = (mangaHash: string) => {
     navigate('Detail', { mangaHash });

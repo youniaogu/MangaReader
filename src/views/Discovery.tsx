@@ -2,7 +2,6 @@ import React, { useMemo, useState, useCallback, Fragment } from 'react';
 import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { isManga, AsyncStatus } from '~/utils';
-import { useErrorMessageToast } from '~/hooks';
 import { Plugin, PluginMap } from '~/plugins';
 import { useFocusEffect } from '@react-navigation/native';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
@@ -20,7 +19,6 @@ const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
   const dispatch = useAppDispatch();
   const updateList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
-  useErrorMessageToast();
   useFocusEffect(
     useCallback(() => {
       loadStatus === AsyncStatus.Default && dispatch(loadDiscovery({ isReset: true, source }));
