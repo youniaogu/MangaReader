@@ -252,7 +252,7 @@ class CopyManga extends Base {
           };
         })
         .reverse();
-      const firstChapterHref = $('div.visible-lg div.read-block a.reading').first().attr('href');
+      const firstChapterHref = $('a.reading').first().attr('href');
       const [, firstChapterId] = firstChapterHref?.match(PATTERN_CHAPTER_ID) || [];
 
       let status = MangaStatus.Unknown;
