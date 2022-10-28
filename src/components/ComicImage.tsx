@@ -11,6 +11,9 @@ import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+const windowScale = Dimensions.get('window').scale;
+const maximumSize = 1864000;
+const maximumScale = maximumSize / (windowScale * windowWidth * windowHeight);
 const defaultState = {
   defaulthHash: '',
   defaultHeight: windowHeight,
@@ -157,8 +160,9 @@ const JMCImage = ({
 
         const container = scaleToFit(
           { width, height },
-          { width: windowWidth, height: windowHeight }
+          { width: windowWidth * maximumScale, height: windowHeight * maximumScale }
         );
+
         canvasRef.current.width = container.dWidth;
         canvasRef.current.height = container.dHeight;
 
