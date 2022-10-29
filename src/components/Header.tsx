@@ -1,11 +1,12 @@
 import React, { Fragment, useMemo } from 'react';
-import { StatusBar, HStack, IconButton, Icon, Text } from 'native-base';
+import { StatusBar, HStack, IconButton, Icon, Text, useTheme } from 'native-base';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { getHeaderTitle } from '@react-navigation/elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const Header = (headerProps: NativeStackHeaderProps) => {
   const { navigation, options, route } = headerProps;
+  const { colors } = useTheme();
   const title = getHeaderTitle(options, route.name);
   const canGoBack = useMemo(() => navigation.canGoBack(), [navigation]);
 
@@ -23,7 +24,7 @@ const Header = (headerProps: NativeStackHeaderProps) => {
 
   return (
     <Fragment>
-      <StatusBar animated backgroundColor="black" barStyle="light-content" />
+      <StatusBar animated backgroundColor={colors.purple[500]} barStyle="light-content" />
       <HStack
         bg="purple.500"
         p={1}
