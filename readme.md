@@ -32,19 +32,19 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 ## TodoList
 
 - [x] 更多的插件
-  
+
   - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，目前网站 403，无法访问）~~
-  
+
   - [x] [manhuaguimobile](https://m.manhuagui.com/)（主站，访问需要代理）
-  
+
   - [x] [copymanga](https://www.copymanga.org/)
-  
+
   - [x] [manhuadb](https://www.manhuadb.com/)
-  
+
   - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip）
-  
+
   - [x] [dongmanzhijia](https://m.dmzj.com/)
-  
+
   - [x] [manhuamao](https://www.maofly.com/)
 
 - [x] 漫画批量更新
@@ -62,3 +62,7 @@ Ios：因为没有开发者账户，请按上面流程安装依赖并构建至�
 - [x] 检查 app 更新
 
 - [x] 过滤批量更新
+
+## License
+
+[MIT](https://github.com/youniaogu/MangaReader/blob/master/LICENSE)
