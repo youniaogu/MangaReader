@@ -97,24 +97,19 @@ class ManHuaDB extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { referer: 'https://www.manhuadb.com/', 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.MHDB,
+      name: 'manhuadb',
+      shortName: 'MHDB',
+      description: '漫画DB，资源较少，实在找不到可以来这里看下',
+      score: 3,
+      config: { origin: { label: '域名', value: 'https://www.manhuadb.com' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
@@ -395,10 +390,4 @@ class ManHuaDB extends Base {
   };
 }
 
-export default new ManHuaDB(
-  Plugin.MHDB,
-  'manhuadb',
-  3,
-  'MHDB',
-  '漫画DB，资源较少，实在找不到可以来这里看下'
-);
+export default new ManHuaDB();

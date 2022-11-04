@@ -79,25 +79,20 @@ class ManHuaGui extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort,
-      true
-    );
+  constructor() {
+    super({
+      id: Plugin.MHG,
+      name: 'manhuagui',
+      shortName: 'MHG',
+      description: '漫画柜大陆版，阉割了一些漫画，不会封IP。目前访问403，默认禁用',
+      score: 1,
+      config: { origin: { label: '域名', value: 'https://www.mhgui.com' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+      disabled: true,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
@@ -446,10 +441,4 @@ class ManHuaGui extends Base {
   };
 }
 
-export default new ManHuaGui(
-  Plugin.MHG,
-  'manhuagui',
-  1,
-  'MHG',
-  '漫画柜大陆版，阉割了一些漫画，不会封IP。目前访问403，默认禁用'
-);
+export default new ManHuaGui();

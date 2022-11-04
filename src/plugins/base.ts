@@ -1,4 +1,26 @@
 import { FetchData } from '~/utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+interface InitialData {
+  id: Plugin;
+  name: string;
+  shortName: string;
+  description: string;
+  score: number;
+  config: PluginConfig;
+  typeOptions?: { label: string; value: string }[];
+  regionOptions?: { label: string; value: string }[];
+  statusOptions?: { label: string; value: string }[];
+  sortOptions?: { label: string; value: string }[];
+  disabled?: boolean;
+}
+
+interface PluginConfig {
+  origin: {
+    label: string;
+    value: string;
+  };
+}
 
 export enum Plugin {
   MHG = 'MHG',
@@ -70,41 +92,51 @@ abstract class Base {
    * @memberof Base
    */
   readonly sortOptions: { label: string; value: string }[];
+  /**
+   * @description switch of display in plugins list
+   * @type {boolean}
+   * @memberof Base
+   */
   readonly disabled: boolean;
+  /**
+   * @description config with sync by AsyncStorage
+   * @type {PluginConfig}
+   * @memberof Base
+   */
+  config: PluginConfig;
 
   /**
    * @description Creates an instance of Base.
-   * @param {Plugin} id
-   * @param {string} name
-   * @param {string} shortName
-   * @param {{ label: string; value: string }[]} [typeOptions=[]]
-   * @param {{ label: string; value: string }[]} [regionOptions=[]]
-   * @param {{ label: string; value: string }[]} [statusOptions=[]]
-   * @param {{ label: string; value: string }[]} [sortOptions=[]]
+   * @param {InitialData} init
    * @memberof Base
    */
-  constructor(
-    id: Plugin,
-    name: string,
-    score: number,
-    shortName: string,
-    description: string,
-    typeOptions: { label: string; value: string }[] = [],
-    regionOptions: { label: string; value: string }[] = [],
-    statusOptions: { label: string; value: string }[] = [],
-    sortOptions: { label: string; value: string }[] = [],
-    disabled = false
-  ) {
+  constructor(init: InitialData) {
+    const {
+      id,
+      name,
+      shortName,
+      description,
+      score,
+      config,
+      typeOptions = [],
+      regionOptions = [],
+      statusOptions = [],
+      sortOptions = [],
+      disabled = false,
+    } = init;
     this.id = id;
     this.name = name;
-    this.score = score;
     this.shortName = shortName;
     this.description = description;
+    this.score = score;
+
+    this.config = config;
     this.typeOptions = typeOptions;
     this.regionOptions = regionOptions;
     this.statusOptions = statusOptions;
     this.sortOptions = sortOptions;
     this.disabled = disabled;
+    this.sync();
   }
 
   /**
@@ -137,8 +169,20 @@ abstract class Base {
   }
 
   /**
+   * @description sync config from AsyncStorage
+   * @memberof Base
+   */
+  public sync() {
+    AsyncStorage.getItem(this.id).then((value) => {
+      if (value) {
+        this.config = JSON.parse(value);
+      }
+    });
+  }
+
+  /**
    * @description verify hash belong to the plugin
-   * @abstract
+   * @public
    * @param {string} hash
    * @return {*}  {boolean}
    * @memberof Base
@@ -146,6 +190,15 @@ abstract class Base {
   public is(hash: string): boolean {
     const [plugin] = Base.splitHash(hash);
     return plugin === this.id;
+  }
+
+  /**
+   * @description plugin is ready for use
+   * @return {*}  {Promise<boolean>}
+   * @memberof Base
+   */
+  public ready(): boolean {
+    return this.config === undefined;
   }
 
   /**

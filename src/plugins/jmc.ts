@@ -37,24 +37,19 @@ class CopyManga extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.JMC,
+      name: 'jmcomic',
+      shortName: 'JMC',
+      description: '禁漫天堂，主打韩漫、本子类',
+      score: 5,
+      config: { origin: { label: '域名', value: 'https://18comic.vip' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
@@ -441,4 +436,4 @@ export function unscramble(uri: string, width: number, height: number) {
   return step;
 }
 
-export default new CopyManga(Plugin.JMC, 'jmcomic', 5, 'JMC', '禁漫天堂，主打韩漫、本子类');
+export default new CopyManga();
