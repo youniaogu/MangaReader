@@ -27,24 +27,24 @@
 
 Android：[下载](https://github.com/youniaogu/MangaReader/releases)
 
-Ios：因为没有开发者账户，请按上面流程安装依赖并构建至手机
+Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
 ## TodoList
 
 - [x] 更多的插件
-  
+
   - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，目前网站 403，无法访问）~~
-  
+
   - [x] [manhuaguimobile](https://m.manhuagui.com/)（主站，访问需要代理）
-  
+
   - [x] [copymanga](https://www.copymanga.org/)
-  
+
   - [x] [manhuadb](https://www.manhuadb.com/)
-  
+
   - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip）
-  
+
   - [x] [dongmanzhijia](https://m.dmzj.com/)
-  
+
   - [x] [manhuamao](https://www.maofly.com/)
 
 - [x] 漫画批量更新
