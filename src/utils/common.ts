@@ -115,6 +115,9 @@ export function getLatestRelease(
     const apk = (latest.assets as any[]).find(
       (item) => item.content_type === 'application/vnd.android.package-archive'
     );
+    const ipa = (latest.assets as any[]).find(
+      (item) => item.content_type === 'application/octet-stream'
+    );
 
     return {
       release: {
@@ -123,8 +126,14 @@ export function getLatestRelease(
         changeLog: latest.body,
         publishTime: `${y}-${m}-${d}`,
         file: {
-          size: apk.size,
-          downloadUrl: apk.browser_download_url,
+          apk: {
+            size: apk.size,
+            downloadUrl: apk.browser_download_url,
+          },
+          ipa: {
+            size: ipa.size,
+            downloadUrl: ipa.browser_download_url,
+          },
         },
       },
     };

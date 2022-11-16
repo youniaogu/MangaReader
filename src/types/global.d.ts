@@ -86,8 +86,14 @@ declare global {
     changeLog: string;
     publishTime: string;
     file?: {
-      size: number;
-      downloadUrl: string;
+      apk: {
+        size: number;
+        downloadUrl: string;
+      };
+      ipa: {
+        size: number;
+        downloadUrl: string;
+      };
     };
   }
 
