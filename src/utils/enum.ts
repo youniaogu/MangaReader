@@ -49,3 +49,8 @@ export enum ErrorMessage {
   WrongResponse = '响应失败: ',
   WrongDataType = '错误的数据格式',
 }
+
+export enum Orientation {
+  Portrait = 'portrait',
+  Landscape = 'landscape',
+}
