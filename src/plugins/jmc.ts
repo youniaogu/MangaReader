@@ -101,7 +101,8 @@ class CopyManga extends Base {
           const img = $$('img');
           const title = img.attr('title') || '';
           const href = a.attr('href') || '';
-          const cover = img.attr('data-original') || img.attr('src') || '';
+          const cover =
+            img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -163,7 +164,8 @@ class CopyManga extends Base {
           const img = $$('img');
           const title = img.attr('title') || '';
           const href = a.attr('href') || '';
-          const cover = img.attr('data-original') || img.attr('src') || '';
+          const cover =
+            img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -220,7 +222,8 @@ class CopyManga extends Base {
       const href = `https://18comic.vip/album/${mangaId}`;
       const title = $('h1#book-name').text() || '';
       const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
-      const cover = $('div.show_zoom img').first().attr('src') || '';
+      const img = $('div#album_photo_cover div.thumb-overlay img').first();
+      const cover = img.attr('src') || img.attr('data-cfsrc') || '';
       const tag = (
         $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
       ).map((item) => item.children[0].data || '');
@@ -305,7 +308,7 @@ class CopyManga extends Base {
       const $ = cheerio.load(text || '');
 
       const scriptContent =
-        ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter(
+        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
           (script) =>
             PATTERN_SCRIPT_MANGA_ID.test(script.children[0].data || '') &&
             PATTERN_SCRIPT_CHAPTER_ID.test(script.children[0].data || '') &&
