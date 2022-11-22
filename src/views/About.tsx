@@ -61,7 +61,7 @@ const About = () => {
 
   return (
     <ScrollView>
-      <VStack px={6} py={8} safeAreaBottom>
+      <VStack space={6} px={6} py={8} safeAreaBottom>
         <VStack alignItems="center">
           <Text fontSize="3xl" fontWeight="bold" color="purple.900">
             {release.name}
@@ -74,22 +74,22 @@ const About = () => {
         {release.loadStatus === AsyncStatus.Pending && <SpinLoading />}
         {release.loadStatus === AsyncStatus.Fulfilled && release.latest === undefined && (
           <Center alignItems="center">
-            <Image w="1/2" h="1/2" resizeMode="contain" source={christmasGif} alt="christmas" />
-            <Text pt={4} fontWeight="bold">
+            <Image w={24} h={32} resizeMode="contain" source={christmasGif} alt="christmas" />
+            <Text pb={4} fontWeight="bold">
               暂无更新
             </Text>
           </Center>
         )}
         {release.loadStatus === AsyncStatus.Fulfilled && release.latest !== undefined && (
           <>
-            <Text pt={8} fontSize="lg" fontWeight="bold">
+            <Text fontSize="lg" fontWeight="bold">
               {release.latest.publishTime} {release.latest.version}
             </Text>
-            <Text pb={8} fontSize="md" fontWeight="bold">
+            <Text pb={4} fontSize="md" fontWeight="bold">
               {release.latest.changeLog}
             </Text>
+
             <Button
-              mb={8}
               shadow={2}
               _text={{ fontWeight: 'bold' }}
               leftIcon={<Icon as={MaterialIcons} name="android" size="lg" />}
@@ -98,7 +98,6 @@ const About = () => {
               APK下载
             </Button>
             <Button
-              mb={8}
               shadow={2}
               _text={{ fontWeight: 'bold' }}
               leftIcon={<Icon as={MaterialIcons} name="build" size="lg" />}
@@ -110,7 +109,6 @@ const About = () => {
         )}
 
         <Button
-          mb={8}
           shadow={2}
           isLoading={isImageLoading}
           isLoadingText="Cleaning"
