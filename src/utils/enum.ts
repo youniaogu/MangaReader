@@ -33,8 +33,13 @@ export enum env {
  * @enum {number}
  */
 export enum ReaderMode {
-  Horizontal,
-  Vertical,
+  Horizontal = 'horizontal',
+  Vertical = 'vertical',
+}
+
+export enum ReaderDirection {
+  Left = 'left',
+  Right = 'right',
 }
 
 export enum ErrorMessage {

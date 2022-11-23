@@ -1,6 +1,6 @@
 import React, { useMemo, useCallback } from 'react';
+import { isChapter, AsyncStatus, ReaderMode, ReaderDirection } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { isChapter, AsyncStatus, ReaderMode } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { usePrevNext } from '~/hooks';
 import { Center } from 'native-base';
@@ -8,13 +8,14 @@ import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import Reader from '~/components/Reader';
 
-const { loadChapter, viewChapter, viewPage, setReaderMode } = action;
+const { loadChapter, viewChapter, viewPage, setMode, setDirection } = action;
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash, page } = route.params || {};
   const dispatch = useAppDispatch();
   const mangaDict = useAppSelector((state) => state.dict.manga);
-  const readerMode = useAppSelector((state) => state.setting.readerMode);
+  const mode = useAppSelector((state) => state.setting.mode);
+  const direction = useAppSelector((state) => state.setting.direction);
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
@@ -32,14 +33,18 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     }, [data, dispatch, chapterHash])
   );
 
+  const handleGoBack = useCallback(() => navigation.goBack(), [navigation]);
+  const handleModeChange = useCallback(
+    (isHorizontal) => dispatch(setMode(isHorizontal ? ReaderMode.Horizontal : ReaderMode.Vertical)),
+    [dispatch]
+  );
   const handlePageChange = useCallback(
     (currentPage: number) => dispatch(viewPage({ mangaHash, page: currentPage })),
     [dispatch, mangaHash]
   );
-  const handleGoBack = useCallback(() => navigation.goBack(), [navigation]);
-  const handleModeChange = useCallback(
-    (isHorizontal) =>
-      dispatch(setReaderMode(isHorizontal ? ReaderMode.Horizontal : ReaderMode.Vertical)),
+  const handleDirectionChange = useCallback(
+    (inverted: boolean) =>
+      dispatch(setDirection(inverted ? ReaderDirection.Left : ReaderDirection.Right)),
     [dispatch]
   );
   const handlePrevChapter = useMemo(() => {
@@ -86,7 +91,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   return (
     <Reader
       key={chapterHash}
-      horizontal={readerMode === ReaderMode.Horizontal}
+      horizontal={mode === ReaderMode.Horizontal}
+      inverted={mode === ReaderMode.Horizontal && direction === ReaderDirection.Left}
       title={data.title}
       initPage={page}
       data={data.images}
@@ -94,6 +100,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       goBack={handleGoBack}
       onModeChange={handleModeChange}
       onPageChange={handlePageChange}
+      onDirectionChange={handleDirectionChange}
       onPrev={handlePrevChapter}
       onNext={handleNextChapter}
     />

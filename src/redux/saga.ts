@@ -38,7 +38,8 @@ const {
   loadLatestRelease,
   loadLatestReleaseCompletion,
   // setting
-  setReaderMode,
+  setMode,
+  setDirection,
   syncSetting,
   // plugin
   setSource,
@@ -150,7 +151,8 @@ function* syncDataSaga() {
 function* storageDataSaga() {
   yield takeLatest(
     [
-      setReaderMode.type,
+      setMode.type,
+      setDirection.type,
       setSource.type,
       disablePlugin.type,
       viewChapter.type,
