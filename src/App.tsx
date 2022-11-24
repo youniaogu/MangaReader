@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { navigationRef, customTheme, AsyncStatus } from '~/utils';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { navigationRef, customTheme } from '~/utils';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { store, useAppSelector } from '~/redux';
 import { useErrorMessageToast } from '~/hooks';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
-import { store } from '~/redux';
+import RNBootSplash from 'react-native-bootsplash';
 import loadable from '@loadable/component';
+
+interface NavigationScreenProps {
+  ready?: boolean;
+}
 
 const Header = loadable(() => import('~/components/Header'));
 const Home = loadable(() => import('~/views/Home'));
@@ -34,7 +39,14 @@ const About = loadable(() => import('~/views/About'));
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
-const NavigationScreen = () => {
+const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
+  const launchStatus = useAppSelector((state) => state.app.launchStatus);
+
+  useEffect(() => {
+    if (ready && launchStatus === AsyncStatus.Fulfilled) {
+      RNBootSplash.hide();
+    }
+  }, [ready, launchStatus]);
   useErrorMessageToast();
 
   return (
@@ -65,12 +77,14 @@ const NavigationScreen = () => {
 };
 
 const App = () => {
+  const [ready, setReady] = useState(false);
+
   return (
     <GestureHandlerRootView style={styles.wrapper}>
       <Provider store={store}>
         <NativeBaseProvider theme={customTheme}>
-          <NavigationContainer ref={navigationRef}>
-            <NavigationScreen />
+          <NavigationContainer ref={navigationRef} onReady={() => setReady(true)}>
+            <NavigationScreen ready={ready} />
           </NavigationContainer>
         </NativeBaseProvider>
       </Provider>

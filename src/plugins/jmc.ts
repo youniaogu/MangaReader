@@ -37,24 +37,19 @@ class CopyManga extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.JMC,
+      name: 'jmcomic',
+      shortName: 'JMC',
+      description: '禁漫天堂，主打韩漫、本子类',
+      score: 5,
+      config: { origin: { label: '域名', value: 'https://18comic.vip' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
@@ -106,7 +101,8 @@ class CopyManga extends Base {
           const img = $$('img');
           const title = img.attr('title') || '';
           const href = a.attr('href') || '';
-          const cover = img.attr('data-original') || img.attr('src') || '';
+          const cover =
+            img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -168,7 +164,8 @@ class CopyManga extends Base {
           const img = $$('img');
           const title = img.attr('title') || '';
           const href = a.attr('href') || '';
-          const cover = img.attr('data-original') || img.attr('src') || '';
+          const cover =
+            img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -225,7 +222,8 @@ class CopyManga extends Base {
       const href = `https://18comic.vip/album/${mangaId}`;
       const title = $('h1#book-name').text() || '';
       const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
-      const cover = $('div.show_zoom img').first().attr('src') || '';
+      const img = $('div#album_photo_cover div.thumb-overlay img').first();
+      const cover = img.attr('src') || img.attr('data-cfsrc') || '';
       const tag = (
         $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
       ).map((item) => item.children[0].data || '');
@@ -310,7 +308,7 @@ class CopyManga extends Base {
       const $ = cheerio.load(text || '');
 
       const scriptContent =
-        ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter(
+        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
           (script) =>
             PATTERN_SCRIPT_MANGA_ID.test(script.children[0].data || '') &&
             PATTERN_SCRIPT_CHAPTER_ID.test(script.children[0].data || '') &&
@@ -441,4 +439,4 @@ export function unscramble(uri: string, width: number, height: number) {
   return step;
 }
 
-export default new CopyManga(Plugin.JMC, 'jmcomic', 5, 'JMC', '禁漫天堂，主打韩漫、本子类');
+export default new CopyManga();

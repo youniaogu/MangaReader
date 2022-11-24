@@ -167,24 +167,19 @@ class CopyManga extends Base {
     accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
   };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.COPY,
+      name: 'copymanga',
+      shortName: 'COPY',
+      description: '拷贝漫画，资源全，甚至有本子分类',
+      score: 5,
+      config: { origin: { label: '域名', value: 'https://api.copymanga.net' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, _status, sort) => {
@@ -426,10 +421,4 @@ class CopyManga extends Base {
   };
 }
 
-export default new CopyManga(
-  Plugin.COPY,
-  'copymanga',
-  5,
-  'COPY',
-  '拷贝漫画，资源全，甚至有本子分类'
-);
+export default new CopyManga();

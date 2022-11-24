@@ -99,24 +99,19 @@ class DongManZhiJia extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.DMZJ,
+      name: 'dongmanzhijia',
+      shortName: 'DMZJ',
+      description: '动漫之家，资源不如以前，访问速度快',
+      score: 4,
+      config: { origin: { label: '域名', value: 'https://m.dmzj.com' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
@@ -393,10 +388,4 @@ class DongManZhiJia extends Base {
   };
 }
 
-export default new DongManZhiJia(
-  Plugin.DMZJ,
-  'dongmanzhijia',
-  4,
-  'DMZJ',
-  '动漫之家，资源不如以前，访问速度快'
-);
+export default new DongManZhiJia();

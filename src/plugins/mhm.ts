@@ -71,24 +71,19 @@ class ManHuaMao extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.MHM,
+      name: 'manhuamao',
+      shortName: 'MHM',
+      description: '漫画猫',
+      score: 5,
+      config: { origin: { label: '域名', value: 'https://www.maofly.com' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
@@ -344,4 +339,4 @@ class ManHuaMao extends Base {
   };
 }
 
-export default new ManHuaMao(Plugin.MHM, 'manhuamao', 5, 'MHM', '漫画猫');
+export default new ManHuaMao();

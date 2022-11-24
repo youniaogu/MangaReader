@@ -14,12 +14,14 @@ const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 interface ReaderProps {
   title?: string;
   initPage?: number;
+  inverted?: boolean;
   horizontal?: boolean;
   data?: Chapter['images'];
   headers?: Chapter['headers'];
   goBack: () => void;
   onModeChange: (horizontal: boolean) => void;
   onPageChange?: (page: number) => void;
+  onDirectionChange?: (inverted: boolean) => void;
   onPrev?: () => void;
   onNext?: () => void;
 }
@@ -27,12 +29,14 @@ interface ReaderProps {
 const Reader = ({
   title = '',
   initPage = 1,
+  inverted = false,
   horizontal = false,
   data = [],
   headers = {},
   goBack,
   onPageChange,
   onModeChange,
+  onDirectionChange,
   onPrev,
   onNext,
 }: ReaderProps) => {
@@ -130,6 +134,12 @@ const Reader = ({
     }
   }, []);
 
+  const handleRight = () => {
+    onDirectionChange && onDirectionChange(false);
+  };
+  const handleLeft = () => {
+    onDirectionChange && onDirectionChange(true);
+  };
   const handleVertical = () => {
     onModeChange(false);
   };
@@ -152,6 +162,7 @@ const Reader = ({
           h="full"
           ref={flatListRef}
           data={data}
+          inverted={inverted}
           horizontal
           pagingEnabled
           initialScrollIndex={initialScrollIndex}
@@ -179,6 +190,7 @@ const Reader = ({
             h="full"
             ref={flatListRef}
             data={data}
+            inverted={inverted}
             windowSize={3}
             initialNumToRender={1}
             maxToRenderPerBatch={3}
@@ -210,14 +222,30 @@ const Reader = ({
             <Text
               shadow={0}
               fontSize="md"
-              w="3/5"
+              w="3/6"
               numberOfLines={1}
               color="white"
               fontWeight="bold"
             >
               {title}
             </Text>
+
             <Box flex={1} />
+
+            {horizontal &&
+              (inverted ? (
+                <IconButton
+                  shadow={0}
+                  icon={<Icon as={MaterialIcons} name="west" size="lg" color="white" />}
+                  onPress={handleRight}
+                />
+              ) : (
+                <IconButton
+                  shadow={0}
+                  icon={<Icon as={MaterialIcons} name="east" size="lg" color="white" />}
+                  onPress={handleLeft}
+                />
+              ))}
             <Text shadow={0} color="white" fontWeight="bold">
               {page} / {data.length}
             </Text>

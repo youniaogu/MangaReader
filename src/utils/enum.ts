@@ -33,8 +33,13 @@ export enum env {
  * @enum {number}
  */
 export enum ReaderMode {
-  Horizontal,
-  Vertical,
+  Horizontal = 'horizontal',
+  Vertical = 'vertical',
+}
+
+export enum ReaderDirection {
+  Left = 'left',
+  Right = 'right',
 }
 
 export enum ErrorMessage {
@@ -48,4 +53,9 @@ export enum ErrorMessage {
   SyncFail = '同步数据失败～',
   WrongResponse = '响应失败: ',
   WrongDataType = '错误的数据格式',
+}
+
+export enum Orientation {
+  Portrait = 'portrait',
+  Landscape = 'landscape',
 }

@@ -62,3 +62,7 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 - [x] 检查 app 更新
 
 - [x] 过滤批量更新
+
+## License
+
+[MIT](https://github.com/youniaogu/MangaReader/blob/master/LICENSE)

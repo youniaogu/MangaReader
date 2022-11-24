@@ -1,6 +1,6 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, Options, defaultPlugin, defaultPluginList } from '~/plugins';
-import { AsyncStatus, ReaderMode } from '~/utils';
+import { AsyncStatus, ReaderMode, ReaderDirection } from '~/utils';
 
 export const initialState: RootState = {
   app: {
@@ -16,7 +16,8 @@ export const initialState: RootState = {
     publishTime: process.env.PUBLISH_TIME,
   },
   setting: {
-    readerMode: ReaderMode.Horizontal,
+    mode: ReaderMode.Horizontal,
+    direction: ReaderDirection.Right,
   },
   plugin: {
     source: defaultPlugin,
@@ -122,8 +123,11 @@ const settingSlice = createSlice({
   name: 'setting',
   initialState: initialState.setting,
   reducers: {
-    setReaderMode(state, action: PayloadAction<ReaderMode>) {
-      state.readerMode = action.payload;
+    setMode(state, action: PayloadAction<ReaderMode>) {
+      state.mode = action.payload;
+    },
+    setDirection(state, action: PayloadAction<ReaderDirection>) {
+      state.direction = action.payload;
     },
     syncSetting(_state, action: PayloadAction<RootState['setting']>) {
       return action.payload;

@@ -1,4 +1,4 @@
-import { AsyncStatus, MangaStatus, ReaderMode, customTheme, env } from '~/utils';
+import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection, customTheme, env } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
@@ -86,8 +86,14 @@ declare global {
     changeLog: string;
     publishTime: string;
     file?: {
-      size: number;
-      downloadUrl: string;
+      apk: {
+        size: number;
+        downloadUrl: string;
+      };
+      ipa: {
+        size: number;
+        downloadUrl: string;
+      };
     };
   }
 
@@ -100,7 +106,8 @@ declare global {
     };
     release: Release;
     setting: {
-      readerMode: ReaderMode;
+      mode: ReaderMode;
+      direction: ReaderDirection;
     };
     plugin: {
       source: Plugin;

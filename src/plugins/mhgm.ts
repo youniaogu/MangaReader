@@ -80,24 +80,19 @@ class ManHuaGuiMobile extends Base {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
   readonly defaultHeaders = { 'user-agent': this.userAgent };
 
-  constructor(
-    pluginID: Plugin,
-    pluginName: string,
-    pluginScore: number,
-    pluginShortName: string,
-    pluginDescription: string
-  ) {
-    super(
-      pluginID,
-      pluginName,
-      pluginScore,
-      pluginShortName,
-      pluginDescription,
-      options.type,
-      options.region,
-      options.status,
-      options.sort
-    );
+  constructor() {
+    super({
+      id: Plugin.MHGM,
+      name: 'manhuagui(mobile)',
+      shortName: 'MHGM',
+      description: '漫画柜移动版（主站），漫画资源全，频繁访问会封IP，需要代理',
+      score: 5,
+      config: { origin: { label: '域名', value: 'https://m.manhuagui.com' } },
+      typeOptions: options.type,
+      regionOptions: options.region,
+      statusOptions: options.status,
+      sortOptions: options.sort,
+    });
   }
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
@@ -416,10 +411,4 @@ class ManHuaGuiMobile extends Base {
   };
 }
 
-export default new ManHuaGuiMobile(
-  Plugin.MHGM,
-  'manhuagui(mobile)',
-  5,
-  'MHGM',
-  '漫画柜移动版（主站），漫画资源全，频繁访问会封IP，需要代理'
-);
+export default new ManHuaGuiMobile();
