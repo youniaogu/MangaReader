@@ -146,15 +146,15 @@ export function compareVersion(prev: string, current: string) {
   const [, A1 = 0, B1 = 0, C1 = 0] = prev.match(PATTERN_VERSION) || [];
   const [, A2 = 0, B2 = 0, C2 = 0] = current.match(PATTERN_VERSION) || [];
 
-  if (A1 < A2) {
-    return false;
-  } else if (B1 < B2) {
-    return false;
-  } else if (C1 <= C2) {
-    return false;
+  if (Number(A1) > Number(A2)) {
+    return true;
+  } else if (Number(A1) === Number(A2) && Number(B1) > Number(B2)) {
+    return true;
+  } else if (Number(A1) === Number(A2) && Number(B1) === Number(B2) && Number(C1) > Number(C2)) {
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 export function mergeQuery(uri: string, key: string, value: string) {
