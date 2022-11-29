@@ -224,6 +224,8 @@ function* batchUpdateSaga() {
         break;
       }
 
+      const [source] = splitHash(hash);
+      const plugin = PluginMap.get(source);
       const loadMangaEffect = function* () {
         const id = nanoid();
         const dict = ((state: RootState) => state.dict)(yield select());
@@ -248,7 +250,8 @@ function* batchUpdateSaga() {
 
         yield put(outStack({ isSuccess: !fetchError, isTrend, hash }));
       };
-      yield all([loadMangaEffect(), delay(1000)]);
+
+      yield all([loadMangaEffect(), delay(plugin?.config.batchDelay || 1000)]);
     }
 
     yield put(endBatchUpdate());

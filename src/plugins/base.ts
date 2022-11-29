@@ -20,6 +20,7 @@ interface PluginConfig {
     label: string;
     value: string;
   };
+  batchDelay?: number;
 }
 
 export enum Plugin {

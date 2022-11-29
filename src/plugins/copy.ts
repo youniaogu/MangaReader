@@ -174,7 +174,9 @@ class CopyManga extends Base {
       shortName: 'COPY',
       description: '拷贝漫画，资源全，甚至有本子分类',
       score: 5,
-      config: { origin: { label: '域名', value: 'https://api.copymanga.net' } },
+      config: {
+        origin: { label: '域名', value: 'https://api.copymanga.net' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,
