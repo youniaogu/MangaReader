@@ -101,8 +101,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       onModeChange={handleModeChange}
       onPageChange={handlePageChange}
       onDirectionChange={handleDirectionChange}
-      onPrev={handlePrevChapter}
-      onNext={handleNextChapter}
+      onPrevChapter={handlePrevChapter}
+      onNextChapter={handleNextChapter}
     />
   );
 };

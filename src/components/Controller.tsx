@@ -12,9 +12,10 @@ import { Box } from 'native-base';
 const doubleTapScaleValue = 2;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+const oneThirdWidth = windowWidth / 3;
 
 interface ControllerProps {
-  onTap?: () => void;
+  onTap?: (position: 'left' | 'mid' | 'right') => void;
   children: ReactNode;
   horizontal?: boolean;
 }
@@ -50,8 +51,18 @@ const Controller = ({ onTap, children, horizontal = false }: ControllerProps) =>
     .runOnJS(true)
     .maxDuration(300)
     .numberOfTaps(1)
-    .onStart(() => {
-      onTap && onTap();
+    .onStart((e) => {
+      if (savedScale.value === 1 && horizontal) {
+        if (e.x < oneThirdWidth) {
+          onTap && onTap('left');
+        } else if (e.x < oneThirdWidth * 2) {
+          onTap && onTap('mid');
+        } else {
+          onTap && onTap('right');
+        }
+      } else {
+        onTap && onTap('mid');
+      }
     });
   const doubleTap = Gesture.Tap()
     .maxDuration(300)

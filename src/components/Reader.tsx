@@ -22,8 +22,8 @@ interface ReaderProps {
   onModeChange: (horizontal: boolean) => void;
   onPageChange?: (page: number) => void;
   onDirectionChange?: (inverted: boolean) => void;
-  onPrev?: () => void;
-  onNext?: () => void;
+  onPrevChapter?: () => void;
+  onNextChapter?: () => void;
 }
 
 const Reader = ({
@@ -37,8 +37,8 @@ const Reader = ({
   onPageChange,
   onModeChange,
   onDirectionChange,
-  onPrev,
-  onNext,
+  onPrevChapter,
+  onNextChapter,
 }: ReaderProps) => {
   const toast = useToast();
   const [page, setPage] = useState(initPage);
@@ -62,9 +62,35 @@ const Reader = ({
     return () => timeout.current && clearTimeout(timeout.current);
   });
 
-  const toggleExtra = useCallback(() => {
-    setShowExtra((prev) => !prev);
-  }, []);
+  const handlePrevPage = useCallback(() => {
+    if (page > 2) {
+      flatListRef.current?.scrollToIndex({ index: page - 2, animated: true });
+    }
+    if (page === 2) {
+      // offset use 1, no 0
+      // for bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
+      flatListRef.current?.scrollToOffset({ offset: 1, animated: true });
+    }
+  }, [page]);
+  const handleNextPage = useCallback(() => {
+    if (page < data.length) {
+      flatListRef.current?.scrollToIndex({ index: page, animated: true });
+    }
+  }, [page, data.length]);
+  const handleTap = useCallback(
+    (position) => {
+      if (position === 'left') {
+        handlePrevPage();
+      }
+      if (position === 'mid') {
+        setShowExtra((prev) => !prev);
+      }
+      if (position === 'right') {
+        handleNextPage();
+      }
+    },
+    [handlePrevPage, handleNextPage]
+  );
   const HandleViewableItemsChanged = useCallback(({ viewableItems }) => {
     if (!viewableItems || viewableItems.length <= 0) {
       return;
@@ -114,12 +140,12 @@ const Reader = ({
       const { uri, needUnscramble } = item;
 
       return (
-        <Controller horizontal onTap={toggleExtra}>
+        <Controller horizontal onTap={handleTap}>
           <ComicImage horizontal useJMC={needUnscramble} uri={uri} headers={headers} />
         </Controller>
       );
     },
-    [headers, toggleExtra]
+    [headers, handleTap]
   );
   const handleSliderChangeEnd = useCallback((newStep: number) => {
     const newPage = Math.floor(newStep);
@@ -146,11 +172,11 @@ const Reader = ({
   const handleHorizontal = () => {
     onModeChange(true);
   };
-  const handlePrev = () => {
-    onPrev && onPrev();
+  const handlePrevChapter = () => {
+    onPrevChapter && onPrevChapter();
   };
-  const handleNext = () => {
-    onNext && onNext();
+  const handleNextChapter = () => {
+    onNextChapter && onNextChapter();
   };
 
   return (
@@ -184,7 +210,7 @@ const Reader = ({
           keyExtractor={(item) => item.uri}
         />
       ) : (
-        <Controller onTap={toggleExtra}>
+        <Controller onTap={handleTap}>
           <FlatList
             w="full"
             h="full"
@@ -279,11 +305,11 @@ const Reader = ({
             safeAreaRight
             safeAreaBottom
           >
-            {onPrev ? (
+            {onPrevChapter ? (
               <IconButton
                 shadow={0}
                 icon={<Icon as={MaterialIcons} name="skip-previous" size="lg" color="white" />}
-                onPress={handlePrev}
+                onPress={handlePrevChapter}
               />
             ) : (
               <Box w={45} />
@@ -297,11 +323,11 @@ const Reader = ({
                 onSliderChangeEnd={handleSliderChangeEnd}
               />
             </Box>
-            {onNext ? (
+            {onNextChapter ? (
               <IconButton
                 shadow={0}
                 icon={<Icon as={MaterialIcons} name="skip-next" size="lg" color="white" />}
-                onPress={handleNext}
+                onPress={handleNextChapter}
               />
             ) : (
               <Box w={45} />
