@@ -8,7 +8,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 
 const christmasGif = require('~/assets/christmas.gif');
-const { clearCache, loadLatestRelease } = action;
+const { clearCache } = action;
 
 const About = () => {
   const {
@@ -25,9 +25,6 @@ const About = () => {
   const release = useAppSelector((state) => state.release);
   const dispatch = useAppDispatch();
 
-  useEffect(() => {
-    dispatch(loadLatestRelease());
-  }, [dispatch]);
   useEffect(() => {
     if (clearStatus !== AsyncStatus.Pending) {
       setTimeout(closeReduxLoading, 500);

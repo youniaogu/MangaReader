@@ -22,7 +22,6 @@ import {
 import { nanoid, PayloadAction } from '@reduxjs/toolkit';
 import { splitHash, PluginMap } from '~/plugins';
 import { action } from './slice';
-
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {
@@ -88,6 +87,7 @@ function* launchSaga() {
   yield takeLatest(launch.type, function* () {
     yield put(syncData());
     yield take(syncDataCompletion.type);
+    yield put(loadLatestRelease());
 
     yield put(launchCompletion({ error: undefined }));
   });
