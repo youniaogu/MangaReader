@@ -173,7 +173,7 @@ function* storageDataSaga() {
       const plugin = ((state: RootState) => state.plugin)(yield select());
       const setting = ((state: RootState) => state.setting)(yield select());
 
-      const storeDict: RootState['dict'] = { manga: {}, chapter: {} };
+      const storeDict: RootState['dict'] = { manga: {}, chapter: dict.chapter };
       for (const hash in dict.manga) {
         if (favorites.findIndex((item) => item.mangaHash === hash) !== -1) {
           storeDict.manga[hash] = dict.manga[hash];
