@@ -9,11 +9,11 @@ import Animated, {
 import { useFocusEffect } from '@react-navigation/native';
 
 interface RotateProps {
-  isRotate?: boolean;
+  enable?: boolean;
   children: ReactNode;
 }
 
-const Rotate = ({ isRotate = false, children }: RotateProps) => {
+const Rotate = ({ enable = false, children }: RotateProps) => {
   const offset = useSharedValue(0);
   const animatedStyles = useAnimatedStyle(() => {
     return {
@@ -23,7 +23,7 @@ const Rotate = ({ isRotate = false, children }: RotateProps) => {
 
   useFocusEffect(
     useCallback(() => {
-      if (isRotate) {
+      if (enable) {
         offset.value = withRepeat(
           withTiming(360, { duration: 1500, easing: Easing.linear }),
           -1,
@@ -32,7 +32,7 @@ const Rotate = ({ isRotate = false, children }: RotateProps) => {
       } else {
         offset.value = 0;
       }
-    }, [isRotate, offset])
+    }, [enable, offset])
   );
 
   return <Animated.View style={animatedStyles}>{children}</Animated.View>;

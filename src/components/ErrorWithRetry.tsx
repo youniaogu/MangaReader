@@ -10,7 +10,7 @@ const ErrorWithRetry = ({ onRetry }: ErrorWithRetryProps) => {
   return (
     <Center w="full" h="full" bg="black">
       <IconButton
-        icon={<Icon as={MaterialIcons} name="replay" size={30} color="white" />}
+        icon={<Icon as={MaterialIcons} name="replay" size="2xl" color="white" />}
         onPress={onRetry}
       />
     </Center>

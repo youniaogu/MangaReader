@@ -47,13 +47,13 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
 };
 
 export const SearchAndAbout = () => {
-  const [isRotate, setIsRotate] = useState(false);
   const dispatch = useAppDispatch();
   const { loadStatus: batchStatus, stack, queue, fail } = useAppSelector((state) => state.batch);
+  const [enableRotate, setEnableRotate] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
-      setIsRotate(batchStatus === AsyncStatus.Pending);
+      setEnableRotate(batchStatus === AsyncStatus.Pending);
     }, [batchStatus])
   );
 
@@ -67,14 +67,14 @@ export const SearchAndAbout = () => {
   return (
     <HStack flexShrink={0}>
       <IconButton
-        icon={<Icon as={MaterialIcons} name="search" size={30} color="white" />}
+        icon={<Icon as={MaterialIcons} name="search" size="2xl" color="white" />}
         onPress={handleSearch}
       />
       <View position="relative">
-        <Rotate isRotate={isRotate}>
+        <Rotate enable={enableRotate}>
           <IconButton
-            isDisabled={isRotate}
-            icon={<Icon as={MaterialIcons} name="autorenew" size={30} color="white" />}
+            isDisabled={enableRotate}
+            icon={<Icon as={MaterialIcons} name="autorenew" size="2xl" color="white" />}
             onPress={handleUpdate}
           />
         </Rotate>

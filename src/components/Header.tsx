@@ -3,9 +3,13 @@ import { StatusBar, HStack, IconButton, Icon, Text, useTheme } from 'native-base
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { getHeaderTitle } from '@react-navigation/elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Shake from '~/components/Shake';
 
-const Header = (headerProps: NativeStackHeaderProps) => {
-  const { navigation, options, route } = headerProps;
+interface HeaderProps extends NativeStackHeaderProps {
+  enableShake?: boolean;
+}
+
+const Header = ({ navigation, options, route, enableShake = false }: HeaderProps) => {
   const { colors } = useTheme();
   const title = getHeaderTitle(options, route.name);
   const canGoBack = useMemo(() => navigation.canGoBack(), [navigation]);
@@ -38,21 +42,23 @@ const Header = (headerProps: NativeStackHeaderProps) => {
         <HStack flex={1} flexGrow={1} justifyContent="flex-start" alignItems="center">
           {canGoBack ? (
             <IconButton
-              icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
+              icon={<Icon as={MaterialIcons} name="arrow-back" size="2xl" color="white" />}
               onPress={handleBack}
             />
           ) : (
-            <IconButton
-              icon={
-                <Icon
-                  as={MaterialIcons}
-                  name="home"
-                  size={30}
-                  color="white"
-                  onPress={handleAbout}
-                />
-              }
-            />
+            <Shake enable={enableShake}>
+              <IconButton
+                icon={
+                  <Icon
+                    as={MaterialIcons}
+                    name="home"
+                    size="2xl"
+                    color="white"
+                    onPress={handleAbout}
+                  />
+                }
+              />
+            </Shake>
           )}
           <Text maxW="5/6" color="white" fontSize={25} fontWeight="bold" numberOfLines={1}>
             {title}

@@ -242,7 +242,7 @@ const Reader = ({
           >
             <IconButton
               shadow={0}
-              icon={<Icon as={MaterialIcons} name="arrow-back" size={30} color="white" />}
+              icon={<Icon as={MaterialIcons} name="arrow-back" size="2xl" color="white" />}
               onPress={goBack}
             />
             <Text

@@ -190,7 +190,7 @@ export const HeartAndBrowser = () => {
             <Icon
               as={MaterialIcons}
               name={manga?.inQueue ? 'lock-open' : 'lock-outline'}
-              size={30}
+              size="2xl"
               color={manga?.inQueue ? 'white' : 'purple.200'}
             />
           }
@@ -199,7 +199,7 @@ export const HeartAndBrowser = () => {
       )}
       <RedHeart actived={actived} onPress={toggleFavorite} />
       <IconButton
-        icon={<Icon as={MaterialIcons} name="open-in-browser" size={30} color="white" />}
+        icon={<Icon as={MaterialIcons} name="open-in-browser" size="2xl" color="white" />}
         onPress={handleToBrowser}
       />
     </HStack>

@@ -41,6 +41,8 @@ const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>();
 
 const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
   const launchStatus = useAppSelector((state) => state.app.launchStatus);
+  const latestRelease = useAppSelector((state) => state.release.latest);
+  const haveUpdate = Boolean(latestRelease);
 
   useEffect(() => {
     if (ready && launchStatus === AsyncStatus.Fulfilled) {
@@ -50,7 +52,10 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
   useErrorMessageToast();
 
   return (
-    <Navigator initialRouteName="Home" screenOptions={{ header: (props) => <Header {...props} /> }}>
+    <Navigator
+      initialRouteName="Home"
+      screenOptions={{ header: (props) => <Header {...props} enableShake={haveUpdate} /> }}
+    >
       <Screen
         name="Home"
         options={{
