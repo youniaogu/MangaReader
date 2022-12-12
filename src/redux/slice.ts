@@ -259,14 +259,14 @@ const discoverySlice = createSlice({
       state.list = list;
     },
   },
-  extraReducers: {
-    [pluginSlice.actions.setSource.type]: (state) => {
+  extraReducers: (builder) => {
+    builder.addCase(pluginSlice.actions.setSource, (state) => {
       state.loadStatus = AsyncStatus.Default;
       state.type = Options.Default;
       state.region = Options.Default;
       state.status = Options.Default;
       state.sort = Options.Default;
-    },
+    });
   },
 });
 
@@ -314,11 +314,8 @@ const favoritesSlice = createSlice({
       return action.payload;
     },
   },
-  extraReducers: {
-    [batchSlice.actions.outStack.type]: (
-      state,
-      action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>
-    ) => {
+  extraReducers: (builder) => {
+    builder.addCase(batchSlice.actions.outStack, (state, action) => {
       const { isSuccess, isTrend, hash } = action.payload;
       if (isSuccess && isTrend) {
         return state.reduce<RootState['favorites']>((dict, item) => {
@@ -328,7 +325,7 @@ const favoritesSlice = createSlice({
           return [...dict, item];
         }, []);
       }
-    },
+    });
   },
 });
 
@@ -405,61 +402,54 @@ const dictSlice = createSlice({
       }
     },
   },
-  extraReducers: {
-    [searchSlice.actions.loadSearchCompletion.type]: (
-      state,
-      action: FetchResponseAction<Manga[]>
-    ) => {
-      const { error, data } = action.payload;
-      if (error) {
-        return;
-      }
+  extraReducers: (builder) => {
+    builder
+      .addCase(searchSlice.actions.loadSearchCompletion, (state, action) => {
+        const { error, data } = action.payload;
+        if (error) {
+          return;
+        }
 
-      data.forEach((item) => {
-        state.manga[item.hash] = { ...state.manga[item.hash], ...item };
-      });
-    },
-    [discoverySlice.actions.loadDiscoveryCompletion.type]: (
-      state,
-      action: FetchResponseAction<Manga[]>
-    ) => {
-      const { error, data } = action.payload;
-      if (error) {
-        return;
-      }
+        data.forEach((item) => {
+          state.manga[item.hash] = { ...state.manga[item.hash], ...item };
+        });
+      })
+      .addCase(discoverySlice.actions.loadDiscoveryCompletion, (state, action) => {
+        const { error, data } = action.payload;
+        if (error) {
+          return;
+        }
 
-      data.forEach((item) => {
-        state.manga[item.hash] = {
-          ...state.manga[item.hash],
-          ...item,
+        data.forEach((item) => {
+          state.manga[item.hash] = {
+            ...state.manga[item.hash],
+            ...item,
+            chapters:
+              item.chapters.length > 0 ? item.chapters : state.manga[item.hash]?.chapters || [],
+          };
+        });
+      })
+      .addCase(mangaSlice.actions.loadMangaCompletion, (state, action) => {
+        const { error, data } = action.payload;
+        if (error) {
+          return;
+        }
+
+        state.manga[data.hash] = {
+          ...state.manga[data.hash],
+          ...data,
           chapters:
-            item.chapters.length > 0 ? item.chapters : state.manga[item.hash]?.chapters || [],
+            data.chapters.length > 0 ? data.chapters : state.manga[data.hash]?.chapters || [],
         };
+      })
+      .addCase(chapterSlice.actions.loadChapterCompletion, (state, action) => {
+        const { error, data } = action.payload;
+        if (error) {
+          return;
+        }
+
+        state.chapter[data.hash] = { ...state.chapter[data.hash], ...data };
       });
-    },
-    [mangaSlice.actions.loadMangaCompletion.type]: (state, action: FetchResponseAction<Manga>) => {
-      const { error, data } = action.payload;
-      if (error) {
-        return;
-      }
-
-      state.manga[data.hash] = {
-        ...state.manga[data.hash],
-        ...data,
-        chapters: data.chapters.length > 0 ? data.chapters : state.manga[data.hash]?.chapters || [],
-      };
-    },
-    [chapterSlice.actions.loadChapterCompletion.type]: (
-      state,
-      action: FetchResponseAction<Chapter>
-    ) => {
-      const { error, data } = action.payload;
-      if (error) {
-        return;
-      }
-
-      state.chapter[data.hash] = { ...state.chapter[data.hash], ...data };
-    },
   },
 });
 

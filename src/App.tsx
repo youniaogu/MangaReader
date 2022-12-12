@@ -56,13 +56,7 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
       initialRouteName="Home"
       screenOptions={{ header: (props) => <Header {...props} enableShake={haveUpdate} /> }}
     >
-      <Screen
-        name="Home"
-        options={{
-          headerRight: () => <SearchAndAbout />,
-        }}
-        component={Home}
-      />
+      <Screen name="Home" options={{ headerRight: () => <SearchAndAbout /> }} component={Home} />
       <Screen
         name="Discovery"
         options={{ title: '', headerLeft: () => <SearchAndPlugin /> }}
