@@ -63,6 +63,14 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
 - [x] 过滤批量更新
 
+## About
+
+很喜欢看漫画，能在一个 APP 里看完所有的漫画，是我一直以来的想法
+
+这个项目是在工作之余开发的，时间有限，如果遇到问题，欢迎 Issues
+
+最后感谢 Star，你的 Star 是我更新的动力
+
 ## License
 
 [MIT](https://github.com/youniaogu/MangaReader/blob/master/LICENSE)
