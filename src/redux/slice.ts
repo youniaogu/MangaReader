@@ -173,13 +173,21 @@ const batchSlice = createSlice({
       state.stack.push(action.payload);
       state.queue = state.queue.filter((item) => item !== action.payload);
     },
-    outStack(state, action: PayloadAction<{ isSuccess: boolean; isTrend: boolean; hash: string }>) {
-      const { isSuccess, hash } = action.payload;
+    outStack(
+      state,
+      action: PayloadAction<{
+        isSuccess: boolean;
+        isTrend: boolean;
+        hash: string;
+        isRetry: boolean;
+      }>
+    ) {
+      const { isSuccess, hash, isRetry } = action.payload;
       state.stack = state.stack.filter((item) => item !== hash);
       if (isSuccess) {
         state.success.push(hash);
       } else {
-        state.fail.push(hash);
+        isRetry ? state.queue.push(hash) : state.fail.push(hash);
       }
     },
     cancelLoadManga() {},
