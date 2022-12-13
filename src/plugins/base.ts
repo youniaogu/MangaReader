@@ -7,7 +7,9 @@ interface InitialData {
   shortName: string;
   description: string;
   score: number;
-  config: PluginConfig;
+  config: Omit<PluginConfig, 'batchDelay'> & {
+    batchDelay?: number;
+  };
   typeOptions?: { label: string; value: string }[];
   regionOptions?: { label: string; value: string }[];
   statusOptions?: { label: string; value: string }[];
@@ -20,7 +22,7 @@ interface PluginConfig {
     label: string;
     value: string;
   };
-  batchDelay?: number;
+  batchDelay: number;
 }
 
 export enum Plugin {
@@ -131,7 +133,7 @@ abstract class Base {
     this.description = description;
     this.score = score;
 
-    this.config = config;
+    this.config = { ...config, batchDelay: config.batchDelay || 3000 };
     this.typeOptions = typeOptions;
     this.regionOptions = regionOptions;
     this.statusOptions = statusOptions;

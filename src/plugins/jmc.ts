@@ -44,7 +44,9 @@ class CopyManga extends Base {
       shortName: 'JMC',
       description: '禁漫天堂，主打韩漫、本子类',
       score: 5,
-      config: { origin: { label: '域名', value: 'https://18comic.vip' } },
+      config: {
+        origin: { label: '域名', value: 'https://18comic.vip' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

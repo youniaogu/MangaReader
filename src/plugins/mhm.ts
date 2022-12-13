@@ -78,7 +78,9 @@ class ManHuaMao extends Base {
       shortName: 'MHM',
       description: '漫画猫',
       score: 5,
-      config: { origin: { label: '域名', value: 'https://www.maofly.com' } },
+      config: {
+        origin: { label: '域名', value: 'https://www.maofly.com' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,
@@ -247,7 +249,7 @@ class ManHuaMao extends Base {
       const tags = ($('div.comic-info ul.tags li a').toArray() as cheerio.TagElement[])
         .map((a) => (a.children[0].data || '').trim())
         .filter((tag) => tag !== '连载中' && tag !== '已完结');
-      const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+      const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
       const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
       ($('ol.links-of-books li a').toArray() as cheerio.TagElement[]).forEach((a) => {

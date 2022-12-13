@@ -86,7 +86,9 @@ class ManHuaGui extends Base {
       shortName: 'MHG',
       description: '漫画柜大陆版，阉割了一些漫画，不会封IP。目前访问403，默认禁用',
       score: 1,
-      config: { origin: { label: '域名', value: 'https://www.mhgui.com' } },
+      config: {
+        origin: { label: '域名', value: 'https://www.mhgui.com' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,
@@ -142,7 +144,7 @@ class ManHuaGui extends Base {
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
           const latest = $$('span.tt').first().text();
           const updateTimeLabel = $$('span.dt').first().text() || '';
-          const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+          const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           let status = MangaStatus.Unknown;
@@ -201,7 +203,7 @@ class ManHuaGui extends Base {
           const cover = 'https:' + (img.attr('data-src') || img.attr('src'));
           const fullUpdateTime = $$('div.book-detail dd.status span.red').last().text() || '';
           const latest = $$('div.book-detail dd.status a.blue').first().text();
-          const [updateTime] = fullUpdateTime.match(PATTERN_FULL_TIME) || [];
+          const [updateTime = ''] = fullUpdateTime.match(PATTERN_FULL_TIME) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -278,7 +280,7 @@ class ManHuaGui extends Base {
       const [, mangaId, title] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const latest = $('div.chapter-bar a.blue').first().text();
       const updateTimeLabel = $('div.chapter-bar span.fr span.red').last().text() || '';
-      const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+      const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
       const author = (
         $(
           'div.book-detail ul.detail-list li:nth-child(2) span:nth-child(2) a'

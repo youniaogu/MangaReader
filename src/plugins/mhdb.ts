@@ -104,7 +104,9 @@ class ManHuaDB extends Base {
       shortName: 'MHDB',
       description: '漫画DB，资源较少，实在找不到可以来这里看下',
       score: 3,
-      config: { origin: { label: '域名', value: 'https://www.manhuadb.com' } },
+      config: {
+        origin: { label: '域名', value: 'https://www.manhuadb.com' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

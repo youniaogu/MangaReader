@@ -106,7 +106,9 @@ class DongManZhiJia extends Base {
       shortName: 'DMZJ',
       description: '动漫之家，资源不如以前，访问速度快',
       score: 4,
-      config: { origin: { label: '域名', value: 'https://m.dmzj.com' } },
+      config: {
+        origin: { label: '域名', value: 'https://m.dmzj.com' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,
@@ -312,7 +314,7 @@ class DongManZhiJia extends Base {
             (item) => item.type === 'tag' && item.name === 'span' && item.children.length > 0
           )[0] as cheerio.TagElement
         ).children[0].data || '';
-      const [updateTime] = fullTime.match(PATTERN_FULL_TIME) || [];
+      const [updateTime = ''] = fullTime.match(PATTERN_FULL_TIME) || [];
 
       if (statusLabel === '连载') {
         manga.status = MangaStatus.Serial;

@@ -87,7 +87,9 @@ class ManHuaGuiMobile extends Base {
       shortName: 'MHGM',
       description: '漫画柜移动版（主站），漫画资源全，频繁访问会封IP，需要代理',
       score: 5,
-      config: { origin: { label: '域名', value: 'https://m.manhuagui.com' } },
+      config: {
+        origin: { label: '域名', value: 'https://m.manhuagui.com' },
+      },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,
@@ -284,7 +286,7 @@ class ManHuaGuiMobile extends Base {
         .toArray()
         .map((dl) => cheerio.load(dl).root().text());
       const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
-      const [updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+      const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
 
       const isAudit = $('#erroraudit_show').length > 0;
 
