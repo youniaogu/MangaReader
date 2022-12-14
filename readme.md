@@ -41,7 +41,7 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
   - [x] [manhuadb](https://www.manhuadb.com/)
 
-  - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip）
+  - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip，目前主站到国内站点的自动跳转失效，访问需要代理）
 
   - [x] [dongmanzhijia](https://m.dmzj.com/)
 
@@ -62,6 +62,8 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 - [x] 检查 app 更新
 
 - [x] 过滤批量更新
+
+- [ ] 插件支持配置
 
 ## About
 
