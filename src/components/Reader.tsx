@@ -246,17 +246,15 @@ const Reader = ({
               onPress={goBack}
             />
             <Text
+              flex={1}
               shadow={0}
               fontSize="md"
-              w="3/6"
               numberOfLines={1}
               color="white"
               fontWeight="bold"
             >
               {title}
             </Text>
-
-            <Box flex={1} />
 
             {horizontal &&
               (inverted ? (

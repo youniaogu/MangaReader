@@ -236,7 +236,7 @@ function* batchUpdateSaga() {
       );
 
       if (fetchError) {
-        const [seconds] = fetchError.message.match(/([0-9]+) ?s/g) || [];
+        const [, seconds] = fetchError.message.match(/([0-9]+) ?s/) || [];
         const timeout = Math.min(Number(seconds), 60) * 1000;
 
         if (retry <= 3) {
@@ -244,7 +244,7 @@ function* batchUpdateSaga() {
         }
 
         yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry <= 3 }));
-        yield delay(Number(timeout) || plugin.config.batchDelay);
+        yield delay(timeout || plugin.config.batchDelay);
       } else {
         const prev = dict.manga[hash]?.chapters || [];
         const curr = data?.chapters || [];
