@@ -31,6 +31,7 @@ const PATTERN_CHAPTER_ID = /\/photo\/(.+)/;
 const PATTERN_SCRIPT_MANGA_ID = /var series_id = (.+);/;
 const PATTERN_SCRIPT_CHAPTER_ID = /var aid = (.+);/;
 const PATTERN_SCRIPT_SCRAMBLE_ID = /var scramble_id = (.+);/;
+const PATTERN_HTTP_URL = /(https?:\/\/[^\s/$.?#].[^\s]*)/;
 
 class CopyManga extends Base {
   readonly userAgent =
@@ -103,8 +104,8 @@ class CopyManga extends Base {
           const img = $$('img');
           const title = img.attr('title') || '';
           const href = a.attr('href') || '';
-          const cover =
-            img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+          const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+          const [, cover] = src.match(PATTERN_HTTP_URL) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -166,8 +167,8 @@ class CopyManga extends Base {
           const img = $$('img');
           const title = img.attr('title') || '';
           const href = a.attr('href') || '';
-          const cover =
-            img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+          const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+          const [, cover] = src.match(PATTERN_HTTP_URL) || [];
           const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
           const author = (
@@ -225,7 +226,8 @@ class CopyManga extends Base {
       const title = $('h1#book-name').text() || '';
       const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
       const img = $('div#album_photo_cover div.thumb-overlay img').first();
-      const cover = img.attr('src') || img.attr('data-cfsrc') || '';
+      const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+      const [, cover] = src.match(PATTERN_HTTP_URL) || [];
       const tag = (
         $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
       ).map((item) => item.children[0].data || '');
@@ -324,7 +326,11 @@ class CopyManga extends Base {
         $(
           'div.panel-body div.thumb-overlay-albums div.scramble-page img.lazy_img'
         ).toArray() as cheerio.TagElement[]
-      ).map((img) => img.attribs['data-original'] || img.attribs.src);
+      ).map((img) => {
+        const src = img.attribs['data-original'] || img.attribs.src || '';
+        const [, image] = src.match(PATTERN_HTTP_URL) || [];
+        return image;
+      });
 
       if (mangaId === '0') {
         mangaId = chapterId;
