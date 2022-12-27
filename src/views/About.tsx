@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Icon, Text, Image, Button, VStack, Center, ScrollView, useDisclose } from 'native-base';
-import { action, useAppDispatch, useAppSelector } from '~/redux';
+import { useAppSelector } from '~/redux';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus } from '~/utils';
 import { Linking } from 'react-native';
@@ -8,7 +8,6 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 
 const christmasGif = require('~/assets/christmas.gif');
-const { clearCache } = action;
 
 const About = () => {
   const {
@@ -16,20 +15,7 @@ const About = () => {
     onOpen: openImageLoading,
     onClose: closeImageLoading,
   } = useDisclose();
-  const {
-    isOpen: isReduxLoading,
-    onOpen: openReduxLoading,
-    onClose: closeReduxLoading,
-  } = useDisclose();
-  const clearStatus = useAppSelector((state) => state.app.clearStatus);
   const release = useAppSelector((state) => state.release);
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    if (clearStatus !== AsyncStatus.Pending) {
-      setTimeout(closeReduxLoading, 500);
-    }
-  }, [clearStatus, closeReduxLoading]);
 
   const handleApkDownload = () => {
     if (release.latest) {
@@ -50,10 +36,6 @@ const About = () => {
     CacheManager.clearCache().finally(() => {
       setTimeout(closeImageLoading, 500);
     });
-  };
-  const handleReduxCacheClear = () => {
-    openReduxLoading();
-    dispatch(clearCache());
   };
 
   return (
@@ -114,17 +96,6 @@ const About = () => {
           onPress={handleImageCacheClear}
         >
           清理图片缓存
-        </Button>
-        <Button
-          shadow={2}
-          colorScheme="danger"
-          isLoading={isReduxLoading}
-          isLoadingText="Cleaning"
-          _text={{ fontWeight: 'bold' }}
-          leftIcon={<Icon as={MaterialIcons} name="hourglass-disabled" size="lg" />}
-          onPress={handleReduxCacheClear}
-        >
-          清理数据缓存
         </Button>
       </VStack>
     </ScrollView>
