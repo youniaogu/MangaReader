@@ -1,5 +1,7 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
+import { AESDecrypt } from '~/utils';
+import * as cheerio from 'cheerio';
 
 interface BaseResponse<T> {
   code: number;
@@ -48,19 +50,6 @@ interface ChapterListResponse
     limit: number;
     offset: number;
     list: { uuid: string; name: string; comic_path_word: string }[];
-  }> {}
-interface ChapterResponse
-  extends BaseResponse<{
-    comic: {
-      name: string;
-      path_word: string;
-    };
-    chapter: {
-      name: string;
-      uuid: string;
-      contents: { url: string }[];
-      words: number[];
-    };
   }> {}
 
 const options = {
@@ -143,6 +132,8 @@ const options = {
     { label: '热度⬆️', value: 'popular' },
   ],
 };
+
+const PATTERN_HEADER = /(.+)\/(.+)/;
 
 class CopyManga extends Base {
   readonly userAgent =
@@ -234,12 +225,11 @@ class CopyManga extends Base {
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
-      url: `https://api.copymanga.net/api/v3/comic/${mangaId}/chapter2/${chapterId}`,
-      body: {
-        platform: 1,
-        _update: 'true',
-      },
-      headers: new Headers(this.fetchHeaders),
+      url: `https://www.copymanga.site/comic/${mangaId}/chapter/${chapterId}`,
+      headers: new Headers({
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      }),
     };
   };
 
@@ -385,34 +375,29 @@ class CopyManga extends Base {
     }
   };
 
-  handleChapter: Base['handleChapter'] = (res: ChapterResponse) => {
+  handleChapter: Base['handleChapter'] = (
+    text: string | null,
+    mangaId: string,
+    chapterId: string
+  ) => {
     try {
-      if (res.code === 200) {
-        const { comic, chapter } = res.results;
-        const { contents, words } = chapter;
+      const $ = cheerio.load(text || '');
+      const contentkey = $('div.imageData').first().attr('contentkey') || '';
+      const images = JSON.parse(AESDecrypt(contentkey));
+      const [, name = '', title = ''] =
+        ($('h4.header').first().text() || '').match(PATTERN_HEADER) || [];
 
-        const ziped = words.map((item, index: number) => {
-          return {
-            url: contents[index].url,
-            index: item,
-          };
-        });
-        const sorted = ziped.sort((a, b) => a.index - b.index);
-
-        return {
-          chapter: {
-            hash: Base.combineHash(this.id, comic.path_word, chapter.uuid),
-            mangaId: comic.path_word,
-            chapterId: chapter.uuid,
-            name: comic.name,
-            title: chapter.name,
-            headers: this.imageHeaders,
-            images: sorted.map((item) => ({ uri: item.url })),
-          },
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
+      return {
+        chapter: {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          name,
+          title,
+          headers: this.imageHeaders,
+          images: images.map((item: { url: string }) => ({ uri: item.url })),
+        },
+      };
     } catch (error) {
       if (error instanceof Error) {
         return { error };

@@ -313,7 +313,9 @@ abstract class Base {
    * @memberof Base
    */
   abstract handleChapter(
-    response: any
+    response: any,
+    mangaId: string,
+    chapterId: string
   ): { error: Error; chapter?: undefined } | { error?: undefined; chapter: Chapter };
 }
 

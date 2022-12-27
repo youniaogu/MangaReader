@@ -1,6 +1,7 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 import { ErrorMessage } from './enum';
 import queryString from 'query-string';
+import CryptoJS from 'crypto-js';
 
 export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)$/;
 export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
@@ -161,4 +162,23 @@ export function mergeQuery(uri: string, key: string, value: string) {
   const { url, query } = queryString.parseUrl(uri);
 
   return queryString.stringifyUrl({ url, query: { ...query, [key]: value } });
+}
+
+export function AESDecrypt(contentKey: string): string {
+  const a = contentKey.substring(0x0, 0x10);
+  const b = contentKey.substring(0x10, contentKey.length);
+
+  const c = CryptoJS.enc.Utf8.parse('xxxmanga.woo.key');
+  const d = CryptoJS.enc.Utf8.parse(a);
+
+  const e = CryptoJS.enc.Hex.parse(b);
+  const f = CryptoJS.enc.Base64.stringify(e);
+
+  return CryptoJS.AES.decrypt(f, c, {
+    iv: d,
+    mode: CryptoJS.mode.CBC,
+    padding: CryptoJS.pad.Pkcs7,
+  })
+    .toString(CryptoJS.enc.Utf8)
+    .toString();
 }

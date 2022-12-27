@@ -484,7 +484,7 @@ function* loadChapterSaga() {
         fetchData,
         plugin.prepareChapterFetch(mangaId, chapterId)
       );
-      const { error: pluginError, chapter } = plugin.handleChapter(data);
+      const { error: pluginError, chapter } = plugin.handleChapter(data, mangaId, chapterId);
 
       yield put(loadChapterCompletion({ error: fetchError || pluginError, data: chapter }));
     }
