@@ -19,6 +19,7 @@ interface ReaderProps {
   data?: Chapter['images'];
   headers?: Chapter['headers'];
   goBack: () => void;
+  onReload?: () => void;
   onModeChange: (horizontal: boolean) => void;
   onPageChange?: (page: number) => void;
   onDirectionChange?: (inverted: boolean) => void;
@@ -34,6 +35,7 @@ const Reader = ({
   data = [],
   headers = {},
   goBack,
+  onReload,
   onPageChange,
   onModeChange,
   onDirectionChange,
@@ -160,6 +162,9 @@ const Reader = ({
     }
   }, []);
 
+  const handleReload = () => {
+    onReload && onReload();
+  };
   const handleRight = () => {
     onDirectionChange && onDirectionChange(false);
   };
@@ -246,7 +251,7 @@ const Reader = ({
               onPress={goBack}
             />
             <Text
-              flex={1}
+              flexShrink={1}
               shadow={0}
               fontSize="md"
               numberOfLines={1}
@@ -255,6 +260,13 @@ const Reader = ({
             >
               {title}
             </Text>
+            <IconButton
+              shadow={0}
+              icon={<Icon as={MaterialIcons} name="replay" size="md" color="white" />}
+              onPress={handleReload}
+            />
+
+            <Box flexGrow={1} flexShrink={1} />
 
             {horizontal &&
               (inverted ? (

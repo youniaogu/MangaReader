@@ -34,6 +34,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   );
 
   const handleGoBack = useCallback(() => navigation.goBack(), [navigation]);
+  const handleReload = useCallback(
+    () => dispatch(loadChapter({ chapterHash })),
+    [dispatch, chapterHash]
+  );
   const handleModeChange = useCallback(
     (isHorizontal) => dispatch(setMode(isHorizontal ? ReaderMode.Horizontal : ReaderMode.Vertical)),
     [dispatch]
@@ -76,16 +80,15 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     dispatch(loadChapter({ chapterHash }));
   };
 
-  if (!isChapter(data)) {
-    if (loadStatus === AsyncStatus.Rejected) {
-      return <ErrorWithRetry onRetry={handleRetry} />;
-    }
-
+  if (!isChapter(data) || loadStatus === AsyncStatus.Pending) {
     return (
       <Center w="full" h="full" bg="black">
         <SpinLoading color="white" />
       </Center>
     );
+  }
+  if (loadStatus === AsyncStatus.Rejected) {
+    return <ErrorWithRetry onRetry={handleRetry} />;
   }
 
   return (
@@ -98,6 +101,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       data={data.images}
       headers={data.headers}
       goBack={handleGoBack}
+      onReload={handleReload}
       onModeChange={handleModeChange}
       onPageChange={handlePageChange}
       onDirectionChange={handleDirectionChange}
