@@ -182,3 +182,19 @@ export function AESDecrypt(contentKey: string): string {
     .toString(CryptoJS.enc.Utf8)
     .toString();
 }
+
+export function matchRestoreShape(data: any): data is BackupData {
+  if (
+    typeof data === 'object' &&
+    typeof data.createTime === 'number' &&
+    data.favorites.findIndex((item: any) => typeof item !== 'string') === -1
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+export function nonNullable<T>(v: T | null | undefined): v is T {
+  return v !== null && v !== undefined;
+}

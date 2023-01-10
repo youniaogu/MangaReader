@@ -3,7 +3,7 @@ import { Actionsheet, ScrollView } from 'native-base';
 
 interface ActionsheetSelectProps {
   isOpen?: boolean;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string; disabled?: boolean }[];
   onClose?: () => void;
   onChange?: (value: string) => void;
   headerComponent?: ReactNode;
@@ -33,7 +33,11 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
           {headerComponent}
           <ScrollView w="full">
             {options.map((item) => (
-              <Actionsheet.Item key={item.value} onPress={handleChange(item.value)}>
+              <Actionsheet.Item
+                key={item.value}
+                disabled={item.disabled}
+                onPress={handleChange(item.value)}
+              >
                 {item.label}
               </Actionsheet.Item>
             ))}

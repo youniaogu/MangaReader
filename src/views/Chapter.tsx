@@ -88,7 +88,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     );
   }
   if (loadStatus === AsyncStatus.Rejected) {
-    return <ErrorWithRetry onRetry={handleRetry} />;
+    return (
+      <Center w="full" h="full" bg="black">
+        <ErrorWithRetry onRetry={handleRetry} />
+      </Center>
+    );
   }
 
   return (

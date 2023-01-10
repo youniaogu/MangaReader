@@ -3,23 +3,23 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 import { Toast } from 'native-base';
 
-const { throwError } = action;
+const { throwMessage } = action;
 
-export const useErrorMessageToast = () => {
+export const useMessageToast = () => {
   const dispatch = useAppDispatch();
-  const errorMessage = useAppSelector((state) => state.app.errorMessage);
+  const message = useAppSelector((state) => state.app.message);
 
   useFocusEffect(
     useCallback(() => {
-      if (errorMessage.length > 0) {
-        errorMessage.forEach((message) => {
+      if (message.length > 0) {
+        message.forEach((text) => {
           Toast.show({
-            title: message,
+            title: text,
             placement: 'bottom',
           });
         });
-        dispatch(throwError());
+        dispatch(throwMessage());
       }
-    }, [errorMessage, dispatch])
+    }, [message, dispatch])
   );
 };

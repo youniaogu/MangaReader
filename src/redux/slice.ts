@@ -5,9 +5,13 @@ import { AsyncStatus, ReaderMode, ReaderDirection } from '~/utils';
 export const initialState: RootState = {
   app: {
     launchStatus: AsyncStatus.Default,
+    message: [],
+  },
+  datasync: {
     syncStatus: AsyncStatus.Default,
     clearStatus: AsyncStatus.Default,
-    errorMessage: [],
+    backupStatus: AsyncStatus.Default,
+    restoreStatus: AsyncStatus.Default,
   },
   release: {
     loadStatus: AsyncStatus.Default,
@@ -68,6 +72,22 @@ const appSlice = createSlice({
       }
       state.launchStatus = AsyncStatus.Fulfilled;
     },
+    toastMessage(state, action: PayloadAction<string>) {
+      state.message.unshift(action.payload);
+    },
+    catchError(state, action: PayloadAction<string>) {
+      state.message.unshift(action.payload);
+    },
+    throwMessage(state) {
+      state.message = [];
+    },
+  },
+});
+
+const datasyncSlice = createSlice({
+  name: 'datasync',
+  initialState: initialState.datasync,
+  reducers: {
     syncData(state) {
       state.syncStatus = AsyncStatus.Pending;
     },
@@ -78,6 +98,26 @@ const appSlice = createSlice({
       }
       state.syncStatus = AsyncStatus.Fulfilled;
     },
+    backupToClipboard(state) {
+      state.backupStatus = AsyncStatus.Pending;
+    },
+    backupToClipboardCompletion(state, action: FetchResponseAction) {
+      if (action.payload.error) {
+        state.syncStatus = AsyncStatus.Rejected;
+        return;
+      }
+      state.syncStatus = AsyncStatus.Fulfilled;
+    },
+    restore(state, _action: PayloadAction<string>) {
+      state.restoreStatus = AsyncStatus.Pending;
+    },
+    restoreCompletion(state, action: FetchResponseAction) {
+      if (action.payload.error) {
+        state.restoreStatus = AsyncStatus.Rejected;
+        return;
+      }
+      state.restoreStatus = AsyncStatus.Fulfilled;
+    },
     clearCache(state) {
       state.clearStatus = AsyncStatus.Pending;
     },
@@ -87,12 +127,6 @@ const appSlice = createSlice({
         return;
       }
       state.clearStatus = AsyncStatus.Fulfilled;
-    },
-    catchError(state, action: PayloadAction<string>) {
-      state.errorMessage.unshift(action.payload);
-    },
-    throwError(state) {
-      state.errorMessage = [];
     },
   },
 });
@@ -133,6 +167,11 @@ const settingSlice = createSlice({
       return action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder.addCase(datasyncAction.clearCache, () => {
+      return initialState.setting;
+    });
+  },
 });
 
 const pluginSlice = createSlice({
@@ -152,6 +191,11 @@ const pluginSlice = createSlice({
     syncPlugin(_state, action: PayloadAction<RootState['plugin']>) {
       return action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(datasyncAction.clearCache, () => {
+      return initialState.plugin;
+    });
   },
 });
 
@@ -268,7 +312,7 @@ const discoverySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(pluginSlice.actions.setSource, (state) => {
+    builder.addCase(pluginAction.setSource, (state) => {
       state.loadStatus = AsyncStatus.Default;
       state.type = Options.Default;
       state.region = Options.Default;
@@ -323,17 +367,21 @@ const favoritesSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(batchSlice.actions.outStack, (state, action) => {
-      const { isSuccess, isTrend, hash } = action.payload;
-      if (isSuccess && isTrend) {
-        return state.reduce<RootState['favorites']>((dict, item) => {
-          if (item.mangaHash === hash) {
-            return [{ ...item, isTrend: true }, ...dict];
-          }
-          return [...dict, item];
-        }, []);
-      }
-    });
+    builder
+      .addCase(batchAction.outStack, (state, action) => {
+        const { isSuccess, isTrend, hash } = action.payload;
+        if (isSuccess && isTrend) {
+          return state.reduce<RootState['favorites']>((dict, item) => {
+            if (item.mangaHash === hash) {
+              return [{ ...item, isTrend: true }, ...dict];
+            }
+            return [...dict, item];
+          }, []);
+        }
+      })
+      .addCase(datasyncAction.clearCache, () => {
+        return initialState.favorites;
+      });
   },
 });
 
@@ -412,7 +460,7 @@ const dictSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(searchSlice.actions.loadSearchCompletion, (state, action) => {
+      .addCase(searchAction.loadSearchCompletion, (state, action) => {
         const { error, data } = action.payload;
         if (error) {
           return;
@@ -422,7 +470,7 @@ const dictSlice = createSlice({
           state.manga[item.hash] = { ...state.manga[item.hash], ...item };
         });
       })
-      .addCase(discoverySlice.actions.loadDiscoveryCompletion, (state, action) => {
+      .addCase(discoveryAction.loadDiscoveryCompletion, (state, action) => {
         const { error, data } = action.payload;
         if (error) {
           return;
@@ -437,7 +485,7 @@ const dictSlice = createSlice({
           };
         });
       })
-      .addCase(mangaSlice.actions.loadMangaCompletion, (state, action) => {
+      .addCase(mangaAction.loadMangaCompletion, (state, action) => {
         const { error, data } = action.payload;
         if (error) {
           return;
@@ -450,18 +498,22 @@ const dictSlice = createSlice({
             data.chapters.length > 0 ? data.chapters : state.manga[data.hash]?.chapters || [],
         };
       })
-      .addCase(chapterSlice.actions.loadChapterCompletion, (state, action) => {
+      .addCase(chapterAction.loadChapterCompletion, (state, action) => {
         const { error, data } = action.payload;
         if (error) {
           return;
         }
 
         state.chapter[data.hash] = { ...state.chapter[data.hash], ...data };
+      })
+      .addCase(datasyncAction.clearCache, () => {
+        return initialState.dict;
       });
   },
 });
 
 const appAction = appSlice.actions;
+const datasyncAction = datasyncSlice.actions;
 const releaseAction = releaseSlice.actions;
 const settingAction = settingSlice.actions;
 const pluginAction = pluginSlice.actions;
@@ -474,6 +526,7 @@ const chapterAction = chapterSlice.actions;
 const dictAction = dictSlice.actions;
 
 const appReducer = appSlice.reducer;
+const datasyncReducer = datasyncSlice.reducer;
 const releaseReducer = releaseSlice.reducer;
 const settingReducer = settingSlice.reducer;
 const pluginReducer = pluginSlice.reducer;
@@ -487,6 +540,7 @@ const dictReducer = dictSlice.reducer;
 
 export const action = {
   ...appAction,
+  ...datasyncAction,
   ...releaseAction,
   ...settingAction,
   ...pluginAction,
@@ -500,6 +554,7 @@ export const action = {
 };
 export const reducer = combineReducers<RootState>({
   app: appReducer,
+  datasync: datasyncReducer,
   release: releaseReducer,
   setting: settingReducer,
   plugin: pluginReducer,

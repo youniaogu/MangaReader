@@ -57,6 +57,9 @@ export const SearchAndAbout = () => {
     }, [batchStatus])
   );
 
+  const handleScan = () => {
+    RootNavigation.navigate('Scan');
+  };
   const handleSearch = () => {
     RootNavigation.navigate('Discovery');
   };
@@ -66,6 +69,10 @@ export const SearchAndAbout = () => {
 
   return (
     <HStack flexShrink={0}>
+      <IconButton
+        icon={<Icon as={MaterialIcons} name="qr-code-scanner" size="2xl" color="white" />}
+        onPress={handleScan}
+      />
       <IconButton
         icon={<Icon as={MaterialIcons} name="search" size="2xl" color="white" />}
         onPress={handleSearch}

@@ -59,3 +59,9 @@ export enum Orientation {
   Portrait = 'portrait',
   Landscape = 'landscape',
 }
+
+export enum BackupRestore {
+  Clipboard = 'clipboard',
+  Qrcode = 'Qrcode',
+  Picture = 'Picture',
+}

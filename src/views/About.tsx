@@ -1,22 +1,76 @@
 import React from 'react';
-import { Icon, Text, Image, Button, VStack, Center, ScrollView, useDisclose } from 'native-base';
-import { useAppSelector } from '~/redux';
+import {
+  Icon,
+  Text,
+  Image,
+  Modal,
+  Button,
+  VStack,
+  Center,
+  ScrollView,
+  useToast,
+  useDisclose,
+} from 'native-base';
+import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { env, AsyncStatus, BackupRestore } from '~/utils';
 import { CacheManager } from '@georstat/react-native-image-cache';
-import { AsyncStatus } from '~/utils';
 import { Linking } from 'react-native';
+import ActionsheetSelect from '~/components/ActionsheetSelect';
+import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
+import Clipboard from '@react-native-clipboard/clipboard';
+import LZString from 'lz-string';
 
+const { restore, clearCache, loadLatestRelease } = action;
 const christmasGif = require('~/assets/christmas.gif');
+const BackupRestoreOptions = [
+  { label: '剪贴板', value: BackupRestore.Clipboard },
+  { label: '二维码', value: BackupRestore.Qrcode, disabled: true },
+];
 
-const About = () => {
-  const {
-    isOpen: isImageLoading,
-    onOpen: openImageLoading,
-    onClose: closeImageLoading,
-  } = useDisclose();
+const About = ({ navigation }: StackAboutProps) => {
+  const toast = useToast();
+  const { isOpen: isClearing, onOpen: openClearing, onClose: closeClearing } = useDisclose();
+  const { isOpen: isDialogOpen, onOpen: onDialogOpen, onClose: onDialogClose } = useDisclose();
+  const { isOpen: isBackupOpen, onOpen: onBackupOpen, onClose: onBackupClose } = useDisclose();
+  const { isOpen: isRestoreOpen, onOpen: onRestoreOpen, onClose: onRestoreClose } = useDisclose();
+  const dispatch = useAppDispatch();
   const release = useAppSelector((state) => state.release);
+  const favorites = useAppSelector((state) => state.favorites);
+  const clearStatus = useAppSelector((state) => state.datasync.clearStatus);
+  const restoreStatus = useAppSelector((state) => state.datasync.restoreStatus);
 
+  const handleRetry = () => {
+    dispatch(loadLatestRelease());
+  };
+  const handleBackupChange = (value: string) => {
+    const uncompressed = JSON.stringify({
+      createTime: new Date().getTime(),
+      favorites: favorites.map((item) => item.mangaHash),
+    });
+    const compressed = LZString.compressToBase64(uncompressed);
+
+    if (value === BackupRestore.Clipboard) {
+      Clipboard.setString(compressed);
+      toast.show({ title: '复制成功' });
+    }
+    if (value === BackupRestore.Qrcode) {
+      navigation.navigate('Scan');
+    }
+  };
+  const handleRestoreChange = (value: string) => {
+    if (value === BackupRestore.Clipboard) {
+      Clipboard.hasString().then((hasContent: boolean) => {
+        if (hasContent) {
+          Clipboard.getString().then((data) => dispatch(restore(data)));
+        }
+      });
+    }
+    if (value === BackupRestore.Qrcode) {
+      navigation.navigate('Scan');
+    }
+  };
   const handleApkDownload = () => {
     if (release.latest) {
       Linking.canOpenURL(release.latest.file?.apk.downloadUrl || '').then((supported) => {
@@ -32,10 +86,14 @@ const About = () => {
     }
   };
   const handleImageCacheClear = () => {
-    openImageLoading();
+    openClearing();
     CacheManager.clearCache().finally(() => {
-      setTimeout(closeImageLoading, 500);
+      setTimeout(closeClearing, 500);
     });
+  };
+  const handleStorageCacheClear = () => {
+    dispatch(clearCache());
+    onDialogClose();
   };
 
   return (
@@ -51,6 +109,9 @@ const About = () => {
         </VStack>
 
         {release.loadStatus === AsyncStatus.Pending && <SpinLoading />}
+        {release.loadStatus === AsyncStatus.Rejected && (
+          <ErrorWithRetry color="black" onRetry={handleRetry} />
+        )}
         {release.loadStatus === AsyncStatus.Fulfilled && release.latest === undefined && (
           <Center alignItems="center">
             <Image w={24} h={32} resizeMode="contain" source={christmasGif} alt="christmas" />
@@ -89,15 +150,83 @@ const About = () => {
 
         <Button
           shadow={2}
-          isLoading={isImageLoading}
-          isLoadingText="Cleaning"
+          _text={{ fontWeight: 'bold' }}
+          leftIcon={<Icon as={MaterialIcons} name="backup" size="lg" />}
+          onPress={onBackupOpen}
+        >
+          备份
+        </Button>
+        <Button
+          shadow={2}
+          isLoading={restoreStatus === AsyncStatus.Pending}
+          _text={{ fontWeight: 'bold' }}
+          leftIcon={<Icon as={MaterialIcons} name="restore" size="lg" />}
+          onPress={onRestoreOpen}
+        >
+          恢复
+        </Button>
+        <Button
+          shadow={2}
+          isLoading={isClearing}
+          colorScheme="warning"
           _text={{ fontWeight: 'bold' }}
           leftIcon={<Icon as={MaterialIcons} name="image-not-supported" size="lg" />}
           onPress={handleImageCacheClear}
         >
-          清理图片缓存
+          清除图片缓存
         </Button>
+        {process.env.NODE_ENV === env.DEV && (
+          <Button
+            shadow={2}
+            isLoading={clearStatus === AsyncStatus.Pending}
+            colorScheme="danger"
+            _text={{ fontWeight: 'bold' }}
+            leftIcon={<Icon as={MaterialIcons} name="clear-all" size="lg" />}
+            onPress={onDialogOpen}
+          >
+            清除本地离线数据
+          </Button>
+        )}
       </VStack>
+
+      <ActionsheetSelect
+        isOpen={isBackupOpen}
+        onClose={onBackupClose}
+        options={BackupRestoreOptions}
+        onChange={handleBackupChange}
+        headerComponent={
+          <Text w="full" pl={4} color="gray.500" fontSize={16}>
+            备份
+          </Text>
+        }
+      />
+      <ActionsheetSelect
+        isOpen={isRestoreOpen}
+        onClose={onRestoreClose}
+        options={BackupRestoreOptions}
+        onChange={handleRestoreChange}
+        headerComponent={
+          <Text w="full" pl={4} color="gray.500" fontSize={16}>
+            恢复
+          </Text>
+        }
+      />
+      <Modal isOpen={isDialogOpen} onClose={onDialogClose}>
+        <Modal.Content>
+          <Modal.Header>警告</Modal.Header>
+          <Modal.Body>此操作会清空收藏列表、漫画数据、插件和观看设置，请谨慎！</Modal.Body>
+          <Modal.Footer>
+            <Button.Group size="sm" space="sm">
+              <Button px={5} variant="outline" colorScheme="coolGray" onPress={onDialogClose}>
+                取消
+              </Button>
+              <Button px={5} colorScheme="danger" onPress={handleStorageCacheClear}>
+                确认
+              </Button>
+            </Button.Group>
+          </Modal.Footer>
+        </Modal.Content>
+      </Modal>
     </ScrollView>
   );
 };

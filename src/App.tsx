@@ -3,9 +3,9 @@ import { navigationRef, customTheme, AsyncStatus } from '~/utils';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { store, useAppSelector } from '~/redux';
-import { useErrorMessageToast } from '~/hooks';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
+import { useMessageToast } from '~/hooks';
 import { StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
 import RNBootSplash from 'react-native-bootsplash';
@@ -34,6 +34,7 @@ const HeartAndBrowser = loadable(() => import('~/views/Detail'), {
 });
 const Chapter = loadable(() => import('~/views/Chapter'));
 const Plugin = loadable(() => import('~/views/Plugin'));
+const Scan = loadable(() => import('~/views/Scan'));
 const About = loadable(() => import('~/views/About'));
 
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
@@ -49,7 +50,7 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
       RNBootSplash.hide();
     }
   }, [ready, launchStatus]);
-  useErrorMessageToast();
+  useMessageToast();
 
   return (
     <Navigator
@@ -70,6 +71,7 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
       />
       <Screen name="Chapter" options={{ headerShown: false }} component={Chapter} />
       <Screen name="Plugin" component={Plugin} />
+      <Screen name="Scan" options={{ headerShown: false }} component={Scan} />
       <Screen name="About" component={About} />
     </Navigator>
   );

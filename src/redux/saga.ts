@@ -17,22 +17,29 @@ import {
   haveError,
   fixDictShape,
   getLatestRelease,
+  matchRestoreShape,
+  nonNullable,
   ErrorMessage,
 } from '~/utils';
-import { nanoid, PayloadAction } from '@reduxjs/toolkit';
+import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { splitHash, PluginMap } from '~/plugins';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import LZString from 'lz-string';
 
 const {
   // app
   launch,
   launchCompletion,
+  toastMessage,
+  catchError,
+  // datasync
   syncData,
   syncDataCompletion,
+  restore,
+  restoreCompletion,
   clearCache,
   clearCacheCompletion,
-  catchError,
   // release
   loadLatestRelease,
   loadLatestReleaseCompletion,
@@ -92,6 +99,7 @@ function* launchSaga() {
     yield put(launchCompletion({ error: undefined }));
   });
 }
+
 function* syncDataSaga() {
   yield takeLatest(syncData.type, function* () {
     try {
@@ -148,6 +156,43 @@ function* syncDataSaga() {
     }
   });
 }
+function* restoreSaga() {
+  yield takeLatest(restore.type, function* ({ payload }: ReturnType<typeof restore>) {
+    try {
+      const favorites = ((state: RootState) => state.favorites)(yield select());
+      const data = JSON.parse(LZString.decompressFromBase64(payload) || 'null');
+
+      if (!matchRestoreShape(data)) {
+        throw new Error(ErrorMessage.WrongDataType);
+      }
+
+      yield put(toastMessage('正在进行数据恢复'));
+      yield put(
+        syncFavorites([
+          ...data.favorites
+            .filter((hash) => favorites.findIndex((item) => item.mangaHash === hash) === -1)
+            .map((mangaHash) => ({
+              mangaHash,
+              isTrend: false,
+              inQueue: true,
+            })),
+          ...favorites,
+        ])
+      );
+      yield put(batchUpdate());
+      yield take(endBatchUpdate.type);
+      yield put(restoreCompletion({ error: undefined }));
+      yield put(toastMessage('数据恢复成功'));
+    } catch (error) {
+      yield put(toastMessage('数据恢复失败'));
+      if (error instanceof Error) {
+        yield put(restoreCompletion({ error }));
+      } else {
+        yield put(restoreCompletion({ error: new Error(ErrorMessage.Unknown) }));
+      }
+    }
+  });
+}
 function* storageDataSaga() {
   yield takeLatest(
     [
@@ -190,7 +235,8 @@ function* storageDataSaga() {
 function* clearCacheSaga() {
   yield takeLatest([clearCache.type], function* () {
     yield call(AsyncStorage.clear);
-    yield put(launch());
+    yield put(syncData());
+    yield take(syncDataCompletion.type);
     yield put(clearCacheCompletion({}));
   });
 }
@@ -231,9 +277,12 @@ function* batchUpdateSaga() {
 
       const {
         payload: { error: fetchError, data },
-      }: ActionParameters<typeof loadMangaCompletion> = yield take(
-        ({ type, payload }: any) => type === loadMangaCompletion.type && payload.taskId === id
-      );
+      }: ReturnType<typeof loadMangaCompletion> = yield take((takeAction: Action<string>) => {
+        const { type, payload } = takeAction as Action<string> & {
+          payload: ReturnType<typeof loadMangaCompletion>['payload'];
+        };
+        return type === loadMangaCompletion.type && payload.taskId === id;
+      });
 
       if (fetchError) {
         const [, seconds] = fetchError.message.match(/([0-9]+) ?s/) || [];
@@ -246,13 +295,13 @@ function* batchUpdateSaga() {
         yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry <= 3 }));
         yield delay(timeout || plugin.config.batchDelay);
       } else {
-        const prev = dict.manga[hash]?.chapters || [];
-        const curr = data?.chapters || [];
+        const prev = dict.manga[hash]?.chapters;
+        const curr = data?.chapters;
 
         yield put(
           outStack({
             isSuccess: true,
-            isTrend: curr.length > prev.length,
+            isTrend: nonNullable(prev) && nonNullable(curr) && curr.length > prev.length,
             hash,
             isRetry: false,
           })
@@ -277,7 +326,7 @@ function* batchUpdateSaga() {
 function* loadDiscoverySaga() {
   yield takeLatest(
     loadDiscovery.type,
-    function* ({ payload: { source } }: ActionParameters<typeof loadDiscovery>) {
+    function* ({ payload: { source } }: ReturnType<typeof loadDiscovery>) {
       const plugin = PluginMap.get(source);
       const { page, isEnd, type, region, status, sort } = ((state: RootState) => state.discovery)(
         yield select()
@@ -306,7 +355,7 @@ function* loadDiscoverySaga() {
 function* loadSearchSaga() {
   yield takeLatest(
     loadSearch.type,
-    function* ({ payload: { keyword, source } }: ActionParameters<typeof loadSearch>) {
+    function* ({ payload: { keyword, source } }: ReturnType<typeof loadSearch>) {
       const plugin = PluginMap.get(source);
       const { page, isEnd } = ((state: RootState) => state.search)(yield select());
 
@@ -333,22 +382,24 @@ function* loadSearchSaga() {
 function* loadMangaSaga() {
   yield takeEvery(
     loadManga.type,
-    function* ({ payload: { mangaHash, taskId } }: ActionParameters<typeof loadManga>) {
+    function* ({ payload: { mangaHash, taskId } }: ReturnType<typeof loadManga>) {
       function* loadMangaEffect() {
         yield put(loadMangaInfo({ mangaHash }));
         const {
           payload: { error: loadMangaInfoError, data: mangaInfo },
-        }: ActionParameters<typeof loadMangaInfoCompletion> = yield take(
-          loadMangaInfoCompletion.type
-        );
+        }: ReturnType<typeof loadMangaInfoCompletion> = yield take(loadMangaInfoCompletion.type);
 
         yield put(loadChapterList({ mangaHash, page: 1 }));
         const {
           payload: { error: loadChapterListError, data: chapterInfo },
-        }: ActionParameters<typeof loadChapterListCompletion> = yield take(
-          ({ type, payload }: any) => {
+        }: ReturnType<typeof loadChapterListCompletion> = yield take(
+          (takeAction: Action<string>) => {
+            const { type, payload } = takeAction as Action<string> & {
+              payload: ReturnType<typeof loadChapterListCompletion>['payload'];
+            };
             return (
               type === loadChapterListCompletion.type &&
+              payload.data !== undefined &&
               payload.data.mangaHash === mangaHash &&
               payload.data.page === 1
             );
@@ -388,7 +439,7 @@ function* loadMangaSaga() {
 function* loadMangaInfoSaga() {
   yield takeEvery(
     loadMangaInfo.type,
-    function* ({ payload: { mangaHash } }: ActionParameters<typeof loadMangaInfo>) {
+    function* ({ payload: { mangaHash } }: ReturnType<typeof loadMangaInfo>) {
       const [source, mangaId] = splitHash(mangaHash);
       const plugin = PluginMap.get(source);
 
@@ -411,7 +462,7 @@ function* loadMangaInfoSaga() {
 function* loadChapterListSaga() {
   yield takeEvery(
     loadChapterList.type,
-    function* ({ payload: { mangaHash, page } }: ActionParameters<typeof loadChapterList>) {
+    function* ({ payload: { mangaHash, page } }: ReturnType<typeof loadChapterList>) {
       const [source, mangaId] = splitHash(mangaHash);
       const plugin = PluginMap.get(source);
 
@@ -443,10 +494,14 @@ function* loadChapterListSaga() {
         yield put(loadChapterList({ mangaHash, page: page + 1 }));
         const {
           payload: { error: loadMoreError, data: extraData },
-        }: ActionParameters<typeof loadChapterListCompletion> = yield take(
-          ({ type, payload }: any) => {
+        }: ReturnType<typeof loadChapterListCompletion> = yield take(
+          (takeAction: Action<string>) => {
+            const { type, payload } = takeAction as Action<string> & {
+              payload: ReturnType<typeof loadChapterListCompletion>['payload'];
+            };
             return (
               type === loadChapterListCompletion.type &&
+              payload.data !== undefined &&
               payload.data.mangaHash === mangaHash &&
               payload.data.page === page + 1
             );
@@ -471,7 +526,7 @@ function* loadChapterListSaga() {
 function* loadChapterSaga() {
   yield takeEvery(
     loadChapter.type,
-    function* ({ payload: { chapterHash } }: ActionParameters<typeof loadChapter>) {
+    function* ({ payload: { chapterHash } }: ReturnType<typeof loadChapter>) {
       const [source, mangaId, chapterId] = splitHash(chapterHash);
       const plugin = PluginMap.get(source);
 
@@ -517,6 +572,7 @@ export default function* rootSaga() {
 
     fork(launchSaga),
     fork(syncDataSaga),
+    fork(restoreSaga),
     fork(storageDataSaga),
     fork(clearCacheSaga),
     fork(loadLatestReleaseSaga),
