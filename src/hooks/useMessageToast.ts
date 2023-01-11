@@ -13,10 +13,7 @@ export const useMessageToast = () => {
     useCallback(() => {
       if (message.length > 0) {
         message.forEach((text) => {
-          Toast.show({
-            title: text,
-            placement: 'bottom',
-          });
+          Toast.show({ title: text, placement: 'bottom' });
         });
         dispatch(throwMessage());
       }

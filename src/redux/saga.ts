@@ -166,22 +166,21 @@ function* restoreSaga() {
         throw new Error(ErrorMessage.WrongDataType);
       }
 
+      const newFavorites = data.favorites.filter(
+        (hash) => favorites.findIndex((item) => item.mangaHash === hash) === -1
+      );
+
       yield put(toastMessage('正在进行数据恢复'));
       yield put(
         syncFavorites([
-          ...data.favorites
-            .filter((hash) => favorites.findIndex((item) => item.mangaHash === hash) === -1)
-            .map((mangaHash) => ({
-              mangaHash,
-              isTrend: false,
-              inQueue: true,
-            })),
+          ...newFavorites.map((mangaHash) => ({ mangaHash, isTrend: false, inQueue: true })),
           ...favorites,
         ])
       );
-      yield put(batchUpdate());
+      yield put(batchUpdate(newFavorites));
       yield take(endBatchUpdate.type);
       yield put(restoreCompletion({ error: undefined }));
+      yield delay(0);
       yield put(toastMessage('数据恢复成功'));
     } catch (error) {
       yield put(toastMessage('数据恢复失败'));
@@ -253,74 +252,78 @@ function* loadLatestReleaseSaga() {
 }
 
 function* batchUpdateSaga() {
-  yield takeLeading([batchUpdate.type], function* () {
-    const favorites = ((state: RootState) => state.favorites)(yield select());
-    const fail = ((state: RootState) => state.batch.fail)(yield select());
-    const batchList =
-      fail.length > 0
-        ? fail
-        : favorites.filter((item) => item.inQueue).map((item) => item.mangaHash);
-    const queue = [...batchList].map((hash) => ({ hash, retry: 0 }));
+  yield takeLeading(
+    [batchUpdate.type],
+    function* ({ payload: defaultList }: ReturnType<typeof batchUpdate>) {
+      const favorites = ((state: RootState) => state.favorites)(yield select());
+      const fail = ((state: RootState) => state.batch.fail)(yield select());
+      const batchList =
+        defaultList ||
+        (fail.length > 0
+          ? fail
+          : favorites.filter((item) => item.inQueue).map((item) => item.mangaHash));
+      const queue = [...batchList].map((hash) => ({ hash, retry: 0 }));
 
-    const loadMangaEffect = function* ({ hash = '', retry = 0 }) {
-      const [source] = splitHash(hash);
-      const id = nanoid();
-      const plugin = PluginMap.get(source);
-      const dict = ((state: RootState) => state.dict)(yield select());
+      const loadMangaEffect = function* ({ hash = '', retry = 0 }) {
+        const [source] = splitHash(hash);
+        const id = nanoid();
+        const plugin = PluginMap.get(source);
+        const dict = ((state: RootState) => state.dict)(yield select());
 
-      yield put(inStack(hash));
-      if (!plugin) {
-        outStack({ isSuccess: false, isTrend: false, hash, isRetry: false });
-        return;
-      }
-      yield put(loadManga({ mangaHash: hash, taskId: id }));
+        yield put(inStack(hash));
+        if (!plugin) {
+          outStack({ isSuccess: false, isTrend: false, hash, isRetry: false });
+          return;
+        }
+        yield put(loadManga({ mangaHash: hash, taskId: id }));
 
-      const {
-        payload: { error: fetchError, data },
-      }: ReturnType<typeof loadMangaCompletion> = yield take((takeAction: Action<string>) => {
-        const { type, payload } = takeAction as Action<string> & {
-          payload: ReturnType<typeof loadMangaCompletion>['payload'];
-        };
-        return type === loadMangaCompletion.type && payload.taskId === id;
-      });
+        const {
+          payload: { error: fetchError, data },
+        }: ReturnType<typeof loadMangaCompletion> = yield take((takeAction: Action<string>) => {
+          const { type, payload } = takeAction as Action<string> & {
+            payload: ReturnType<typeof loadMangaCompletion>['payload'];
+          };
+          return type === loadMangaCompletion.type && payload.taskId === id;
+        });
 
-      if (fetchError) {
-        const [, seconds] = fetchError.message.match(/([0-9]+) ?s/) || [];
-        const timeout = Math.min(Number(seconds), 60) * 1000;
+        if (fetchError) {
+          const [, seconds] = fetchError.message.match(/([0-9]+) ?s/) || [];
+          const timeout = Math.min(Number(seconds), 60) * 1000;
 
-        if (retry <= 3) {
-          queue.push({ hash, retry: retry + 1 });
+          if (retry <= 3) {
+            queue.push({ hash, retry: retry + 1 });
+          }
+
+          yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry <= 3 }));
+          yield delay(timeout || plugin.config.batchDelay);
+        } else {
+          const prev = dict.manga[hash]?.chapters;
+          const curr = data?.chapters;
+
+          yield put(
+            outStack({
+              isSuccess: true,
+              isTrend: nonNullable(prev) && nonNullable(curr) && curr.length > prev.length,
+              hash,
+              isRetry: false,
+            })
+          );
+        }
+      };
+
+      yield put(startBatchUpdate(batchList));
+      while (true) {
+        const head = queue.shift();
+
+        if (!head) {
+          break;
         }
 
-        yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry <= 3 }));
-        yield delay(timeout || plugin.config.batchDelay);
-      } else {
-        const prev = dict.manga[hash]?.chapters;
-        const curr = data?.chapters;
-
-        yield put(
-          outStack({
-            isSuccess: true,
-            isTrend: nonNullable(prev) && nonNullable(curr) && curr.length > prev.length,
-            hash,
-            isRetry: false,
-          })
-        );
+        yield loadMangaEffect(head);
       }
-    };
-
-    yield put(startBatchUpdate(batchList));
-    while (true) {
-      const head = queue.shift();
-
-      if (!head) {
-        break;
-      }
-
-      yield loadMangaEffect(head);
+      yield put(endBatchUpdate());
     }
-    yield put(endBatchUpdate());
-  });
+  );
 }
 
 function* loadDiscoverySaga() {

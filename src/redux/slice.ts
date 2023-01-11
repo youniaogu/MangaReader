@@ -203,7 +203,7 @@ const batchSlice = createSlice({
   name: 'batch',
   initialState: initialState.batch,
   reducers: {
-    batchUpdate() {},
+    batchUpdate(_state, _action: PayloadAction<string[] | undefined>) {},
     startBatchUpdate(state, action: PayloadAction<string[]>) {
       state.loadStatus = AsyncStatus.Pending;
       state.queue = action.payload;

@@ -1,17 +1,23 @@
 import 'react-native-reanimated';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { Barcode, scanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { Camera, useCameraDevices, useFrameProcessor } from 'react-native-vision-camera';
-import { Box, Text, Icon, HStack, IconButton } from 'native-base';
-import { Barcode, scanBarcodes, BarcodeFormat } from 'vision-camera-code-scanner';
+import { Box, Icon, HStack, IconButton } from 'native-base';
+import { useFocusEffect } from '@react-navigation/native';
+import { action, useAppDispatch } from '~/redux';
 import { StyleSheet } from 'react-native';
 import { runOnJS } from 'react-native-reanimated';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Center } from 'native-base';
+
+const { restore } = action;
 
 const Scan = ({ navigation }: StackScanProps) => {
   const devices = useCameraDevices();
   const device = devices.back;
+  const dispatch = useAppDispatch();
+  const [isActive, setIsActive] = useState(true);
   const [barcodes, setBarcodes] = useState<Barcode[]>([]);
+  const [hasPermission, setHasPermission] = useState(false);
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
@@ -19,9 +25,26 @@ const Scan = ({ navigation }: StackScanProps) => {
     runOnJS(setBarcodes)(detectedBarcodes);
   }, []);
 
-  Camera.requestCameraPermission().then((permission) => {
-    console.log(permission);
-  });
+  useFocusEffect(
+    useCallback(() => {
+      Camera.requestCameraPermission().then((permission) => {
+        setHasPermission(permission === 'authorized');
+      });
+    }, [])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      const textBarcode = barcodes.find((item) => item.content.type === BarcodeValueType.TEXT);
+
+      if (!textBarcode) {
+        return;
+      }
+
+      setIsActive(false);
+      dispatch(restore(textBarcode.displayValue || ''));
+      navigation.goBack();
+    }, [barcodes, dispatch, navigation])
+  );
 
   const handleBack = () => {
     navigation.goBack();
@@ -31,15 +54,18 @@ const Scan = ({ navigation }: StackScanProps) => {
   if (device == null) {
     return null;
   }
+  if (!hasPermission) {
+    return null;
+  }
 
   return (
     <Box position="relative" bg="black">
       <Camera
-        style={styles.absoluteFill}
+        device={device}
+        isActive={isActive}
         frameProcessor={frameProcessor}
         frameProcessorFps={5}
-        device={device}
-        isActive={true}
+        style={styles.absoluteFill}
       />
 
       <HStack
@@ -54,27 +80,19 @@ const Scan = ({ navigation }: StackScanProps) => {
         safeAreaTop
       >
         <IconButton
-          icon={<Icon as={MaterialIcons} name="arrow-back" size="xl" color="white" />}
+          icon={<Icon as={MaterialIcons} name="arrow-back" size="2xl" color="white" />}
           borderRadius="full"
           onPress={handleBack}
           bg="#b2b7c04d"
         />
-
         <IconButton
           disabled
-          icon={<Icon as={MaterialIcons} name="image" size="xl" color="white" />}
+          icon={<Icon as={MaterialIcons} name="image" size="2xl" color="white" />}
           borderRadius="full"
           onPress={handleAlbum}
+          bg="#b2b7c04d"
         />
       </HStack>
-
-      <Center position="absolute" top={0} left={0} right={0} bottom={0} safeAreaY>
-        {barcodes.map((barcode, idx) => (
-          <Text key={idx} style={styles.barcodeTextURL}>
-            {barcode.displayValue}
-          </Text>
-        ))}
-      </Center>
     </Box>
   );
 };
@@ -84,11 +102,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     overflow: 'hidden',
-  },
-  barcodeTextURL: {
-    fontSize: 20,
-    color: 'white',
-    fontWeight: 'bold',
   },
 });
 
