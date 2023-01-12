@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, Fragment } from 'react';
-import { Box, Text, Flex, Icon, IconButton, FlatList, StatusBar, useToast } from 'native-base';
+import { Box, Text, Flex, Icon, FlatList, StatusBar, IconButton, useToast } from 'native-base';
 import { FlatList as FlatListRN, Dimensions, ListRenderItemInfo } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AsyncStatus } from '~/utils';
@@ -80,7 +80,7 @@ const Reader = ({
     }
   }, [page, data.length]);
   const handleTap = useCallback(
-    (position) => {
+    (position: 'left' | 'mid' | 'right') => {
       if (position === 'left') {
         handlePrevPage();
       }
@@ -93,6 +93,24 @@ const Reader = ({
     },
     [handlePrevPage, handleNextPage]
   );
+  const handlePrevChapter = useCallback(() => {
+    onPrevChapter && onPrevChapter();
+  }, [onPrevChapter]);
+  const handleNextChapter = useCallback(() => {
+    onNextChapter && onNextChapter();
+  }, [onNextChapter]);
+  const handleLongPress = useCallback(
+    (position: 'left' | 'right') => {
+      if (position === 'left') {
+        handlePrevChapter();
+      }
+      if (position === 'right') {
+        handleNextChapter();
+      }
+    },
+    [handlePrevChapter, handleNextChapter]
+  );
+
   const HandleViewableItemsChanged = useCallback(({ viewableItems }) => {
     if (!viewableItems || viewableItems.length <= 0) {
       return;
@@ -114,7 +132,7 @@ const Reader = ({
     }, 200);
   }, []);
   const renderVerticalItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<typeof data[0]>) => {
+    ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
       const { uri, needUnscramble } = item;
       const cacheState = itemStateRef.current[index];
 
@@ -138,17 +156,18 @@ const Reader = ({
     [headers]
   );
   const renderHorizontalItem = useCallback(
-    ({ item }: ListRenderItemInfo<typeof data[0]>) => {
+    ({ item }: ListRenderItemInfo<(typeof data)[0]>) => {
       const { uri, needUnscramble } = item;
 
       return (
-        <Controller horizontal onTap={handleTap}>
+        <Controller horizontal onTap={handleTap} onLongPress={handleLongPress}>
           <ComicImage horizontal useJMC={needUnscramble} uri={uri} headers={headers} />
         </Controller>
       );
     },
-    [headers, handleTap]
+    [headers, handleTap, handleLongPress]
   );
+
   const handleSliderChangeEnd = useCallback((newStep: number) => {
     const newPage = Math.floor(newStep);
 
@@ -176,12 +195,6 @@ const Reader = ({
   };
   const handleHorizontal = () => {
     onModeChange(true);
-  };
-  const handlePrevChapter = () => {
-    onPrevChapter && onPrevChapter();
-  };
-  const handleNextChapter = () => {
-    onNextChapter && onNextChapter();
   };
 
   return (
@@ -215,7 +228,7 @@ const Reader = ({
           keyExtractor={(item) => item.uri}
         />
       ) : (
-        <Controller onTap={handleTap}>
+        <Controller onTap={handleTap} onLongPress={handleLongPress}>
           <FlatList
             w="full"
             h="full"

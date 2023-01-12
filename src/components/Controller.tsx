@@ -13,14 +13,16 @@ const doubleTapScaleValue = 2;
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const oneThirdWidth = windowWidth / 3;
+const oneTwoWidth = windowWidth / 2;
 
 interface ControllerProps {
   onTap?: (position: 'left' | 'mid' | 'right') => void;
+  onLongPress?: (positoin: 'left' | 'right') => void;
   children: ReactNode;
   horizontal?: boolean;
 }
 
-const Controller = ({ onTap, children, horizontal = false }: ControllerProps) => {
+const Controller = ({ onTap, children, horizontal = false, onLongPress }: ControllerProps) => {
   const [enabled, setEnabled] = useState(false);
   const width = useSharedValue(windowWidth);
   const height = useSharedValue(windowHeight);
@@ -98,6 +100,18 @@ const Controller = ({ onTap, children, horizontal = false }: ControllerProps) =>
         runOnJS(setEnabled)(doubleTapScaleValue > 1);
       }
     });
+  const longPress = Gesture.LongPress()
+    .runOnJS(true)
+    .minDuration(2000)
+    .onStart((e) => {
+      if (onLongPress) {
+        if (e.x < oneTwoWidth) {
+          onLongPress('left');
+        } else {
+          onLongPress('right');
+        }
+      }
+    });
   const pinchGesture = Gesture.Pinch()
     .onStart((e) => {
       'worklet';
@@ -170,7 +184,7 @@ const Controller = ({ onTap, children, horizontal = false }: ControllerProps) =>
     });
 
   return (
-    <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap)}>
+    <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap, longPress)}>
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
           {horizontal ? (
