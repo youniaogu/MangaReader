@@ -107,7 +107,7 @@ const DefaultImage = ({
   };
 
   if (loadStatus === AsyncStatus.Rejected) {
-    return <ErrorWithRetry onRetry={handleRetry} />;
+    return <ErrorWithRetry height="full" onRetry={handleRetry} />;
   }
 
   return (
@@ -246,7 +246,7 @@ const JMCImage = ({
   };
 
   if (loadStatus === AsyncStatus.Rejected) {
-    return <ErrorWithRetry onRetry={handleRetry} />;
+    return <ErrorWithRetry height="full" onRetry={handleRetry} />;
   }
 
   if (!dataUrl || loadStatus === AsyncStatus.Pending) {
