@@ -65,19 +65,10 @@ const Reader = ({
   });
 
   const handlePrevPage = useCallback(() => {
-    if (page > 2) {
-      flatListRef.current?.scrollToIndex({ index: page - 2, animated: true });
-    }
-    if (page === 2) {
-      // offset use 1, no 0
-      // for bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
-      flatListRef.current?.scrollToOffset({ offset: 1, animated: true });
-    }
+    flatListRef.current?.scrollToIndex({ index: Math.max(page - 2, 0), animated: true });
   }, [page]);
   const handleNextPage = useCallback(() => {
-    if (page < data.length) {
-      flatListRef.current?.scrollToIndex({ index: page, animated: true });
-    }
+    flatListRef.current?.scrollToIndex({ index: Math.min(page, data.length - 1), animated: true });
   }, [page, data.length]);
   const handleTap = useCallback(
     (position: 'left' | 'mid' | 'right') => {
@@ -185,13 +176,7 @@ const Reader = ({
     const newPage = Math.floor(newStep);
 
     setPage(newPage);
-    if (newStep > 1) {
-      flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
-    } else {
-      // offset use 1, no 0
-      // for bug fix, more detail in https://codesandbox.io/s/brave-shape-310n3d?file=/src/App.js
-      flatListRef.current?.scrollToOffset({ offset: 1, animated: false });
-    }
+    flatListRef.current?.scrollToIndex({ index: newPage - 1, animated: false });
   }, []);
 
   const handleReload = () => {
