@@ -1,9 +1,9 @@
 import React, { useMemo, useCallback } from 'react';
 import { isChapter, AsyncStatus, ReaderMode, ReaderDirection } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { Center, useToast } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
 import { usePrevNext } from '~/hooks';
-import { Center } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import Reader from '~/components/Reader';
@@ -12,6 +12,7 @@ const { loadChapter, viewChapter, viewPage, setMode, setDirection } = action;
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash, page } = route.params || {};
+  const toast = useToast();
   const dispatch = useAppDispatch();
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const mode = useAppSelector((state) => state.setting.mode);
@@ -20,6 +21,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const chapterDict = useAppSelector((state) => state.dict.chapter);
   const data = useMemo(() => chapterDict[chapterHash], [chapterDict, chapterHash]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
+
   const [prev, next] = usePrevNext(chapterList, chapterHash);
 
   useFocusEffect(
@@ -61,8 +63,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         });
       };
     }
-    return undefined;
-  }, [prev, mangaHash, navigation]);
+    return () => {
+      toast.show({ title: '第一话' });
+    };
+  }, [prev, mangaHash, navigation, toast]);
   const handleNextChapter = useMemo(() => {
     if (next) {
       return () => {
@@ -73,8 +77,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         });
       };
     }
-    return undefined;
-  }, [next, mangaHash, navigation]);
+    return () => {
+      toast.show({ title: '最后一话' });
+    };
+  }, [next, mangaHash, navigation, toast]);
 
   const handleRetry = () => {
     dispatch(loadChapter({ chapterHash }));

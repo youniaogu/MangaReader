@@ -10,9 +10,9 @@ const Search = ({ route, navigation }: StackSearchProps) => {
   const keyword = route.params.keyword;
   const dispatch = useAppDispatch();
   const dict = useAppSelector((state) => state.dict.manga);
+  const list = useAppSelector((state) => state.search.list);
+  const source = useAppSelector((state) => state.plugin.source);
   const loadStatus = useAppSelector((state) => state.search.loadStatus);
-  const { list } = useAppSelector((state) => state.search);
-  const { source } = useAppSelector((state) => state.plugin);
   const searchList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useFocusEffect(

@@ -81,17 +81,26 @@ const Reader = ({
   }, [page, data.length]);
   const handleTap = useCallback(
     (position: 'left' | 'mid' | 'right') => {
-      if (position === 'left') {
-        handlePrevPage();
-      }
       if (position === 'mid') {
         setShowExtra((prev) => !prev);
       }
-      if (position === 'right') {
-        handleNextPage();
+      if (inverted) {
+        if (position === 'right') {
+          handlePrevPage();
+        }
+        if (position === 'left') {
+          handleNextPage();
+        }
+      } else {
+        if (position === 'left') {
+          handlePrevPage();
+        }
+        if (position === 'right') {
+          handleNextPage();
+        }
       }
     },
-    [handlePrevPage, handleNextPage]
+    [handlePrevPage, handleNextPage, inverted]
   );
   const handlePrevChapter = useCallback(() => {
     onPrevChapter && onPrevChapter();
@@ -101,14 +110,23 @@ const Reader = ({
   }, [onNextChapter]);
   const handleLongPress = useCallback(
     (position: 'left' | 'right') => {
-      if (position === 'left') {
-        handlePrevChapter();
-      }
-      if (position === 'right') {
-        handleNextChapter();
+      if (inverted) {
+        if (position === 'right') {
+          handlePrevChapter();
+        }
+        if (position === 'left') {
+          handleNextChapter();
+        }
+      } else {
+        if (position === 'left') {
+          handlePrevChapter();
+        }
+        if (position === 'right') {
+          handleNextChapter();
+        }
       }
     },
-    [handlePrevChapter, handleNextChapter]
+    [handlePrevChapter, handleNextChapter, inverted]
   );
 
   const HandleViewableItemsChanged = useCallback(({ viewableItems }) => {
@@ -118,12 +136,7 @@ const Reader = ({
     const last = viewableItems[viewableItems.length - 1];
     const newPage = last.index + 1;
     if (newPage === dataRef.current.length && !toastRef.current.isActive(lastPageToastId)) {
-      toastRef.current.show({
-        id: lastPageToastId,
-        placement: 'bottom',
-        title: '最后一页',
-        duration: 3000,
-      });
+      toastRef.current.show({ id: lastPageToastId, title: '最后一页' });
     }
     timeout.current && clearTimeout(timeout.current);
     timeout.current = setTimeout(() => {

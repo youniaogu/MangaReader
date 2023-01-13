@@ -34,7 +34,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const favorites = useAppSelector((state) => state.favorites);
-
   const data = mangaDict[mangaHash];
 
   useOnce(() => {

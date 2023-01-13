@@ -3,8 +3,8 @@ import React, { useState, useCallback } from 'react';
 import { Barcode, scanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { Camera, useCameraDevices, useFrameProcessor } from 'react-native-vision-camera';
 import { Box, Icon, HStack, IconButton } from 'native-base';
-import { useFocusEffect } from '@react-navigation/native';
 import { action, useAppDispatch } from '~/redux';
+import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet } from 'react-native';
 import { runOnJS } from 'react-native-reanimated';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -49,7 +49,7 @@ const Scan = ({ navigation }: StackScanProps) => {
   const handleBack = () => {
     navigation.goBack();
   };
-  const handleAlbum = () => {};
+  // const handleAlbum = () => {};
 
   if (device == null) {
     return null;
@@ -85,13 +85,13 @@ const Scan = ({ navigation }: StackScanProps) => {
           onPress={handleBack}
           bg="#b2b7c04d"
         />
-        <IconButton
+        {/* <IconButton
           disabled
           icon={<Icon as={MaterialIcons} name="image" size="2xl" color="white" />}
           borderRadius="full"
           onPress={handleAlbum}
           bg="#b2b7c04d"
-        />
+        /> */}
       </HStack>
     </Box>
   );

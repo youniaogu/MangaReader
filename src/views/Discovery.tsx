@@ -12,11 +12,11 @@ import * as RootNavigation from '~/utils/navigation';
 const { loadDiscovery, setSource, setType, setRegion, setStatus, setSort } = action;
 
 const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
-  const { list } = useAppSelector((state) => state.discovery);
-  const { source } = useAppSelector((state) => state.plugin);
-  const dict = useAppSelector((state) => state.dict.manga);
-  const loadStatus = useAppSelector((state) => state.discovery.loadStatus);
   const dispatch = useAppDispatch();
+  const dict = useAppSelector((state) => state.dict.manga);
+  const list = useAppSelector((state) => state.discovery.list);
+  const source = useAppSelector((state) => state.plugin.source);
+  const loadStatus = useAppSelector((state) => state.discovery.loadStatus);
   const updateList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
 
   useFocusEffect(
