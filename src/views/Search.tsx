@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { isManga, AsyncStatus } from '~/utils';
+import { nonNullable, AsyncStatus } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import Bookshelf from '~/components/Bookshelf';
 
@@ -13,7 +13,10 @@ const Search = ({ route, navigation }: StackSearchProps) => {
   const list = useAppSelector((state) => state.search.list);
   const source = useAppSelector((state) => state.plugin.source);
   const loadStatus = useAppSelector((state) => state.search.loadStatus);
-  const searchList = useMemo(() => list.map((item) => dict[item]).filter(isManga), [dict, list]);
+  const searchList = useMemo(
+    () => list.map((item) => dict[item]).filter(nonNullable),
+    [dict, list]
+  );
 
   useFocusEffect(
     useCallback(() => {

@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { isChapter, AsyncStatus, ReaderMode, ReaderDirection } from '~/utils';
+import { nonNullable, ReaderMode, AsyncStatus, ReaderDirection } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Center, useToast } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
@@ -31,7 +31,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   );
   useFocusEffect(
     useCallback(() => {
-      !isChapter(data) && dispatch(loadChapter({ chapterHash }));
+      !nonNullable(data) && dispatch(loadChapter({ chapterHash }));
     }, [data, dispatch, chapterHash])
   );
 
@@ -86,7 +86,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     dispatch(loadChapter({ chapterHash }));
   };
 
-  if (!isChapter(data) || loadStatus === AsyncStatus.Pending) {
+  if (!nonNullable(data) || loadStatus === AsyncStatus.Pending) {
     return (
       <Center w="full" h="full" bg="black">
         <SpinLoading color="white" />

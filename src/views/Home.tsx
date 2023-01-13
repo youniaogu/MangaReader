@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { HStack, IconButton, Icon, View, Text } from 'native-base';
-import { AsyncStatus, isManga } from '~/utils';
+import { nonNullable, AsyncStatus } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
@@ -17,7 +17,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const loadStatus = useAppSelector((state) => state.app.launchStatus);
 
   const favoriteList = useMemo(
-    () => list.map((item) => dict[item.mangaHash]).filter(isManga),
+    () => list.map((item) => dict[item.mangaHash]).filter(nonNullable),
     [dict, list]
   );
   const trendList = useMemo(

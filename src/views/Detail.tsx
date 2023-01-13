@@ -12,7 +12,7 @@ import {
   useTheme,
 } from 'native-base';
 import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
-import { coverAspectRatio, isManga, MangaStatus, AsyncStatus } from '~/utils';
+import { nonNullable, coverAspectRatio, MangaStatus, AsyncStatus } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -37,22 +37,22 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const data = mangaDict[mangaHash];
 
   useOnce(() => {
-    if (!isManga(data) || (isManga(data) && data.chapters.length <= 0)) {
+    if (!nonNullable(data) || (nonNullable(data) && data.chapters.length <= 0)) {
       dispatch(loadManga({ mangaHash }));
     }
   });
 
   useFocusEffect(
     useCallback(() => {
-      isManga(data) && navigation.setOptions({ title: data.title });
+      nonNullable(data) && navigation.setOptions({ title: data.title });
     }, [navigation, data])
   );
 
   const handleReload = useCallback(() => {
-    isManga(data) && dispatch(loadManga({ mangaHash }));
-  }, [dispatch, mangaHash, data]);
+    dispatch(loadManga({ mangaHash }));
+  }, [dispatch, mangaHash]);
 
-  if (!isManga(data)) {
+  if (!nonNullable(data)) {
     return (
       <Flex w="full" h="full" alignItems="center" justifyContent="center">
         <SpinLoading />

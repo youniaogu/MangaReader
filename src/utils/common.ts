@@ -13,19 +13,6 @@ export const storageKey = {
   setting: '@setting',
 };
 
-export function isManga(item: Manga | undefined | null): item is Manga {
-  if (item) {
-    return true;
-  }
-  return false;
-}
-export function isChapter(item: Chapter | undefined | null): item is Chapter {
-  if (item) {
-    return true;
-  }
-  return false;
-}
-
 export function scaleToFill(
   img: { width: number; height: number },
   container: { width: number; height: number }

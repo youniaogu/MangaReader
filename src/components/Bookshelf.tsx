@@ -111,7 +111,7 @@ const Bookshelf = ({
               </WhiteCurtain>
             </Box>
             <Text pt={1} fontSize="md" fontWeight="bold" numberOfLines={1}>
-              {item.title}
+              {item.title || item.hash}
             </Text>
           </Box>
         </Pressable>
