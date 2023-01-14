@@ -8,6 +8,10 @@ buildscript {
         minSdkVersion = 23
         compileSdkVersion = 31
         targetSdkVersion = 31
+        
+        // https://github.com/rodgomesc/vision-camera-code-scanner/issues/100
+        VisionCameraCodeScanner_targetSdkVersion = 31
+        VisionCameraCodeScanner_compileSdkVersion = 31
 
         if (System.properties['os.arch'] == "aarch64") {
             // For M1 Users we need to use the NDK 24 which added support for aarch64

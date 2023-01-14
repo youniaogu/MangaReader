@@ -257,8 +257,9 @@ const Reader = ({
             safeAreaRight
           >
             <IconButton
-              shadow={0}
-              icon={<Icon as={MaterialIcons} name="arrow-back" size="2xl" color="white" />}
+              icon={
+                <Icon as={MaterialIcons} shadow={0} name="arrow-back" size="2xl" color="white" />
+              }
               onPress={goBack}
             />
             <Text
@@ -272,8 +273,7 @@ const Reader = ({
               {title}
             </Text>
             <IconButton
-              shadow={0}
-              icon={<Icon as={MaterialIcons} name="replay" size="md" color="white" />}
+              icon={<Icon as={MaterialIcons} shadow={0} name="replay" size="md" color="white" />}
               onPress={handleReload}
             />
 
@@ -282,14 +282,12 @@ const Reader = ({
             {horizontal &&
               (inverted ? (
                 <IconButton
-                  shadow={0}
-                  icon={<Icon as={MaterialIcons} name="west" size="lg" color="white" />}
+                  icon={<Icon as={MaterialIcons} shadow={0} name="west" size="lg" color="white" />}
                   onPress={handleRight}
                 />
               ) : (
                 <IconButton
-                  shadow={0}
-                  icon={<Icon as={MaterialIcons} name="east" size="lg" color="white" />}
+                  icon={<Icon as={MaterialIcons} shadow={0} name="east" size="lg" color="white" />}
                   onPress={handleLeft}
                 />
               ))}
@@ -298,17 +296,27 @@ const Reader = ({
             </Text>
             {horizontal ? (
               <IconButton
-                shadow={0}
                 icon={
-                  <Icon as={MaterialIcons} name="stay-primary-landscape" size="lg" color="white" />
+                  <Icon
+                    as={MaterialIcons}
+                    shadow={0}
+                    name="stay-primary-landscape"
+                    size="lg"
+                    color="white"
+                  />
                 }
                 onPress={handleVertical}
               />
             ) : (
               <IconButton
-                shadow={0}
                 icon={
-                  <Icon as={MaterialIcons} name="stay-primary-portrait" size="lg" color="white" />
+                  <Icon
+                    as={MaterialIcons}
+                    shadow={0}
+                    name="stay-primary-portrait"
+                    size="lg"
+                    color="white"
+                  />
                 }
                 onPress={handleHorizontal}
               />
@@ -328,8 +336,15 @@ const Reader = ({
           >
             {onPrevChapter ? (
               <IconButton
-                shadow={0}
-                icon={<Icon as={MaterialIcons} name="skip-previous" size="lg" color="white" />}
+                icon={
+                  <Icon
+                    as={MaterialIcons}
+                    shadow={0}
+                    name="skip-previous"
+                    size="lg"
+                    color="white"
+                  />
+                }
                 onPress={handlePrevChapter}
               />
             ) : (
@@ -346,8 +361,9 @@ const Reader = ({
             </Box>
             {onNextChapter ? (
               <IconButton
-                shadow={0}
-                icon={<Icon as={MaterialIcons} name="skip-next" size="lg" color="white" />}
+                icon={
+                  <Icon as={MaterialIcons} shadow={0} name="skip-next" size="lg" color="white" />
+                }
                 onPress={handleNextChapter}
               />
             ) : (
