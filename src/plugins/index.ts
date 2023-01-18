@@ -6,10 +6,11 @@ import MHDB from './mhdb';
 import DMZJ from './dmzj';
 import JMC from './jmc';
 import MHM from './mhm';
+import KL from './kl';
 
 export * from './base';
 
-export const PluginMap = new Map([
+export const PluginMap = new Map<Plugin, Base>([
   [DMZJ.id, DMZJ],
   [COPY.id, COPY],
   [MHDB.id, MHDB],
@@ -17,6 +18,7 @@ export const PluginMap = new Map([
   [MHGM.id, MHGM],
   [JMC.id, JMC],
   [MHM.id, MHM],
+  [KL.id, KL],
 ]);
 export const isJMC = JMC.is;
 export const combineHash = Base.combineHash;

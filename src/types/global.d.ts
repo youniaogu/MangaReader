@@ -51,6 +51,9 @@ declare global {
     sourceName: string;
     mangaId: string;
     cover: string;
+    headers?: {
+      [key: string]: string;
+    };
     title: string;
     latest: string;
     updateTime: string;
@@ -75,7 +78,7 @@ declare global {
     name: string;
     title: string;
     headers: {
-      [index: string]: string;
+      [key: string]: string;
     };
     images: { uri: string; needUnscramble?: boolean }[];
   }

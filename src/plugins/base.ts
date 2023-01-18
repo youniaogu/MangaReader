@@ -33,6 +33,7 @@ export enum Plugin {
   DMZJ = 'DMZJ',
   JMC = 'JMC',
   MHM = 'MHM',
+  KL = 'KL',
 }
 
 export enum Options {

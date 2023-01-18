@@ -68,7 +68,12 @@ const Bookshelf = ({
         <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
           <Box width={oneThirdWidth} flexDirection="column" p={gap / 2}>
             <Box position="relative" shadow={2}>
-              <CachedImage source={item.cover} style={styles.img} resizeMode="cover" />
+              <CachedImage
+                options={{ headers: item.headers }}
+                source={item.cover}
+                style={styles.img}
+                resizeMode="cover"
+              />
               {trendList && trendList.includes(item.hash) && (
                 <Box
                   shadow={0}

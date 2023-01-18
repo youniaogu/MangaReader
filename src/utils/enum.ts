@@ -53,6 +53,7 @@ export enum ErrorMessage {
   SyncFail = '同步数据失败～',
   WrongResponse = '响应失败: ',
   WrongDataType = '错误的数据格式',
+  DDoSRetry = '网站DDoS保护，请再试一次',
 }
 
 export enum Orientation {
