@@ -63,7 +63,7 @@ const options = {
 };
 
 const PATTERN_HREF_ID = /([^/]*)\.html$/;
-const PATTERN_LATEST_CHAPTER = /Last chapter: ([0-9]+)/;
+const PATTERN_LATEST_CHAPTER = /Last chapter: (.+)/;
 const PATTERN_CHAPTER_NUMBER = /Chapter (.+)/;
 
 class KL extends Base {
@@ -107,7 +107,7 @@ class KL extends Base {
       sortType = '';
       sortOrder = '';
     } else {
-      const [a, b] = sort.split(splitSymbol) as [string, string];
+      const [a = '', b = ''] = sort.split(splitSymbol) as [string, string];
       sortType = a;
       sortOrder = b;
     }
