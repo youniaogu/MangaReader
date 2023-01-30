@@ -33,7 +33,7 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
 - [x] 更多的插件
 
-  - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，目前网站 403，无法访问）~~
+  - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
 
   - [x] [manhuaguimobile](https://m.manhuagui.com/)（主站，访问需要代理）
 
@@ -45,7 +45,7 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
   - [x] [dongmanzhijia](https://m.dmzj.com/)
 
-  - [x] [manhuamao](https://www.maofly.com/)
+  - [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
 
 - [x] 漫画批量更新
 

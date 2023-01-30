@@ -43,7 +43,7 @@ class CopyManga extends Base {
       id: Plugin.JMC,
       name: 'jmcomic',
       shortName: 'JMC',
-      description: '禁漫天堂，主打韩漫、本子类',
+      description: '禁漫天堂，主打韩漫、本子类，需要代理',
       score: 5,
       config: {
         origin: { label: '域名', value: 'https://18comic.vip' },

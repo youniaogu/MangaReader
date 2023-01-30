@@ -76,8 +76,8 @@ class ManHuaMao extends Base {
       id: Plugin.MHM,
       name: 'manhuamao',
       shortName: 'MHM',
-      description: '漫画猫',
-      score: 5,
+      description: '漫画猫，网站挂了，已失效',
+      score: 1,
       config: {
         origin: { label: '域名', value: 'https://www.maofly.com' },
       },
@@ -85,6 +85,7 @@ class ManHuaMao extends Base {
       regionOptions: options.region,
       statusOptions: options.status,
       sortOptions: options.sort,
+      disabled: true,
     });
   }
 

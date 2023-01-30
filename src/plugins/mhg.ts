@@ -84,7 +84,7 @@ class ManHuaGui extends Base {
       id: Plugin.MHG,
       name: 'manhuagui',
       shortName: 'MHG',
-      description: '漫画柜大陆版，阉割了一些漫画，不会封IP。目前访问403，默认禁用',
+      description: '漫画柜大陆版，阉割了一些漫画，不会封IP。访问403，已失效',
       score: 1,
       config: {
         origin: { label: '域名', value: 'https://www.mhgui.com' },
