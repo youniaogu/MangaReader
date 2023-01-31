@@ -154,7 +154,7 @@ class ManHuaDB extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.comic-main-section div.comic-book-unit')
         .toArray()
@@ -192,11 +192,8 @@ class ManHuaDB extends Base {
             title,
             status,
             cover,
-            latest: '',
-            updateTime: '',
             author,
             tag,
-            chapters: [],
           });
         });
 
@@ -213,7 +210,7 @@ class ManHuaDB extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.comicbook-index')
         .toArray()
@@ -239,11 +236,7 @@ class ManHuaDB extends Base {
             title,
             status: MangaStatus.Unknown,
             cover,
-            latest: '',
-            updateTime: '',
             author,
-            tag: [],
-            chapters: [],
           });
         });
 
@@ -260,7 +253,7 @@ class ManHuaDB extends Base {
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const manga: Manga = {
+      const manga: IncreaseManga = {
         href: '',
         hash: '',
         source: this.id,

@@ -74,6 +74,7 @@ const PATTERN_SCRIPT = /^window\["\\x65\\x76\\x61\\x6c"\](.+)(?=$)/;
 const PATTERN_READER_DATA = /^SMH\.reader\((.+)(?=\)\.preInit\(\);)/;
 const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 const PATTERN_AUTHOR = /作者：(.*)/;
+const PATTERN_TAG = /类别：(.*)/;
 
 class ManHuaGuiMobile extends Base {
   readonly userAgent =
@@ -140,7 +141,7 @@ class ManHuaGuiMobile extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       ($('li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
         const $$ = cheerio.load(a);
@@ -180,9 +181,8 @@ class ManHuaGuiMobile extends Base {
           cover,
           latest,
           updateTime,
-          author,
-          tag,
-          chapters: [],
+          author: author.map((item) => item.split(',')).flat(),
+          tag: tag.map((item) => item.split(',')).flat(),
         });
       });
 
@@ -199,7 +199,7 @@ class ManHuaGuiMobile extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       ($('ul#detail > li > a').toArray() as cheerio.TagElement[]).forEach((a) => {
         const $$ = cheerio.load(a);
@@ -239,9 +239,8 @@ class ManHuaGuiMobile extends Base {
           cover,
           latest,
           updateTime,
-          author,
-          tag,
-          chapters: [],
+          author: author.map((item) => item.split(',')).flat(),
+          tag: tag.map((item) => item.split(',')).flat(),
         });
       });
 
@@ -258,7 +257,7 @@ class ManHuaGuiMobile extends Base {
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const manga: Manga = {
+      const manga: IncreaseManga = {
         href: '',
         hash: '',
         source: this.id,
@@ -282,9 +281,10 @@ class ManHuaGuiMobile extends Base {
       const [, mangaId] = scriptContent.match(PATTERN_MANGA_INFO) || [];
       const statusLabel = $('div.book-detail div.thumb i').first().text(); // 连载 or 完结
 
-      const [latest, updateTimeLabel = '', authorLabel = '', tag] = $('div.cont-list dl')
+      const [latest, updateTimeLabel = '', authorLabel = '', tagLabel] = $('div.cont-list dl')
         .toArray()
         .map((dl) => cheerio.load(dl).root().text());
+      const [, tag] = tagLabel.match(PATTERN_TAG) || [];
       const [, author] = authorLabel.match(PATTERN_AUTHOR) || [];
       const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
 

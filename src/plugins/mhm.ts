@@ -120,7 +120,7 @@ class ManHuaMao extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       ($('div.comic-book-unit').toArray() as cheerio.TagElement[]).forEach((div) => {
         const $$ = cheerio.load(div);
@@ -156,11 +156,8 @@ class ManHuaMao extends Base {
           title,
           status,
           cover,
-          latest: '',
-          updateTime: '',
           author,
           tag: tags.filter((tag) => tag !== '连载中' && tag !== '已完结'),
-          chapters: [],
         });
       });
 
@@ -177,7 +174,7 @@ class ManHuaMao extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.comicbook-index')
         .toArray()
@@ -202,11 +199,7 @@ class ManHuaMao extends Base {
             title,
             status: MangaStatus.Unknown,
             cover,
-            latest: '',
-            updateTime: '',
             author,
-            tag: [],
-            chapters: [],
           });
         });
 
@@ -223,7 +216,7 @@ class ManHuaMao extends Base {
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const manga: Manga = {
+      const manga: IncreaseManga = {
         href: '',
         hash: '',
         source: this.id,

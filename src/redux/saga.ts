@@ -417,14 +417,16 @@ function* loadMangaSaga() {
           yield put(loadMangaCompletion({ error: loadChapterListError, taskId }));
           return;
         }
+        if (!nonNullable(mangaInfo) || !nonNullable(chapterInfo)) {
+          yield put(loadMangaCompletion({ error: new Error(ErrorMessage.WrongDataType), taskId }));
+          return;
+        }
 
         yield put(
           loadMangaCompletion({
             data: {
-              ...(mangaInfo as Manga),
-              chapters: (mangaInfo as Manga).chapters.concat(
-                (chapterInfo as { mangaHash: string; page: number; list: Manga['chapters'] }).list
-              ),
+              ...mangaInfo,
+              chapters: (mangaInfo.chapters || []).concat(chapterInfo.list),
             },
             taskId,
           })

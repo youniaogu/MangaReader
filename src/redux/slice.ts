@@ -1,6 +1,6 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
+import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection } from '~/utils';
 import { Plugin, Options, defaultPlugin, defaultPluginList } from '~/plugins';
-import { AsyncStatus, ReaderMode, ReaderDirection } from '~/utils';
 
 export const initialState: RootState = {
   app: {
@@ -56,6 +56,14 @@ export const initialState: RootState = {
     manga: {},
     chapter: {},
   },
+};
+const defaultIncreaseManga = {
+  latest: '',
+  updateTime: '',
+  author: [],
+  tag: [],
+  status: MangaStatus.Unknown,
+  chapters: [],
 };
 
 const appSlice = createSlice({
@@ -255,7 +263,7 @@ const searchSlice = createSlice({
 
       state.loadStatus = AsyncStatus.Pending;
     },
-    loadSearchCompletion(state, action: FetchResponseAction<Manga[]>) {
+    loadSearchCompletion(state, action: FetchResponseAction<IncreaseManga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
         state.loadStatus = AsyncStatus.Rejected;
@@ -297,7 +305,7 @@ const discoverySlice = createSlice({
 
       state.loadStatus = AsyncStatus.Pending;
     },
-    loadDiscoveryCompletion(state, action: FetchResponseAction<Manga[]>) {
+    loadDiscoveryCompletion(state, action: FetchResponseAction<IncreaseManga[]>) {
       const { error, data = [] } = action.payload;
       if (error) {
         state.loadStatus = AsyncStatus.Rejected;
@@ -392,7 +400,7 @@ const mangaSlice = createSlice({
     loadManga(state, _action: PayloadAction<{ mangaHash: string; taskId?: string }>) {
       state.loadStatus = AsyncStatus.Pending;
     },
-    loadMangaCompletion(state, action: FetchResponseAction<Manga>) {
+    loadMangaCompletion(state, action: FetchResponseAction<IncreaseManga>) {
       const { error } = action.payload;
       if (error) {
         state.loadStatus = AsyncStatus.Rejected;
@@ -402,7 +410,7 @@ const mangaSlice = createSlice({
       state.loadStatus = AsyncStatus.Fulfilled;
     },
     loadMangaInfo(_state, _action: PayloadAction<{ mangaHash: string }>) {},
-    loadMangaInfoCompletion(_state, _action: FetchResponseAction<Manga>) {},
+    loadMangaInfoCompletion(_state, _action: FetchResponseAction<IncreaseManga>) {},
     loadChapterList(_state, _action: PayloadAction<{ mangaHash: string; page: number }>) {},
     loadChapterListCompletion(
       _state,
@@ -467,7 +475,11 @@ const dictSlice = createSlice({
         }
 
         data.forEach((item) => {
-          state.manga[item.hash] = { ...state.manga[item.hash], ...item };
+          state.manga[item.hash] = {
+            ...defaultIncreaseManga,
+            ...state.manga[item.hash],
+            ...item,
+          };
         });
       })
       .addCase(discoveryAction.loadDiscoveryCompletion, (state, action) => {
@@ -478,10 +490,9 @@ const dictSlice = createSlice({
 
         data.forEach((item) => {
           state.manga[item.hash] = {
+            ...defaultIncreaseManga,
             ...state.manga[item.hash],
             ...item,
-            chapters:
-              item.chapters.length > 0 ? item.chapters : state.manga[item.hash]?.chapters || [],
           };
         });
       })
@@ -492,10 +503,9 @@ const dictSlice = createSlice({
         }
 
         state.manga[data.hash] = {
+          ...defaultIncreaseManga,
           ...state.manga[data.hash],
           ...data,
-          chapters:
-            data.chapters.length > 0 ? data.chapters : state.manga[data.hash]?.chapters || [],
         };
       })
       .addCase(chapterAction.loadChapterCompletion, (state, action) => {

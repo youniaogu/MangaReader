@@ -140,7 +140,7 @@ class KL extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.bodythumb div.thumb-item-flow')
         .toArray()
@@ -172,9 +172,6 @@ class KL extends Base {
             cover,
             latest,
             updateTime,
-            author: [],
-            tag: [],
-            chapters: [],
           });
         });
 
@@ -191,7 +188,7 @@ class KL extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.bodythumb div.thumb-item-flow')
         .toArray()
@@ -222,9 +219,6 @@ class KL extends Base {
             cover,
             latest,
             updateTime,
-            author: [],
-            tag: [],
-            chapters: [],
           });
         });
 

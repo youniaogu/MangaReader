@@ -246,12 +246,9 @@ class CopyManga extends Base {
               mangaId: item.path_word,
               cover: item.cover,
               title: item.name,
-              latest: '',
               updateTime: item.datetime_updated,
               author: item.author.map((obj) => obj.name),
               tag: item.theme.map((obj) => obj.name),
-              status: MangaStatus.Unknown,
-              chapters: [],
             };
           }),
         };
@@ -280,12 +277,6 @@ class CopyManga extends Base {
               mangaId: item.path_word,
               cover: item.cover,
               title: item.name,
-              latest: '',
-              updateTime: '',
-              author: [],
-              tag: [],
-              status: MangaStatus.Unknown,
-              chapters: [],
             };
           }),
         };
@@ -329,7 +320,6 @@ class CopyManga extends Base {
             author: author.map((obj) => obj.name),
             tag: theme.map((obj) => obj.name),
             status: mangaStatus,
-            chapters: [],
           },
         };
       } else {

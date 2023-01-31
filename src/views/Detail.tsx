@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import {
   Box,
   Flex,
@@ -138,12 +138,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             作者：
             {data.author.map((text, index) => (
-              <>
-                <Text key={text} onPress={handleSearch(text)}>
-                  {text}
-                </Text>
+              <Fragment key={text}>
+                <Text onPress={handleSearch(text)}>{text}</Text>
                 {index < data.author.length - 1 && <Text>、</Text>}
-              </>
+              </Fragment>
             ))}
             {data.author.length <= 0 && '未知'}
           </Text>
@@ -153,12 +151,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             分类：
             {data.tag.map((text, index) => (
-              <>
-                <Text key={text} onPress={handleSearch(text)}>
-                  {text}
-                </Text>
+              <Fragment key={text}>
+                <Text onPress={handleSearch(text)}>{text}</Text>
                 {index < data.tag.length - 1 && <Text>、</Text>}
-              </>
+              </Fragment>
             ))}
             {data.tag.length <= 0 && '未知'}
           </Text>

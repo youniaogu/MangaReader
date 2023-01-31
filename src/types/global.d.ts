@@ -19,6 +19,9 @@ declare global {
           | { error: Error; data?: undefined; taskId?: string }
           | { error?: undefined; data: T; taskId?: string }
   >;
+  type PartialOption<T, K extends string | number | symbol> = Omit<T, K> & {
+    [A in Extract<keyof T, K>]?: T[A];
+  };
 
   type BackupData = {
     createTime: number;
@@ -64,6 +67,11 @@ declare global {
     lastWatchChapter?: string;
     lastWatchPage?: number;
   }
+  declare interface IncreaseManga
+    extends PartialOption<
+      Manga,
+      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters'
+    > {}
   declare interface ChapterItem {
     hash: string;
     mangaId: string;

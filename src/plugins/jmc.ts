@@ -93,7 +93,7 @@ class CopyManga extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.row div.list-col')
         .has('div.thumb-overlay-albums')
@@ -135,11 +135,8 @@ class CopyManga extends Base {
             title,
             status,
             cover,
-            latest: '',
-            updateTime: '',
             author,
             tag,
-            chapters: [],
           });
         });
 
@@ -156,7 +153,7 @@ class CopyManga extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.row div.list-col')
         .has('div.thumb-overlay')
@@ -198,11 +195,8 @@ class CopyManga extends Base {
             title,
             status,
             cover,
-            latest: '',
-            updateTime: '',
             author,
             tag,
-            chapters: [],
           });
         });
 

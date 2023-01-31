@@ -130,7 +130,7 @@ class ManHuaGui extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('ul#contList li')
         .toArray()
@@ -170,9 +170,6 @@ class ManHuaGui extends Base {
             cover,
             latest,
             updateTime,
-            author: [],
-            tag: [],
-            chapters: [],
           });
         });
 
@@ -189,7 +186,7 @@ class ManHuaGui extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const list: Manga[] = [];
+      const list: IncreaseManga[] = [];
 
       $('div.book-result ul li.cf')
         .toArray()
@@ -240,7 +237,6 @@ class ManHuaGui extends Base {
             updateTime,
             author,
             tag,
-            chapters: [],
           });
         });
 
@@ -257,7 +253,7 @@ class ManHuaGui extends Base {
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const manga: Manga = {
+      const manga: IncreaseManga = {
         href: '',
         hash: '',
         source: this.id,

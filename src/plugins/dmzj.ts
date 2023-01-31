@@ -178,7 +178,6 @@ class DongManZhiJia extends Base {
               : item.status === '已完结'
               ? MangaStatus.End
               : MangaStatus.Unknown,
-          chapters: [],
         })),
       };
     } catch (error) {
@@ -200,7 +199,7 @@ class DongManZhiJia extends Base {
         )[0].children[0].data || '';
       const [, stringifyData] = scriptContent.match(PATTERN_SEARCH_SCRIPT) || [];
 
-      const list: Manga[] = (
+      const list: IncreaseManga[] = (
         (JSON.parse(stringifyData.replace(/[\n|\s]/g, '')) || []) as SearchItem[]
       ).map((item) => {
         return {
@@ -221,7 +220,6 @@ class DongManZhiJia extends Base {
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
           author: item.authors.split('/'),
           tag: item.types.split('/'),
-          chapters: [],
         };
       });
 
@@ -238,7 +236,7 @@ class DongManZhiJia extends Base {
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
-      const manga: Manga = {
+      const manga: IncreaseManga = {
         href: '',
         hash: '',
         source: this.id,

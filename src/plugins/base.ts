@@ -7,9 +7,7 @@ interface InitialData {
   shortName: string;
   description: string;
   score: number;
-  config: Omit<PluginConfig, 'batchDelay'> & {
-    batchDelay?: number;
-  };
+  config: PartialOption<PluginConfig, 'batchDelay'>;
   typeOptions?: { label: string; value: string }[];
   regionOptions?: { label: string; value: string }[];
   statusOptions?: { label: string; value: string }[];
@@ -263,34 +261,34 @@ abstract class Base {
    * @description crawl data from website or interface
    * @abstract
    * @param {*} response
-   * @return {*}  {({ error: Error; update?: undefined } | { error?: undefined; update: Manga[] })}
+   * @return {*}  {({ error: Error; update?: undefined } | { error?: undefined; update: IncreaseManga[] })}
    * @memberof Base
    */
   abstract handleDiscovery(
     response: any
-  ): { error: Error; discovery?: undefined } | { error?: undefined; discovery: Manga[] };
+  ): { error: Error; discovery?: undefined } | { error?: undefined; discovery: IncreaseManga[] };
 
   /**
    * @description crawl data from website or interface
    * @abstract
    * @param {*} response
-   * @return {*}  {({ error: Error; search?: undefined } | { error?: undefined; search: Manga[] })}
+   * @return {*}  {({ error: Error; search?: undefined } | { error?: undefined; search: IncreaseManga[] })}
    * @memberof Base
    */
   abstract handleSearch(
     response: any
-  ): { error: Error; search?: undefined } | { error?: undefined; search: Manga[] };
+  ): { error: Error; search?: undefined } | { error?: undefined; search: IncreaseManga[] };
 
   /**
    * @description crawl data from website or interface
    * @abstract
    * @param {*} response
-   * @return {*}  {({ error: Error; manga?: undefined } | { error?: undefined; manga: Manga })}
+   * @return {*}  {({ error: Error; manga?: undefined } | { error?: undefined; manga: IncreaseManga })}
    * @memberof Base
    */
   abstract handleMangaInfo(
     response: any
-  ): { error: Error; manga?: undefined } | { error?: undefined; manga: Manga };
+  ): { error: Error; manga?: undefined } | { error?: undefined; manga: IncreaseManga };
 
   /**
    * @description crawl data from website or interface
