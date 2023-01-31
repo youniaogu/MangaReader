@@ -3,10 +3,10 @@ import {
   Box,
   Flex,
   Text,
-  IconButton,
   Icon,
-  FlatList,
+  IconButton,
   HStack,
+  FlatList,
   Pressable,
   Toast,
   useTheme,
@@ -22,7 +22,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import RedHeart from '~/components/RedHeart';
 
-const { loadManga, addFavorites, removeFavorites, pushQueque, popQueue, viewFavorites } = action;
+const { loadManga, addFavorites, removeFavorites, pushQueque, popQueue, setSource, viewFavorites } =
+  action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
@@ -51,6 +52,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const handleReload = useCallback(() => {
     dispatch(loadManga({ mangaHash }));
   }, [dispatch, mangaHash]);
+  const handleSearch = (keyword: string) => {
+    return () => {
+      if (!nonNullable(data)) {
+        return;
+      }
+      dispatch(setSource(data.source));
+      navigation.navigate('Search', { keyword });
+    };
+  };
 
   if (!nonNullable(data)) {
     return (
@@ -116,13 +126,42 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       <Flex w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
         <CachedImage source={data.cover} style={styles.img} resizeMode="cover" />
         <Flex flexGrow={1} flexShrink={1} pl={4}>
-          <Text color="white" fontSize={20} fontWeight="bold" numberOfLines={2}>
+          <Text
+            color="white"
+            fontSize={20}
+            fontWeight="bold"
+            numberOfLines={2}
+            onPress={handleSearch(data.title)}
+          >
             {data.title}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            作者：{data.author.length > 0 ? data.author.join(',') : '未知'}
+            作者：
+            {data.author.map((text, index) => (
+              <>
+                <Text key={text} onPress={handleSearch(text)}>
+                  {text}
+                </Text>
+                {index < data.author.length - 1 && <Text>、</Text>}
+              </>
+            ))}
+            {data.author.length <= 0 && '未知'}
           </Text>
+
           <Box flexGrow={1} />
+
+          <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
+            分类：
+            {data.tag.map((text, index) => (
+              <>
+                <Text key={text} onPress={handleSearch(text)}>
+                  {text}
+                </Text>
+                {index < data.tag.length - 1 && <Text>、</Text>}
+              </>
+            ))}
+            {data.tag.length <= 0 && '未知'}
+          </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             来源：{data.sourceName}
           </Text>
