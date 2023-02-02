@@ -13,3 +13,11 @@ export function navigate<RouteName extends keyof RootStackParamList>(
     navigationRef.navigate(...args);
   }
 }
+
+export function setParams<RouteName extends keyof RootStackParamList>(
+  params: Partial<RootStackParamList[RouteName]>
+) {
+  if (navigationRef.isReady()) {
+    navigationRef.setParams(params);
+  }
+}

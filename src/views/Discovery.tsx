@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useCallback, Fragment } from 'react';
 import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { nonNullable, AsyncStatus } from '~/utils';
 import { Plugin, PluginMap } from '~/plugins';
-import { useFocusEffect } from '@react-navigation/native';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
@@ -159,26 +159,35 @@ export const SearchOption = () => {
 };
 
 export const PluginSelect = () => {
+  const { isOpen, onOpen: handleOpen, onClose: handleClose } = useDisclose();
   const { source, list } = useAppSelector((state) => state.plugin);
-  const { isOpen, onOpen, onClose } = useDisclose();
+  const route = useRoute<RouteProp<RootStackParamList, 'Discovery' | 'Search'>>();
   const dispatch = useAppDispatch();
   const options = useMemo<{ label: string; value: string }[]>(() => {
     return list
       .filter((item) => !item.disabled)
       .map((item) => ({ label: item.label, value: item.value }));
   }, [list]);
+  const plugin = useMemo(() => {
+    if (route.name === 'Discovery') {
+      return source;
+    }
+    if (route.name === 'Search') {
+      return route.params?.source;
+    }
+    return source;
+  }, [route.name, route.params?.source, source]);
   const pluginLabel = useMemo(() => {
-    return list.find((item) => item.value === source)?.label || source;
-  }, [list, source]);
+    return list.find((item) => item.value === plugin)?.label || plugin;
+  }, [list, plugin]);
 
-  const handleOpen = () => {
-    onOpen();
-  };
-  const handleClose = () => {
-    onClose();
-  };
   const handleChange = (newSource: string) => {
-    dispatch(setSource(newSource as Plugin));
+    if (route.name === 'Discovery') {
+      dispatch(setSource(newSource as Plugin));
+    }
+    if (route.name === 'Search') {
+      RootNavigation.setParams({ source: newSource as Plugin });
+    }
   };
   const handleSetting = () => {
     handleClose();
@@ -218,9 +227,10 @@ export const PluginSelect = () => {
 
 export const SearchAndPlugin = () => {
   const [keyword, setKeyword] = useState('');
+  const source = useAppSelector((state) => state.plugin.source);
 
   const handleSearch = () => {
-    RootNavigation.navigate('Search', { keyword });
+    RootNavigation.navigate('Search', { keyword, source });
   };
 
   return (
