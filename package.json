@@ -11,13 +11,15 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clean": "react-native-clean-project",
-    "preinstall": "npx only-allow yarn"
+    "preinstall": "npx only-allow yarn",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@georstat/react-native-image-cache": "^2.3.0",
     "@loadable/component": "^5.15.2",
     "@react-native-async-storage/async-storage": "^1.17.4",
     "@react-native-clipboard/clipboard": "^1.11.1",
+    "@react-native-cookies/cookies": "^6.2.1",
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
     "@reduxjs/toolkit": "^1.8.1",
@@ -70,6 +72,7 @@
     "babel-jest": "^26.6.3",
     "babel-plugin-module-resolver": "^5.0.0",
     "eslint": "^7.32.0",
+    "husky": "^8.0.3",
     "jest": "^26.6.3",
     "metro-react-native-babel-preset": "^0.67.0",
     "only-allow": "^1.1.0",
