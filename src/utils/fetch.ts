@@ -21,7 +21,7 @@ export const fetchData = ({
     headers,
     signal: controller.signal,
     redirect: 'follow',
-    credentials: 'same-origin',
+    credentials: 'include',
   };
 
   if (Object.keys(body).length > 0) {

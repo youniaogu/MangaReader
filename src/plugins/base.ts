@@ -32,6 +32,7 @@ export enum Plugin {
   JMC = 'JMC',
   MHM = 'MHM',
   KL = 'KL',
+  NH = 'NH',
 }
 
 export enum Options {

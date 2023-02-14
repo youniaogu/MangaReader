@@ -35,6 +35,7 @@ const HeartAndBrowser = loadable(() => import('~/views/Detail'), {
 const Chapter = loadable(() => import('~/views/Chapter'));
 const Plugin = loadable(() => import('~/views/Plugin'));
 const Scan = loadable(() => import('~/views/Scan'));
+const Webview = loadable(() => import('~/views/Webview'));
 const About = loadable(() => import('~/views/About'));
 
 const styles = StyleSheet.create({ wrapper: { flex: 1 } });
@@ -72,6 +73,7 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
       <Screen name="Chapter" options={{ headerShown: false }} component={Chapter} />
       <Screen name="Plugin" component={Plugin} />
       <Screen name="Scan" options={{ headerShown: false }} component={Scan} />
+      <Screen name="Webview" component={Webview} />
       <Screen name="About" component={About} />
     </Navigator>
   );

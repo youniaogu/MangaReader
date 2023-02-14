@@ -47,6 +47,10 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
   - [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
 
+  - [x] [klmanga](https://klmanga.net/)
+
+  - [x] [nhentai](https://nhentai.net/)（需要代理）
+
 - [x] 漫画批量更新
 
 - [x] 发现页支持分类搜索
