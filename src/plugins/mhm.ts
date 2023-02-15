@@ -67,20 +67,19 @@ const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 const PATTERN_SCRIPT = /let img_data = "(.+)"/;
 
 class ManHuaMao extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 1,
       id: Plugin.MHM,
       name: 'manhuamao',
       shortName: 'MHM',
-      description: '漫画猫，网站挂了，已失效',
-      score: 1,
-      config: {
-        origin: { label: '域名', value: 'https://www.maofly.com' },
-      },
+      description: '漫画猫：网站挂了，已失效',
+      href: 'https://www.maofly.com',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://www.maofly.com' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

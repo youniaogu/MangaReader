@@ -93,20 +93,19 @@ const PATTERN_CHAPTER_ID = /^https:\/\/www\.manhuadb\.com\/manhua\/[0-9]+\/([0-9
 const PATTERN_SCRIPT = /var img_data =[\n ]*'(.+)';/;
 
 class ManHuaDB extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { referer: 'https://www.manhuadb.com/', 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 3,
       id: Plugin.MHDB,
       name: 'manhuadb',
       shortName: 'MHDB',
-      description: '漫画DB，资源较少，实在找不到可以来这里看下',
-      score: 3,
-      config: {
-        origin: { label: '域名', value: 'https://www.manhuadb.com' },
-      },
+      description: '漫画DB：资源较少，实在找不到可以来这里看下',
+      href: 'https://www.manhuadb.com',
+      userAgent,
+      defaultHeaders: { Referer: 'https://www.manhuadb.com/', 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://www.manhuadb.com' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

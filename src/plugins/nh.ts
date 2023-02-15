@@ -1,6 +1,6 @@
-import { Platform } from 'react-native';
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
+import { Platform } from 'react-native';
 import moment from 'moment';
 import * as cheerio from 'cheerio';
 
@@ -20,31 +20,36 @@ const PATTERN_SCRIPT = /window\._gallery = JSON\.parse\((.+)\);/;
 const PATTERN_PICTURE = /(.+)\/[0-9]+\..+$/;
 
 class NHentai extends Base {
-  readonly userAgent =
-    Platform.OS === 'android'
-      ? 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36'
-      : 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
-  readonly defaultHeaders = {
-    'User-Agent': this.userAgent,
-    Host: 'nhentai.net',
-  };
-
   constructor() {
+    const userAgent =
+      Platform.OS === 'android'
+        ? 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36'
+        : 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
     super({
+      score: 5,
       id: Plugin.NH,
       name: 'nhentai',
       shortName: 'NH',
-      description: 'nhentai',
-      score: 5,
-      config: {
-        origin: { label: '域名', value: 'https://nhentai.net/' },
-      },
+      description: 'nhentai：需要代理',
+      href: 'https://nhentai.net/',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent, Host: 'nhentai.net' },
+      config: { origin: { label: '域名', value: 'https://nhentai.net/' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,
       sortOptions: options.sort,
     });
   }
+
+  checkCloudFlare = ($: cheerio.Root) => {
+    const title = $('title').first().text();
+    const content = $('h2#challenge-running').toString();
+
+    if (title === 'Just a moment...' || content === 'Checking if the site connection is secure') {
+      throw new Error(ErrorMessage.CookieInvalid);
+    }
+  };
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, _type, _region, _status, _sort) => {
     return {
@@ -75,6 +80,7 @@ class NHentai extends Base {
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
+      this.checkCloudFlare($);
       const list: IncreaseManga[] = [];
 
       (
@@ -113,30 +119,83 @@ class NHentai extends Base {
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
+      this.checkCloudFlare($);
       const list: IncreaseManga[] = [];
+      const isMangaInfo =
+        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter((item) =>
+          PATTERN_SCRIPT.test(item.children[0].data || '')
+        ).length > 0;
 
-      (
-        $(
-          'div#content div.container.index-container:not(.index-popular) div.gallery a.cover'
-        ).toArray() as cheerio.TagElement[]
-      ).forEach((a) => {
-        const $$ = cheerio.load(a);
-        const href = 'https://nhentai.net' + a.attribs.href;
-        const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
-        const title = $$('div.caption').text();
-        const cover = $$('img.lazyload').attr('data-src') || '';
+      if (isMangaInfo) {
+        const cover = $('div#content div#cover img.lazyload').attr('data-src') || '';
+        const scriptContent =
+          ($('script:not([src])').toArray() as cheerio.TagElement[]).filter((item) =>
+            PATTERN_SCRIPT.test(item.children[0].data || '')
+          )[0].children[0].data || '';
+        const [, stringifyData] = scriptContent.match(PATTERN_SCRIPT) || [];
+        const data = JSON.parse(JSON.parse(decodeURI(stringifyData)));
+        const mangaId = data.id;
+        const chapterId = data.num_pages;
+        const href = `https://nhentai.net/g/${mangaId}/`;
+
+        const tags = (data.tags as { type: string; name: string }[])
+          .filter((item) => item.type === 'tag')
+          .map((item) => item.name);
+        const artist = (data.tags as { type: string; name: string }[])
+          .filter((item) => item.type === 'artist')
+          .map((item) => item.name);
+        const group = (data.tags as { type: string; name: string }[])
+          .filter((item) => item.type === 'group')
+          .map((item) => item.name);
+        const chapters: ChapterItem[] = [
+          {
+            hash: Base.combineHash(this.id, mangaId, chapterId),
+            mangaId,
+            chapterId: chapterId,
+            href: `https://nhentai.net/g/${mangaId}/1`,
+            title: '开始阅读',
+          },
+        ];
 
         list.push({
           href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
-          status: MangaStatus.End,
           mangaId,
-          title,
           cover,
+          title: data.title.japanese,
+          status: MangaStatus.End,
+          latest: chapters.length > 0 ? chapters[0].title : '',
+          updateTime: moment.unix(data.upload_date).format('YYYY-MM-DD'),
+          author: [...artist, ...group],
+          tag: tags,
+          chapters: chapters,
         });
-      });
+      } else {
+        (
+          $(
+            'div#content div.container.index-container:not(.index-popular) div.gallery a.cover'
+          ).toArray() as cheerio.TagElement[]
+        ).forEach((a) => {
+          const $$ = cheerio.load(a);
+          const href = 'https://nhentai.net' + a.attribs.href;
+          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+          const title = $$('div.caption').text();
+          const cover = $$('img.lazyload').attr('data-src') || '';
+
+          list.push({
+            href,
+            hash: Base.combineHash(this.id, mangaId),
+            source: this.id,
+            sourceName: this.name,
+            status: MangaStatus.End,
+            mangaId,
+            title,
+            cover,
+          });
+        });
+      }
 
       return { search: list };
     } catch (error) {
@@ -151,6 +210,7 @@ class NHentai extends Base {
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
+      this.checkCloudFlare($);
       const manga: IncreaseManga = {
         href: '',
         hash: '',
@@ -224,6 +284,7 @@ class NHentai extends Base {
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     try {
       const $ = cheerio.load(text || '');
+      this.checkCloudFlare($);
 
       const scriptContent =
         ($('script:not([src])').toArray() as cheerio.TagElement[]).filter((item) =>

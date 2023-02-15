@@ -4,9 +4,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface InitialData {
   id: Plugin;
   name: string;
-  shortName: string;
-  description: string;
+  shortName?: string;
+  description?: string;
   score: number;
+  href: string;
+  userAgent?: string;
+  defaultHeaders?: Record<string, string>;
   config: PartialOption<PluginConfig, 'batchDelay'>;
   typeOptions?: { label: string; value: string }[];
   regionOptions?: { label: string; value: string }[];
@@ -41,6 +44,12 @@ export enum Options {
 
 abstract class Base {
   /**
+   * @description score rate of plugin
+   * @type {number}
+   * @memberof Base
+   */
+  readonly score: number;
+  /**
    * @description key differences between plugins
    * @type {Plugin}
    * @memberof Base
@@ -53,12 +62,6 @@ abstract class Base {
    */
   readonly name: string;
   /**
-   * @description score rate of plugin
-   * @type {number}
-   * @memberof Base
-   */
-  readonly score: number;
-  /**
    * @description short name of plugin, like icon
    * @type {string}
    * @memberof Base
@@ -70,6 +73,9 @@ abstract class Base {
    * @memberof Base
    */
   readonly description: string;
+  readonly href: string;
+  readonly userAgent?: string;
+  readonly defaultHeaders?: Record<string, string>;
 
   /**
    * @description enum for type select
@@ -117,8 +123,11 @@ abstract class Base {
     const {
       id,
       name,
-      shortName,
-      description,
+      shortName = name,
+      description = name,
+      href,
+      userAgent,
+      defaultHeaders,
       score,
       config,
       typeOptions = [],
@@ -131,6 +140,9 @@ abstract class Base {
     this.name = name;
     this.shortName = shortName;
     this.description = description;
+    this.href = href;
+    this.userAgent = userAgent;
+    this.defaultHeaders = defaultHeaders;
     this.score = score;
 
     this.config = { ...config, batchDelay: config.batchDelay || 3000 };

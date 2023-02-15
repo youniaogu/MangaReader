@@ -56,9 +56,7 @@ declare global {
     sourceName: string;
     mangaId: string;
     cover: string;
-    headers?: {
-      [key: string]: string;
-    };
+    headers?: Record<string, string>;
     title: string;
     latest: string;
     updateTime: string;
@@ -87,9 +85,7 @@ declare global {
     chapterId: string;
     name: string;
     title: string;
-    headers?: {
-      [key: string]: string;
-    };
+    headers?: Record<string, string>;
     images: { uri: string; needUnscramble?: boolean }[];
   }
   declare interface Release {
@@ -139,6 +135,8 @@ declare global {
         label: string;
         value: Plugin;
         score: number;
+        href: string;
+        userAgent?: string;
         description: string;
         disabled: boolean;
       }[];
@@ -174,12 +172,8 @@ declare global {
       loadStatus: AsyncStatus;
     };
     dict: {
-      manga: {
-        [key: string]: Manga | undefined;
-      };
-      chapter: {
-        [key: string]: Chapter | undefined;
-      };
+      manga: Record<string, Manga | undefined>;
+      chapter: Record<string, Chapter | undefined>;
     };
   }
 

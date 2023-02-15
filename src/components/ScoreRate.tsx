@@ -18,7 +18,7 @@ const ScoreRate = ({ score = 0, max = 5 }: ScoreRateProps) => {
             h={6}
             style={{ transform: [{ rotate: '20deg' }] }}
             key={index}
-            bgColor={actived ? `purple.${score}00` : 'gray.200'}
+            bgColor={actived ? `purple.${Math.max(score - 1, 1)}00` : 'gray.200'}
           />
         </Center>
       ))}

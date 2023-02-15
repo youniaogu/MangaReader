@@ -34,20 +34,19 @@ const PATTERN_SCRIPT_SCRAMBLE_ID = /var scramble_id = (.+);/;
 const PATTERN_HTTP_URL = /(https?:\/\/[^\s/$.?#].[^\s]*)/;
 
 class CopyManga extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 5,
       id: Plugin.JMC,
       name: 'jmcomic',
       shortName: 'JMC',
-      description: '禁漫天堂，主打韩漫、本子类，需要代理',
-      score: 5,
-      config: {
-        origin: { label: '域名', value: 'https://18comic.vip' },
-      },
+      description: '禁漫天堂：主打韩漫、本子类，需要代理',
+      href: 'https://18comic.vip',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://18comic.vip' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

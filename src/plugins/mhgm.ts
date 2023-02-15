@@ -77,20 +77,19 @@ const PATTERN_AUTHOR = /作者：(.*)/;
 const PATTERN_TAG = /类别：(.*)/;
 
 class ManHuaGuiMobile extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 5,
       id: Plugin.MHGM,
       name: 'manhuagui(mobile)',
       shortName: 'MHGM',
-      description: '漫画柜移动版（主站），漫画资源全，频繁访问会封IP，需要代理',
-      score: 5,
-      config: {
-        origin: { label: '域名', value: 'https://m.manhuagui.com' },
-      },
+      description: '漫画柜移动版：需要代理，频繁访问会封IP',
+      href: 'https://m.manhuagui.com',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://m.manhuagui.com' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

@@ -136,14 +136,6 @@ const options = {
 const PATTERN_HEADER = /(.+)\/(.+)/;
 
 class CopyManga extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = {
-    referer: 'https://copymanga.site/',
-    'user-agent': this.userAgent,
-    'accept-encoding': 'gzip, deflate, br',
-    'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-  };
   readonly fetchHeaders = {
     ...this.defaultHeaders,
     webp: '1',
@@ -159,15 +151,23 @@ class CopyManga extends Base {
   };
 
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 5,
       id: Plugin.COPY,
       name: 'copymanga',
       shortName: 'COPY',
-      description: '拷贝漫画，资源全，甚至有本子分类',
-      score: 5,
-      config: {
-        origin: { label: '域名', value: 'https://api.copymanga.net' },
+      description: '拷贝漫画：资源全，甚至有本子分类',
+      href: 'https://api.copymanga.net',
+      userAgent,
+      defaultHeaders: {
+        Referer: 'https://copymanga.site/',
+        'User-Agent': userAgent,
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
       },
+      config: { origin: { label: '域名', value: 'https://api.copymanga.net' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

@@ -134,6 +134,8 @@ function* syncDataSaga() {
             label: item.shortName,
             value: item.id,
             score: item.score,
+            href: item.href,
+            userAgent: item.userAgent,
             description: item.description,
             disabled: finded ? finded.disabled : true,
           });

@@ -95,20 +95,19 @@ const PATTERN_MANGA_TITLE = /\/(.*)\//;
 const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 
 class DongManZhiJia extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 4,
       id: Plugin.DMZJ,
       name: 'dongmanzhijia',
       shortName: 'DMZJ',
-      description: '动漫之家，资源不如以前，访问速度快',
-      score: 4,
-      config: {
-        origin: { label: '域名', value: 'https://m.dmzj.com' },
-      },
+      description: '动漫之家：访问速度快，但资源不如以前',
+      href: 'https://m.dmzj.com',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://m.dmzj.com' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

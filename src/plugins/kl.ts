@@ -67,23 +67,19 @@ const PATTERN_LATEST_CHAPTER = /Last chapter: (.+)/;
 const PATTERN_CHAPTER_NUMBER = /Chapter (.+)/;
 
 class KL extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
-  readonly defaultHeaders = {
-    referer: 'https://klmanga.net/',
-    'user-agent': this.userAgent,
-  };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
     super({
+      score: 4,
       id: Plugin.KL,
       name: 'klmanga',
       shortName: 'KL',
-      description: 'klmanga，国外的生肉漫画网站',
-      score: 4,
-      config: {
-        origin: { label: '域名', value: 'https://klmanga.net' },
-      },
+      description: 'klmanga：生肉漫画网站',
+      href: 'https://klmanga.net',
+      userAgent,
+      defaultHeaders: { Referer: 'https://klmanga.net/', 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://klmanga.net' } },
       typeOptions: options.type,
       regionOptions: options.region,
       statusOptions: options.status,

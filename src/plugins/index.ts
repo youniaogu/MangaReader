@@ -33,6 +33,8 @@ export const defaultPluginList = Array.from(PluginMap.values()).map((item) => {
     name: item.name,
     value: item.id,
     score: item.score,
+    href: item.href,
+    userAgent: item.userAgent,
     description: item.description,
     disabled: item.disabled,
   };
