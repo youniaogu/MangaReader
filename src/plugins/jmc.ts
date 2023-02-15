@@ -371,7 +371,7 @@ function getSplitNum(id: number, index: string) {
   var a = 10;
   if (id >= 268850) {
     const str = md5(id + index);
-    const nub = str.substring(str.length - 1).charCodeAt(0) % 10;
+    const nub = str.substring(str.length - 1).charCodeAt(0) % (id >= 421926 ? 8 : 10);
 
     switch (nub) {
       case 0:
