@@ -8,6 +8,7 @@ const Webview = ({ navigation, route }: StackWebviewProps) => {
     <WebView
       source={{ uri }}
       userAgent={userAgent}
+      originWhitelist={['*']}
       onLoadProgress={({ nativeEvent }) => {
         navigation.setOptions({ title: nativeEvent.title });
       }}

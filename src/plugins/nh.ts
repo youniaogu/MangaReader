@@ -8,12 +8,7 @@ const options = {
   type: [{ label: '选择分类', value: Options.Default }],
   region: [{ label: '选择地区', value: Options.Default }],
   status: [{ label: '选择状态', value: Options.Default }],
-  sort: [
-    { label: 'Recent', value: Options.Default },
-    { label: 'Popular-today', value: 'popular-today' },
-    { label: 'Popular-week', value: 'popular-week' },
-    { label: 'Popular-alltime', value: 'popular' },
-  ],
+  sort: [{ label: '选择排序', value: Options.Default }],
 };
 const PATTERN_MANGA_ID = /https:\/\/nhentai.net\/g\/([0-9]+)\//;
 const PATTERN_SCRIPT = /window\._gallery = JSON\.parse\((.+)\);/;
