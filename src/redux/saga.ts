@@ -333,9 +333,7 @@ function* loadDiscoverySaga() {
     loadDiscovery.type,
     function* ({ payload: { source } }: ReturnType<typeof loadDiscovery>) {
       const plugin = PluginMap.get(source);
-      const { page, isEnd, type, region, status, sort } = ((state: RootState) => state.discovery)(
-        yield select()
-      );
+      const { page, isEnd, filter } = ((state: RootState) => state.discovery)(yield select());
 
       if (!plugin) {
         yield put(loadDiscoveryCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
@@ -348,7 +346,7 @@ function* loadDiscoverySaga() {
 
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareDiscoveryFetch(page, type, region, status, sort)
+        plugin.prepareDiscoveryFetch(page, filter)
       );
       const { error: pluginError, discovery } = plugin.handleDiscovery(data);
 
@@ -362,7 +360,7 @@ function* loadSearchSaga() {
     loadSearch.type,
     function* ({ payload: { keyword, source } }: ReturnType<typeof loadSearch>) {
       const plugin = PluginMap.get(source);
-      const { page, isEnd } = ((state: RootState) => state.search)(yield select());
+      const { page, isEnd, filter } = ((state: RootState) => state.search)(yield select());
 
       if (!plugin) {
         yield put(loadSearchCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
@@ -375,7 +373,7 @@ function* loadSearchSaga() {
 
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareSearchFetch(keyword, page)
+        plugin.prepareSearchFetch(keyword, page, filter)
       );
       const { error: pluginError, search } = plugin.handleSearch(data);
 

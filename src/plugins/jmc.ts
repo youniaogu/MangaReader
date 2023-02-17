@@ -3,28 +3,32 @@ import { MangaStatus, ErrorMessage } from '~/utils';
 import md5 from 'blueimp-md5';
 import * as cheerio from 'cheerio';
 
-const options = {
-  type: [
-    { label: '选择分类', value: Options.Default },
-    { label: '其他类', value: 'another' },
-    { label: '同人', value: 'doujin' },
-    { label: '韩漫', value: 'hanman' },
-    { label: '美漫', value: 'meiman' },
-    { label: '短篇', value: 'short' },
-    { label: '单本', value: 'single' },
-  ],
-  region: [{ label: '选择地区', value: Options.Default }],
-  status: [{ label: '选择状态', value: Options.Default }],
-  sort: [
-    { label: '选择排序', value: Options.Default },
-    { label: '最新', value: 'mr' },
-    { label: '最多订阅', value: 'mv' },
-    { label: '最多图片', value: 'mp' },
-    { label: '最高评分', value: 'tr' },
-    { label: '最多评论', value: 'md' },
-    { label: '最多爱心', value: 'tf' },
-  ],
-};
+const discoveryOptions = [
+  {
+    name: 'type',
+    options: [
+      { label: '选择分类', value: Options.Default },
+      { label: '其他类', value: 'another' },
+      { label: '同人', value: 'doujin' },
+      { label: '韩漫', value: 'hanman' },
+      { label: '美漫', value: 'meiman' },
+      { label: '短篇', value: 'short' },
+      { label: '单本', value: 'single' },
+    ],
+  },
+  {
+    name: 'sort',
+    options: [
+      { label: '选择排序', value: Options.Default },
+      { label: '最新', value: 'mr' },
+      { label: '最多订阅', value: 'mv' },
+      { label: '最多图片', value: 'mp' },
+      { label: '最高评分', value: 'tr' },
+      { label: '最多评论', value: 'md' },
+      { label: '最多爱心', value: 'tf' },
+    ],
+  },
+];
 
 const PATTERN_MANGA_ID = /\/album\/([0-9]+)/;
 const PATTERN_CHAPTER_ID = /\/photo\/(.+)/;
@@ -47,14 +51,11 @@ class CopyManga extends Base {
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
       config: { origin: { label: '域名', value: 'https://18comic.vip' } },
-      typeOptions: options.type,
-      regionOptions: options.region,
-      statusOptions: options.status,
-      sortOptions: options.sort,
+      option: { discovery: discoveryOptions, search: [] },
     });
   }
 
-  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, sort }) => {
     return {
       url: `https://18comic.vip/albums${type === Options.Default ? '' : `/${type}`}`,
       body: {

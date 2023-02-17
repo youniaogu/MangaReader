@@ -11,19 +11,21 @@ interface InitialData {
   userAgent?: string;
   defaultHeaders?: Record<string, string>;
   config: PartialOption<PluginConfig, 'batchDelay'>;
-  typeOptions?: { label: string; value: string }[];
-  regionOptions?: { label: string; value: string }[];
-  statusOptions?: { label: string; value: string }[];
-  sortOptions?: { label: string; value: string }[];
+  option?: {
+    discovery: PartialOption<FilterItem, 'defaultValue'>[];
+    search: PartialOption<FilterItem, 'defaultValue'>[];
+  };
   disabled?: boolean;
 }
 
 interface PluginConfig {
-  origin: {
-    label: string;
-    value: string;
-  };
+  origin: OptionItem;
   batchDelay: number;
+}
+interface FilterItem {
+  name: string;
+  defaultValue: string;
+  options: OptionItem[];
 }
 
 export enum Plugin {
@@ -78,29 +80,11 @@ abstract class Base {
   readonly defaultHeaders?: Record<string, string>;
 
   /**
-   * @description enum for type select
-   * @type {{ label: string; value: string }[]}
+   * @description filter in Discovery and Search page
+   * @type {{ discovery: FilterItem[]; search: FilterItem[] }}
    * @memberof Base
    */
-  readonly typeOptions: { label: string; value: string }[];
-  /**
-   * @description enum for region select
-   * @type {{ label: string; value: string }[]}
-   * @memberof Base
-   */
-  readonly regionOptions: { label: string; value: string }[];
-  /**
-   * @description enum for status select
-   * @type {{ label: string; value: string }[]}
-   * @memberof Base
-   */
-  readonly statusOptions: { label: string; value: string }[];
-  /**
-   * @description enum for sort select
-   * @type {{ label: string; value: string }[]}
-   * @memberof Base
-   */
-  readonly sortOptions: { label: string; value: string }[];
+  readonly option: { discovery: FilterItem[]; search: FilterItem[] };
   /**
    * @description switch of display in plugins list
    * @type {boolean}
@@ -130,10 +114,7 @@ abstract class Base {
       defaultHeaders,
       score,
       config,
-      typeOptions = [],
-      regionOptions = [],
-      statusOptions = [],
-      sortOptions = [],
+      option = { discovery: [], search: [] },
       disabled = false,
     } = init;
     this.id = id;
@@ -144,12 +125,17 @@ abstract class Base {
     this.userAgent = userAgent;
     this.defaultHeaders = defaultHeaders;
     this.score = score;
-
     this.config = { ...config, batchDelay: config.batchDelay || 3000 };
-    this.typeOptions = typeOptions;
-    this.regionOptions = regionOptions;
-    this.statusOptions = statusOptions;
-    this.sortOptions = sortOptions;
+    this.option = {
+      discovery: option.discovery.map((item) => ({
+        ...item,
+        defaultValue: item.defaultValue || Options.Default,
+      })),
+      search: option.search.map((item) => ({
+        ...item,
+        defaultValue: item.defaultValue || Options.Default,
+      })),
+    };
     this.disabled = disabled;
     this.sync();
   }
@@ -220,26 +206,26 @@ abstract class Base {
    * @description accept page param, return body for discovery fetch
    * @abstract
    * @param {number} page
+   * @param {Record<string, string>} filter
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareDiscoveryFetch(
-    page: number,
-    type: string,
-    region: string,
-    status: string,
-    sort: string
-  ): FetchData;
+  abstract prepareDiscoveryFetch(page: number, filter: Record<string, string>): FetchData;
 
   /**
    * @description accept keyword param, return body for search fetch
    * @abstract
    * @param {string} keyword
    * @param {number} page
+   * @param {Record<string, string>} filter
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareSearchFetch(keyword: string, page: number): FetchData;
+  abstract prepareSearchFetch(
+    keyword: string,
+    page: number,
+    filter: Record<string, string>
+  ): FetchData;
 
   /**
    * @description accept mangaId param, return body for manga info fetch

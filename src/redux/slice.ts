@@ -1,6 +1,6 @@
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection } from '~/utils';
-import { Plugin, Options, defaultPlugin, defaultPluginList } from '~/plugins';
+import { Plugin, PluginMap, defaultPlugin, defaultPluginList } from '~/plugins';
 
 export const initialState: RootState = {
   app: {
@@ -34,12 +34,16 @@ export const initialState: RootState = {
     success: [],
     fail: [],
   },
-  search: { page: 1, isEnd: false, loadStatus: AsyncStatus.Default, list: [] },
+  search: {
+    filter: {},
+    keyword: '',
+    page: 1,
+    isEnd: false,
+    loadStatus: AsyncStatus.Default,
+    list: [],
+  },
   discovery: {
-    type: Options.Default,
-    region: Options.Default,
-    status: Options.Default,
-    sort: Options.Default,
+    filter: {},
     page: 1,
     isEnd: false,
     loadStatus: AsyncStatus.Default,
@@ -250,17 +254,24 @@ const searchSlice = createSlice({
   name: 'search',
   initialState: initialState.search,
   reducers: {
+    setSearchFilter(state, action: PayloadAction<Record<string, string>>) {
+      state.filter = {
+        ...state.filter,
+        ...action.payload,
+      };
+    },
     loadSearch(
       state,
       action: PayloadAction<{ keyword: string; isReset?: boolean; source: Plugin }>
     ) {
-      const { isReset = false } = action.payload;
+      const { keyword, isReset = false } = action.payload;
       if (isReset) {
         state.page = 1;
         state.list = [];
         state.isEnd = false;
       }
 
+      state.keyword = keyword;
       state.loadStatus = AsyncStatus.Pending;
     },
     loadSearchCompletion(state, action: FetchResponseAction<IncreaseManga[]>) {
@@ -283,17 +294,11 @@ const discoverySlice = createSlice({
   name: 'discovery',
   initialState: initialState.discovery,
   reducers: {
-    setType(state, action: PayloadAction<string>) {
-      state.type = action.payload;
-    },
-    setRegion(state, action: PayloadAction<string>) {
-      state.region = action.payload;
-    },
-    setStatus(state, action: PayloadAction<string>) {
-      state.status = action.payload;
-    },
-    setSort(state, action: PayloadAction<string>) {
-      state.sort = action.payload;
+    setDiscoveryFilter(state, action: PayloadAction<Record<string, string>>) {
+      state.filter = {
+        ...state.filter,
+        ...action.payload,
+      };
     },
     loadDiscovery(state, action: PayloadAction<{ isReset?: boolean; source: Plugin }>) {
       const isReset = action.payload.isReset || false;
@@ -320,12 +325,17 @@ const discoverySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(pluginAction.setSource, (state) => {
+    builder.addCase(pluginAction.setSource, (state, action) => {
+      const plugin = PluginMap.get(action.payload);
+      if (plugin) {
+        state.filter = plugin.option.discovery.reduce<Record<string, string>>((obj, item) => {
+          obj[item.name] = item.defaultValue;
+          return obj;
+        }, {});
+      } else {
+        state.filter = {};
+      }
       state.loadStatus = AsyncStatus.Default;
-      state.type = Options.Default;
-      state.region = Options.Default;
-      state.status = Options.Default;
-      state.sort = Options.Default;
     });
   },
 });

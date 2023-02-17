@@ -28,6 +28,8 @@ declare global {
     favorites: string[];
   };
 
+  type OptionItem = { label: string; value: string };
+
   type RootStackParamList = {
     Home: undefined;
     Discovery: undefined;
@@ -150,16 +152,15 @@ declare global {
     };
     favorites: { mangaHash: string; isTrend: boolean; inQueue: boolean }[];
     search: {
+      filter: Record<string, string>;
+      keyword: string;
       page: number;
       isEnd: boolean;
       loadStatus: AsyncStatus;
       list: string[];
     };
     discovery: {
-      type: string;
-      region: string;
-      status: string;
-      sort: string;
+      filter: Record<string, string>;
       page: number;
       isEnd: boolean;
       loadStatus: AsyncStatus;

@@ -39,53 +39,65 @@ interface SearchItem {
   cover: string;
 }
 
-const options = {
-  type: [
-    { label: '选择分类', value: Options.Default },
-    { label: '冒险', value: '1' },
-    { label: '欢乐向', value: '2' },
-    { label: '格斗', value: '3' },
-    { label: '科幻', value: '4' },
-    { label: '爱情', value: '5' },
-    { label: '竞技', value: '6' },
-    { label: '魔法', value: '7' },
-    { label: '校园', value: '8' },
-    { label: '悬疑', value: '9' },
-    { label: '恐怖', value: '10' },
-    { label: '生活亲情', value: '11' },
-    { label: '百合', value: '12' },
-    { label: '伪娘', value: '13' },
-    { label: '耽美', value: '14' },
-    { label: '后宫', value: '15' },
-    { label: '萌系', value: '16' },
-    { label: '治愈', value: '17' },
-    { label: '武侠', value: '18' },
-    { label: '职场', value: '19' },
-    { label: '奇幻', value: '20' },
-    { label: '节操', value: '21' },
-    { label: '轻小说', value: '22' },
-    { label: '搞笑', value: '23' },
-  ],
-  region: [
-    { label: '选择地区', value: Options.Default },
-    { label: '日本', value: '1' },
-    { label: '内地', value: '2' },
-    { label: '欧美', value: '3' },
-    { label: '港台', value: '4' },
-    { label: '韩国', value: '5' },
-    { label: '其他', value: '6' },
-  ],
-  status: [
-    { label: '选择状态', value: Options.Default },
-    { label: '连载中', value: '1' },
-    { label: '已完结', value: '2' },
-  ],
-  sort: [
-    { label: '选择排序', value: Options.Default },
-    { label: '浏览次数', value: '0' },
-    { label: '更新时间', value: '1' },
-  ],
-};
+const discoveryOptions = [
+  {
+    name: 'type',
+    options: [
+      { label: '选择分类', value: Options.Default },
+      { label: '冒险', value: '1' },
+      { label: '欢乐向', value: '2' },
+      { label: '格斗', value: '3' },
+      { label: '科幻', value: '4' },
+      { label: '爱情', value: '5' },
+      { label: '竞技', value: '6' },
+      { label: '魔法', value: '7' },
+      { label: '校园', value: '8' },
+      { label: '悬疑', value: '9' },
+      { label: '恐怖', value: '10' },
+      { label: '生活亲情', value: '11' },
+      { label: '百合', value: '12' },
+      { label: '伪娘', value: '13' },
+      { label: '耽美', value: '14' },
+      { label: '后宫', value: '15' },
+      { label: '萌系', value: '16' },
+      { label: '治愈', value: '17' },
+      { label: '武侠', value: '18' },
+      { label: '职场', value: '19' },
+      { label: '奇幻', value: '20' },
+      { label: '节操', value: '21' },
+      { label: '轻小说', value: '22' },
+      { label: '搞笑', value: '23' },
+    ],
+  },
+  {
+    name: 'region',
+    options: [
+      { label: '选择地区', value: Options.Default },
+      { label: '日本', value: '1' },
+      { label: '内地', value: '2' },
+      { label: '欧美', value: '3' },
+      { label: '港台', value: '4' },
+      { label: '韩国', value: '5' },
+      { label: '其他', value: '6' },
+    ],
+  },
+  {
+    name: 'status',
+    options: [
+      { label: '选择状态', value: Options.Default },
+      { label: '连载中', value: '1' },
+      { label: '已完结', value: '2' },
+    ],
+  },
+  {
+    name: 'sort',
+    options: [
+      { label: '选择排序', value: Options.Default },
+      { label: '浏览次数', value: '0' },
+      { label: '更新时间', value: '1' },
+    ],
+  },
+];
 
 const PATTERN_SEARCH_SCRIPT = /var serchArry=(.*)/;
 const PATTERN_INFO_SCRIPT = /initIntroData\((.*)\);/;
@@ -108,14 +120,11 @@ class DongManZhiJia extends Base {
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
       config: { origin: { label: '域名', value: 'https://m.dmzj.com' } },
-      typeOptions: options.type,
-      regionOptions: options.region,
-      statusOptions: options.status,
-      sortOptions: options.sort,
+      option: { discovery: discoveryOptions, search: [] },
     });
   }
 
-  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, region, status, sort }) => {
     if (type === Options.Default) {
       type = '0';
     }

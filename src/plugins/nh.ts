@@ -1,15 +1,9 @@
-import Base, { Plugin, Options } from './base';
+import Base, { Plugin } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
 import { Platform } from 'react-native';
 import moment from 'moment';
 import * as cheerio from 'cheerio';
 
-const options = {
-  type: [{ label: '选择分类', value: Options.Default }],
-  region: [{ label: '选择地区', value: Options.Default }],
-  status: [{ label: '选择状态', value: Options.Default }],
-  sort: [{ label: '选择排序', value: Options.Default }],
-};
 const PATTERN_MANGA_ID = /https:\/\/nhentai.net\/g\/([0-9]+)\//;
 const PATTERN_SCRIPT = /window\._gallery = JSON\.parse\((.+)\);/;
 const PATTERN_PICTURE = /(.+)\/[0-9]+\..+$/;
@@ -30,10 +24,7 @@ class NHentai extends Base {
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Host: 'nhentai.net' },
       config: { origin: { label: '域名', value: 'https://nhentai.net/' } },
-      typeOptions: options.type,
-      regionOptions: options.region,
-      statusOptions: options.status,
-      sortOptions: options.sort,
+      option: { discovery: [], search: [] },
     });
   }
 
@@ -46,7 +37,7 @@ class NHentai extends Base {
     }
   };
 
-  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, _type, _region, _status, _sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page) => {
     return {
       url: `https://nhentai.net/?page=${page}`,
       headers: new Headers(this.defaultHeaders),
