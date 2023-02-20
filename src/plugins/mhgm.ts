@@ -118,7 +118,7 @@ class ManHuaGuiMobile extends Base {
         ajax: 1,
         order: sort === Options.Default ? '' : sort,
       },
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers({ ...this.defaultHeaders, host: 'm.manhuagui.com' }),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { sort }) => {
