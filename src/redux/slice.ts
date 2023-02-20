@@ -1,6 +1,6 @@
-import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection } from '~/utils';
-import { Plugin, PluginMap, defaultPlugin, defaultPluginList } from '~/plugins';
+import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
+import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 
 export const initialState: RootState = {
   app: {
@@ -260,6 +260,9 @@ const searchSlice = createSlice({
         ...action.payload,
       };
     },
+    resetSearchFilter(state) {
+      state.filter = {};
+    },
     loadSearch(
       state,
       action: PayloadAction<{ keyword: string; isReset?: boolean; source: Plugin }>
@@ -325,16 +328,8 @@ const discoverySlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(pluginAction.setSource, (state, action) => {
-      const plugin = PluginMap.get(action.payload);
-      if (plugin) {
-        state.filter = plugin.option.discovery.reduce<Record<string, string>>((obj, item) => {
-          obj[item.name] = item.defaultValue;
-          return obj;
-        }, {});
-      } else {
-        state.filter = {};
-      }
+    builder.addCase(pluginAction.setSource, (state) => {
+      state.filter = {};
       state.loadStatus = AsyncStatus.Default;
     });
   },

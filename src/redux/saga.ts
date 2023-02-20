@@ -344,9 +344,18 @@ function* loadDiscoverySaga() {
         return;
       }
 
+      const filterWithDefault = plugin.option.discovery.reduce<Record<string, string>>(
+        (dict, item) => {
+          dict[item.name] = dict[item.name] || item.defaultValue;
+          return dict;
+        },
+        {}
+      );
+      console.log({ discovery: plugin.option.discovery, filter, filterWithDefault });
+
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareDiscoveryFetch(page, filter)
+        plugin.prepareDiscoveryFetch(page, filterWithDefault)
       );
       const { error: pluginError, discovery } = plugin.handleDiscovery(data);
 
@@ -371,9 +380,17 @@ function* loadSearchSaga() {
         return;
       }
 
+      const filterWithDefault = plugin.option.search.reduce<Record<string, string>>(
+        (dict, item) => {
+          dict[item.name] = dict[item.name] || item.defaultValue;
+          return dict;
+        },
+        filter
+      );
+
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareSearchFetch(keyword, page, filter)
+        plugin.prepareSearchFetch(keyword, page, filterWithDefault)
       );
       const { error: pluginError, search } = plugin.handleSearch(data);
 

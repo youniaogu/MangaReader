@@ -1,8 +1,8 @@
 import React, { useMemo, useState, useEffect, useCallback, Fragment } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { Button, HStack, useDisclose } from 'native-base';
 import { nonNullable, AsyncStatus } from '~/utils';
-import { useFocusEffect } from '@react-navigation/native';
 import { PluginMap } from '~/plugins';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import Bookshelf from '~/components/Bookshelf';
@@ -53,8 +53,9 @@ const Search = ({ route, navigation }: StackSearchProps) => {
 };
 
 export const SearchOption = () => {
+  const route = useRoute<RouteProp<RootStackParamList, 'Search'>>();
+  const source = route.params.source;
   const dispatch = useAppDispatch();
-  const { source } = useAppSelector((state) => state.plugin);
   const { keyword, filter } = useAppSelector((state) => state.search);
   const { isOpen, onOpen, onClose } = useDisclose();
   const [key, setKey] = useState<string>('');
@@ -93,6 +94,7 @@ export const SearchOption = () => {
       {searchOptions.map((item) => {
         return (
           <Button
+            key={item.name}
             variant="ghost"
             _text={{ color: 'white', fontWeight: 'bold' }}
             onPress={handlePress(item.name, item.options)}

@@ -3,7 +3,7 @@ import { MangaStatus, ErrorMessage } from '~/utils';
 import * as cheerio from 'cheerio';
 
 const splitSymbol = '*';
-const discoveryOptions = [
+const option = [
   {
     name: 'type',
     options: [
@@ -88,7 +88,7 @@ class KL extends Base {
       userAgent,
       defaultHeaders: { Referer: 'https://klmanga.net/', 'User-Agent': userAgent },
       config: { origin: { label: '域名', value: 'https://klmanga.net' } },
-      option: { discovery: discoveryOptions, search: [] },
+      option: { discovery: option, search: option },
     });
   }
 
@@ -114,13 +114,54 @@ class KL extends Base {
     }
 
     return {
-      url: `https://klmanga.net/manga-list.html?listType=pagination&page=${page}&artist=&author=&group=&m_status=${status}&genre=${type}&sort=${sortType}&sort_type=${sortOrder}`,
+      url: 'https://klmanga.net/manga-list.html',
+      body: {
+        listType: 'pagination',
+        page,
+        m_status: status,
+        genre: type,
+        sort: sortType,
+        sort_type: sortOrder,
+      },
       headers: new Headers(this.defaultHeaders),
     };
   };
-  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
+  prepareSearchFetch: Base['prepareSearchFetch'] = (
+    keyword,
+    page,
+    { type, region, status, sort }
+  ) => {
+    let sortType;
+    let sortOrder;
+    if (type === Options.Default) {
+      type = '';
+    }
+    if (region === Options.Default) {
+      region = '';
+    }
+    if (status === Options.Default) {
+      status = '';
+    }
+    if (sort === Options.Default) {
+      sortType = '';
+      sortOrder = '';
+    } else {
+      const [a = '', b = ''] = sort.split(splitSymbol) as [string, string];
+      sortType = a;
+      sortOrder = b;
+    }
+
     return {
-      url: `https://klmanga.net/manga-list.html?name=${keyword}&page=${page}`,
+      url: 'https://klmanga.net/manga-list.html',
+      body: {
+        listType: 'pagination',
+        name: keyword,
+        page,
+        m_status: status,
+        genre: type,
+        sort: sortType,
+        sort_type: sortOrder,
+      },
       headers: new Headers(this.defaultHeaders),
     };
   };

@@ -1,8 +1,20 @@
-import Base, { Plugin } from './base';
+import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
 import { Platform } from 'react-native';
 import moment from 'moment';
 import * as cheerio from 'cheerio';
+
+const searchOptions = [
+  {
+    name: 'sort',
+    options: [
+      { label: 'Recent', value: Options.Default },
+      { label: 'Today', value: 'popular-today' },
+      { label: 'Week', value: 'popular-week' },
+      { label: 'All Time', value: 'popular' },
+    ],
+  },
+];
 
 const PATTERN_MANGA_ID = /https:\/\/nhentai.net\/g\/([0-9]+)\//;
 const PATTERN_SCRIPT = /window\._gallery = JSON\.parse\((.+)\);/;
@@ -24,7 +36,7 @@ class NHentai extends Base {
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Host: 'nhentai.net' },
       config: { origin: { label: '域名', value: 'https://nhentai.net/' } },
-      option: { discovery: [], search: [] },
+      option: { discovery: [], search: searchOptions },
     });
   }
 
@@ -43,9 +55,9 @@ class NHentai extends Base {
       headers: new Headers(this.defaultHeaders),
     };
   };
-  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
+  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { sort }) => {
     return {
-      url: `https://nhentai.net/search/?q=${keyword}&page=${page}`,
+      url: `https://nhentai.net/search/?q=${keyword}&page=${page}&sort=${sort}`,
       headers: new Headers(this.defaultHeaders),
     };
   };

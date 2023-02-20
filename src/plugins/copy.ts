@@ -167,7 +167,7 @@ class CopyManga extends Base {
       name: 'copymanga',
       shortName: 'COPY',
       description: '拷贝漫画：资源全，甚至有本子分类',
-      href: 'https://api.copymanga.net',
+      href: 'https://copymanga.site/',
       userAgent,
       defaultHeaders: {
         Referer: 'https://copymanga.site/',

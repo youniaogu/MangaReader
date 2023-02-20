@@ -9,7 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import * as RootNavigation from '~/utils/navigation';
 
-const { loadDiscovery, setSource, setDiscoveryFilter } = action;
+const { loadDiscovery, setSource, setDiscoveryFilter, resetSearchFilter } = action;
 
 const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
   const dispatch = useAppDispatch();
@@ -92,6 +92,7 @@ export const SearchOption = () => {
       {discoveryOptions.map((item) => {
         return (
           <Button
+            key={item.name}
             variant="ghost"
             _text={{ color: 'white', fontWeight: 'bold' }}
             onPress={handlePress(item.name, item.options)}
@@ -139,6 +140,7 @@ export const PluginSelect = () => {
       dispatch(setSource(newSource as Plugin));
     }
     if (route.name === 'Search') {
+      dispatch(resetSearchFilter());
       RootNavigation.setParams({ source: newSource as Plugin });
     }
   };

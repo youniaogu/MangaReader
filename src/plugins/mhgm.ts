@@ -71,6 +71,16 @@ const discoveryOptions = [
     ],
   },
 ];
+const searchOptions = [
+  {
+    name: 'sort',
+    options: [
+      { label: '添加时间', value: Options.Default },
+      { label: '更新时间', value: '1' },
+      { label: '浏览次数', value: '2' },
+    ],
+  },
+];
 
 const PATTERN_MANGA_ID = /^https:\/\/m\.manhuagui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ bid:([0-9]*), status:[0-9]*,block_cc:'' }/;
@@ -95,7 +105,7 @@ class ManHuaGuiMobile extends Base {
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
       config: { origin: { label: '域名', value: 'https://m.manhuagui.com' } },
-      option: { discovery: discoveryOptions, search: [] },
+      option: { discovery: discoveryOptions, search: searchOptions },
     });
   }
 
@@ -111,7 +121,7 @@ class ManHuaGuiMobile extends Base {
       headers: new Headers(this.defaultHeaders),
     };
   };
-  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
+  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { sort }) => {
     const body = new FormData();
     body.append('key', keyword);
     body.append('page', String(page));
@@ -119,7 +129,7 @@ class ManHuaGuiMobile extends Base {
     body.append('order', '1');
 
     return {
-      url: `https://m.manhuagui.com/s/${keyword}.html/`,
+      url: `https://m.manhuagui.com/s/${keyword}_o${sort === Options.Default ? '0' : sort}.html/`,
       method: 'POST',
       body: page > 1 ? body : undefined,
       headers: new Headers(this.defaultHeaders),

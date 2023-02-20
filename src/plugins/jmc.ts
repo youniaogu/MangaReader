@@ -29,6 +29,27 @@ const discoveryOptions = [
     ],
   },
 ];
+const searchOptions = [
+  {
+    name: 'time',
+    options: [
+      { label: '选择时间', value: Options.Default },
+      { label: '一天内', value: 't' },
+      { label: '一周内', value: 'w' },
+      { label: '一个月内', value: 'm' },
+    ],
+  },
+  {
+    name: 'sort',
+    options: [
+      { label: '选择排序', value: Options.Default },
+      { label: '最新的', value: 'mr' },
+      { label: '最多点阅', value: 'mv' },
+      { label: '最多图片', value: 'mp' },
+      { label: '最多爱心', value: 'tf' },
+    ],
+  },
+];
 
 const PATTERN_MANGA_ID = /\/album\/([0-9]+)/;
 const PATTERN_CHAPTER_ID = /\/photo\/(.+)/;
@@ -51,7 +72,7 @@ class CopyManga extends Base {
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
       config: { origin: { label: '域名', value: 'https://18comic.vip' } },
-      option: { discovery: discoveryOptions, search: [] },
+      option: { discovery: discoveryOptions, search: searchOptions },
     });
   }
 
@@ -65,12 +86,14 @@ class CopyManga extends Base {
       headers: new Headers(this.defaultHeaders),
     };
   };
-  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
+  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { time, sort }) => {
     return {
       url: 'https://18comic.vip/search/photos',
       body: {
         main_tag: 0,
         search_query: keyword,
+        t: time === Options.Default ? 'a' : sort,
+        o: sort === Options.Default ? 'mr' : sort,
         page,
       },
       headers: new Headers(this.defaultHeaders),
