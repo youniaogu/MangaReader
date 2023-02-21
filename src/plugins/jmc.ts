@@ -3,28 +3,53 @@ import { MangaStatus, ErrorMessage } from '~/utils';
 import md5 from 'blueimp-md5';
 import * as cheerio from 'cheerio';
 
-const options = {
-  type: [
-    { label: '选择分类', value: Options.Default },
-    { label: '其他类', value: 'another' },
-    { label: '同人', value: 'doujin' },
-    { label: '韩漫', value: 'hanman' },
-    { label: '美漫', value: 'meiman' },
-    { label: '短篇', value: 'short' },
-    { label: '单本', value: 'single' },
-  ],
-  region: [{ label: '选择地区', value: Options.Default }],
-  status: [{ label: '选择状态', value: Options.Default }],
-  sort: [
-    { label: '选择排序', value: Options.Default },
-    { label: '最新', value: 'mr' },
-    { label: '最多订阅', value: 'mv' },
-    { label: '最多图片', value: 'mp' },
-    { label: '最高评分', value: 'tr' },
-    { label: '最多评论', value: 'md' },
-    { label: '最多爱心', value: 'tf' },
-  ],
-};
+const discoveryOptions = [
+  {
+    name: 'type',
+    options: [
+      { label: '选择分类', value: Options.Default },
+      { label: '其他类', value: 'another' },
+      { label: '同人', value: 'doujin' },
+      { label: '韩漫', value: 'hanman' },
+      { label: '美漫', value: 'meiman' },
+      { label: '短篇', value: 'short' },
+      { label: '单本', value: 'single' },
+    ],
+  },
+  {
+    name: 'sort',
+    options: [
+      { label: '选择排序', value: Options.Default },
+      { label: '最新', value: 'mr' },
+      { label: '最多订阅', value: 'mv' },
+      { label: '最多图片', value: 'mp' },
+      { label: '最高评分', value: 'tr' },
+      { label: '最多评论', value: 'md' },
+      { label: '最多爱心', value: 'tf' },
+    ],
+  },
+];
+const searchOptions = [
+  {
+    name: 'time',
+    options: [
+      { label: '选择时间', value: Options.Default },
+      { label: '一天内', value: 't' },
+      { label: '一周内', value: 'w' },
+      { label: '一个月内', value: 'm' },
+    ],
+  },
+  {
+    name: 'sort',
+    options: [
+      { label: '选择排序', value: Options.Default },
+      { label: '最新的', value: 'mr' },
+      { label: '最多点阅', value: 'mv' },
+      { label: '最多图片', value: 'mp' },
+      { label: '最多爱心', value: 'tf' },
+    ],
+  },
+];
 
 const PATTERN_MANGA_ID = /\/album\/([0-9]+)/;
 const PATTERN_CHAPTER_ID = /\/photo\/(.+)/;
@@ -34,28 +59,24 @@ const PATTERN_SCRIPT_SCRAMBLE_ID = /var scramble_id = (.+);/;
 const PATTERN_HTTP_URL = /(https?:\/\/[^\s/$.?#].[^\s]*)/;
 
 class CopyManga extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 5,
       id: Plugin.JMC,
       name: 'jmcomic',
       shortName: 'JMC',
-      description: '禁漫天堂，主打韩漫、本子类，需要代理',
-      score: 5,
-      config: {
-        origin: { label: '域名', value: 'https://18comic.vip' },
-      },
-      typeOptions: options.type,
-      regionOptions: options.region,
-      statusOptions: options.status,
-      sortOptions: options.sort,
+      description: '禁漫天堂：主打韩漫、本子类，需要代理',
+      href: 'https://18comic.vip',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://18comic.vip' } },
+      option: { discovery: discoveryOptions, search: searchOptions },
     });
   }
 
-  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, _region, _status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, sort }) => {
     return {
       url: `https://18comic.vip/albums${type === Options.Default ? '' : `/${type}`}`,
       body: {
@@ -65,12 +86,14 @@ class CopyManga extends Base {
       headers: new Headers(this.defaultHeaders),
     };
   };
-  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
+  prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { time, sort }) => {
     return {
       url: 'https://18comic.vip/search/photos',
       body: {
         main_tag: 0,
         search_query: keyword,
+        t: time === Options.Default ? 'a' : sort,
+        o: sort === Options.Default ? 'mr' : sort,
         page,
       },
       headers: new Headers(this.defaultHeaders),
@@ -372,7 +395,7 @@ function getSplitNum(id: number, index: string) {
   var a = 10;
   if (id >= 268850) {
     const str = md5(id + index);
-    const nub = str.substring(str.length - 1).charCodeAt(0) % 10;
+    const nub = str.substring(str.length - 1).charCodeAt(0) % (id >= 421926 ? 8 : 10);
 
     switch (nub) {
       case 0:

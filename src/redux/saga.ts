@@ -134,6 +134,8 @@ function* syncDataSaga() {
             label: item.shortName,
             value: item.id,
             score: item.score,
+            href: item.href,
+            userAgent: item.userAgent,
             description: item.description,
             disabled: finded ? finded.disabled : true,
           });
@@ -331,9 +333,7 @@ function* loadDiscoverySaga() {
     loadDiscovery.type,
     function* ({ payload: { source } }: ReturnType<typeof loadDiscovery>) {
       const plugin = PluginMap.get(source);
-      const { page, isEnd, type, region, status, sort } = ((state: RootState) => state.discovery)(
-        yield select()
-      );
+      const { page, isEnd, filter } = ((state: RootState) => state.discovery)(yield select());
 
       if (!plugin) {
         yield put(loadDiscoveryCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
@@ -344,9 +344,18 @@ function* loadDiscoverySaga() {
         return;
       }
 
+      const filterWithDefault = plugin.option.discovery.reduce<Record<string, string>>(
+        (dict, item) => {
+          dict[item.name] = dict[item.name] || item.defaultValue;
+          return dict;
+        },
+        {}
+      );
+      console.log({ discovery: plugin.option.discovery, filter, filterWithDefault });
+
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareDiscoveryFetch(page, type, region, status, sort)
+        plugin.prepareDiscoveryFetch(page, filterWithDefault)
       );
       const { error: pluginError, discovery } = plugin.handleDiscovery(data);
 
@@ -360,7 +369,7 @@ function* loadSearchSaga() {
     loadSearch.type,
     function* ({ payload: { keyword, source } }: ReturnType<typeof loadSearch>) {
       const plugin = PluginMap.get(source);
-      const { page, isEnd } = ((state: RootState) => state.search)(yield select());
+      const { page, isEnd, filter } = ((state: RootState) => state.search)(yield select());
 
       if (!plugin) {
         yield put(loadSearchCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
@@ -371,9 +380,17 @@ function* loadSearchSaga() {
         return;
       }
 
+      const filterWithDefault = plugin.option.search.reduce<Record<string, string>>(
+        (dict, item) => {
+          dict[item.name] = dict[item.name] || item.defaultValue;
+          return dict;
+        },
+        filter
+      );
+
       const { error: fetchError, data } = yield call(
         fetchData,
-        plugin.prepareSearchFetch(keyword, page)
+        plugin.prepareSearchFetch(keyword, page, filterWithDefault)
       );
       const { error: pluginError, search } = plugin.handleSearch(data);
 

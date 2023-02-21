@@ -54,6 +54,7 @@ export enum ErrorMessage {
   WrongResponse = '响应失败: ',
   WrongDataType = '错误的数据格式',
   DDoSRetry = '网站DDoS保护，请再试一次',
+  CookieInvalid = 'Cookie失效，请重新获取',
 }
 
 export enum Orientation {

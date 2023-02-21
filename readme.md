@@ -35,17 +35,21 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
   - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
 
-  - [x] [manhuaguimobile](https://m.manhuagui.com/)（主站，访问需要代理）
+  - [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
 
   - [x] [copymanga](https://www.copymanga.org/)
 
   - [x] [manhuadb](https://www.manhuadb.com/)
 
-  - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip，目前主站到国内站点的自动跳转失效，访问需要代理）
+  - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip，目前主站到国内站点的自动跳转失效，需要代理）
 
   - [x] [dongmanzhijia](https://m.dmzj.com/)
 
   - [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
+
+  - [x] [klmanga](https://klmanga.net/)
+
+  - [x] [nhentai](https://nhentai.net/)（需要代理）
 
 - [x] 漫画批量更新
 
@@ -64,6 +68,16 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 - [x] 过滤批量更新
 
 - [ ] 插件支持配置
+
+## NHentai
+
+nhentai 开启了 cloudflare 的 ddos 保护，在使用此插件前，请遵循下面流程在 webview 里通过 cloudflare 校验并获得 cookie
+
+<img title="step1" src="./step1.png" alt="step1" width="200">
+
+<img title="step2" src="./step2.png" alt="step2" width="200">
+
+<img title="step3" src="./step3.jpg" alt="step3" width="200">
 
 ## About
 

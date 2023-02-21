@@ -28,14 +28,17 @@ declare global {
     favorites: string[];
   };
 
+  type OptionItem = { label: string; value: string };
+
   type RootStackParamList = {
     Home: undefined;
     Discovery: undefined;
-    Search: { keyword: string };
+    Search: { keyword: string; source: Plugin };
     Detail: { mangaHash: string };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
     Scan: undefined;
+    Webview: { uri: string; userAgent?: string };
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -45,6 +48,7 @@ declare global {
   type StackChapterProps = NativeStackScreenProps<RootStackParamList, 'Chapter'>;
   type StackPluginProps = NativeStackScreenProps<RootStackParamList, 'Plugin'>;
   type StackScanProps = NativeStackScreenProps<RootStackParamList, 'Scan'>;
+  type StackWebviewProps = NativeStackScreenProps<RootStackParamList, 'Webview'>;
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 
   declare interface Manga {
@@ -54,9 +58,7 @@ declare global {
     sourceName: string;
     mangaId: string;
     cover: string;
-    headers?: {
-      [key: string]: string;
-    };
+    headers?: Record<string, string>;
     title: string;
     latest: string;
     updateTime: string;
@@ -85,9 +87,7 @@ declare global {
     chapterId: string;
     name: string;
     title: string;
-    headers: {
-      [key: string]: string;
-    };
+    headers?: Record<string, string>;
     images: { uri: string; needUnscramble?: boolean }[];
   }
   declare interface Release {
@@ -137,6 +137,8 @@ declare global {
         label: string;
         value: Plugin;
         score: number;
+        href: string;
+        userAgent?: string;
         description: string;
         disabled: boolean;
       }[];
@@ -150,16 +152,15 @@ declare global {
     };
     favorites: { mangaHash: string; isTrend: boolean; inQueue: boolean }[];
     search: {
+      filter: Record<string, string>;
+      keyword: string;
       page: number;
       isEnd: boolean;
       loadStatus: AsyncStatus;
       list: string[];
     };
     discovery: {
-      type: string;
-      region: string;
-      status: string;
-      sort: string;
+      filter: Record<string, string>;
       page: number;
       isEnd: boolean;
       loadStatus: AsyncStatus;
@@ -172,12 +173,8 @@ declare global {
       loadStatus: AsyncStatus;
     };
     dict: {
-      manga: {
-        [key: string]: Manga | undefined;
-      };
-      chapter: {
-        [key: string]: Chapter | undefined;
-      };
+      manga: Record<string, Manga | undefined>;
+      chapter: Record<string, Chapter | undefined>;
     };
   }
 

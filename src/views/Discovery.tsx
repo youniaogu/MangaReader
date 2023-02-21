@@ -1,15 +1,15 @@
 import React, { useMemo, useState, useCallback, Fragment } from 'react';
 import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { nonNullable, AsyncStatus } from '~/utils';
 import { Plugin, PluginMap } from '~/plugins';
-import { useFocusEffect } from '@react-navigation/native';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Bookshelf from '~/components/Bookshelf';
 import * as RootNavigation from '~/utils/navigation';
 
-const { loadDiscovery, setSource, setType, setRegion, setStatus, setSort } = action;
+const { loadDiscovery, setSource, setDiscoveryFilter, resetSearchFilter } = action;
 
 const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
   const dispatch = useAppDispatch();
@@ -54,131 +54,95 @@ const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
 export const SearchOption = () => {
   const dispatch = useAppDispatch();
   const { source } = useAppSelector((state) => state.plugin);
-  const { type, region, status, sort } = useAppSelector((state) => state.discovery);
-  const { isOpen: isTypeOpen, onOpen: onTypeOpen, onClose: onTypeClose } = useDisclose();
-  const { isOpen: isRegionOpen, onOpen: onRegionOpen, onClose: onRegionClose } = useDisclose();
-  const { isOpen: isStatusOpen, onOpen: onStatusOpen, onClose: onStatusClose } = useDisclose();
-  const { isOpen: isSortOpen, onOpen: onSortOpen, onClose: onSortClose } = useDisclose();
-  const [typeOptions = [], regionOptions = [], statusOptions = [], sortOptions = []] =
-    useMemo(() => {
-      const plugin = PluginMap.get(source);
-      return [
-        plugin?.typeOptions,
-        plugin?.regionOptions,
-        plugin?.statusOptions,
-        plugin?.sortOptions,
-      ];
-    }, [source]);
-  const typeLabel = useMemo(() => {
-    return typeOptions.find((item) => item.value === type)?.label || type;
-  }, [type, typeOptions]);
-  const regionLabel = useMemo(() => {
-    return regionOptions.find((item) => item.value === region)?.label || region;
-  }, [region, regionOptions]);
-  const statusLabel = useMemo(() => {
-    return statusOptions.find((item) => item.value === status)?.label || status;
-  }, [status, statusOptions]);
-  const sortLabel = useMemo(() => {
-    return sortOptions.find((item) => item.value === sort)?.label || sort;
-  }, [sort, sortOptions]);
+  const { filter } = useAppSelector((state) => state.discovery);
+  const { isOpen, onOpen, onClose } = useDisclose();
+  const [key, setKey] = useState<string>('');
+  const [options, setOptions] = useState<OptionItem[]>([]);
 
-  const handleTypeChange = (newType: string) => {
-    dispatch(setType(newType));
+  const discoveryOptions = useMemo(() => {
+    return (PluginMap.get(source)?.option.discovery || []).map((item) => {
+      const value = filter[item.name] || item.defaultValue;
+      const label = item.options.find((option) => option.value === value)?.label || '';
+      return {
+        ...item,
+        value,
+        label,
+      };
+    });
+  }, [source, filter]);
+
+  const handlePress = (name: string, newOptions: OptionItem[]) => {
+    return () => {
+      setKey(name);
+      setOptions(newOptions);
+      onOpen();
+    };
+  };
+  const handleChange = (newVal: string) => {
+    dispatch(setDiscoveryFilter({ [key]: newVal }));
     dispatch(loadDiscovery({ source, isReset: true }));
   };
-  const handleRegionChange = (newRegion: string) => {
-    dispatch(setRegion(newRegion));
-    dispatch(loadDiscovery({ source, isReset: true }));
-  };
-  const handleStatusChange = (newStatus: string) => {
-    dispatch(setStatus(newStatus));
-    dispatch(loadDiscovery({ source, isReset: true }));
-  };
-  const handleSortChange = (newSort: string) => {
-    dispatch(setSort(newSort));
-    dispatch(loadDiscovery({ source, isReset: true }));
-  };
+
+  if (discoveryOptions.length <= 0) {
+    return null;
+  }
 
   return (
     <HStack px={2} pb={2} bg="purple.500">
-      {typeOptions.length > 1 && (
-        <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onTypeOpen}>
-          {typeLabel}
-        </Button>
-      )}
-      {regionOptions.length > 1 && (
-        <Button
-          variant="ghost"
-          _text={{ color: 'white', fontWeight: 'bold' }}
-          onPress={onRegionOpen}
-        >
-          {regionLabel}
-        </Button>
-      )}
-      {statusOptions.length > 1 && (
-        <Button
-          variant="ghost"
-          _text={{ color: 'white', fontWeight: 'bold' }}
-          onPress={onStatusOpen}
-        >
-          {statusLabel}
-        </Button>
-      )}
-      {sortOptions.length > 1 && (
-        <Button variant="ghost" _text={{ color: 'white', fontWeight: 'bold' }} onPress={onSortOpen}>
-          {sortLabel}
-        </Button>
-      )}
+      {discoveryOptions.map((item) => {
+        return (
+          <Button
+            key={item.name}
+            variant="ghost"
+            _text={{ color: 'white', fontWeight: 'bold' }}
+            onPress={handlePress(item.name, item.options)}
+          >
+            {item.label}
+          </Button>
+        );
+      })}
 
       <ActionsheetSelect
-        isOpen={isTypeOpen}
-        onClose={onTypeClose}
-        options={typeOptions}
-        onChange={handleTypeChange}
-      />
-      <ActionsheetSelect
-        isOpen={isRegionOpen}
-        onClose={onRegionClose}
-        options={regionOptions}
-        onChange={handleRegionChange}
-      />
-      <ActionsheetSelect
-        isOpen={isStatusOpen}
-        onClose={onStatusClose}
-        options={statusOptions}
-        onChange={handleStatusChange}
-      />
-      <ActionsheetSelect
-        isOpen={isSortOpen}
-        onClose={onSortClose}
-        options={sortOptions}
-        onChange={handleSortChange}
+        isOpen={isOpen}
+        onClose={onClose}
+        options={options}
+        onChange={handleChange}
       />
     </HStack>
   );
 };
 
 export const PluginSelect = () => {
+  const { isOpen, onOpen: handleOpen, onClose: handleClose } = useDisclose();
   const { source, list } = useAppSelector((state) => state.plugin);
-  const { isOpen, onOpen, onClose } = useDisclose();
+  const route = useRoute<RouteProp<RootStackParamList, 'Discovery' | 'Search'>>();
   const dispatch = useAppDispatch();
   const options = useMemo<{ label: string; value: string }[]>(() => {
     return list
       .filter((item) => !item.disabled)
       .map((item) => ({ label: item.label, value: item.value }));
   }, [list]);
+  const plugin = useMemo(() => {
+    if (route.name === 'Discovery') {
+      return source;
+    }
+    if (route.name === 'Search') {
+      return route.params?.source;
+    }
+    return source;
+  }, [route.name, route.params?.source, source]);
   const pluginLabel = useMemo(() => {
-    return list.find((item) => item.value === source)?.label || source;
-  }, [list, source]);
+    return list.find((item) => item.value === plugin)?.label || plugin;
+  }, [list, plugin]);
 
-  const handleOpen = () => {
-    onOpen();
-  };
-  const handleClose = () => {
-    onClose();
-  };
   const handleChange = (newSource: string) => {
-    dispatch(setSource(newSource as Plugin));
+    if (route.name === 'Discovery') {
+      dispatch(setSource(newSource as Plugin));
+    }
+    if (route.name === 'Search') {
+      dispatch(resetSearchFilter());
+      RootNavigation.setParams({ source: newSource as Plugin });
+    }
   };
   const handleSetting = () => {
     handleClose();
@@ -218,9 +182,10 @@ export const PluginSelect = () => {
 
 export const SearchAndPlugin = () => {
   const [keyword, setKeyword] = useState('');
+  const source = useAppSelector((state) => state.plugin.source);
 
   const handleSearch = () => {
-    RootNavigation.navigate('Search', { keyword });
+    RootNavigation.navigate('Search', { keyword, source });
   };
 
   return (

@@ -1,12 +1,12 @@
 import React from 'react';
-import { Text, VStack, HStack, Divider, Switch, ScrollView } from 'native-base';
+import { Text, VStack, HStack, Switch, ScrollView } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Plugin as PluginType } from '~/plugins';
 import ScoreRate from '~/components/ScoreRate';
 
 const { disablePlugin } = action;
 
-const Plugin = () => {
+const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
   const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.plugin.list);
 
@@ -18,7 +18,7 @@ const Plugin = () => {
 
   return (
     <ScrollView>
-      <VStack divider={<Divider />}>
+      <VStack safeAreaBottom>
         {list.map((item) => (
           <HStack
             space={6}
@@ -30,8 +30,13 @@ const Plugin = () => {
             py={3}
           >
             <VStack space={1} flexGrow={1} w={0}>
-              <Text fontSize="lg" fontWeight="bold">
-                {item.label} - {item.name}
+              <Text
+                fontSize="lg"
+                fontWeight="bold"
+                color="purple.500"
+                onPress={() => navigate('Webview', { uri: item.href, userAgent: item.userAgent })}
+              >
+                {item.label} - {item.name} 🔗
               </Text>
               <Text fontSize="sm">{item.description}</Text>
               <HStack alignItems="center">

@@ -4,69 +4,82 @@ import queryString from 'query-string';
 import LZString from 'lz-string';
 import * as cheerio from 'cheerio';
 
-const options = {
-  type: [
-    { label: '选择分类', value: Options.Default },
-    { label: '热血', value: 'rexue' },
-    { label: '冒险', value: 'maoxian' },
-    { label: '魔幻', value: 'mohuan' },
-    { label: '神鬼', value: 'shengui' },
-    { label: '搞笑', value: 'gaoxiao' },
-    { label: '萌系', value: 'mengxi' },
-    { label: '爱情', value: 'aiqing' },
-    { label: '科幻', value: 'kehuan' },
-    { label: '魔法', value: 'mofa' },
-    { label: '格斗', value: 'gedou' },
-    { label: '武侠', value: 'wuxia' },
-    { label: '机战', value: 'jizhan' },
-    { label: '战争', value: 'zhanzheng' },
-    { label: '竞技', value: 'jingji' },
-    { label: '体育', value: 'tiyu' },
-    { label: '校园', value: 'xiaoyuan' },
-    { label: '生活', value: 'shenghuo' },
-    { label: '励志', value: 'lizhi' },
-    { label: '历史', value: 'lishi' },
-    { label: '伪娘', value: 'weiniang' },
-    { label: '宅男', value: 'zhainan' },
-    { label: '腐女', value: 'funv' },
-    { label: '耽美', value: 'danmei' },
-    { label: '百合', value: 'baihe' },
-    { label: '后宫', value: 'hougong' },
-    { label: '治愈', value: 'zhiyu' },
-    { label: '美食', value: 'meishi' },
-    { label: '推理', value: 'tuili' },
-    { label: '悬疑', value: 'xuanyi' },
-    { label: '恐怖', value: 'kongbu' },
-    { label: '四格', value: 'sige' },
-    { label: '职场', value: 'zhichang' },
-    { label: '侦探', value: 'zhentan' },
-    { label: '社会', value: 'shehui' },
-    { label: '音乐', value: 'yinyue' },
-    { label: '舞蹈', value: 'wudao' },
-    { label: '杂志', value: 'zazhi' },
-    { label: '黑道', value: 'heidao' },
-  ],
-  region: [
-    { label: '选择地区', value: Options.Default },
-    { label: '日本', value: 'japan' },
-    { label: '港台', value: 'hongkong' },
-    { label: '其他', value: 'other' },
-    { label: '欧美', value: 'europe' },
-    { label: '内地', value: 'china' },
-    { label: '韩国', value: 'korea' },
-  ],
-  status: [
-    { label: '选择状态', value: Options.Default },
-    { label: '连载中', value: 'lianzai' },
-    { label: '已完结', value: 'wanjie' },
-  ],
-  sort: [
-    { label: '添加时间', value: Options.Default },
-    { label: '更新时间', value: 'update' },
-    { label: '浏览次数', value: 'view' },
-    { label: '评分最高', value: 'rate' },
-  ],
-};
+const discoveryOptions = [
+  {
+    name: 'type',
+    options: [
+      { label: '选择分类', value: Options.Default },
+      { label: '热血', value: 'rexue' },
+      { label: '冒险', value: 'maoxian' },
+      { label: '魔幻', value: 'mohuan' },
+      { label: '神鬼', value: 'shengui' },
+      { label: '搞笑', value: 'gaoxiao' },
+      { label: '萌系', value: 'mengxi' },
+      { label: '爱情', value: 'aiqing' },
+      { label: '科幻', value: 'kehuan' },
+      { label: '魔法', value: 'mofa' },
+      { label: '格斗', value: 'gedou' },
+      { label: '武侠', value: 'wuxia' },
+      { label: '机战', value: 'jizhan' },
+      { label: '战争', value: 'zhanzheng' },
+      { label: '竞技', value: 'jingji' },
+      { label: '体育', value: 'tiyu' },
+      { label: '校园', value: 'xiaoyuan' },
+      { label: '生活', value: 'shenghuo' },
+      { label: '励志', value: 'lizhi' },
+      { label: '历史', value: 'lishi' },
+      { label: '伪娘', value: 'weiniang' },
+      { label: '宅男', value: 'zhainan' },
+      { label: '腐女', value: 'funv' },
+      { label: '耽美', value: 'danmei' },
+      { label: '百合', value: 'baihe' },
+      { label: '后宫', value: 'hougong' },
+      { label: '治愈', value: 'zhiyu' },
+      { label: '美食', value: 'meishi' },
+      { label: '推理', value: 'tuili' },
+      { label: '悬疑', value: 'xuanyi' },
+      { label: '恐怖', value: 'kongbu' },
+      { label: '四格', value: 'sige' },
+      { label: '职场', value: 'zhichang' },
+      { label: '侦探', value: 'zhentan' },
+      { label: '社会', value: 'shehui' },
+      { label: '音乐', value: 'yinyue' },
+      { label: '舞蹈', value: 'wudao' },
+      { label: '杂志', value: 'zazhi' },
+      { label: '黑道', value: 'heidao' },
+    ],
+  },
+  {
+    name: 'region',
+    options: [
+      { label: '选择地区', value: Options.Default },
+      { label: '日本', value: 'japan' },
+      { label: '港台', value: 'hongkong' },
+      { label: '其他', value: 'other' },
+      { label: '欧美', value: 'europe' },
+      { label: '内地', value: 'china' },
+      { label: '韩国', value: 'korea' },
+    ],
+  },
+  {
+    name: 'status',
+    options: [
+      { label: '选择状态', value: Options.Default },
+      { label: '连载中', value: 'lianzai' },
+      { label: '已完结', value: 'wanjie' },
+    ],
+  },
+  {
+    name: 'sort',
+    options: [
+      { label: '添加时间', value: Options.Default },
+      { label: '更新时间', value: 'update' },
+      { label: '浏览次数', value: 'view' },
+      { label: '评分最高', value: 'rate' },
+    ],
+  },
+];
+
 const PATTERN_MANGA_ID = /^https:\/\/www\.mhgui\.com\/comic\/([0-9]+)/;
 const PATTERN_MANGA_INFO = /{ id: ([0-9]*), status:[0-9]*,block_cc:'.*', name: '(.+)', url: '.*' }/;
 const PATTERN_CHAPTER_ID = /^https:\/\/www\.mhgui\.com\/comic\/[0-9]+\/([0-9]+)(?=\.html|$)/;
@@ -75,29 +88,25 @@ const PATTERN_READER_DATA = /^SMH\.imgData\((.+)(?=\)\.preInit\(\);)/;
 const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 
 class ManHuaGui extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 1,
       id: Plugin.MHG,
       name: 'manhuagui',
       shortName: 'MHG',
-      description: '漫画柜大陆版，阉割了一些漫画，不会封IP。访问403，已失效',
-      score: 1,
-      config: {
-        origin: { label: '域名', value: 'https://www.mhgui.com' },
-      },
-      typeOptions: options.type,
-      regionOptions: options.region,
-      statusOptions: options.status,
-      sortOptions: options.sort,
+      description: '漫画柜大陆版：访问403，已失效',
+      href: 'https://www.mhgui.com',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://www.mhgui.com' } },
+      option: { discovery: discoveryOptions, search: [] },
       disabled: true,
     });
   }
 
-  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, region, status, sort }) => {
     const query = [region, type, status].filter((item) => item !== Options.Default).join('_');
     return {
       url: `https://www.mhgui.com/list${query ? '/' + query : ''}/${

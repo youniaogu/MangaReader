@@ -3,93 +3,98 @@ import { MangaStatus, ErrorMessage } from '~/utils';
 import LZString from 'lz-string';
 import * as cheerio from 'cheerio';
 
-const options = {
-  type: [
-    { label: '选择分类', value: Options.Default },
-    { label: '热血', value: '1' },
-    { label: '冒险', value: '2' },
-    { label: '魔幻', value: '3' },
-    { label: '神鬼', value: '4' },
-    { label: '搞笑', value: '5' },
-    { label: '萌系', value: '6' },
-    { label: '爱情', value: '7' },
-    { label: '科幻', value: '8' },
-    { label: '魔法', value: '9' },
-    { label: '格斗', value: '10' },
-    { label: '武侠', value: '11' },
-    { label: '机战', value: '12' },
-    { label: '战争', value: '13' },
-    { label: '竞技', value: '14' },
-    { label: '体育', value: '15' },
-    { label: '校园', value: '16' },
-    { label: '生活', value: '17' },
-    { label: '励志', value: '18' },
-    { label: '历史', value: '19' },
-    { label: '伪娘', value: '20' },
-    { label: '宅男', value: '21' },
-    { label: '腐女', value: '22' },
-    { label: '耽美', value: '23' },
-    { label: '百合', value: '24' },
-    { label: '后宫', value: '25' },
-    { label: '治愈', value: '26' },
-    { label: '美食', value: '27' },
-    { label: '推理', value: '28' },
-    { label: '悬疑', value: '29' },
-    { label: '恐怖', value: '30' },
-    { label: '四格', value: '31' },
-    { label: '职场', value: '32' },
-    { label: '侦探', value: '33' },
-    { label: '社会', value: '34' },
-    { label: '音乐', value: '35' },
-    { label: '舞蹈', value: '36' },
-    { label: '杂志', value: '37' },
-    { label: '黑道', value: '38' },
-  ],
-  region: [
-    { label: '选择地区', value: Options.Default },
-    { label: '日本漫画', value: '1' },
-    { label: '港台漫画', value: '2' },
-    { label: '欧美漫画', value: '3' },
-    { label: '韩国漫画', value: '4' },
-    { label: '内地漫画', value: '5' },
-    { label: '其他漫画', value: '6' },
-  ],
-  status: [
-    { label: '选择状态', value: Options.Default },
-    { label: '连载中', value: '1' },
-    { label: '已完结', value: '2' },
-  ],
-  sort: [{ label: '添加时间', value: Options.Default }],
-};
+const discoveryOptions = [
+  {
+    name: 'type',
+    options: [
+      { label: '选择分类', value: Options.Default },
+      { label: '热血', value: '1' },
+      { label: '冒险', value: '2' },
+      { label: '魔幻', value: '3' },
+      { label: '神鬼', value: '4' },
+      { label: '搞笑', value: '5' },
+      { label: '萌系', value: '6' },
+      { label: '爱情', value: '7' },
+      { label: '科幻', value: '8' },
+      { label: '魔法', value: '9' },
+      { label: '格斗', value: '10' },
+      { label: '武侠', value: '11' },
+      { label: '机战', value: '12' },
+      { label: '战争', value: '13' },
+      { label: '竞技', value: '14' },
+      { label: '体育', value: '15' },
+      { label: '校园', value: '16' },
+      { label: '生活', value: '17' },
+      { label: '励志', value: '18' },
+      { label: '历史', value: '19' },
+      { label: '伪娘', value: '20' },
+      { label: '宅男', value: '21' },
+      { label: '腐女', value: '22' },
+      { label: '耽美', value: '23' },
+      { label: '百合', value: '24' },
+      { label: '后宫', value: '25' },
+      { label: '治愈', value: '26' },
+      { label: '美食', value: '27' },
+      { label: '推理', value: '28' },
+      { label: '悬疑', value: '29' },
+      { label: '恐怖', value: '30' },
+      { label: '四格', value: '31' },
+      { label: '职场', value: '32' },
+      { label: '侦探', value: '33' },
+      { label: '社会', value: '34' },
+      { label: '音乐', value: '35' },
+      { label: '舞蹈', value: '36' },
+      { label: '杂志', value: '37' },
+      { label: '黑道', value: '38' },
+    ],
+  },
+  {
+    name: 'region',
+    options: [
+      { label: '选择地区', value: Options.Default },
+      { label: '日本漫画', value: '1' },
+      { label: '港台漫画', value: '2' },
+      { label: '欧美漫画', value: '3' },
+      { label: '韩国漫画', value: '4' },
+      { label: '内地漫画', value: '5' },
+      { label: '其他漫画', value: '6' },
+    ],
+  },
+  {
+    name: 'status',
+    options: [
+      { label: '选择状态', value: Options.Default },
+      { label: '连载中', value: '1' },
+      { label: '已完结', value: '2' },
+    ],
+  },
+];
+
 const PATTERN_MANGA_ID = /https:\/\/www\.maofly\.com\/manga\/([0-9]+)\.html/;
 const PATTERN_CHAPTER_ID = /https:\/\/www\.maofly\.com\/manga\/([0-9]+)\/([0-9]+)\.html/;
 const PATTERN_FULL_TIME = /[0-9]{4}-[0-9]{2}-[0-9]{2}/;
 const PATTERN_SCRIPT = /let img_data = "(.+)"/;
 
 class ManHuaMao extends Base {
-  readonly userAgent =
-    'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
-  readonly defaultHeaders = { 'user-agent': this.userAgent };
-
   constructor() {
+    const userAgent =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
+      score: 1,
       id: Plugin.MHM,
       name: 'manhuamao',
       shortName: 'MHM',
-      description: '漫画猫，网站挂了，已失效',
-      score: 1,
-      config: {
-        origin: { label: '域名', value: 'https://www.maofly.com' },
-      },
-      typeOptions: options.type,
-      regionOptions: options.region,
-      statusOptions: options.status,
-      sortOptions: options.sort,
+      description: '漫画猫：网站挂了，已失效',
+      href: 'https://www.maofly.com',
+      userAgent,
+      defaultHeaders: { 'User-Agent': userAgent },
+      config: { origin: { label: '域名', value: 'https://www.maofly.com' } },
+      option: { discovery: discoveryOptions, search: [] },
       disabled: true,
     });
   }
 
-  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, type, region, status, _sort) => {
+  prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, region, status }) => {
     return {
       url: `https://www.maofly.com/list/a-${region === Options.Default ? 0 : region}-c-${
         type === Options.Default ? 0 : type

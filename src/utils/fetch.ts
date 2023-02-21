@@ -3,7 +3,7 @@ import queryString from 'query-string';
 export interface FetchData {
   url: string;
   method?: GET | POST;
-  body?: FormData | { [key: string]: any };
+  body?: FormData | Record<string, any>;
   headers?: Headers;
   timeout?: number;
 }
@@ -21,7 +21,7 @@ export const fetchData = ({
     headers,
     signal: controller.signal,
     redirect: 'follow',
-    credentials: 'same-origin',
+    credentials: 'include',
   };
 
   if (Object.keys(body).length > 0) {

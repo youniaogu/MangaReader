@@ -22,8 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import RedHeart from '~/components/RedHeart';
 
-const { loadManga, addFavorites, removeFavorites, pushQueque, popQueue, setSource, viewFavorites } =
-  action;
+const { loadManga, addFavorites, removeFavorites, pushQueque, popQueue, viewFavorites } = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
@@ -57,8 +56,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       if (!nonNullable(data)) {
         return;
       }
-      dispatch(setSource(data.source));
-      navigation.navigate('Search', { keyword });
+      navigation.navigate('Search', { keyword, source: data.source });
     };
   };
 
