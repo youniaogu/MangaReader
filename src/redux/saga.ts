@@ -349,9 +349,8 @@ function* loadDiscoverySaga() {
           dict[item.name] = dict[item.name] || item.defaultValue;
           return dict;
         },
-        {}
+        filter
       );
-      console.log({ discovery: plugin.option.discovery, filter, filterWithDefault });
 
       const { error: fetchError, data } = yield call(
         fetchData,
