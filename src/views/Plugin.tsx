@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, VStack, HStack, Divider, Switch, ScrollView } from 'native-base';
+import { Text, VStack, HStack, Switch, ScrollView } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Plugin as PluginType } from '~/plugins';
 import ScoreRate from '~/components/ScoreRate';
@@ -18,7 +18,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
 
   return (
     <ScrollView>
-      <VStack divider={<Divider />}>
+      <VStack safeAreaBottom>
         {list.map((item) => (
           <HStack
             space={6}
