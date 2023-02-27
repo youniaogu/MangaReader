@@ -49,7 +49,7 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
   - [x] [klmanga](https://klmanga.net/)
 
-  - [x] [nhentai](https://nhentai.net/)（需要代理）
+  - [x] [nhentai](https://nhentai.net/)（需要代理，安卓版本要求 9 及以上）
 
 - [x] 漫画批量更新
 

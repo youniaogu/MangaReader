@@ -357,6 +357,8 @@ PODS:
   - React-jsinspector (0.68.1)
   - React-logger (0.68.1):
     - glog
+  - react-native-cameraroll (5.2.4):
+    - React-Core
   - react-native-cookies (6.2.1):
     - React-Core
   - react-native-file-access (2.5.2):
@@ -536,6 +538,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - "react-native-cookies (from `../node_modules/@react-native-cookies/cookies`)"
   - react-native-file-access (from `../node_modules/react-native-file-access`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -636,6 +639,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-cameraroll:
+    :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-cookies:
     :path: "../node_modules/@react-native-cookies/cookies"
   react-native-file-access:
@@ -738,6 +743,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 4a4bae5671b064a2248a690cf75957669489d08c
   React-jsinspector: 218a2503198ff28a085f8e16622a8d8f507c8019
   React-logger: f79dd3cc0f9b44f5611c6c7862badd891a862cf8
+  react-native-cameraroll: cb752fda6d5268f1646b4390bd5be1f27706b9a0
   react-native-cookies: f54fcded06bb0cda05c11d86788020b43528a26c
   react-native-file-access: 2105d76b5d584d11db6f5d587b6af98ef9ff8080
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
