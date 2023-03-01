@@ -67,3 +67,8 @@ export enum BackupRestore {
   Qrcode = 'Qrcode',
   Picture = 'Picture',
 }
+
+export enum PrefetchDownload {
+  Prefetch = 'prefetch',
+  Download = 'download',
+}

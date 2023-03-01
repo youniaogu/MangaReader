@@ -444,6 +444,7 @@ const chapterSlice = createSlice({
 
       state.loadStatus = AsyncStatus.Fulfilled;
     },
+    prehandleChapter(_state, _action: PayloadAction<{ chapterHash: string; save?: boolean }>) {},
   },
 });
 

@@ -23,6 +23,8 @@ import {
 } from '~/utils';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { splitHash, PluginMap } from '~/plugins';
+import { CacheManager } from '@georstat/react-native-image-cache';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LZString from 'lz-string';
@@ -80,6 +82,7 @@ const {
   // chapter
   loadChapter,
   loadChapterCompletion,
+  prehandleChapter,
   // dict
   viewChapter,
   viewPage,
@@ -567,6 +570,57 @@ function* loadChapterSaga() {
   );
 }
 
+function* preloadChapter(chapterHash: string) {
+  const prevDict = ((state: RootState) => state.dict.chapter)(yield select());
+  const prevData = prevDict[chapterHash];
+
+  if (!nonNullable(prevData)) {
+    yield put(loadChapter({ chapterHash }));
+    yield take(loadChapterCompletion.type);
+  }
+  const currDict = ((state: RootState) => state.dict.chapter)(yield select());
+  const currData = currDict[chapterHash];
+
+  if (!nonNullable(currData)) {
+    return;
+  }
+
+  return currData;
+}
+function* prehandleChapterSaga() {
+  yield takeEvery(
+    prehandleChapter.type,
+    function* ({ payload: { chapterHash, save = false } }: ReturnType<typeof prehandleChapter>) {
+      const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
+
+      if (!nonNullable(chapter)) {
+        return;
+      }
+
+      const headers = chapter.headers;
+      const album = chapter.title;
+      const images = chapter.images.map((item) => item.uri);
+
+      yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}中`));
+
+      while (true) {
+        const source = images.pop();
+        if (!nonNullable(source)) {
+          break;
+        }
+
+        yield call(CacheManager.prefetchBlob, source, headers);
+        if (save) {
+          const path: string = yield call(CacheManager.get(source, {}).getPath);
+          yield call(CameraRoll.save, path, { album });
+        }
+      }
+
+      yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}完成`));
+    }
+  );
+}
+
 function* catchErrorSaga() {
   yield takeEvery('*', function* ({ type, payload }: PayloadAction<any>) {
     if (
@@ -604,6 +658,7 @@ export default function* rootSaga() {
     fork(loadMangaInfoSaga),
     fork(loadChapterListSaga),
     fork(loadChapterSaga),
+    fork(prehandleChapterSaga),
 
     fork(catchErrorSaga),
   ]);

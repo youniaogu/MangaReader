@@ -1,4 +1,4 @@
-import React, { Fragment, useCallback } from 'react';
+import React, { Fragment, useState, useCallback } from 'react';
 import {
   Box,
   Flex,
@@ -10,25 +10,41 @@ import {
   Pressable,
   Toast,
   useTheme,
+  useDisclose,
 } from 'native-base';
+import { nonNullable, coverAspectRatio, MangaStatus, AsyncStatus, PrefetchDownload } from '~/utils';
 import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
-import { nonNullable, coverAspectRatio, MangaStatus, AsyncStatus } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
 import { useOnce } from '~/hooks';
+import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import RedHeart from '~/components/RedHeart';
 
-const { loadManga, addFavorites, removeFavorites, pushQueque, popQueue, viewFavorites } = action;
+const {
+  loadManga,
+  addFavorites,
+  removeFavorites,
+  pushQueque,
+  popQueue,
+  viewFavorites,
+  prehandleChapter,
+} = action;
 const gap = 4;
 const windowWidth = Dimensions.get('window').width;
 const quarterWidth = (windowWidth - gap * 5) / 4;
+const PrefetchDownloadOptions = [
+  { label: '预加载', value: PrefetchDownload.Prefetch },
+  { label: '下载', value: PrefetchDownload.Download },
+];
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
+  const { isOpen, onOpen, onClose } = useDisclose();
   const { colors } = useTheme();
+  const [chapter, setChapter] = useState<{ hash: string; title: string }>();
   const mangaHash = route.params.mangaHash;
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
@@ -58,6 +74,19 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       }
       navigation.navigate('Search', { keyword, source: data.source });
     };
+  };
+
+  const handleLongPress = (chapterHash: string, chapterTitle: string) => {
+    return () => {
+      onOpen();
+      setChapter({ hash: chapterHash, title: chapterTitle });
+    };
+  };
+  const handlePrefetch = () => {
+    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
+  };
+  const handleDownload = () => {
+    chapter && dispatch(prehandleChapter({ chapterHash: chapter.title, save: true }));
   };
 
   if (!nonNullable(data)) {
@@ -98,15 +127,21 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.hash === data.lastWatchChapter;
     return (
-      <Pressable _pressed={{ opacity: 0.8 }} onPress={handleChapter(item.hash)}>
+      <Pressable
+        _pressed={{ opacity: 0.8 }}
+        onPress={handleChapter(item.hash)}
+        onLongPress={handleLongPress(item.hash, item.title)}
+        delayLongPress={200}
+      >
         <Box w={quarterWidth} p={gap / 2}>
           <Text
+            position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
             color={isActived ? 'white' : '#717171'}
-            borderColor="#717171"
+            borderColor={isActived ? 'purple.500' : '#717171'}
             overflow="hidden"
             borderRadius="md"
-            borderWidth={isActived ? 0 : 0.5}
+            borderWidth={0.5}
             textAlign="center"
             numberOfLines={1}
             fontWeight="bold"
@@ -183,6 +218,25 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         renderItem={renderItem}
         ListFooterComponent={<Box safeAreaBottom />}
         keyExtractor={(item) => item.hash}
+      />
+
+      <ActionsheetSelect
+        isOpen={isOpen}
+        onClose={onClose}
+        options={PrefetchDownloadOptions}
+        onChange={(value) => {
+          if (value === PrefetchDownload.Prefetch) {
+            handlePrefetch();
+          }
+          if (value === PrefetchDownload.Download) {
+            handleDownload();
+          }
+        }}
+        headerComponent={
+          <Text w="full" pl={4} color="gray.500" fontSize={16}>
+            {chapter?.title}
+          </Text>
+        }
       />
     </Box>
   );
