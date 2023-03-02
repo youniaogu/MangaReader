@@ -1,17 +1,19 @@
 import React, { memo } from 'react';
 import { Box, Text, Icon, FlatList, Pressable } from 'native-base';
-import { StyleSheet, Dimensions } from 'react-native';
-import { coverAspectRatio } from '~/utils';
+import { splitWidth, coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
+import { StyleSheet } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import WhiteCurtain from '~/components/WhiteCurtain';
 import SpinLoading from '~/components/SpinLoading';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
 
-const gap = 2;
-const windowWidth = Dimensions.get('window').width;
-const oneThirdWidth = (windowWidth - gap * 4) / 3;
+const { gap, partWidth, numColumns } = splitWidth({
+  gap: 8,
+  minNumColumns: 3,
+  maxPartWidth: 200,
+});
 
 interface BookshelfProps {
   list: Manga[];
@@ -52,8 +54,9 @@ const Bookshelf = ({
 
   return (
     <FlatList
-      p={gap / 2}
-      numColumns={3}
+      // p={gap / 2}
+      p={`${gap / 2}px`}
+      numColumns={numColumns}
       data={list}
       onEndReached={handleEndReached}
       onEndReachedThreshold={1}
@@ -66,7 +69,7 @@ const Bookshelf = ({
       }
       renderItem={({ item }) => (
         <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
-          <Box width={oneThirdWidth} flexDirection="column" p={gap / 2}>
+          <Box width={partWidth + gap} flexDirection="column" p={`${gap / 2}px`}>
             <Box position="relative" shadow={2}>
               <CachedImage
                 options={{ headers: item.headers }}
@@ -128,7 +131,7 @@ const Bookshelf = ({
 const styles = StyleSheet.create({
   img: {
     width: '100%',
-    height: oneThirdWidth / coverAspectRatio,
+    height: partWidth / coverAspectRatio,
     overflow: 'hidden',
     borderRadius: 6,
   },

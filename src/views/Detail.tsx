@@ -13,6 +13,7 @@ import {
   useDisclose,
 } from 'native-base';
 import {
+  splitWidth,
   nonNullable,
   coverAspectRatio,
   MangaStatus,
@@ -20,7 +21,7 @@ import {
   PrefetchDownload,
   VisiteStatus,
 } from '~/utils';
-import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
+import { Dimensions, StyleSheet, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -40,9 +41,13 @@ const {
   viewFavorites,
   prehandleChapter,
 } = action;
-const gap = 4;
-const windowWidth = Dimensions.get('window').width;
-const quarterWidth = (windowWidth - gap * 5) / 4;
+const { gap, partWidth, numColumns } = splitWidth({
+  gap: 12,
+  minNumColumns: 4,
+  maxPartWidth: 100,
+});
+const coverWidth = Math.min((Dimensions.get('window').width * 1) / 3, 200);
+const coverHeight = coverWidth / coverAspectRatio;
 const PrefetchDownloadOptions = [
   { label: '预加载', value: PrefetchDownload.Prefetch },
   { label: '下载', value: PrefetchDownload.Download },
@@ -140,7 +145,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         onLongPress={handleLongPress(item.hash, item.title)}
         delayLongPress={200}
       >
-        <Box w={quarterWidth} p={gap / 2} position="relative">
+        <Box w={partWidth + gap} p={`${gap / 2}px`} position="relative">
           <Text
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
@@ -164,8 +169,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
               name={item.status === VisiteStatus.Visited ? 'brightness-1' : 'brightness-2'}
               color={`purple.${Math.floor(item.progress / 25) + 1}00`}
               position="absolute"
-              top={gap / 4}
-              right={gap / 4}
+              top={`${gap / 4}px`}
+              right={`${gap / 4}px`}
             />
           )}
         </Box>
@@ -224,8 +229,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
       <FlatList
         h="full"
-        p={gap / 2}
-        numColumns={4}
+        p={`${gap / 2}px`}
+        numColumns={numColumns}
         data={data.chapters}
         refreshControl={
           <RefreshControl
@@ -313,8 +318,8 @@ export const HeartAndBrowser = () => {
 
 const styles = StyleSheet.create({
   img: {
-    width: 130,
-    height: 130 / coverAspectRatio,
+    width: coverWidth,
+    height: coverHeight,
     flexGrow: 0,
     flexShrink: 0,
     borderRadius: 8,

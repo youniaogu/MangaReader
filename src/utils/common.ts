@@ -1,11 +1,12 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 import { ErrorMessage } from './enum';
+import { Dimensions } from 'react-native';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
 
 export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)$/;
 export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
-export const coverAspectRatio = 210 / 297;
+export const coverAspectRatio = 2 / 3;
 export const storageKey = {
   favorites: '@favorites',
   dict: '@dict',
@@ -184,4 +185,20 @@ export function matchRestoreShape(data: any): data is BackupData {
 
 export function nonNullable<T>(v: T | null | undefined): v is T {
   return v !== null && v !== undefined;
+}
+
+export function splitWidth({
+  width = Dimensions.get('window').width,
+  gap = 0,
+  maxPartWidth = 210,
+  minNumColumns = 3,
+}: {
+  gap?: number;
+  width?: number;
+  maxPartWidth?: number;
+  minNumColumns?: number;
+}) {
+  const numColumns = Math.max(Math.floor(width / maxPartWidth), minNumColumns);
+  const partWidth = (width - gap * (numColumns + 1)) / numColumns;
+  return { width, gap, partWidth, numColumns };
 }
