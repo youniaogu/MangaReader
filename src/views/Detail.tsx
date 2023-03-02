@@ -12,7 +12,14 @@ import {
   useTheme,
   useDisclose,
 } from 'native-base';
-import { nonNullable, coverAspectRatio, MangaStatus, AsyncStatus, PrefetchDownload } from '~/utils';
+import {
+  nonNullable,
+  coverAspectRatio,
+  MangaStatus,
+  AsyncStatus,
+  PrefetchDownload,
+  VisiteStatus,
+} from '~/utils';
 import { StyleSheet, Dimensions, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
@@ -83,10 +90,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     };
   };
   const handlePrefetch = () => {
-    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
+    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash }));
   };
   const handleDownload = () => {
-    chapter && dispatch(prehandleChapter({ chapterHash: chapter.title, save: true }));
+    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.title, save: true }));
   };
 
   if (!nonNullable(data)) {
@@ -133,7 +140,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         onLongPress={handleLongPress(item.hash, item.title)}
         delayLongPress={200}
       >
-        <Box w={quarterWidth} p={gap / 2}>
+        <Box w={quarterWidth} p={gap / 2} position="relative">
           <Text
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
@@ -145,10 +152,22 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             textAlign="center"
             numberOfLines={1}
             fontWeight="bold"
-            p={[1, 0]}
+            p={1}
           >
             {item.title}
           </Text>
+          {item.progress !== undefined && item.progress > 0 && (
+            <Icon
+              as={MaterialIcons}
+              size="xs"
+              style={{ transform: [{ rotateZ: '30deg' }] }}
+              name={item.status === VisiteStatus.Visited ? 'brightness-1' : 'brightness-2'}
+              color={`purple.${Math.floor(item.progress / 25) + 1}00`}
+              position="absolute"
+              top={gap / 4}
+              right={gap / 4}
+            />
+          )}
         </Box>
       </Pressable>
     );

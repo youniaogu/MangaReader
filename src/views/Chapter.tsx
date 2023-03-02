@@ -8,7 +8,7 @@ import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import Reader from '~/components/Reader';
 
-const { loadChapter, viewChapter, viewPage, setMode, setDirection } = action;
+const { loadChapter, viewChapter, viewPage, loadImage, setMode, setDirection } = action;
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash, page } = route.params || {};
@@ -39,6 +39,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const handleReload = useCallback(
     () => dispatch(loadChapter({ chapterHash })),
     [dispatch, chapterHash]
+  );
+  const handleImageLoad = useCallback(
+    (_uri: string, index: number) => dispatch(loadImage({ mangaHash, chapterHash, index })),
+    [dispatch, mangaHash, chapterHash]
   );
   const handleModeChange = useCallback(
     (isHorizontal) => dispatch(setMode(isHorizontal ? ReaderMode.Horizontal : ReaderMode.Vertical)),
@@ -112,6 +116,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       headers={data.headers}
       goBack={handleGoBack}
       onReload={handleReload}
+      onImageLoad={handleImageLoad}
       onModeChange={handleModeChange}
       onPageChange={handlePageChange}
       onDirectionChange={handleDirectionChange}

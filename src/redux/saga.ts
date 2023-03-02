@@ -86,6 +86,7 @@ const {
   // dict
   viewChapter,
   viewPage,
+  loadImage,
   syncDict,
 } = action;
 
@@ -590,7 +591,9 @@ function* preloadChapter(chapterHash: string) {
 function* prehandleChapterSaga() {
   yield takeEvery(
     prehandleChapter.type,
-    function* ({ payload: { chapterHash, save = false } }: ReturnType<typeof prehandleChapter>) {
+    function* ({
+      payload: { mangaHash, chapterHash, save = false },
+    }: ReturnType<typeof prehandleChapter>) {
       const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
       if (!nonNullable(chapter)) {
@@ -614,6 +617,9 @@ function* prehandleChapterSaga() {
           const path: string = yield call(CacheManager.get(source, {}).getPath);
           yield call(CameraRoll.save, path, { album });
         }
+        yield put(
+          loadImage({ mangaHash, chapterHash, index: images.length + 1, isPrefetch: true })
+        );
       }
 
       yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}完成`));

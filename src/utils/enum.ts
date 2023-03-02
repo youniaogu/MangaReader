@@ -19,6 +19,11 @@ export enum MangaStatus {
   End,
 }
 
+export enum VisiteStatus {
+  Unvisited,
+  Visited,
+}
+
 /**
  * @description enum of nodejs env
  * @enum {number}

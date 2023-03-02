@@ -1,4 +1,4 @@
-import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection } from '~/utils';
+import { AsyncStatus, MangaStatus, VisiteStatus, ReaderMode, ReaderDirection } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 
@@ -419,11 +419,7 @@ const mangaSlice = createSlice({
     loadChapterList(_state, _action: PayloadAction<{ mangaHash: string; page: number }>) {},
     loadChapterListCompletion(
       _state,
-      _action: FetchResponseAction<{
-        mangaHash: string;
-        page: number;
-        list: Manga['chapters'];
-      }>
+      _action: FetchResponseAction<{ mangaHash: string; page: number; list: Manga['chapters'] }>
     ) {},
   },
 });
@@ -444,7 +440,10 @@ const chapterSlice = createSlice({
 
       state.loadStatus = AsyncStatus.Fulfilled;
     },
-    prehandleChapter(_state, _action: PayloadAction<{ chapterHash: string; save?: boolean }>) {},
+    prehandleChapter(
+      _state,
+      _action: PayloadAction<{ mangaHash: string; chapterHash: string; save?: boolean }>
+    ) {},
   },
 });
 
@@ -469,6 +468,38 @@ const dictSlice = createSlice({
 
       if (manga) {
         manga.lastWatchPage = page;
+      }
+    },
+    loadImage(
+      state,
+      action: PayloadAction<{
+        mangaHash: string;
+        chapterHash: string;
+        index: number;
+        isPrefetch?: boolean;
+      }>
+    ) {
+      const { mangaHash, chapterHash, index, isPrefetch = false } = action.payload;
+      const manga = state.manga[mangaHash];
+      const chapter = state.chapter[chapterHash];
+
+      if (manga && chapter) {
+        const total = chapter.images.length;
+        manga.chapters = manga.chapters.map((chapterItem) => {
+          if (chapterItem.hash === chapterHash) {
+            chapterItem.status = !isPrefetch ? VisiteStatus.Visited : chapterItem.status;
+            chapterItem.imagesLoaded = Array.from(
+              new Set([...(chapterItem.imagesLoaded || []), index])
+            );
+            chapterItem.total = total;
+            chapterItem.progress = Math.max(
+              chapterItem.progress || 0,
+              Math.floor((chapterItem.imagesLoaded.length * 100) / total)
+            );
+          }
+
+          return chapterItem;
+        });
       }
     },
   },

@@ -72,26 +72,30 @@ const DefaultImage = ({
   );
 
   const handleLoadSuccess = () => {
-    if (!horizontal && loadStatus === AsyncStatus.Pending) {
-      CacheManager.prefetchBlob(source, { headers })
-        .then((base64) => {
-          if (!base64) {
-            handleError();
-            return;
-          }
-          base64 = 'data:image/png;base64,' + base64;
+    if (loadStatus === AsyncStatus.Pending) {
+      if (!horizontal) {
+        CacheManager.prefetchBlob(source, { headers })
+          .then((base64) => {
+            if (!base64) {
+              handleError();
+              return;
+            }
+            base64 = 'data:image/png;base64,' + base64;
 
-          ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
-            const fillHeight = (height / width) * windowWidth;
-            setImageHeight(fillHeight);
-            onSuccess &&
-              onSuccess({ width: windowWidth, height: fillHeight, hash, dataUrl: source });
-          });
-        })
-        .catch(handleError);
+            ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
+              const fillHeight = (height / width) * windowWidth;
+              onSuccess &&
+                onSuccess({ width: windowWidth, height: fillHeight, hash, dataUrl: source });
+              setImageHeight(fillHeight);
+              setLoadStatus(AsyncStatus.Fulfilled);
+            });
+          })
+          .catch(handleError);
+      } else {
+        onSuccess && onSuccess({ width: windowWidth, height: windowHeight, hash, dataUrl: source });
+        setLoadStatus(AsyncStatus.Fulfilled);
+      }
     }
-
-    setLoadStatus(AsyncStatus.Fulfilled);
   };
   const handleError = () => {
     setLoadStatus(AsyncStatus.Rejected);
@@ -111,14 +115,16 @@ const DefaultImage = ({
   }
 
   return (
-    <CachedImage
-      source={source}
-      options={{ headers }}
-      style={horizontal ? styles.contain : { ...styles.cover, height: imageHeight }}
-      resizeMode={horizontal ? 'contain' : 'cover'}
-      onLoad={handleLoadSuccess}
-      onError={handleError}
-      loadingImageComponent={() => (
+    <>
+      <CachedImage
+        source={source}
+        options={{ headers }}
+        style={horizontal ? styles.contain : { ...styles.cover, height: imageHeight }}
+        resizeMode={horizontal ? 'contain' : 'cover'}
+        onLoad={handleLoadSuccess}
+        onError={handleError}
+      />
+      {loadStatus === AsyncStatus.Pending && (
         <Center position="absolute" w="full" h="full" bg="black">
           <CachedImage
             source="https://raw.githubusercontent.com/youniaogu/walfie-gif/master/ground%20pound.gif"
@@ -127,7 +133,7 @@ const DefaultImage = ({
           />
         </Center>
       )}
-    />
+    </>
   );
 };
 

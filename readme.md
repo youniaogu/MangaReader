@@ -55,7 +55,7 @@ Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
 - [x] 发现页支持分类搜索
 
-- [ ] 章节预加载
+- [x] 章节预加载
 
 - [ ] 夜间模式
 

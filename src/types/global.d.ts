@@ -80,6 +80,10 @@ declare global {
     chapterId: string;
     href: string;
     title: string;
+    total?: number;
+    progress?: number;
+    imagesLoaded?: number[];
+    status?: VisiteStatus;
   }
   declare interface Chapter {
     hash: string;

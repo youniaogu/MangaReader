@@ -20,7 +20,8 @@ interface ReaderProps {
   headers?: Chapter['headers'];
   goBack: () => void;
   onReload?: () => void;
-  onModeChange: (horizontal: boolean) => void;
+  onImageLoad?: (uri: string, index: number) => void;
+  onModeChange?: (horizontal: boolean) => void;
   onPageChange?: (page: number) => void;
   onDirectionChange?: (inverted: boolean) => void;
   onPrevChapter?: () => void;
@@ -36,8 +37,9 @@ const Reader = ({
   headers = {},
   goBack,
   onReload,
-  onPageChange,
+  onImageLoad,
   onModeChange,
+  onPageChange,
   onDirectionChange,
   onPrevChapter,
   onNextChapter,
@@ -147,6 +149,7 @@ const Reader = ({
           headers={headers}
           prevState={cacheState}
           onSuccess={({ height, hash, dataUrl }) => {
+            onImageLoad && onImageLoad(uri, index);
             itemStateRef.current[index] = {
               defaulthHash: hash,
               defaultHeight: height,
@@ -157,19 +160,27 @@ const Reader = ({
         />
       );
     },
-    [headers]
+    [headers, onImageLoad]
   );
   const renderHorizontalItem = useCallback(
-    ({ item }: ListRenderItemInfo<(typeof data)[0]>) => {
+    ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
       const { uri, needUnscramble } = item;
 
       return (
         <Controller horizontal onTap={handleTap} onLongPress={handleLongPress}>
-          <ComicImage horizontal useJMC={needUnscramble} uri={uri} headers={headers} />
+          <ComicImage
+            horizontal
+            useJMC={needUnscramble}
+            uri={uri}
+            headers={headers}
+            onSuccess={() => {
+              onImageLoad && onImageLoad(uri, index);
+            }}
+          />
         </Controller>
       );
     },
-    [headers, handleTap, handleLongPress]
+    [headers, handleTap, handleLongPress, onImageLoad]
   );
 
   const handleSliderChangeEnd = useCallback((newStep: number) => {
@@ -189,10 +200,10 @@ const Reader = ({
     onDirectionChange && onDirectionChange(true);
   };
   const handleVertical = () => {
-    onModeChange(false);
+    onModeChange && onModeChange(false);
   };
   const handleHorizontal = () => {
-    onModeChange(true);
+    onModeChange && onModeChange(true);
   };
 
   return (
