@@ -444,6 +444,7 @@ const chapterSlice = createSlice({
       _state,
       _action: PayloadAction<{ mangaHash: string; chapterHash: string; save?: boolean }>
     ) {},
+    prehandleChapterCompletion(_state, _action: FetchResponseAction) {},
   },
 });
 

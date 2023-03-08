@@ -22,6 +22,7 @@ import {
   ErrorMessage,
 } from '~/utils';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, PluginMap } from '~/plugins';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
@@ -83,6 +84,7 @@ const {
   loadChapter,
   loadChapterCompletion,
   prehandleChapter,
+  prehandleChapterCompletion,
   // dict
   viewChapter,
   viewPage,
@@ -571,6 +573,23 @@ function* loadChapterSaga() {
   );
 }
 
+function* hasAndroidPermission() {
+  const permission =
+    Platform.Version >= 33
+      ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+      : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+  const hasPermission: boolean = yield call(PermissionsAndroid.check, permission);
+
+  if (hasPermission) {
+    return true;
+  }
+
+  const status: 'granted' | 'denied' | 'never_ask_again' = yield call(
+    PermissionsAndroid.request,
+    permission
+  );
+  return status === 'granted';
+}
 function* preloadChapter(chapterHash: string) {
   const prevDict = ((state: RootState) => state.dict.chapter)(yield select());
   const prevData = prevDict[chapterHash];
@@ -596,7 +615,17 @@ function* prehandleChapterSaga() {
     }: ReturnType<typeof prehandleChapter>) {
       const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
+      if (Platform.OS === 'android') {
+        const hasPermission: boolean = yield call(hasAndroidPermission);
+        if (!hasPermission) {
+          yield put(
+            prehandleChapterCompletion({ error: new Error(ErrorMessage.WithoutPermission) })
+          );
+          return;
+        }
+      }
       if (!nonNullable(chapter)) {
+        yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.WrongDataType) }));
         return;
       }
 
@@ -608,14 +637,19 @@ function* prehandleChapterSaga() {
 
       while (true) {
         const source = images.pop();
+
         if (!nonNullable(source)) {
           break;
+        }
+        if (source.includes('.webp')) {
+          return;
         }
 
         yield call(CacheManager.prefetchBlob, source, headers);
         if (save) {
-          const path: string = yield call(CacheManager.get(source, {}).getPath);
-          yield call(CameraRoll.save, path, { album });
+          const cacheEntry = CacheManager.get(source, undefined);
+          const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
+          yield call(CameraRoll.save, `file://${path}`, { album });
         }
         yield put(
           loadImage({ mangaHash, chapterHash, index: images.length + 1, isPrefetch: true })

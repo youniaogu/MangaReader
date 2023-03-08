@@ -60,6 +60,8 @@ export enum ErrorMessage {
   WrongDataType = '错误的数据格式',
   DDoSRetry = '网站DDoS保护，请再试一次',
   CookieInvalid = 'Cookie失效，请重新获取',
+  WithoutPermission = '授权失败',
+  IOSNotSupportWebp = 'IOS暂不支持WEBP格式下载',
 }
 
 export enum Orientation {

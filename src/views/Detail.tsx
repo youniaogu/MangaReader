@@ -98,7 +98,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash }));
   };
   const handleDownload = () => {
-    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.title, save: true }));
+    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash, save: true }));
   };
 
   if (!nonNullable(data)) {
