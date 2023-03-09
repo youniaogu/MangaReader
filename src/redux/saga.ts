@@ -22,7 +22,7 @@ import {
   ErrorMessage,
 } from '~/utils';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
-import { PermissionsAndroid, Platform } from 'react-native';
+import { Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, PluginMap } from '~/plugins';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
@@ -573,11 +573,7 @@ function* loadChapterSaga() {
   );
 }
 
-function* hasAndroidPermission() {
-  const permission =
-    Platform.Version >= 33
-      ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-      : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+function* hasAndroidPermission(permission: Permission) {
   const hasPermission: boolean = yield call(PermissionsAndroid.check, permission);
 
   if (hasPermission) {
@@ -588,6 +584,7 @@ function* hasAndroidPermission() {
     PermissionsAndroid.request,
     permission
   );
+  console.log({ status, permission });
   return status === 'granted';
 }
 function* preloadChapter(chapterHash: string) {
@@ -616,8 +613,14 @@ function* prehandleChapterSaga() {
       const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
       if (Platform.OS === 'android') {
-        const hasPermission: boolean = yield call(hasAndroidPermission);
-        if (!hasPermission) {
+        const readPermission =
+          Platform.Version >= 33
+            ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+            : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+        const writePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+        const hasReadPermission: boolean = yield call(hasAndroidPermission, readPermission);
+        const hasWritePermission: boolean = yield call(hasAndroidPermission, writePermission);
+        if (!hasReadPermission || !hasWritePermission) {
           yield put(
             prehandleChapterCompletion({ error: new Error(ErrorMessage.WithoutPermission) })
           );
