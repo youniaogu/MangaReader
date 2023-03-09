@@ -1,11 +1,11 @@
 import React, { useMemo, useState, useCallback, Fragment } from 'react';
-import { Icon, Text, Input, Button, HStack, IconButton, useDisclose } from 'native-base';
+import { Text, Input, Button, HStack, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { nonNullable, AsyncStatus } from '~/utils';
 import { Plugin, PluginMap } from '~/plugins';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
 import * as RootNavigation from '~/utils/navigation';
 
@@ -152,9 +152,11 @@ export const PluginSelect = () => {
   return (
     <>
       <Button
-        pr={2}
+        p={0}
+        mr={1}
+        w={12}
         variant="ghost"
-        _text={{ color: 'white', fontSize: 'sm', fontWeight: 'bold' }}
+        _text={{ color: 'white', textAlign: 'center', fontSize: 'sm', fontWeight: 'bold' }}
         onPress={handleOpen}
       >
         {pluginLabel}
@@ -169,10 +171,7 @@ export const PluginSelect = () => {
             <Text color="gray.500" fontSize={16}>
               选择插件
             </Text>
-            <IconButton
-              icon={<Icon as={MaterialIcons} name="settings" size="lg" color="gray.500" />}
-              onPress={handleSetting}
-            />
+            <VectorIcon name="settings" size="lg" color="gray.500" onPress={handleSetting} />
           </HStack>
         }
       />
@@ -189,7 +188,7 @@ export const SearchAndPlugin = () => {
   };
 
   return (
-    <HStack space={2} flex={1} alignItems="center">
+    <HStack space={1} flex={1} alignItems="center">
       <Input
         pl={1}
         w={0}

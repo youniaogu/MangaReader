@@ -1,9 +1,9 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { HStack, IconButton, Icon, View, Text } from 'native-base';
 import { nonNullable, AsyncStatus } from '~/utils';
+import { View, Text, HStack } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
 import Rotate from '~/components/Rotate';
 import * as RootNavigation from '~/utils/navigation';
@@ -69,21 +69,11 @@ export const SearchAndAbout = () => {
 
   return (
     <HStack flexShrink={0}>
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="qr-code-scanner" size="2xl" color="white" />}
-        onPress={handleScan}
-      />
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="search" size="2xl" color="white" />}
-        onPress={handleSearch}
-      />
+      <VectorIcon name="qr-code-scanner" onPress={handleScan} />
+      <VectorIcon name="search" onPress={handleSearch} />
       <View position="relative">
         <Rotate enable={enableRotate}>
-          <IconButton
-            isDisabled={enableRotate}
-            icon={<Icon as={MaterialIcons} name="autorenew" size="2xl" color="white" />}
-            onPress={handleUpdate}
-          />
+          <VectorIcon isDisabled={enableRotate} name="autorenew" onPress={handleUpdate} />
         </Rotate>
         {batchStatus === AsyncStatus.Pending && (
           <Text position="absolute" top={0} right={0} color="white" fontWeight="extrabold">

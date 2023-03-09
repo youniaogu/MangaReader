@@ -1,8 +1,8 @@
 import React, { Fragment, useMemo } from 'react';
-import { StatusBar, HStack, IconButton, Icon, Text, useTheme } from 'native-base';
+import { StatusBar, HStack, Text, useTheme } from 'native-base';
 import { NativeStackHeaderProps } from '@react-navigation/native-stack';
 import { getHeaderTitle } from '@react-navigation/elements';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import VectorIcon from '~/components/VectorIcon';
 import Shake from '~/components/Shake';
 
 interface HeaderProps extends NativeStackHeaderProps {
@@ -41,28 +41,17 @@ const Header = ({ navigation, options, route, enableShake = false }: HeaderProps
       >
         <HStack flex={1} flexGrow={1} justifyContent="flex-start" alignItems="center">
           {canGoBack ? (
-            <IconButton
-              icon={<Icon as={MaterialIcons} name="arrow-back" size="2xl" color="white" />}
-              onPress={handleBack}
-            />
+            <VectorIcon name="arrow-back" size="2xl" onPress={handleBack} />
           ) : (
             <Shake enable={enableShake}>
-              <IconButton
-                icon={
-                  <Icon
-                    as={MaterialIcons}
-                    name="home"
-                    size="2xl"
-                    color="white"
-                    onPress={handleAbout}
-                  />
-                }
-              />
+              <VectorIcon name="home" size="2xl" onPress={handleAbout} />
             </Shake>
           )}
-          <Text maxW="5/6" color="white" fontSize={25} fontWeight="bold" numberOfLines={1}>
-            {title}
-          </Text>
+          {title !== '' && (
+            <Text flex={1} color="white" fontSize={25} fontWeight="bold" numberOfLines={1}>
+              {title}
+            </Text>
+          )}
           {Left}
         </HStack>
 

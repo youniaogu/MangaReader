@@ -54,7 +54,6 @@ const Bookshelf = ({
 
   return (
     <FlatList
-      // p={gap / 2}
       p={`${gap / 2}px`}
       numColumns={numColumns}
       data={list}
@@ -70,7 +69,7 @@ const Bookshelf = ({
       renderItem={({ item }) => (
         <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
           <Box width={partWidth + gap} flexDirection="column" p={`${gap / 2}px`}>
-            <Box position="relative" shadow={2}>
+            <Box position="relative" shadow={0} bg="white" borderRadius={6}>
               <CachedImage
                 options={{ headers: item.headers }}
                 source={item.cover}
@@ -86,7 +85,7 @@ const Bookshelf = ({
                   borderRadius={3}
                   borderBottomLeftRadius={6}
                   px={2}
-                  background="purple.500"
+                  bg="purple.500"
                 >
                   <Text fontSize="xs" fontWeight="bold" color="white">
                     New
@@ -95,7 +94,7 @@ const Bookshelf = ({
               )}
               {negativeList && negativeList.includes(item.hash) && (
                 <Icon
-                  shadow={1}
+                  shadow="icon"
                   position="absolute"
                   top={1}
                   right={1}

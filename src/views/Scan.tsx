@@ -2,12 +2,12 @@ import 'react-native-reanimated';
 import React, { useState, useCallback } from 'react';
 import { Barcode, scanBarcodes, BarcodeFormat, BarcodeValueType } from 'vision-camera-code-scanner';
 import { Camera, useCameraDevices, useFrameProcessor } from 'react-native-vision-camera';
-import { Box, Icon, HStack, IconButton } from 'native-base';
 import { action, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
+import { Box, HStack } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { runOnJS } from 'react-native-reanimated';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import VectorIcon from '~/components/VectorIcon';
 
 const { restore } = action;
 
@@ -79,19 +79,8 @@ const Scan = ({ navigation }: StackScanProps) => {
         justifyContent="space-between"
         safeAreaTop
       >
-        <IconButton
-          icon={<Icon as={MaterialIcons} name="arrow-back" size="2xl" color="white" />}
-          borderRadius="full"
-          onPress={handleBack}
-          bg="#b2b7c04d"
-        />
-        {/* <IconButton
-          disabled
-          icon={<Icon as={MaterialIcons} name="image" size="2xl" color="white" />}
-          borderRadius="full"
-          onPress={handleAlbum}
-          bg="#b2b7c04d"
-        /> */}
+        <VectorIcon name="arrow-back" borderRadius="full" onPress={handleBack} bg="#b2b7c04d" />
+        {/* <VectorIcon name="image" borderRadius="full" onPress={handleAlbum} bg="#b2b7c04d" /> */}
       </HStack>
     </Box>
   );

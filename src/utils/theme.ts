@@ -14,8 +14,27 @@ export const customTheme = extendTheme({
       800: '#200050',
       900: '#0d0020',
     },
+    transparent: 'transparent',
   },
   config: {
     initialColorMode: 'light',
+  },
+  shadows: {
+    icon: {
+      shadowColor: 'black',
+      shadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      shadowOpacity: 0.2,
+      shadowRadius: 1.41,
+
+      textShadowOffset: {
+        width: 0,
+        height: 1,
+      },
+      textShadowRadius: 5,
+      elevation: 2,
+    },
   },
 });

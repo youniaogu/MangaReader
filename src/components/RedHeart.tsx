@@ -51,6 +51,7 @@ const RedHeart = ({ actived = false, onPress }: RedHeartProps) => {
     <GestureDetector gesture={Gesture.Exclusive(longPress, singleTap)}>
       <Animated.View style={animatedStyle}>
         <Icon
+          m={2}
           size="2xl"
           as={MaterialIcons}
           name={actived ? 'favorite' : 'favorite-outline'}

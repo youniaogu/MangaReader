@@ -4,7 +4,6 @@ import {
   Flex,
   Text,
   Icon,
-  IconButton,
   HStack,
   FlatList,
   Pressable,
@@ -30,6 +29,7 @@ import { useOnce } from '~/hooks';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
+import VectorIcon from '~/components/VectorIcon';
 import RedHeart from '~/components/RedHeart';
 
 const {
@@ -293,25 +293,16 @@ export const HeartAndBrowser = () => {
   };
 
   return (
-    <HStack>
+    <HStack pr={1}>
       {actived && (
-        <IconButton
-          icon={
-            <Icon
-              as={MaterialIcons}
-              name={manga?.inQueue ? 'lock-open' : 'lock-outline'}
-              size="2xl"
-              color={manga?.inQueue ? 'white' : 'purple.200'}
-            />
-          }
+        <VectorIcon
+          name={manga?.inQueue ? 'lock-open' : 'lock-outline'}
+          color={manga?.inQueue ? 'white' : 'purple.200'}
           onPress={toggleQueue}
         />
       )}
       <RedHeart actived={actived} onPress={toggleFavorite} />
-      <IconButton
-        icon={<Icon as={MaterialIcons} name="open-in-browser" size="2xl" color="white" />}
-        onPress={handleToBrowser}
-      />
+      <VectorIcon name="open-in-browser" onPress={handleToBrowser} />
     </HStack>
   );
 };

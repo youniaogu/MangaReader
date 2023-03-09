@@ -37,7 +37,8 @@ const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
 
   return (
     <Slider
-      shadow={9}
+      shadow="icon"
+      bg="transparent"
       w="full"
       size="sm"
       defaultValue={page}
@@ -49,7 +50,7 @@ const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
       onChange={handleSliderChange}
       onChangeEnd={handleSliderChangeEnd}
     >
-      <Slider.Track>
+      <Slider.Track shadow={1}>
         <Slider.FilledTrack />
       </Slider.Track>
       <Slider.Thumb />

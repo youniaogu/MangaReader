@@ -1,12 +1,12 @@
 import React, { useState, useRef, useCallback, Fragment } from 'react';
-import { Box, Text, Flex, Icon, FlatList, StatusBar, IconButton, useToast } from 'native-base';
 import { FlatList as FlatListRN, Dimensions, ListRenderItemInfo } from 'react-native';
+import { Box, Text, Flex, FlatList, StatusBar, useToast } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
 import { AsyncStatus } from '~/utils';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 import ComicImage, { ImageState } from '~/components/ComicImage';
 import Controller from '~/components/Controller';
+import VectorIcon from '~/components/VectorIcon';
 
 const windowWidth = Dimensions.get('window').width;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -267,15 +267,10 @@ const Reader = ({
             safeAreaLeft
             safeAreaRight
           >
-            <IconButton
-              icon={
-                <Icon as={MaterialIcons} shadow={0} name="arrow-back" size="2xl" color="white" />
-              }
-              onPress={goBack}
-            />
+            <VectorIcon name="arrow-back" size="2xl" shadow="icon" onPress={goBack} />
             <Text
               flexShrink={1}
-              shadow={0}
+              shadow="icon"
               fontSize="md"
               numberOfLines={1}
               color="white"
@@ -283,52 +278,31 @@ const Reader = ({
             >
               {title}
             </Text>
-            <IconButton
-              icon={<Icon as={MaterialIcons} shadow={0} name="replay" size="md" color="white" />}
-              onPress={handleReload}
-            />
+            <VectorIcon name="replay" size="md" shadow="icon" onPress={handleReload} />
 
             <Box flexGrow={1} flexShrink={1} />
 
             {horizontal &&
               (inverted ? (
-                <IconButton
-                  icon={<Icon as={MaterialIcons} shadow={0} name="west" size="lg" color="white" />}
-                  onPress={handleRight}
-                />
+                <VectorIcon name="west" size="lg" shadow="icon" onPress={handleRight} />
               ) : (
-                <IconButton
-                  icon={<Icon as={MaterialIcons} shadow={0} name="east" size="lg" color="white" />}
-                  onPress={handleLeft}
-                />
+                <VectorIcon name="east" size="lg" shadow="icon" onPress={handleLeft} />
               ))}
-            <Text shadow={0} color="white" fontWeight="bold">
+            <Text shadow="icon" color="white" fontWeight="bold">
               {page} / {data.length}
             </Text>
             {horizontal ? (
-              <IconButton
-                icon={
-                  <Icon
-                    as={MaterialIcons}
-                    shadow={0}
-                    name="stay-primary-landscape"
-                    size="lg"
-                    color="white"
-                  />
-                }
+              <VectorIcon
+                name="stay-primary-landscape"
+                size="lg"
+                shadow="icon"
                 onPress={handleVertical}
               />
             ) : (
-              <IconButton
-                icon={
-                  <Icon
-                    as={MaterialIcons}
-                    shadow={0}
-                    name="stay-primary-portrait"
-                    size="lg"
-                    color="white"
-                  />
-                }
+              <VectorIcon
+                name="stay-primary-portrait"
+                size="lg"
+                shadow="icon"
                 onPress={handleHorizontal}
               />
             )}
@@ -346,16 +320,10 @@ const Reader = ({
             safeAreaBottom
           >
             {onPrevChapter ? (
-              <IconButton
-                icon={
-                  <Icon
-                    as={MaterialIcons}
-                    shadow={0}
-                    name="skip-previous"
-                    size="lg"
-                    color="white"
-                  />
-                }
+              <VectorIcon
+                name="skip-previous"
+                size="lg"
+                shadow="icon"
                 onPress={handlePrevChapter}
               />
             ) : (
@@ -371,12 +339,7 @@ const Reader = ({
               />
             </Box>
             {onNextChapter ? (
-              <IconButton
-                icon={
-                  <Icon as={MaterialIcons} shadow={0} name="skip-next" size="lg" color="white" />
-                }
-                onPress={handleNextChapter}
-              />
+              <VectorIcon name="skip-next" size="lg" shadow="icon" onPress={handleNextChapter} />
             ) : (
               <Box w={45} />
             )}
