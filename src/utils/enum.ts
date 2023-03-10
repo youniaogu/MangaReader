@@ -79,3 +79,8 @@ export enum PrefetchDownload {
   Prefetch = 'prefetch',
   Download = 'download',
 }
+
+export enum Sequence {
+  Asc = 'Asc',
+  Desc = 'Desc',
+}

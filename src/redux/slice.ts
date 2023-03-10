@@ -1,4 +1,11 @@
-import { AsyncStatus, MangaStatus, VisiteStatus, ReaderMode, ReaderDirection } from '~/utils';
+import {
+  AsyncStatus,
+  MangaStatus,
+  VisiteStatus,
+  ReaderMode,
+  ReaderDirection,
+  Sequence,
+} from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 
@@ -22,6 +29,7 @@ export const initialState: RootState = {
   setting: {
     mode: ReaderMode.Horizontal,
     direction: ReaderDirection.Right,
+    sequence: Sequence.Desc,
   },
   plugin: {
     source: defaultPlugin,
@@ -174,6 +182,9 @@ const settingSlice = createSlice({
     },
     setDirection(state, action: PayloadAction<ReaderDirection>) {
       state.direction = action.payload;
+    },
+    setSequence(state, action: PayloadAction<Sequence>) {
+      state.sequence = action.payload;
     },
     syncSetting(_state, action: PayloadAction<RootState['setting']>) {
       return action.payload;

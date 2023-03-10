@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback } from 'react';
+import React, { Fragment, useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Flex,
@@ -15,6 +15,7 @@ import {
   splitWidth,
   nonNullable,
   coverAspectRatio,
+  Sequence,
   MangaStatus,
   AsyncStatus,
   PrefetchDownload,
@@ -34,10 +35,11 @@ import RedHeart from '~/components/RedHeart';
 
 const {
   loadManga,
+  setSequence,
   addFavorites,
   removeFavorites,
-  pushQueque,
   popQueue,
+  pushQueque,
   viewFavorites,
   prehandleChapter,
 } = action;
@@ -62,7 +64,19 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const favorites = useAppSelector((state) => state.favorites);
-  const data = mangaDict[mangaHash];
+  const sequence = useAppSelector((state) => state.setting.sequence);
+  const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
+  const chapters = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    if (sequence === Sequence.Desc) {
+      return data.chapters;
+    } else {
+      return [...data.chapters].reverse();
+    }
+  }, [data, sequence]);
 
   useOnce(() => {
     if (!nonNullable(data) || (nonNullable(data) && data.chapters.length <= 0)) {
@@ -231,7 +245,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         h="full"
         p={`${gap / 2}px`}
         numColumns={numColumns}
-        data={data.chapters}
+        data={chapters}
         refreshControl={
           <RefreshControl
             refreshing={loadStatus === AsyncStatus.Pending}
@@ -269,12 +283,16 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 export const HeartAndBrowser = () => {
   const route = useRoute<StackDetailProps['route']>();
   const dispatch = useAppDispatch();
+  const sequence = useAppSelector((state) => state.setting.sequence);
   const favorites = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const mangaHash = route.params.mangaHash;
   const manga = favorites.find((item) => item.mangaHash === mangaHash);
   const actived = Boolean(manga);
 
+  const handleSwapSequence = () => {
+    dispatch(setSequence(sequence === Sequence.Asc ? Sequence.Desc : Sequence.Asc));
+  };
   const toggleFavorite = () => {
     dispatch(actived ? removeFavorites(mangaHash) : addFavorites(mangaHash));
   };
@@ -302,6 +320,11 @@ export const HeartAndBrowser = () => {
         />
       )}
       <RedHeart actived={actived} onPress={toggleFavorite} />
+      <VectorIcon
+        source="octicons"
+        name={sequence === Sequence.Asc ? 'sort-asc' : 'sort-desc'}
+        onPress={handleSwapSequence}
+      />
       <VectorIcon name="open-in-browser" onPress={handleToBrowser} />
     </HStack>
   );

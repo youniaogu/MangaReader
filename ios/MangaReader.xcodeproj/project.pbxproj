@@ -38,6 +38,8 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MangaReader/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-MangaReader-MangaReaderTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MangaReader-MangaReaderTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A6B8109282FC46A008C705A /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MaterialIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
+		1ADABEBD29BAF9CD009EE1BC /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		1ADABEC129BAFFCD009EE1BC /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Octicons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/Octicons.ttf"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-MangaReader.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MangaReader.debug.xcconfig"; path = "Target Support Files/Pods-MangaReader/Pods-MangaReader.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-MangaReader.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MangaReader.release.xcconfig"; path = "Target Support Files/Pods-MangaReader/Pods-MangaReader.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-MangaReader-MangaReaderTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MangaReader-MangaReaderTests.debug.xcconfig"; path = "Target Support Files/Pods-MangaReader-MangaReaderTests/Pods-MangaReader-MangaReaderTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -101,7 +103,9 @@
 		1A6B8108282FC461008C705A /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				1ADABEC129BAFFCD009EE1BC /* Octicons.ttf */,
 				1A6B8109282FC46A008C705A /* MaterialIcons.ttf */,
+				1ADABEBD29BAF9CD009EE1BC /* MaterialCommunityIcons.ttf */,
 			);
 			name = Fonts;
 			sourceTree = "<group>";

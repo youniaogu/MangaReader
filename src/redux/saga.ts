@@ -49,6 +49,7 @@ const {
   // setting
   setMode,
   setDirection,
+  setSequence,
   syncSetting,
   // plugin
   setSource,
@@ -205,6 +206,7 @@ function* storageDataSaga() {
     [
       setMode.type,
       setDirection.type,
+      setSequence.type,
       setSource.type,
       disablePlugin.type,
       viewChapter.type,
@@ -636,16 +638,17 @@ function* prehandleChapterSaga() {
       const album = chapter.title;
       const images = chapter.images.map((item) => item.uri);
 
-      yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}中`));
+      if (!images.find((item) => item.includes('.webp'))) {
+        yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
+        return;
+      }
 
+      yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}中`));
       while (true) {
-        const source = images.pop();
+        const source = images.shift();
 
         if (!nonNullable(source)) {
           break;
-        }
-        if (source.includes('.webp')) {
-          return;
         }
 
         yield call(CacheManager.prefetchBlob, source, headers);
@@ -658,7 +661,6 @@ function* prehandleChapterSaga() {
           loadImage({ mangaHash, chapterHash, index: images.length + 1, isPrefetch: true })
         );
       }
-
       yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}完成`));
     }
   );

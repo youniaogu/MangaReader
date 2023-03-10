@@ -1,4 +1,12 @@
-import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection, customTheme, env } from '~/utils';
+import {
+  Sequence,
+  AsyncStatus,
+  MangaStatus,
+  ReaderMode,
+  ReaderDirection,
+  customTheme,
+  env,
+} from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
@@ -133,6 +141,7 @@ declare global {
     setting: {
       mode: ReaderMode;
       direction: ReaderDirection;
+      sequence: Sequence;
     };
     plugin: {
       source: Plugin;
