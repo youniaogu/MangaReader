@@ -6,8 +6,9 @@
 一个漫画 APP📱，基于 react-native 构建，兼容 Android、Ios 平台
 
 - 插件式设计
-- 收藏、搜索、批量更新
+- 收藏、搜索、批量更新、下载、预加载
 - 图片手势控制、本地缓存
+- 收藏备份和恢复
 
 <p align="center">
   <img src="./demo.gif" alt="demo" />
@@ -28,46 +29,6 @@
 Android：[下载](https://github.com/youniaogu/MangaReader/releases)
 
 Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
-
-## TodoList
-
-- [x] 更多的插件
-
-  - [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
-
-  - [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
-
-  - [x] [copymanga](https://www.copymanga.org/)
-
-  - [x] [manhuadb](https://www.manhuadb.com/)
-
-  - [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip，目前主站到国内站点的自动跳转失效，需要代理）
-
-  - [x] [dongmanzhijia](https://m.dmzj.com/)
-
-  - [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
-
-  - [x] [klmanga](https://klmanga.net/)
-
-  - [x] [nhentai](https://nhentai.net/)（需要代理，安卓版本要求 9 及以上）
-
-- [x] 漫画批量更新
-
-- [x] 发现页支持分类搜索
-
-- [x] 章节预加载
-
-- [ ] 夜间模式
-
-- [x] 插件配置页
-
-- [x] 竖屏模式
-
-- [x] 检查 app 更新
-
-- [x] 过滤批量更新
-
-- [ ] 插件支持配置
 
 ## NHentai
 
