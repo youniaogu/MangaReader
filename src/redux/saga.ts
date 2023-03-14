@@ -20,6 +20,7 @@ import {
   matchRestoreShape,
   nonNullable,
   ErrorMessage,
+  AsyncStatus,
 } from '~/utils';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { Permission, PermissionsAndroid, Platform } from 'react-native';
@@ -86,6 +87,8 @@ const {
   loadChapterCompletion,
   prehandleChapter,
   prehandleChapterCompletion,
+  addPrehandleLog,
+  updatePrehandleLog,
   // dict
   viewChapter,
   viewPage,
@@ -638,27 +641,51 @@ function* prehandleChapterSaga() {
       const album = chapter.title;
       const images = chapter.images.map((item) => item.uri);
 
-      if (!images.find((item) => item.includes('.webp'))) {
+      if (images.find((item) => item.includes('.webp'))) {
         yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
         return;
       }
 
+      yield put(
+        addPrehandleLog(
+          chapter.images.map((item, index) => ({
+            id: item.uri,
+            text: `${album} - ${index + 1}`,
+            status: AsyncStatus.Default,
+          }))
+        )
+      );
       yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}中`));
+
+      const len = images.length;
       while (true) {
         const source = images.shift();
+        const index = len - images.length;
 
         if (!nonNullable(source)) {
           break;
         }
 
+        yield put(
+          updatePrehandleLog({
+            id: source,
+            text: `${album} - ${index}`,
+            status: AsyncStatus.Pending,
+          })
+        );
         yield call(CacheManager.prefetchBlob, source, headers);
         if (save) {
           const cacheEntry = CacheManager.get(source, undefined);
           const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
           yield call(CameraRoll.save, `file://${path}`, { album });
         }
+        yield put(loadImage({ mangaHash, chapterHash, index, isPrefetch: true }));
         yield put(
-          loadImage({ mangaHash, chapterHash, index: images.length + 1, isPrefetch: true })
+          updatePrehandleLog({
+            id: source,
+            text: `${album} - ${index}`,
+            status: AsyncStatus.Fulfilled,
+          })
         );
       }
       yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}完成`));

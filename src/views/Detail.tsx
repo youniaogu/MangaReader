@@ -1,15 +1,17 @@
-import React, { Fragment, useState, useCallback, useMemo } from 'react';
+import React, { Fragment, useState, useCallback, useMemo, useRef } from 'react';
 import {
   Box,
   Flex,
   Text,
   Icon,
   HStack,
+  VStack,
   FlatList,
   Pressable,
   Toast,
   useTheme,
   useDisclose,
+  ScrollView,
 } from 'native-base';
 import {
   splitWidth,
@@ -32,6 +34,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
 import RedHeart from '~/components/RedHeart';
+import Drawer, { DrawerRef } from '~/components/Drawer';
 
 const {
   loadManga,
@@ -65,6 +68,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const favorites = useAppSelector((state) => state.favorites);
   const sequence = useAppSelector((state) => state.setting.sequence);
+  const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
   const chapters = useMemo(() => {
     if (!data) {
@@ -77,6 +81,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       return [...data.chapters].reverse();
     }
   }, [data, sequence]);
+  const drawerRef = useRef<DrawerRef>(null);
 
   useOnce(() => {
     if (!nonNullable(data) || (nonNullable(data) && data.chapters.length <= 0)) {
@@ -112,7 +117,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash }));
   };
   const handleDownload = () => {
-    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash, save: true }));
+    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash }));
   };
 
   if (!nonNullable(data)) {
@@ -257,6 +262,47 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         ListFooterComponent={<Box safeAreaBottom />}
         keyExtractor={(item) => item.hash}
       />
+
+      <Drawer ref={drawerRef}>
+        <ScrollView bg="gray.100" height="full">
+          <VStack safeAreaY>
+            {prehandleLog.map((item, index) => {
+              return (
+                <Box
+                  key={item.id}
+                  flexDirection="row"
+                  alignItems="center"
+                  borderColor="gray.200"
+                  borderBottomWidth={1}
+                  borderTopWidth={index === 0 ? 1 : 0}
+                  p={3}
+                >
+                  <Text
+                    flex={1}
+                    fontWeight="bold"
+                    fontSize="lg"
+                    color="purple.900"
+                    numberOfLines={1}
+                    mr={1}
+                  >
+                    {item.text}
+                  </Text>
+                  {item.status === AsyncStatus.Pending && (
+                    <Box>
+                      <SpinLoading size="sm" height={1} />
+                    </Box>
+                  )}
+                  {item.status === AsyncStatus.Rejected && (
+                    <Text fontWeight="bold" fontSize="md" color="red.700">
+                      Fail
+                    </Text>
+                  )}
+                </Box>
+              );
+            })}
+          </VStack>
+        </ScrollView>
+      </Drawer>
 
       <ActionsheetSelect
         isOpen={isOpen}

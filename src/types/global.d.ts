@@ -184,6 +184,11 @@ declare global {
     };
     chapter: {
       loadStatus: AsyncStatus;
+      prehandleLog: {
+        id: string;
+        text: string;
+        status: AsyncStatus;
+      }[];
     };
     dict: {
       manga: Record<string, Manga | undefined>;

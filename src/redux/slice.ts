@@ -63,6 +63,7 @@ export const initialState: RootState = {
   },
   chapter: {
     loadStatus: AsyncStatus.Default,
+    prehandleLog: [],
   },
   dict: {
     manga: {},
@@ -456,6 +457,29 @@ const chapterSlice = createSlice({
       _action: PayloadAction<{ mangaHash: string; chapterHash: string; save?: boolean }>
     ) {},
     prehandleChapterCompletion(_state, _action: FetchResponseAction) {},
+    addPrehandleLog(
+      state,
+      action: PayloadAction<{ id: string; text: string; status: AsyncStatus }[]>
+    ) {
+      state.prehandleLog = action.payload.concat(state.prehandleLog);
+    },
+    updatePrehandleLog(
+      state,
+      action: PayloadAction<{ id: string; text: string; status: AsyncStatus }>
+    ) {
+      state.prehandleLog = state.prehandleLog
+        .map((item) => {
+          if (item.id !== action.payload.id) {
+            return item;
+          }
+
+          return {
+            ...item,
+            ...action.payload,
+          };
+        })
+        .filter((item) => item.status !== AsyncStatus.Fulfilled);
+    },
   },
 });
 
