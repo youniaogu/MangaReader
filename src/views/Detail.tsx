@@ -21,7 +21,6 @@ import {
   MangaStatus,
   AsyncStatus,
   PrefetchDownload,
-  VisiteStatus,
 } from '~/utils';
 import { Dimensions, StyleSheet, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
@@ -157,6 +156,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.hash === data.lastWatchChapter;
+    const history = data.history[item.hash];
     return (
       <Pressable
         _pressed={{ opacity: 0.8 }}
@@ -180,13 +180,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           >
             {item.title}
           </Text>
-          {item.progress !== undefined && item.progress > 0 && (
+          {history && history.progress > 0 && (
             <Icon
               as={MaterialIcons}
               size="xs"
               style={{ transform: [{ rotateZ: '30deg' }] }}
-              name={item.status === VisiteStatus.Visited ? 'brightness-1' : 'brightness-2'}
-              color={`purple.${Math.floor(item.progress / 25) + 1}00`}
+              name={history.isVisited ? 'brightness-1' : 'brightness-2'}
+              color={`purple.${Math.floor(history.progress / 25) + 1}00`}
               position="absolute"
               top={`${gap / 4}px`}
               right={`${gap / 4}px`}

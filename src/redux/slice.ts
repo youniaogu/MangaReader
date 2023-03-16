@@ -1,11 +1,4 @@
-import {
-  AsyncStatus,
-  MangaStatus,
-  VisiteStatus,
-  ReaderMode,
-  ReaderDirection,
-  Sequence,
-} from '~/utils';
+import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection, Sequence } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 
@@ -77,6 +70,7 @@ const defaultIncreaseManga = {
   tag: [],
   status: MangaStatus.Unknown,
   chapters: [],
+  history: {},
 };
 
 const appSlice = createSlice({
@@ -506,7 +500,7 @@ const dictSlice = createSlice({
         manga.lastWatchPage = page;
       }
     },
-    loadImage(
+    viewImage(
       state,
       action: PayloadAction<{
         mangaHash: string;
@@ -520,22 +514,29 @@ const dictSlice = createSlice({
       const chapter = state.chapter[chapterHash];
 
       if (manga && chapter) {
-        const total = chapter.images.length;
-        manga.chapters = manga.chapters.map((chapterItem) => {
-          if (chapterItem.hash === chapterHash) {
-            chapterItem.status = !isPrefetch ? VisiteStatus.Visited : chapterItem.status;
-            chapterItem.imagesLoaded = Array.from(
-              new Set([...(chapterItem.imagesLoaded || []), index])
-            );
-            chapterItem.total = total;
-            chapterItem.progress = Math.max(
-              chapterItem.progress || 0,
-              Math.floor((chapterItem.imagesLoaded.length * 100) / total)
-            );
-          }
+        if (!manga.history[chapterHash]) {
+          manga.history[chapterHash] = {
+            total: 0,
+            progress: 0,
+            imagesLoaded: [],
+            isVisited: false,
+          };
+        }
 
-          return chapterItem;
-        });
+        const imagesLoaded = Array.from(
+          new Set([...manga.history[chapterHash].imagesLoaded, index])
+        );
+
+        manga.history[chapterHash] = {
+          ...manga.history[chapterHash],
+          total: chapter.images.length,
+          progress: Math.max(
+            manga.history[chapterHash].progress,
+            Math.floor((imagesLoaded.length * 100) / chapter.images.length)
+          ),
+          imagesLoaded,
+          isVisited: !isPrefetch ? true : manga.history[chapterHash].isVisited,
+        };
       }
     },
   },

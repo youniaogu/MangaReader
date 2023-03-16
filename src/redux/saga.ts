@@ -92,7 +92,7 @@ const {
   // dict
   viewChapter,
   viewPage,
-  loadImage,
+  viewImage,
   syncDict,
 } = action;
 
@@ -214,6 +214,7 @@ function* storageDataSaga() {
       disablePlugin.type,
       viewChapter.type,
       viewPage.type,
+      viewImage.type,
       addFavorites.type,
       removeFavorites.type,
       pushQueque.type,
@@ -641,7 +642,7 @@ function* prehandleChapterSaga() {
       const album = chapter.title;
       const images = chapter.images.map((item) => item.uri);
 
-      if (images.find((item) => item.includes('.webp'))) {
+      if (images.find((item) => item.includes('.webp')) && save) {
         yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
         return;
       }
@@ -679,7 +680,7 @@ function* prehandleChapterSaga() {
           const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
           yield call(CameraRoll.save, `file://${path}`, { album });
         }
-        yield put(loadImage({ mangaHash, chapterHash, index, isPrefetch: true }));
+        yield put(viewImage({ mangaHash, chapterHash, index, isPrefetch: true }));
         yield put(
           updatePrehandleLog({
             id: source,

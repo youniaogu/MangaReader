@@ -76,11 +76,20 @@ declare global {
     chapters: ChapterItem[];
     lastWatchChapter?: string;
     lastWatchPage?: number;
+    history: Record<
+      string,
+      {
+        total: number;
+        progress: number;
+        imagesLoaded: number[];
+        isVisited: boolean;
+      }
+    >;
   }
   declare interface IncreaseManga
     extends PartialOption<
       Manga,
-      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters'
+      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters' | 'history'
     > {}
   declare interface ChapterItem {
     hash: string;
@@ -88,10 +97,6 @@ declare global {
     chapterId: string;
     href: string;
     title: string;
-    total?: number;
-    progress?: number;
-    imagesLoaded?: number[];
-    status?: VisiteStatus;
   }
   declare interface Chapter {
     hash: string;

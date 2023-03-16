@@ -19,11 +19,6 @@ export enum MangaStatus {
   End,
 }
 
-export enum VisiteStatus {
-  Unvisited,
-  Visited,
-}
-
 /**
  * @description enum of nodejs env
  * @enum {number}
@@ -61,7 +56,7 @@ export enum ErrorMessage {
   DDoSRetry = '网站DDoS保护，请再试一次',
   CookieInvalid = 'Cookie失效，请重新获取',
   WithoutPermission = '授权失败',
-  IOSNotSupportWebp = 'IOS暂不支持WEBP格式下载',
+  IOSNotSupportWebp = '暂不支持.webp格式下载',
 }
 
 export enum Orientation {
