@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Dimensions } from 'react-native';
-import { View, Modal } from 'native-base';
+import { View } from 'native-base';
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -22,7 +22,6 @@ interface DrawerProps {
   contentWidth?: number;
   maskOpacity?: number;
   defaultDuration?: number;
-  onClose?: () => void;
   children?: ReactNode;
 }
 
@@ -32,7 +31,6 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
     leakWidth = 8,
     maskOpacity = 0.5,
     defaultDuration = 300,
-    onClose,
     children,
   },
   ref
@@ -91,7 +89,7 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
   }));
 
   const tapGesture = Gesture.Tap()
-    .numberOfTaps(1)
+    .shouldCancelWhenOutside(false)
     .onStart((e) => {
       if (e.absoluteX < windowWidth - contentWidth) {
         width.value = withDelay(defaultDuration, withTiming(0, { duration: 0 }));
@@ -157,22 +155,14 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
     });
 
   return (
-    <Modal
-      isOpen
-      onClose={onClose}
-      backdropVisible={false}
-      animationPreset="fade"
-      _fade={{ exitDuration: 0, entryDuration: 0 }}
-    >
-      <GestureDetector gesture={tapGesture}>
-        <GestureDetector gesture={panGesture}>
-          <View position="absolute" top={0} right={0}>
-            <Animated.View style={maskStyles} />
-            <Animated.View style={contentStyles}>{children}</Animated.View>
-          </View>
-        </GestureDetector>
+    <GestureDetector gesture={tapGesture}>
+      <GestureDetector gesture={panGesture}>
+        <View position="absolute" top={0} right={0}>
+          <Animated.View style={maskStyles} />
+          <Animated.View style={contentStyles}>{children}</Animated.View>
+        </View>
       </GestureDetector>
-    </Modal>
+    </GestureDetector>
   );
 };
 

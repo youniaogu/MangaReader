@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
+import React, { useCallback, useState, useMemo, useRef, memo, Fragment } from 'react';
 import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus, scaleToFit, mergeQuery } from '~/utils';
@@ -115,7 +115,7 @@ const DefaultImage = ({
   }
 
   return (
-    <>
+    <Fragment>
       <CachedImage
         source={source}
         options={{ headers }}
@@ -133,7 +133,7 @@ const DefaultImage = ({
           />
         </Center>
       )}
-    </>
+    </Fragment>
   );
 };
 

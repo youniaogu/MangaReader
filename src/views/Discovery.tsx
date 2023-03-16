@@ -150,7 +150,7 @@ export const PluginSelect = () => {
   };
 
   return (
-    <>
+    <Fragment>
       <Button
         p={0}
         mr={1}
@@ -175,7 +175,7 @@ export const PluginSelect = () => {
           </HStack>
         }
       />
-    </>
+    </Fragment>
   );
 };
 

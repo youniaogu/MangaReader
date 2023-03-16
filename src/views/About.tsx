@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, Fragment } from 'react';
 import {
   Icon,
   Text,
@@ -128,7 +128,7 @@ const About = ({ navigation }: StackAboutProps) => {
           </Center>
         )}
         {release.loadStatus === AsyncStatus.Fulfilled && release.latest !== undefined && (
-          <>
+          <Fragment>
             <Text fontSize="lg" fontWeight="bold">
               {release.latest.publishTime} {release.latest.version}
             </Text>
@@ -152,7 +152,7 @@ const About = ({ navigation }: StackAboutProps) => {
             >
               IPA下载
             </Button>
-          </>
+          </Fragment>
         )}
 
         <Button

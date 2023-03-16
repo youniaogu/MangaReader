@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback, useMemo, useRef } from 'react';
+import React, { Fragment, useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import {
   Box,
   Flex,
@@ -44,6 +44,8 @@ const {
   pushQueque,
   viewFavorites,
   prehandleChapter,
+  setPrehandleLogStatus,
+  setPrehandleLogVisible,
 } = action;
 const { gap, partWidth, numColumns } = splitWidth({
   gap: 12,
@@ -67,7 +69,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const favorites = useAppSelector((state) => state.favorites);
   const sequence = useAppSelector((state) => state.setting.sequence);
-  const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
   const chapters = useMemo(() => {
     if (!data) {
@@ -80,7 +81,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       return [...data.chapters].reverse();
     }
   }, [data, sequence]);
-  const drawerRef = useRef<DrawerRef>(null);
 
   useOnce(() => {
     if (!nonNullable(data) || (nonNullable(data) && data.chapters.length <= 0)) {
@@ -88,6 +88,14 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     }
   });
 
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(setPrehandleLogVisible(true));
+      return () => {
+        dispatch(setPrehandleLogVisible(false));
+      };
+    }, [dispatch])
+  );
   useFocusEffect(
     useCallback(() => {
       nonNullable(data) && navigation.setOptions({ title: data.title });
@@ -263,47 +271,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         keyExtractor={(item) => item.hash}
       />
 
-      <Drawer ref={drawerRef}>
-        <ScrollView bg="gray.100" height="full">
-          <VStack safeAreaY>
-            {prehandleLog.map((item, index) => {
-              return (
-                <Box
-                  key={item.id}
-                  flexDirection="row"
-                  alignItems="center"
-                  borderColor="gray.200"
-                  borderBottomWidth={1}
-                  borderTopWidth={index === 0 ? 1 : 0}
-                  p={3}
-                >
-                  <Text
-                    flex={1}
-                    fontWeight="bold"
-                    fontSize="lg"
-                    color="purple.900"
-                    numberOfLines={1}
-                    mr={1}
-                  >
-                    {item.text}
-                  </Text>
-                  {item.status === AsyncStatus.Pending && (
-                    <Box>
-                      <SpinLoading size="sm" height={1} />
-                    </Box>
-                  )}
-                  {item.status === AsyncStatus.Rejected && (
-                    <Text fontWeight="bold" fontSize="md" color="red.700">
-                      Fail
-                    </Text>
-                  )}
-                </Box>
-              );
-            })}
-          </VStack>
-        </ScrollView>
-      </Drawer>
-
       <ActionsheetSelect
         isOpen={isOpen}
         onClose={onClose}
@@ -373,6 +340,68 @@ export const HeartAndBrowser = () => {
       />
       <VectorIcon name="open-in-browser" onPress={handleToBrowser} />
     </HStack>
+  );
+};
+
+export const PrehandleDrawer = () => {
+  const dispatch = useAppDispatch();
+  const openDrawer = useAppSelector((state) => state.chapter.openDrawer);
+  const showDrawer = useAppSelector((state) => state.chapter.showDrawer);
+  const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
+  const drawerRef = useRef<DrawerRef>(null);
+
+  useEffect(() => {
+    if (openDrawer) {
+      drawerRef.current?.open();
+      dispatch(setPrehandleLogStatus(false));
+    }
+  }, [dispatch, openDrawer]);
+
+  if (!showDrawer) {
+    return null;
+  }
+
+  return (
+    <Drawer ref={drawerRef}>
+      <ScrollView bg="gray.100" height="full">
+        <VStack safeAreaY>
+          {prehandleLog.map((item, index) => {
+            return (
+              <Box
+                key={item.id}
+                flexDirection="row"
+                alignItems="center"
+                borderColor="gray.200"
+                borderBottomWidth={1}
+                borderTopWidth={index === 0 ? 1 : 0}
+                p={3}
+              >
+                <Text
+                  flex={1}
+                  fontWeight="bold"
+                  fontSize="lg"
+                  color="purple.900"
+                  numberOfLines={1}
+                  mr={1}
+                >
+                  {item.text}
+                </Text>
+                {item.status === AsyncStatus.Pending && (
+                  <Box>
+                    <SpinLoading size="sm" height={1} />
+                  </Box>
+                )}
+                {item.status === AsyncStatus.Rejected && (
+                  <Text fontWeight="bold" fontSize="md" color="red.700">
+                    Fail
+                  </Text>
+                )}
+              </Box>
+            );
+          })}
+        </VStack>
+      </ScrollView>
+    </Drawer>
   );
 };
 

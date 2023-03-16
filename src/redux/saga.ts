@@ -618,7 +618,7 @@ function* prehandleChapterSaga() {
     }: ReturnType<typeof prehandleChapter>) {
       const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' && save) {
         const readPermission =
           Platform.Version >= 33
             ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES

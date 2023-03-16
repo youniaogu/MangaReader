@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { navigationRef, customTheme, AsyncStatus } from '~/utils';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -31,6 +31,9 @@ const PluginSelect = loadable(() => import('~/views/Discovery'), {
 const Detail = loadable(() => import('~/views/Detail'));
 const HeartAndBrowser = loadable(() => import('~/views/Detail'), {
   resolveComponent: (components) => components.HeartAndBrowser,
+});
+const PrehandleDrawer = loadable(() => import('~/views/Detail'), {
+  resolveComponent: (components) => components.PrehandleDrawer,
 });
 const Chapter = loadable(() => import('~/views/Chapter'));
 const Plugin = loadable(() => import('~/views/Plugin'));
@@ -79,6 +82,14 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
   );
 };
 
+const ModalWrapper = () => {
+  return (
+    <Fragment>
+      <PrehandleDrawer />
+    </Fragment>
+  );
+};
+
 const App = () => {
   const [ready, setReady] = useState(false);
 
@@ -88,6 +99,7 @@ const App = () => {
         <NativeBaseProvider theme={customTheme}>
           <NavigationContainer ref={navigationRef} onReady={() => setReady(true)}>
             <NavigationScreen ready={ready} />
+            <ModalWrapper />
           </NavigationContainer>
         </NativeBaseProvider>
       </Provider>

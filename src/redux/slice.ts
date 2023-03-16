@@ -56,6 +56,8 @@ export const initialState: RootState = {
   },
   chapter: {
     loadStatus: AsyncStatus.Default,
+    openDrawer: false,
+    showDrawer: false,
     prehandleLog: [],
   },
   dict: {
@@ -451,6 +453,12 @@ const chapterSlice = createSlice({
       _action: PayloadAction<{ mangaHash: string; chapterHash: string; save?: boolean }>
     ) {},
     prehandleChapterCompletion(_state, _action: FetchResponseAction) {},
+    setPrehandleLogStatus(state, action: PayloadAction<boolean>) {
+      state.openDrawer = action.payload && state.showDrawer;
+    },
+    setPrehandleLogVisible(state, action: PayloadAction<boolean>) {
+      state.showDrawer = action.payload;
+    },
     addPrehandleLog(
       state,
       action: PayloadAction<{ id: string; text: string; status: AsyncStatus }[]>
