@@ -23,6 +23,7 @@ export const initialState: RootState = {
     mode: ReaderMode.Horizontal,
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
+    firstPrehandle: true,
   },
   plugin: {
     source: defaultPlugin,
@@ -188,9 +189,13 @@ const settingSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(datasyncAction.clearCache, () => {
-      return initialState.setting;
-    });
+    builder
+      .addCase(datasyncAction.clearCache, () => {
+        return initialState.setting;
+      })
+      .addCase(chapterAction.addPrehandleLog, (state) => {
+        state.firstPrehandle = false;
+      });
   },
 });
 

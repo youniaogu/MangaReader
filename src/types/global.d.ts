@@ -147,6 +147,7 @@ declare global {
       mode: ReaderMode;
       direction: ReaderDirection;
       sequence: Sequence;
+      firstPrehandle: boolean;
     };
     plugin: {
       source: Plugin;

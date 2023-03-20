@@ -89,6 +89,7 @@ const {
   prehandleChapterCompletion,
   addPrehandleLog,
   updatePrehandleLog,
+  setPrehandleLogStatus,
   // dict
   viewChapter,
   viewPage,
@@ -641,6 +642,7 @@ function* prehandleChapterSaga() {
       const headers = chapter.headers;
       const album = chapter.title;
       const images = chapter.images.map((item) => item.uri);
+      const firstPrehandle = ((state: RootState) => state.setting.firstPrehandle)(yield select());
 
       if (images.find((item) => item.includes('.webp')) && save) {
         yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
@@ -657,6 +659,9 @@ function* prehandleChapterSaga() {
         )
       );
       yield put(toastMessage(`【${album}】${save ? '下载' : '预加载'}中`));
+      if (firstPrehandle) {
+        yield put(setPrehandleLogStatus(true));
+      }
 
       const len = images.length;
       while (true) {
