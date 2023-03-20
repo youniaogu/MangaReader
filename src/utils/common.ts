@@ -87,6 +87,14 @@ export function fixDictShape(dict: RootState['dict']): RootState['dict'] {
   return dict;
 }
 
+export function fixSettingShape(setting: RootState['setting']): RootState['setting'] {
+  if (!nonNullable(setting.firstPrehandle)) {
+    setting.firstPrehandle = true;
+  }
+
+  return setting;
+}
+
 export function getLatestRelease(
   data: any[]
 ): { error: Error; release?: undefined } | { error?: undefined; release?: LatestRelease } {

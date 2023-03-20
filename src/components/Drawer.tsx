@@ -28,7 +28,7 @@ interface DrawerProps {
 const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
   {
     contentWidth = Math.min(windowWidth * 0.55, 300),
-    leakWidth = 8,
+    leakWidth = 12,
     maskOpacity = 0.5,
     defaultDuration = 300,
     children,

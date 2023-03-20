@@ -16,6 +16,7 @@ import {
   fetchData,
   haveError,
   fixDictShape,
+  fixSettingShape,
   getLatestRelease,
   matchRestoreShape,
   nonNullable,
@@ -160,7 +161,7 @@ function* syncDataSaga() {
       }
       if (settingData) {
         const setting: RootState['setting'] = JSON.parse(settingData);
-        yield put(syncSetting(setting));
+        yield put(syncSetting(fixSettingShape(setting)));
       }
 
       yield put(syncDataCompletion({ error: undefined }));
@@ -653,7 +654,7 @@ function* prehandleChapterSaga() {
         addPrehandleLog(
           chapter.images.map((item, index) => ({
             id: item.uri,
-            text: `${album} - ${index + 1}`,
+            text: `${index + 1} - ${album}`,
             status: AsyncStatus.Default,
           }))
         )
@@ -675,7 +676,7 @@ function* prehandleChapterSaga() {
         yield put(
           updatePrehandleLog({
             id: source,
-            text: `${album} - ${index}`,
+            text: `${index} - ${album}`,
             status: AsyncStatus.Pending,
           })
         );
@@ -689,7 +690,7 @@ function* prehandleChapterSaga() {
         yield put(
           updatePrehandleLog({
             id: source,
-            text: `${album} - ${index}`,
+            text: `${index} - ${album}`,
             status: AsyncStatus.Fulfilled,
           })
         );
