@@ -363,7 +363,7 @@ function* loadDiscoverySaga() {
           dict[item.name] = dict[item.name] || item.defaultValue;
           return dict;
         },
-        filter
+        { ...filter }
       );
 
       const { error: fetchError, data } = yield call(
@@ -398,7 +398,7 @@ function* loadSearchSaga() {
           dict[item.name] = dict[item.name] || item.defaultValue;
           return dict;
         },
-        filter
+        { ...filter }
       );
 
       const { error: fetchError, data } = yield call(
