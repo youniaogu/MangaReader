@@ -645,7 +645,7 @@ function* prehandleChapterSaga() {
       const images = chapter.images.map((item) => item.uri);
       const firstPrehandle = ((state: RootState) => state.setting.firstPrehandle)(yield select());
 
-      if (images.find((item) => item.includes('.webp')) && save) {
+      if (save && images.find((item) => item.includes('.webp'))) {
         yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
         return;
       }
@@ -680,8 +680,8 @@ function* prehandleChapterSaga() {
             status: AsyncStatus.Pending,
           })
         );
-        yield call(CacheManager.prefetchBlob, source, headers);
-        if (save) {
+        yield call(CacheManager.prefetchBlob, source, { headers });
+        if (!save) {
           const cacheEntry = CacheManager.get(source, undefined);
           const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
           yield call(CameraRoll.save, `file://${path}`, { album });
