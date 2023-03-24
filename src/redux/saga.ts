@@ -681,7 +681,7 @@ function* prehandleChapterSaga() {
           })
         );
         yield call(CacheManager.prefetchBlob, source, { headers });
-        if (!save) {
+        if (save) {
           const cacheEntry = CacheManager.get(source, undefined);
           const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
           yield call(CameraRoll.save, `file://${path}`, { album });
