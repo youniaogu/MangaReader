@@ -21,6 +21,7 @@ interface BookshelfProps {
   activeList?: string[];
   negativeList?: string[];
   loadMore?: () => void;
+  reload?: () => void;
   itemOnPress: (hash: string) => void;
   loading?: boolean;
   emptyText?: string;
@@ -32,6 +33,7 @@ const Bookshelf = ({
   activeList,
   negativeList,
   loadMore,
+  reload,
   itemOnPress,
   loading = false,
   emptyText,
@@ -49,7 +51,7 @@ const Bookshelf = ({
     return <Loading />;
   }
   if (!loading && list.length === 0) {
-    return <Empty text={emptyText} />;
+    return <Empty text={emptyText} onPress={reload} />;
   }
 
   return (

@@ -29,6 +29,9 @@ const Search = ({ route, navigation }: StackSearchProps) => {
     dispatch(loadSearch({ keyword, source, isReset: true }));
   }, [dispatch, keyword, source]);
 
+  const handleReload = useCallback(() => {
+    dispatch(loadSearch({ keyword, source, isReset: true }));
+  }, [dispatch, keyword, source]);
   const handleLoadMore = useCallback(() => {
     dispatch(loadSearch({ keyword, source }));
   }, [dispatch, keyword, source]);
@@ -44,6 +47,7 @@ const Search = ({ route, navigation }: StackSearchProps) => {
       <SearchOption />
       <Bookshelf
         list={searchList}
+        reload={handleReload}
         loadMore={handleLoadMore}
         itemOnPress={handleDetail}
         loading={loadStatus === AsyncStatus.Pending}

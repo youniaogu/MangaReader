@@ -28,6 +28,9 @@ const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
     }, [dispatch, loadStatus, source])
   );
 
+  const handleReload = useCallback(() => {
+    dispatch(loadDiscovery({ source, isReset: true }));
+  }, [dispatch, source]);
   const handleLoadMore = useCallback(() => {
     dispatch(loadDiscovery({ source }));
   }, [dispatch, source]);
@@ -43,6 +46,7 @@ const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
       <SearchOption />
       <Bookshelf
         list={updateList}
+        reload={handleReload}
         loadMore={handleLoadMore}
         itemOnPress={handleDetail}
         loading={loadStatus === AsyncStatus.Pending}
