@@ -103,7 +103,7 @@ function* initSaga() {
 }
 
 function* launchSaga() {
-  yield takeLatest(launch.type, function* () {
+  yield takeLatestSuspense(launch.type, function* () {
     yield put(syncData());
     yield take(syncDataCompletion.type);
     yield put(loadLatestRelease());
@@ -113,7 +113,7 @@ function* launchSaga() {
 }
 
 function* syncDataSaga() {
-  yield takeLatest(syncData.type, function* () {
+  yield takeLatestSuspense(syncData.type, function* () {
     try {
       const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
       const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
@@ -171,7 +171,7 @@ function* syncDataSaga() {
   });
 }
 function* restoreSaga() {
-  yield takeLatest(restore.type, function* ({ payload }: ReturnType<typeof restore>) {
+  yield takeLatestSuspense(restore.type, function* ({ payload }: ReturnType<typeof restore>) {
     try {
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const data = JSON.parse(LZString.decompressFromBase64(payload) || 'null');
@@ -207,7 +207,7 @@ function* restoreSaga() {
   });
 }
 function* storageDataSaga() {
-  yield takeLatest(
+  yield takeLatestSuspense(
     [
       setMode.type,
       setDirection.type,
@@ -248,7 +248,7 @@ function* storageDataSaga() {
   );
 }
 function* clearCacheSaga() {
-  yield takeLatest([clearCache.type], function* () {
+  yield takeLatestSuspense([clearCache.type], function* () {
     yield call(AsyncStorage.clear);
     yield put(syncData());
     yield take(syncDataCompletion.type);
@@ -257,7 +257,7 @@ function* clearCacheSaga() {
 }
 
 function* loadLatestReleaseSaga() {
-  yield takeLatest([loadLatestRelease.type], function* () {
+  yield takeLatestSuspense([loadLatestRelease.type], function* () {
     const { error: fetchError, data } = yield call(fetchData, {
       url: 'https://api.github.com/repos/youniaogu/MangaReader/releases',
     });
@@ -343,7 +343,7 @@ function* batchUpdateSaga() {
 }
 
 function* loadDiscoverySaga() {
-  yield takeLatest(
+  yield takeLatestSuspense(
     loadDiscovery.type,
     function* ({ payload: { source } }: ReturnType<typeof loadDiscovery>) {
       const plugin = PluginMap.get(source);
@@ -378,7 +378,7 @@ function* loadDiscoverySaga() {
 }
 
 function* loadSearchSaga() {
-  yield takeLatest(
+  yield takeLatestSuspense(
     loadSearch.type,
     function* ({ payload: { keyword, source } }: ReturnType<typeof loadSearch>) {
       const plugin = PluginMap.get(source);
@@ -413,9 +413,10 @@ function* loadSearchSaga() {
 }
 
 function* loadMangaSaga() {
-  yield takeEvery(
+  yield takeLatestSuspense(
     loadManga.type,
     function* ({ payload: { mangaHash, taskId } }: ReturnType<typeof loadManga>) {
+      console.log({ mangaHash, taskId });
       function* loadMangaEffect() {
         yield put(loadMangaInfo({ mangaHash }));
         const {
@@ -472,7 +473,7 @@ function* loadMangaSaga() {
 }
 
 function* loadMangaInfoSaga() {
-  yield takeEvery(
+  yield takeLatestSuspense(
     loadMangaInfo.type,
     function* ({ payload: { mangaHash } }: ReturnType<typeof loadMangaInfo>) {
       const [source, mangaId] = splitHash(mangaHash);
@@ -495,7 +496,7 @@ function* loadMangaInfoSaga() {
 }
 
 function* loadChapterListSaga() {
-  yield takeEvery(
+  yield takeLatestSuspense(
     loadChapterList.type,
     function* ({ payload: { mangaHash, page } }: ReturnType<typeof loadChapterList>) {
       const [source, mangaId] = splitHash(mangaHash);
@@ -559,7 +560,7 @@ function* loadChapterListSaga() {
 }
 
 function* loadChapterSaga() {
-  yield takeEvery(
+  yield takeLatestSuspense(
     loadChapter.type,
     function* ({ payload: { chapterHash } }: ReturnType<typeof loadChapter>) {
       const [source, mangaId, chapterId] = splitHash(chapterHash);
@@ -613,7 +614,7 @@ function* preloadChapter(chapterHash: string) {
   return currData;
 }
 function* prehandleChapterSaga() {
-  yield takeEvery(
+  yield takeEverySuspense(
     prehandleChapter.type,
     function* ({
       payload: { mangaHash, chapterHash, save = false },
@@ -701,7 +702,7 @@ function* prehandleChapterSaga() {
 }
 
 function* catchErrorSaga() {
-  yield takeEvery('*', function* ({ type, payload }: PayloadAction<any>) {
+  yield takeEverySuspense('*', function* ({ type, payload }: PayloadAction<any>) {
     if (
       !haveError(payload) ||
       loadMangaInfoCompletion.type === type ||
@@ -720,7 +721,30 @@ function* catchErrorSaga() {
   });
 }
 
+function* takeEverySuspense(pattern: string | string[], worker: (...args: any[]) => any) {
+  yield takeEvery(pattern, tryCatchWorker(worker));
+}
+function* takeLatestSuspense(pattern: string | string[], worker: (...args: any[]) => any) {
+  yield takeLatest(pattern, tryCatchWorker(worker));
+}
+function tryCatchWorker(fn: (...args: any[]) => any): (...args: any[]) => any {
+  // https://www.typescriptlang.org/docs/handbook/2/functions.html#declaring-this-in-a-function
+  return function* (this: any) {
+    try {
+      yield fn.apply(this, Array.from(arguments));
+    } catch (error) {
+      if (error instanceof Error) {
+        yield put(catchError(error.message));
+      }
+      yield put(catchError(ErrorMessage.Unknown));
+    }
+  };
+}
+
 export default function* rootSaga() {
+  // all effect look like promise.all
+  // if fork effect throw any error, all effect with shut down
+  // so catch any error to keep saga running
   yield all([
     fork(initSaga),
 
