@@ -1,5 +1,6 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { useCallback, ReactNode } from 'react';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface WhiteCurtainProps {
   actived?: boolean;
@@ -17,13 +18,22 @@ const WhiteCurtain = ({ actived = false, children }: WhiteCurtainProps) => {
     opacity: opacity.value,
   }));
 
-  useEffect(() => {
-    if (actived) {
-      opacity.value = withTiming(1);
-    } else {
-      opacity.value = withTiming(0);
-    }
-  }, [actived, opacity]);
+  useFocusEffect(
+    useCallback(() => {
+      if (actived) {
+        opacity.value = withTiming(1);
+      } else {
+        opacity.value = withTiming(0);
+      }
+      return () => {
+        if (actived) {
+          opacity.value = 1;
+        } else {
+          opacity.value = 0;
+        }
+      };
+    }, [actived, opacity])
+  );
 
   return <Animated.View style={animatedStyle}>{children}</Animated.View>;
 };

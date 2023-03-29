@@ -54,6 +54,7 @@ export const initialState: RootState = {
   favorites: [],
   manga: {
     loadStatus: AsyncStatus.Default,
+    loadingMangaHash: '',
   },
   chapter: {
     loadStatus: AsyncStatus.Default,
@@ -415,16 +416,18 @@ const mangaSlice = createSlice({
   name: 'manga',
   initialState: initialState.manga,
   reducers: {
-    loadManga(state, _action: PayloadAction<{ mangaHash: string; taskId?: string }>) {
+    loadManga(state, action: PayloadAction<{ mangaHash: string; taskId?: string }>) {
       state.loadStatus = AsyncStatus.Pending;
+      state.loadingMangaHash = action.payload.mangaHash;
     },
     loadMangaCompletion(state, action: FetchResponseAction<IncreaseManga>) {
       const { error } = action.payload;
+
+      state.loadingMangaHash = '';
       if (error) {
         state.loadStatus = AsyncStatus.Rejected;
         return;
       }
-
       state.loadStatus = AsyncStatus.Fulfilled;
     },
     loadMangaInfo(_state, _action: PayloadAction<{ mangaHash: string }>) {},

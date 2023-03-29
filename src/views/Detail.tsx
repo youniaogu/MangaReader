@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { Fragment, useState, useCallback, useMemo, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -66,6 +66,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaHash = route.params.mangaHash;
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
+  const loadingMangaHash = useAppSelector((state) => state.manga.loadingMangaHash);
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const favorites = useAppSelector((state) => state.favorites);
   const sequence = useAppSelector((state) => state.setting.sequence);
@@ -261,7 +262,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         data={chapters}
         refreshControl={
           <RefreshControl
-            refreshing={loadStatus === AsyncStatus.Pending}
+            refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}
             onRefresh={handleReload}
             tintColor={colors.purple[500]}
           />
@@ -350,12 +351,14 @@ export const PrehandleDrawer = () => {
   const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const drawerRef = useRef<DrawerRef>(null);
 
-  useEffect(() => {
-    if (openDrawer) {
-      drawerRef.current?.open();
-      dispatch(setPrehandleLogStatus(false));
-    }
-  }, [dispatch, openDrawer]);
+  useFocusEffect(
+    useCallback(() => {
+      if (openDrawer) {
+        drawerRef.current?.open();
+        dispatch(setPrehandleLogStatus(false));
+      }
+    }, [dispatch, openDrawer])
+  );
 
   if (!showDrawer) {
     return null;

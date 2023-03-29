@@ -51,6 +51,10 @@ const Shake = ({ enable = false, children }: ShakeProps) => {
       } else {
         offset.value = 0;
       }
+
+      return () => {
+        offset.value = 0;
+      };
     }, [enable, offset])
   );
 

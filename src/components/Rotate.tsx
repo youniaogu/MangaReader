@@ -32,6 +32,10 @@ const Rotate = ({ enable = false, children }: RotateProps) => {
       } else {
         offset.value = 0;
       }
+
+      return () => {
+        offset.value = 0;
+      };
     }, [enable, offset])
   );
 

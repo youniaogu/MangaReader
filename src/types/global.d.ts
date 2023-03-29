@@ -187,6 +187,7 @@ declare global {
     };
     manga: {
       loadStatus: AsyncStatus;
+      loadingMangaHash: string;
     };
     chapter: {
       loadStatus: AsyncStatus;
