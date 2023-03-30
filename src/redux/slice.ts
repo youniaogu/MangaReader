@@ -58,6 +58,7 @@ export const initialState: RootState = {
   },
   chapter: {
     loadStatus: AsyncStatus.Default,
+    loadingChapterHash: '',
     openDrawer: false,
     showDrawer: false,
     prehandleLog: [],
@@ -444,16 +445,17 @@ const chapterSlice = createSlice({
   name: 'chapter',
   initialState: initialState.chapter,
   reducers: {
-    loadChapter(state, _action: PayloadAction<{ chapterHash: string }>) {
+    loadChapter(state, action: PayloadAction<{ chapterHash: string }>) {
       state.loadStatus = AsyncStatus.Pending;
+      state.loadingChapterHash = action.payload.chapterHash;
     },
     loadChapterCompletion(state, action: FetchResponseAction<Chapter>) {
       const { error } = action.payload;
+      state.loadingChapterHash = '';
       if (error) {
         state.loadStatus = AsyncStatus.Rejected;
         return;
       }
-
       state.loadStatus = AsyncStatus.Fulfilled;
     },
     prehandleChapter(

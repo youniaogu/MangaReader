@@ -416,7 +416,6 @@ function* loadMangaSaga() {
   yield takeLatestSuspense(
     loadManga.type,
     function* ({ payload: { mangaHash, taskId } }: ReturnType<typeof loadManga>) {
-      console.log({ mangaHash, taskId });
       function* loadMangaEffect() {
         yield put(loadMangaInfo({ mangaHash }));
         const {
@@ -593,7 +592,6 @@ function* hasAndroidPermission(permission: Permission) {
     PermissionsAndroid.request,
     permission
   );
-  console.log({ status, permission });
   return status === 'granted';
 }
 function* preloadChapter(chapterHash: string) {

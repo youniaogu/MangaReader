@@ -191,6 +191,7 @@ declare global {
     };
     chapter: {
       loadStatus: AsyncStatus;
+      loadingChapterHash: string;
       openDrawer: boolean;
       showDrawer: boolean;
       prehandleLog: {
