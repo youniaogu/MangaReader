@@ -377,11 +377,7 @@ class DongManZhiJia extends Base {
           title: chapter_name,
           headers: {
             ...this.defaultHeaders,
-            host: 'images.dmzj.com',
             referer: 'https://m.dmzj.com/',
-            accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
           },
           images: page_url.map((item: string) => ({ uri: encodeURI(item) })),
         },

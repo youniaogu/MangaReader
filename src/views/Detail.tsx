@@ -195,7 +195,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
               size="xs"
               style={{ transform: [{ rotateZ: '30deg' }] }}
               name={history.isVisited ? 'brightness-1' : 'brightness-2'}
-              color={`purple.${Math.floor(history.progress / 25) + 1}00`}
+              color={`purple.${Math.min(Math.floor(history.progress / 25) + 1, 5)}00`}
               position="absolute"
               top={`${gap / 4}px`}
               right={`${gap / 4}px`}
