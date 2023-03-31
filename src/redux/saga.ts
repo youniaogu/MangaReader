@@ -268,8 +268,8 @@ function* loadLatestReleaseSaga() {
 }
 
 function* batchUpdateSaga() {
-  yield takeLeading(
-    [batchUpdate.type],
+  yield takeLeadingSuspense(
+    batchUpdate.type,
     function* ({ payload: defaultList }: ReturnType<typeof batchUpdate>) {
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const fail = ((state: RootState) => state.batch.fail)(yield select());
@@ -413,7 +413,7 @@ function* loadSearchSaga() {
 }
 
 function* loadMangaSaga() {
-  yield takeLatestSuspense(
+  yield takeEverySuspense(
     loadManga.type,
     function* ({ payload: { mangaHash, taskId } }: ReturnType<typeof loadManga>) {
       function* loadMangaEffect() {
@@ -472,7 +472,7 @@ function* loadMangaSaga() {
 }
 
 function* loadMangaInfoSaga() {
-  yield takeLatestSuspense(
+  yield takeEverySuspense(
     loadMangaInfo.type,
     function* ({ payload: { mangaHash } }: ReturnType<typeof loadMangaInfo>) {
       const [source, mangaId] = splitHash(mangaHash);
@@ -495,7 +495,7 @@ function* loadMangaInfoSaga() {
 }
 
 function* loadChapterListSaga() {
-  yield takeLatestSuspense(
+  yield takeEverySuspense(
     loadChapterList.type,
     function* ({ payload: { mangaHash, page } }: ReturnType<typeof loadChapterList>) {
       const [source, mangaId] = splitHash(mangaHash);
@@ -559,7 +559,7 @@ function* loadChapterListSaga() {
 }
 
 function* loadChapterSaga() {
-  yield takeLatestSuspense(
+  yield takeEverySuspense(
     loadChapter.type,
     function* ({ payload: { chapterHash } }: ReturnType<typeof loadChapter>) {
       const [source, mangaId, chapterId] = splitHash(chapterHash);
@@ -724,6 +724,9 @@ function* takeEverySuspense(pattern: string | string[], worker: (...args: any[])
 }
 function* takeLatestSuspense(pattern: string | string[], worker: (...args: any[]) => any) {
   yield takeLatest(pattern, tryCatchWorker(worker));
+}
+function* takeLeadingSuspense(pattern: string | string[], worker: (...args: any[]) => any) {
+  yield takeLeading(pattern, tryCatchWorker(worker));
 }
 function tryCatchWorker(fn: (...args: any[]) => any): (...args: any[]) => any {
   // https://www.typescriptlang.org/docs/handbook/2/functions.html#declaring-this-in-a-function
