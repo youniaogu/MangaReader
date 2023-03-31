@@ -138,20 +138,21 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     [inverted, handlePrevChapter, handleNextChapter]
   );
   const handleImageLoad = useCallback(
-    (_uri: string, index: number) => dispatch(viewImage({ mangaHash, chapterHash, index })),
-    [dispatch, mangaHash, chapterHash]
+    (_uri: string, hash: string, index: number) =>
+      dispatch(viewImage({ mangaHash, chapterHash: hash, index })),
+    [dispatch, mangaHash]
   );
   const handlePageChange = useCallback(
     (newPage: number) => {
       const image = data[newPage - 1];
-      if (newPage >= data.length && !toast.isActive(lastPageToastId)) {
+      if (newPage >= data.length && !next && !toast.isActive(lastPageToastId)) {
         toast.show({ id: lastPageToastId, title: '最后一页' });
       }
       setPage(newPage - 1);
       setChapterHash(image.chapterHash);
       pageSliderRef.current?.changePage(image.current);
     },
-    [data, toast]
+    [data, next, toast]
   );
   const handleLoadMore = useCallback(() => {
     if (next && !hashList.includes(next.hash)) {

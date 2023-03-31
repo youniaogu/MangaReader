@@ -19,11 +19,16 @@ export interface ReaderProps {
   initPage?: number;
   inverted?: boolean;
   horizontal?: boolean;
-  data?: Chapter['images'];
+  data?: {
+    uri: string;
+    needUnscramble?: boolean | undefined;
+    chapterHash: string;
+    current: number;
+  }[];
   headers?: Chapter['headers'];
   onTap?: (position: 'left' | 'mid' | 'right') => void;
   onLongPress?: (position: 'left' | 'right') => void;
-  onImageLoad?: (uri: string, index: number) => void;
+  onImageLoad?: (uri: string, hash: string, index: number) => void;
   onPageChange?: (page: number) => void;
   onLoadMore?: () => void;
 }
@@ -89,7 +94,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           headers={headers}
           prevState={cacheState}
           onSuccess={({ height, hash, dataUrl }) => {
-            onImageLoad && onImageLoad(uri, index);
+            onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
             itemStateRef.current[index] = {
               defaulthHash: hash,
               defaultHeight: height,
@@ -103,7 +108,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     [headers, onImageLoad]
   );
   const renderHorizontalItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
+    ({ item }: ListRenderItemInfo<(typeof data)[0]>) => {
       const { uri, needUnscramble } = item;
 
       return (
@@ -114,7 +119,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
             uri={uri}
             headers={headers}
             onSuccess={() => {
-              onImageLoad && onImageLoad(uri, index);
+              onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
             }}
           />
         </Controller>
@@ -136,7 +141,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         initialScrollIndex={initialScrollIndex}
         windowSize={5}
         initialNumToRender={1}
-        maxToRenderPerBatch={5}
+        maxToRenderPerBatch={1}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         getItemLayout={(_data, index) => {
@@ -166,7 +171,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         inverted={inverted}
         windowSize={5}
         initialNumToRender={1}
-        maxToRenderPerBatch={5}
+        maxToRenderPerBatch={1}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}

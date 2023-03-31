@@ -174,7 +174,7 @@ class DongManZhiJia extends Base {
           source: this.id,
           sourceName: this.name,
           mangaId: String(item.id),
-          cover: `https://images.dmzj.com/${item.cover}`,
+          cover: `https://images.idmzj.com/${item.cover}`,
           title: item.name,
           latest: item.last_update_chapter_name,
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
@@ -223,7 +223,7 @@ class DongManZhiJia extends Base {
               : item.status === '已完结'
               ? MangaStatus.End
               : MangaStatus.Unknown,
-          cover: `https://images.dmzj.com/${item.cover}`,
+          cover: `https://images.idmzj.com/${item.cover}`,
           latest: item.last_update_chapter_name,
           updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
           author: item.authors.split('/'),

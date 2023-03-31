@@ -736,6 +736,7 @@ function tryCatchWorker(fn: (...args: any[]) => any): (...args: any[]) => any {
     } catch (error) {
       if (error instanceof Error) {
         yield put(catchError(error.message));
+        return;
       }
       yield put(catchError(ErrorMessage.Unknown));
     }
