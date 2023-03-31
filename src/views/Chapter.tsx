@@ -22,8 +22,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [chapterHash, setChapterHash] = useState(initChapterHash);
   const [hashList, setHashList] = useState([initChapterHash]);
 
+  const { loadStatus } = useAppSelector((state) => state.chapter);
   const { mode, direction } = useAppSelector((state) => state.setting);
-  const { loadStatus, loadingChapterHash } = useAppSelector((state) => state.chapter);
   const { manga: mangaDict, chapter: chapterDict } = useAppSelector((state) => state.dict);
 
   const inverted = useMemo(
@@ -168,17 +168,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const handleHorizontal = () => dispatch(setMode(ReaderMode.Horizontal));
   const handleSliderChangeEnd = (newStep: number) => {
     const newPage = pre + Math.floor(newStep - 1);
-    if (newStep >= max - 5) {
+    if (newStep > max - 5) {
       handleLoadMore();
     }
     setPage(newPage);
     readerRef.current?.scrollToIndex(newPage, false);
   };
 
-  if (
-    data.length <= 0 ||
-    (loadStatus === AsyncStatus.Pending && loadingChapterHash === chapterHash)
-  ) {
+  if (data.length <= 0) {
     return (
       <Center w="full" h="full" bg="black">
         <SpinLoading color="white" />

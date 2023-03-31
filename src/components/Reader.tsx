@@ -30,6 +30,7 @@ export interface ReaderProps {
 
 export interface ReaderRef {
   scrollToIndex: (index: number, animated?: boolean) => void;
+  scrollToOffset: (offset: number, animated?: boolean) => void;
 }
 
 const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
@@ -63,6 +64,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   useImperativeHandle(ref, () => ({
     scrollToIndex: (index: number, animated = true) => {
       flatListRef.current?.scrollToIndex({ index, animated });
+    },
+    scrollToOffset: (offset: number, animated = true) => {
+      flatListRef.current?.scrollToOffset({ offset, animated });
     },
   }));
 
