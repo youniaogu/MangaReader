@@ -57,8 +57,8 @@ const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
 
 export const SearchOption = () => {
   const dispatch = useAppDispatch();
-  const { source } = useAppSelector((state) => state.plugin);
-  const { filter } = useAppSelector((state) => state.discovery);
+  const source = useAppSelector((state) => state.plugin.source);
+  const filter = useAppSelector((state) => state.discovery.filter);
   const { isOpen, onOpen, onClose } = useDisclose();
   const [key, setKey] = useState<string>('');
   const [options, setOptions] = useState<OptionItem[]>([]);

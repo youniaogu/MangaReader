@@ -1,4 +1,4 @@
-import { AsyncStatus, MangaStatus, ReaderMode, ReaderDirection, Sequence } from '~/utils';
+import { AsyncStatus, MangaStatus, LayoutMode, ReaderDirection, Sequence } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 
@@ -20,7 +20,7 @@ export const initialState: RootState = {
     publishTime: process.env.PUBLISH_TIME,
   },
   setting: {
-    mode: ReaderMode.Horizontal,
+    mode: LayoutMode.Horizontal,
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
     firstPrehandle: true,
@@ -66,6 +66,8 @@ export const initialState: RootState = {
   dict: {
     manga: {},
     chapter: {},
+    record: {},
+    lastWatch: {},
   },
 };
 const defaultIncreaseManga = {
@@ -75,7 +77,6 @@ const defaultIncreaseManga = {
   tag: [],
   status: MangaStatus.Unknown,
   chapters: [],
-  history: {},
 };
 
 const appSlice = createSlice({
@@ -177,7 +178,7 @@ const settingSlice = createSlice({
   name: 'setting',
   initialState: initialState.setting,
   reducers: {
-    setMode(state, action: PayloadAction<ReaderMode>) {
+    setMode(state, action: PayloadAction<LayoutMode>) {
       state.mode = action.payload;
     },
     setDirection(state, action: PayloadAction<ReaderDirection>) {
@@ -458,10 +459,7 @@ const chapterSlice = createSlice({
       }
       state.loadStatus = AsyncStatus.Fulfilled;
     },
-    prehandleChapter(
-      _state,
-      _action: PayloadAction<{ mangaHash: string; chapterHash: string; save?: boolean }>
-    ) {},
+    prehandleChapter(_state, _action: PayloadAction<{ chapterHash: string; save?: boolean }>) {},
     prehandleChapterCompletion(_state, _action: FetchResponseAction) {},
     setPrehandleLogStatus(state, action: PayloadAction<boolean>) {
       state.openDrawer = action.payload && state.showDrawer;
@@ -504,36 +502,28 @@ const dictSlice = createSlice({
     },
     viewChapter(state, action: PayloadAction<{ mangaHash: string; chapterHash: string }>) {
       const { mangaHash, chapterHash } = action.payload;
-      const manga = state.manga[mangaHash];
-
-      if (manga) {
-        manga.lastWatchChapter = chapterHash;
+      if (!state.lastWatch[mangaHash]) {
+        state.lastWatch[mangaHash] = {};
       }
+      state.lastWatch[mangaHash].chapter = chapterHash;
     },
     viewPage(state, action: PayloadAction<{ mangaHash: string; page: number }>) {
       const { mangaHash, page } = action.payload;
-      const manga = state.manga[mangaHash];
-
-      if (manga) {
-        manga.lastWatchPage = page;
+      if (!state.lastWatch[mangaHash]) {
+        state.lastWatch[mangaHash] = {};
       }
+      state.lastWatch[mangaHash].page = page;
     },
     viewImage(
       state,
-      action: PayloadAction<{
-        mangaHash: string;
-        chapterHash: string;
-        index: number;
-        isPrefetch?: boolean;
-      }>
+      action: PayloadAction<{ chapterHash: string; index: number; isPrefetch?: boolean }>
     ) {
-      const { mangaHash, chapterHash, index, isPrefetch = false } = action.payload;
-      const manga = state.manga[mangaHash];
+      const { chapterHash, index, isPrefetch = false } = action.payload;
       const chapter = state.chapter[chapterHash];
 
-      if (manga && chapter) {
-        if (!manga.history[chapterHash]) {
-          manga.history[chapterHash] = {
+      if (chapter) {
+        if (!state.record[chapterHash]) {
+          state.record[chapterHash] = {
             total: 0,
             progress: 0,
             imagesLoaded: [],
@@ -541,19 +531,17 @@ const dictSlice = createSlice({
           };
         }
 
-        const imagesLoaded = Array.from(
-          new Set([...manga.history[chapterHash].imagesLoaded, index])
-        );
+        const prev = state.record[chapterHash];
+        const imagesLoaded = Array.from(new Set([...prev.imagesLoaded, index]));
 
-        manga.history[chapterHash] = {
-          ...manga.history[chapterHash],
+        state.record[chapterHash] = {
           total: chapter.images.length,
           progress: Math.max(
-            manga.history[chapterHash].progress,
+            prev.progress,
             Math.floor((imagesLoaded.length * 100) / chapter.images.length)
           ),
           imagesLoaded,
-          isVisited: !isPrefetch ? true : manga.history[chapterHash].isVisited,
+          isVisited: !isPrefetch ? true : prev.isVisited,
         };
       }
     },

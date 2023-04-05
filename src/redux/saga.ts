@@ -233,7 +233,7 @@ function* storageDataSaga() {
       const plugin = ((state: RootState) => state.plugin)(yield select());
       const setting = ((state: RootState) => state.setting)(yield select());
 
-      const storeDict: RootState['dict'] = { manga: {}, chapter: dict.chapter };
+      const storeDict: RootState['dict'] = { ...dict, manga: {} };
       for (const hash in dict.manga) {
         if (favorites.findIndex((item) => item.mangaHash === hash) !== -1) {
           storeDict.manga[hash] = dict.manga[hash];
@@ -248,7 +248,7 @@ function* storageDataSaga() {
   );
 }
 function* clearCacheSaga() {
-  yield takeLatestSuspense([clearCache.type], function* () {
+  yield takeLatestSuspense(clearCache.type, function* () {
     yield call(AsyncStorage.clear);
     yield put(syncData());
     yield take(syncDataCompletion.type);
@@ -257,7 +257,7 @@ function* clearCacheSaga() {
 }
 
 function* loadLatestReleaseSaga() {
-  yield takeLatestSuspense([loadLatestRelease.type], function* () {
+  yield takeLatestSuspense(loadLatestRelease.type, function* () {
     const { error: fetchError, data } = yield call(fetchData, {
       url: 'https://api.github.com/repos/youniaogu/MangaReader/releases',
     });
@@ -614,9 +614,7 @@ function* preloadChapter(chapterHash: string) {
 function* prehandleChapterSaga() {
   yield takeEverySuspense(
     prehandleChapter.type,
-    function* ({
-      payload: { mangaHash, chapterHash, save = false },
-    }: ReturnType<typeof prehandleChapter>) {
+    function* ({ payload: { chapterHash, save = false } }: ReturnType<typeof prehandleChapter>) {
       const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
       if (Platform.OS === 'android' && save) {
@@ -685,7 +683,7 @@ function* prehandleChapterSaga() {
           const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
           yield call(CameraRoll.save, `file://${path}`, { album });
         }
-        yield put(viewImage({ mangaHash, chapterHash, index, isPrefetch: true }));
+        yield put(viewImage({ chapterHash, index, isPrefetch: true }));
         yield put(
           updatePrehandleLog({
             id: source,

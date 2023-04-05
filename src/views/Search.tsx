@@ -60,7 +60,8 @@ export const SearchOption = () => {
   const route = useRoute<RouteProp<RootStackParamList, 'Search'>>();
   const source = route.params.source;
   const dispatch = useAppDispatch();
-  const { keyword, filter } = useAppSelector((state) => state.search);
+  const filter = useAppSelector((state) => state.search.filter);
+  const keyword = useAppSelector((state) => state.search.keyword);
   const { isOpen, onOpen, onClose } = useDisclose();
   const [key, setKey] = useState<string>('');
   const [options, setOptions] = useState<OptionItem[]>([]);

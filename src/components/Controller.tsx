@@ -7,7 +7,6 @@ import Animated, {
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { Dimensions } from 'react-native';
-import { Box } from 'native-base';
 
 const doubleTapScaleValue = 2;
 const windowWidth = Dimensions.get('window').width;
@@ -42,6 +41,8 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
   const savedScale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
+    width: windowWidth,
+    height: windowHeight,
     transform: [
       { translateX: translationX.value },
       { translateY: translationY.value },
@@ -187,13 +188,7 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
     <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap, longPress)}>
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
-          {horizontal ? (
-            <Box w={windowWidth} h={windowHeight} safeArea>
-              <Animated.View style={animatedStyle}>{children}</Animated.View>
-            </Box>
-          ) : (
-            <Animated.View style={animatedStyle}>{children}</Animated.View>
-          )}
+          <Animated.View style={animatedStyle}>{children}</Animated.View>
         </GestureDetector>
       </GestureDetector>
     </GestureDetector>

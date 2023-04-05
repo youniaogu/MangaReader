@@ -24,6 +24,7 @@
     "@react-navigation/native": "^6.0.10",
     "@react-navigation/native-stack": "^6.6.2",
     "@reduxjs/toolkit": "^1.8.1",
+    "@shopify/flash-list": "^1.4.2",
     "base-64": "^1.0.0",
     "blueimp-md5": "2.2.0",
     "cheerio": "1.0.0-rc.10",

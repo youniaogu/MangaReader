@@ -2,18 +2,21 @@ import React, {
   memo,
   useRef,
   useMemo,
-  useCallback,
   useImperativeHandle,
   forwardRef,
   ForwardRefRenderFunction,
+  useCallback,
 } from 'react';
-import { FlatList as FlatListRN, Dimensions, ListRenderItemInfo } from 'react-native';
-import { Box, FlatList } from 'native-base';
+import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
+import { useFocusEffect } from '@react-navigation/native';
 import { AsyncStatus } from '~/utils';
+import { Dimensions } from 'react-native';
+import { Box } from 'native-base';
 import ComicImage, { ImageState } from '~/components/ComicImage';
 import Controller from '~/components/Controller';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export interface ReaderProps {
   initPage?: number;
@@ -53,8 +56,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   },
   ref
 ) => {
-  const flatListRef = useRef<FlatListRN>(null);
-  const itemStateRef = useRef<ImageState[]>([]);
+  const flashListRef = useRef<FlashList<(typeof data)[0]>>(null);
+  const horizontalStateRef = useRef<ImageState[]>([]);
+  const verticalStateRef = useRef<ImageState[]>([]);
 
   const dataRef = useRef(data);
   const onPageChangeRef = useRef(onPageChange);
@@ -66,116 +70,96 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     [initPage, data.length]
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        horizontalStateRef.current = [];
+        verticalStateRef.current = [];
+      };
+    }, [])
+  );
+
   useImperativeHandle(ref, () => ({
     scrollToIndex: (index: number, animated = true) => {
-      flatListRef.current?.scrollToIndex({ index, animated });
+      flashListRef.current?.scrollToIndex({ index, animated });
     },
     scrollToOffset: (offset: number, animated = true) => {
-      flatListRef.current?.scrollToOffset({ offset, animated });
+      flashListRef.current?.scrollToOffset({ offset, animated });
     },
   }));
 
-  const HandleViewableItemsChanged = useCallback(({ viewableItems }) => {
+  const HandleViewableItemsChanged = ({
+    viewableItems,
+  }: {
+    viewableItems: {
+      item: any;
+      key: string;
+      index: number | null;
+      isViewable: boolean;
+      timestamp: number;
+    }[];
+  }) => {
     if (!viewableItems || viewableItems.length <= 0) {
       return;
     }
+
     const last = viewableItems[viewableItems.length - 1];
-    onPageChangeRef.current && onPageChangeRef.current(last.index + 1);
-  }, []);
-  const renderVerticalItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
-      const { uri, needUnscramble } = item;
-      const cacheState = itemStateRef.current[index];
-
-      return (
-        <ComicImage
-          useJMC={needUnscramble}
-          uri={uri}
-          headers={headers}
-          prevState={cacheState}
-          onSuccess={({ height, hash, dataUrl }) => {
-            onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
-            itemStateRef.current[index] = {
-              defaulthHash: hash,
-              defaultHeight: height,
-              defaultStatus: AsyncStatus.Fulfilled,
-              defaultDataUrl: dataUrl,
-            };
-          }}
-        />
-      );
-    },
-    [headers, onImageLoad]
-  );
-  const renderHorizontalItem = useCallback(
-    ({ item }: ListRenderItemInfo<(typeof data)[0]>) => {
-      const { uri, needUnscramble } = item;
-
-      return (
-        <Controller horizontal onTap={onTap} onLongPress={onLongPress}>
-          <ComicImage
-            horizontal
-            useJMC={needUnscramble}
-            uri={uri}
-            headers={headers}
-            onSuccess={() => {
-              onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
-            }}
-          />
-        </Controller>
-      );
-    },
-    [headers, onTap, onLongPress, onImageLoad]
-  );
-
-  if (horizontal) {
+    if (horizontal) {
+      if (viewableItems.length === 1) {
+        onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
+      }
+    } else {
+      onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
+    }
+  };
+  const renderItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
+    const { uri, needUnscramble } = item;
+    const horizontalState = horizontalStateRef.current[index];
+    const verticalState = verticalStateRef.current[index];
     return (
-      <FlatList
-        w="full"
-        h="full"
-        ref={flatListRef}
-        data={data}
-        inverted={inverted}
-        horizontal
-        pagingEnabled
-        initialScrollIndex={initialScrollIndex}
-        windowSize={5}
-        initialNumToRender={1}
-        maxToRenderPerBatch={1}
-        onEndReached={onLoadMore}
-        onEndReachedThreshold={5}
-        getItemLayout={(_data, index) => {
-          if (index === -1) {
-            return { index, length: 0, offset: 0 };
+      <ComicImage
+        horizontal={horizontal}
+        useJMC={needUnscramble}
+        uri={uri}
+        headers={headers}
+        prevState={horizontal ? horizontalState : verticalState}
+        onSuccess={({ height, hash, dataUrl }) => {
+          onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
+          if (horizontal) {
+            horizontalStateRef.current[index] = {
+              hash,
+              height,
+              status: AsyncStatus.Fulfilled,
+              dataUrl,
+            };
+          } else {
+            verticalStateRef.current[index] = {
+              hash,
+              height,
+              status: AsyncStatus.Fulfilled,
+              dataUrl,
+            };
           }
-          return {
-            length: windowWidth,
-            offset: windowWidth * index,
-            index,
-          };
         }}
-        onViewableItemsChanged={HandleViewableItemsChanged}
-        renderItem={renderHorizontalItem}
-        keyExtractor={(item) => item.uri}
       />
     );
-  }
+  };
 
   return (
-    <Controller onTap={onTap} onLongPress={onLongPress}>
-      <FlatList
-        w="full"
-        h="full"
-        ref={flatListRef}
+    <Controller horizontal={horizontal} onTap={onTap} onLongPress={onLongPress}>
+      <FlashList
+        key={horizontal ? 'horizontal' : 'vertical'}
+        ref={flashListRef}
         data={data}
+        initialScrollIndex={horizontal ? initialScrollIndex : undefined}
         inverted={inverted}
-        windowSize={5}
-        initialNumToRender={1}
-        maxToRenderPerBatch={1}
+        horizontal={horizontal}
+        pagingEnabled={horizontal}
+        estimatedItemSize={horizontal ? windowWidth : (windowHeight * 2) / 3}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}
-        renderItem={renderVerticalItem}
+        renderItem={renderItem}
         keyExtractor={(item) => item.uri}
         ListHeaderComponent={<Box height={0} safeAreaTop />}
         ListFooterComponent={<Box height={0} safeAreaBottom />}

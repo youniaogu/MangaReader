@@ -79,9 +79,13 @@ export function fixDictShape(dict: RootState['dict']): RootState['dict'] {
     if (!Array.isArray(manga.tag)) {
       manga.tag = [];
     }
-    if (!nonNullable(manga.history)) {
-      manga.history = {};
-    }
+  }
+
+  if (!nonNullable(dict.record)) {
+    dict.record = {};
+  }
+  if (!nonNullable(dict.lastWatch)) {
+    dict.lastWatch = {};
   }
 
   return dict;

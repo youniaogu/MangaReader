@@ -1,5 +1,10 @@
-import React, { useCallback, useState, useMemo, useRef, memo, Fragment } from 'react';
-import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
+import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
+import {
+  InteractionManager,
+  Image as ReactNativeImage,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus, scaleToFit, mergeQuery } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
@@ -9,23 +14,19 @@ import { nanoid } from '@reduxjs/toolkit';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 
+const groundPoundGif = require('~/assets/ground_pound.gif');
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const windowScale = Dimensions.get('window').scale;
 const maximumSize = 1864000;
 const maximumScale = maximumSize / (windowScale * windowWidth * windowHeight);
-const defaultState = {
-  defaulthHash: '',
-  defaultHeight: windowHeight,
-  defaultStatus: AsyncStatus.Default,
-  defaultDataUrl: '',
-};
+const defaultState = { hash: '', height: windowHeight, status: AsyncStatus.Pending, dataUrl: '' };
 
 export interface ImageState {
-  defaulthHash: string;
-  defaultHeight: number;
-  defaultStatus: AsyncStatus;
-  defaultDataUrl: string;
+  hash: string;
+  height: number;
+  status: AsyncStatus;
+  dataUrl: string;
 }
 export interface ImageProps {
   uri: string;
@@ -55,48 +56,57 @@ const DefaultImage = ({
   prevState = defaultState,
   onSuccess,
 }: ImageProps) => {
-  const [hash, setHash] = useState(prevState.defaulthHash);
-  const [loadStatus, setLoadStatus] = useState(prevState.defaultStatus);
-  const [imageHeight, setImageHeight] = useState(prevState.defaultHeight);
+  const [hash, setHash] = useState(prevState.hash);
+  const [loadStatus, setLoadStatus] = useState(prevState.status);
+  const [imageHeight, setImageHeight] = useState(prevState.height);
   const source = useMemo(() => {
     if (hash) {
       return mergeQuery(uri, 'hash', hash);
     }
     return uri;
   }, [uri, hash]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadStatus === AsyncStatus.Default && setLoadStatus(AsyncStatus.Pending);
-    }, [loadStatus])
+  const loadingRef = useRef<ReturnType<typeof InteractionManager.runAfterInteractions> | null>(
+    null
   );
 
-  const handleLoadSuccess = () => {
-    if (loadStatus === AsyncStatus.Pending) {
-      if (!horizontal) {
-        CacheManager.prefetchBlob(source, { headers })
-          .then((base64) => {
-            if (!base64) {
-              handleError();
-              return;
-            }
-            base64 = 'data:image/png;base64,' + base64;
+  const loadImage = useCallback(() => {
+    CacheManager.prefetchBlob(source, { headers })
+      .then((base64) => {
+        if (!base64) {
+          handleError();
+          return;
+        }
+        if (horizontal) {
+          loadingRef.current = null;
+          setImageHeight(windowHeight);
+          setLoadStatus(AsyncStatus.Fulfilled);
+          onSuccess &&
+            onSuccess({ width: windowWidth, height: windowHeight, hash, dataUrl: source });
+          return;
+        }
 
-            ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
-              const fillHeight = (height / width) * windowWidth;
-              onSuccess &&
-                onSuccess({ width: windowWidth, height: fillHeight, hash, dataUrl: source });
-              setImageHeight(fillHeight);
-              setLoadStatus(AsyncStatus.Fulfilled);
-            });
-          })
-          .catch(handleError);
-      } else {
-        onSuccess && onSuccess({ width: windowWidth, height: windowHeight, hash, dataUrl: source });
-        setLoadStatus(AsyncStatus.Fulfilled);
+        base64 = 'data:image/png;base64,' + base64;
+        ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
+          const fillHeight = (height / width) * windowWidth;
+
+          loadingRef.current = null;
+          setImageHeight(fillHeight);
+          setLoadStatus(AsyncStatus.Fulfilled);
+          onSuccess && onSuccess({ width: windowWidth, height: fillHeight, hash, dataUrl: source });
+        });
+      })
+      .catch(handleError);
+  }, [hash, source, headers, horizontal, onSuccess]);
+  useFocusEffect(
+    useCallback(() => {
+      if (loadStatus === AsyncStatus.Pending && !loadingRef.current) {
+        loadingRef.current = InteractionManager.runAfterInteractions(() => {
+          loadImage();
+        });
       }
-    }
-  };
+    }, [loadImage, loadStatus])
+  );
+
   const handleError = () => {
     setLoadStatus(AsyncStatus.Rejected);
   };
@@ -106,34 +116,35 @@ const DefaultImage = ({
       .catch(() => {})
       .finally(() => {
         setHash(nanoid());
-        setLoadStatus(AsyncStatus.Pending);
       });
   };
 
+  if (loadStatus === AsyncStatus.Pending) {
+    return (
+      <Center w={windowWidth} h={horizontal ? windowHeight : prevState.height} bg="black">
+        <Image
+          style={styles.loading}
+          resizeMode="contain"
+          source={groundPoundGif}
+          alt="groundpound"
+        />
+      </Center>
+    );
+  }
   if (loadStatus === AsyncStatus.Rejected) {
-    return <ErrorWithRetry height="full" onRetry={handleRetry} />;
+    return (
+      <ErrorWithRetry height={horizontal ? windowHeight : prevState.height} onRetry={handleRetry} />
+    );
   }
 
   return (
-    <Fragment>
-      <CachedImage
-        source={source}
-        options={{ headers }}
-        style={horizontal ? styles.contain : { ...styles.cover, height: imageHeight }}
-        resizeMode={horizontal ? 'contain' : 'cover'}
-        onLoad={handleLoadSuccess}
-        onError={handleError}
-      />
-      {loadStatus === AsyncStatus.Pending && (
-        <Center position="absolute" w="full" h="full" bg="black">
-          <CachedImage
-            source="https://raw.githubusercontent.com/youniaogu/walfie-gif/master/ground%20pound.gif"
-            resizeMode="contain"
-            style={styles.loading}
-          />
-        </Center>
-      )}
-    </Fragment>
+    <CachedImage
+      source={source}
+      options={{ headers }}
+      style={horizontal ? styles.contain : { ...styles.cover, height: imageHeight }}
+      resizeMode={horizontal ? 'contain' : 'cover'}
+      onError={handleError}
+    />
   );
 };
 
@@ -144,10 +155,10 @@ const JMCImage = ({
   prevState = defaultState,
   onSuccess,
 }: ImageProps) => {
-  const [hash, setHash] = useState(prevState.defaulthHash);
-  const [dataUrl, setDataUrl] = useState(prevState.defaultDataUrl);
-  const [loadStatus, setLoadStatus] = useState(prevState.defaultStatus);
-  const [imageHeight, setImageHeight] = useState(prevState.defaultHeight);
+  const [hash, setHash] = useState(prevState.hash);
+  const [dataUrl, setDataUrl] = useState(prevState.dataUrl);
+  const [loadStatus, setLoadStatus] = useState(prevState.status);
+  const [imageHeight, setImageHeight] = useState(prevState.height);
   const canvasRef = useRef<Canvas>(null);
   const source = useMemo(() => {
     if (hash) {
@@ -155,6 +166,9 @@ const JMCImage = ({
     }
     return uri;
   }, [uri, hash]);
+  const loadingRef = useRef<ReturnType<typeof InteractionManager.runAfterInteractions> | null>(
+    null
+  );
 
   const base64ToUrl = useCallback(
     (base64: string, width: number, height: number) => {
@@ -211,31 +225,35 @@ const JMCImage = ({
               setLoadStatus(AsyncStatus.Fulfilled);
             });
           }
+          loadingRef.current = null;
         });
       }
     },
     [source, hash, onSuccess]
   );
+  const loadImage = useCallback(() => {
+    CacheManager.prefetchBlob(source, { headers })
+      .then((base64) => {
+        if (!base64) {
+          handleError();
+          return;
+        }
+        base64 = 'data:image/png;base64,' + base64;
 
+        ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) =>
+          base64ToUrl(base64 as string, width, height)
+        );
+      })
+      .catch(handleError);
+  }, [source, headers, base64ToUrl]);
   useFocusEffect(
     useCallback(() => {
-      if (loadStatus === AsyncStatus.Default) {
-        setLoadStatus(AsyncStatus.Pending);
-        CacheManager.prefetchBlob(source, { headers })
-          .then((base64) => {
-            if (!base64) {
-              handleError();
-              return;
-            }
-            base64 = 'data:image/png;base64,' + base64;
-
-            ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) =>
-              base64ToUrl(base64 as string, width, height)
-            );
-          })
-          .catch(handleError);
+      if (loadStatus === AsyncStatus.Pending && !loadingRef.current) {
+        loadingRef.current = InteractionManager.runAfterInteractions(() => {
+          loadImage();
+        });
       }
-    }, [source, headers, loadStatus, base64ToUrl])
+    }, [loadImage, loadStatus])
   );
 
   const handleError = () => {
@@ -246,22 +264,24 @@ const JMCImage = ({
       .then(() => {})
       .catch(() => {})
       .finally(() => {
-        setLoadStatus(AsyncStatus.Default);
+        setLoadStatus(AsyncStatus.Pending);
         setHash(nanoid());
       });
   };
 
   if (loadStatus === AsyncStatus.Rejected) {
-    return <ErrorWithRetry height="full" onRetry={handleRetry} />;
+    return (
+      <ErrorWithRetry height={horizontal ? windowHeight : prevState.height} onRetry={handleRetry} />
+    );
   }
-
   if (!dataUrl || loadStatus === AsyncStatus.Pending) {
     return (
-      <Center w={windowWidth} h={windowHeight} bg="black">
-        <CachedImage
-          source="https://raw.githubusercontent.com/youniaogu/walfie-gif/master/ground%20pound.gif"
-          resizeMode="contain"
+      <Center w={windowWidth} h={horizontal ? windowHeight : prevState.height} bg="black">
+        <Image
           style={styles.loading}
+          resizeMode="contain"
+          source={groundPoundGif}
+          alt="groundpound"
         />
         <Canvas key={hash} ref={canvasRef} style={styles.canvas} />
       </Center>
@@ -270,8 +290,8 @@ const JMCImage = ({
 
   return (
     <Image
-      w={horizontal ? 'full' : windowWidth}
-      h={horizontal ? 'full' : imageHeight}
+      w={horizontal ? windowWidth : windowWidth}
+      h={horizontal ? windowHeight : imageHeight}
       resizeMode={horizontal ? 'contain' : 'cover'}
       source={{ uri: dataUrl }}
       alt="page"
@@ -282,8 +302,8 @@ const JMCImage = ({
 
 const styles = StyleSheet.create({
   contain: {
-    width: '100%',
-    height: '100%',
+    width: windowWidth,
+    height: windowHeight,
   },
   cover: {
     width: windowWidth,

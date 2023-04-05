@@ -68,9 +68,12 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const loadingMangaHash = useAppSelector((state) => state.manga.loadingMangaHash);
   const mangaDict = useAppSelector((state) => state.dict.manga);
+  const reocrdDict = useAppSelector((state) => state.dict.record);
+  const lastWatchDict = useAppSelector((state) => state.dict.lastWatch);
   const favorites = useAppSelector((state) => state.favorites);
   const sequence = useAppSelector((state) => state.setting.sequence);
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
+  const lastWatch = useMemo(() => lastWatchDict[mangaHash] || {}, [lastWatchDict, mangaHash]);
   const chapters = useMemo(() => {
     if (!data) {
       return [];
@@ -122,10 +125,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     };
   };
   const handlePrefetch = () => {
-    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash }));
+    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
   };
   const handleDownload = () => {
-    chapter && dispatch(prehandleChapter({ mangaHash, chapterHash: chapter.hash, save: true }));
+    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash, save: true }));
   };
 
   if (!nonNullable(data)) {
@@ -158,14 +161,14 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       navigation.navigate('Chapter', {
         mangaHash,
         chapterHash,
-        page: chapterHash === data.lastWatchChapter ? data.lastWatchPage || 1 : 1,
+        page: chapterHash === lastWatch.chapter ? lastWatch.page || 1 : 1,
       });
     };
   };
 
   const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
-    const isActived = item.hash === data.lastWatchChapter;
-    const history = data.history[item.hash];
+    const isActived = item.hash === lastWatch.chapter;
+    const record = reocrdDict[item.hash];
     return (
       <Pressable
         _pressed={{ opacity: 0.8 }}
@@ -189,13 +192,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           >
             {item.title}
           </Text>
-          {history && history.progress > 0 && (
+          {record && record.progress > 0 && (
             <Icon
               as={MaterialIcons}
               size="xs"
               style={{ transform: [{ rotateZ: '30deg' }] }}
-              name={history.isVisited ? 'brightness-1' : 'brightness-2'}
-              color={`purple.${Math.min(Math.floor(history.progress / 25) + 1, 5)}00`}
+              name={record.isVisited ? 'brightness-1' : 'brightness-2'}
+              color={`purple.${Math.min(Math.floor(record.progress / 25) + 1, 5)}00`}
               position="absolute"
               top={`${gap / 4}px`}
               right={`${gap / 4}px`}
@@ -255,6 +258,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         </Flex>
       </Flex>
 
+      {/* 待优化 */}
       <FlatList
         h="full"
         p={`${gap / 2}px`}
@@ -307,6 +311,7 @@ export const HeartAndBrowser = () => {
   const handleSwapSequence = () => {
     dispatch(setSequence(sequence === Sequence.Asc ? Sequence.Desc : Sequence.Asc));
   };
+  // 待优化
   const toggleFavorite = () => {
     dispatch(actived ? removeFavorites(mangaHash) : addFavorites(mangaHash));
   };

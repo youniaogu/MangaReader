@@ -1,6 +1,6 @@
 import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
 import { Box, Text, Flex, Center, StatusBar, useToast } from 'native-base';
-import { ReaderMode, AsyncStatus, ReaderDirection } from '~/utils';
+import { LayoutMode, AsyncStatus, ReaderDirection } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { usePrevNext } from '~/hooks';
@@ -22,15 +22,17 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [chapterHash, setChapterHash] = useState(initChapterHash);
   const [hashList, setHashList] = useState([initChapterHash]);
 
-  const { loadStatus } = useAppSelector((state) => state.chapter);
-  const { mode, direction } = useAppSelector((state) => state.setting);
-  const { manga: mangaDict, chapter: chapterDict } = useAppSelector((state) => state.dict);
+  const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
+  const mode = useAppSelector((state) => state.setting.mode);
+  const direction = useAppSelector((state) => state.setting.direction);
+  const mangaDict = useAppSelector((state) => state.dict.manga);
+  const chapterDict = useAppSelector((state) => state.dict.chapter);
 
   const inverted = useMemo(
-    () => mode === ReaderMode.Horizontal && direction === ReaderDirection.Left,
+    () => mode === LayoutMode.Horizontal && direction === ReaderDirection.Left,
     [mode, direction]
   );
-  const horizontal = useMemo(() => mode === ReaderMode.Horizontal, [mode]);
+  const horizontal = useMemo(() => mode === LayoutMode.Horizontal, [mode]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useMemo(() => {
     const preList = [];
@@ -55,6 +57,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [prev, next] = usePrevNext(chapterList, chapterHash);
   const readerRef = useRef<ReaderRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -139,20 +142,26 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   );
   const handleImageLoad = useCallback(
     (_uri: string, hash: string, index: number) =>
-      dispatch(viewImage({ mangaHash, chapterHash: hash, index })),
-    [dispatch, mangaHash]
+      dispatch(viewImage({ chapterHash: hash, index })),
+    [dispatch]
   );
   const handlePageChange = useCallback(
     (newPage: number) => {
-      const image = data[newPage - 1];
-      if (newPage >= data.length && !next && !toast.isActive(lastPageToastId)) {
+      const image = data[newPage];
+      if (newPage >= data.length - 1 && !next && !toast.isActive(lastPageToastId)) {
         toast.show({ id: lastPageToastId, title: '最后一页' });
       }
-      setPage(newPage - 1);
-      setChapterHash(image.chapterHash);
-      pageSliderRef.current?.changePage(image.current);
+
+      timeoutRef.current && clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        setPage(newPage);
+        if (chapterHash !== image.chapterHash) {
+          setChapterHash(image.chapterHash);
+        }
+        pageSliderRef.current?.changePage(image.current);
+      }, 200);
     },
-    [data, next, toast]
+    [data, next, toast, chapterHash]
   );
   const handleLoadMore = useCallback(() => {
     if (next && !hashList.includes(next.hash)) {
@@ -165,8 +174,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const handleReload = () => dispatch(loadChapter({ chapterHash }));
   const handleLeft = () => dispatch(setDirection(ReaderDirection.Left));
   const handleRight = () => dispatch(setDirection(ReaderDirection.Right));
-  const handleVertical = () => dispatch(setMode(ReaderMode.Vertical));
-  const handleHorizontal = () => dispatch(setMode(ReaderMode.Horizontal));
+  const handleVertical = () => dispatch(setMode(LayoutMode.Vertical));
+  const handleHorizontal = () => dispatch(setMode(LayoutMode.Horizontal));
   const handleSliderChangeEnd = (newStep: number) => {
     const newPage = pre + Math.floor(newStep - 1);
     if (newStep > max - 5) {

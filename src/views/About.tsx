@@ -12,7 +12,7 @@ import {
   useDisclose,
 } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { env, AsyncStatus, BackupRestore } from '~/utils';
+import { AsyncStatus, BackupRestore } from '~/utils';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { Linking } from 'react-native';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
@@ -182,7 +182,7 @@ const About = ({ navigation }: StackAboutProps) => {
         >
           清除图片缓存
         </Button>
-        {process.env.NODE_ENV === env.DEV && (
+        {__DEV__ && (
           <Button
             shadow={2}
             isLoading={clearStatus === AsyncStatus.Pending}

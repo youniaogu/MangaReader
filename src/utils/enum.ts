@@ -20,19 +20,10 @@ export enum MangaStatus {
 }
 
 /**
- * @description enum of nodejs env
+ * @description enum layoutmode of Reader component
  * @enum {number}
  */
-export enum env {
-  DEV = 'development',
-  PROD = 'production',
-}
-
-/**
- * @description enum mode of Reader component
- * @enum {number}
- */
-export enum ReaderMode {
+export enum LayoutMode {
   Horizontal = 'horizontal',
   Vertical = 'vertical',
 }
