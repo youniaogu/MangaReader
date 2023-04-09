@@ -1,10 +1,5 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
-import {
-  InteractionManager,
-  Image as ReactNativeImage,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus, scaleToFit, mergeQuery } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
@@ -20,30 +15,25 @@ const windowHeight = Dimensions.get('window').height;
 const windowScale = Dimensions.get('window').scale;
 const maximumSize = 1864000;
 const maximumScale = maximumSize / (windowScale * windowWidth * windowHeight);
-const defaultState = { hash: '', height: windowHeight, status: AsyncStatus.Pending, dataUrl: '' };
+const defaultState = {
+  hash: '',
+  dataUrl: '',
+  fillHeight: (windowHeight * 3) / 5,
+  loadStatus: AsyncStatus.Default,
+};
 
 export interface ImageState {
   hash: string;
-  height: number;
-  status: AsyncStatus;
   dataUrl: string;
+  fillHeight: number;
+  loadStatus: AsyncStatus;
 }
 export interface ImageProps {
   uri: string;
   headers?: { [name: string]: string };
   horizontal?: boolean;
   prevState?: ImageState;
-  onSuccess?: ({
-    width,
-    height,
-    hash,
-    dataUrl,
-  }: {
-    width: number;
-    height: number;
-    hash: string;
-    dataUrl: string;
-  }) => void;
+  onChange?: (state: ImageState) => void;
 }
 export interface ComicImageProps extends ImageProps {
   useJMC?: boolean;
@@ -54,22 +44,21 @@ const DefaultImage = ({
   headers = {},
   horizontal = false,
   prevState = defaultState,
-  onSuccess,
+  onChange,
 }: ImageProps) => {
-  const [hash, setHash] = useState(prevState.hash);
-  const [loadStatus, setLoadStatus] = useState(prevState.status);
-  const [imageHeight, setImageHeight] = useState(prevState.height);
-  const source = useMemo(() => {
-    if (hash) {
-      return mergeQuery(uri, 'hash', hash);
-    }
-    return uri;
-  }, [uri, hash]);
-  const loadingRef = useRef<ReturnType<typeof InteractionManager.runAfterInteractions> | null>(
-    null
+  const [imageState, setImageState] = useState(prevState);
+  const source = useMemo(
+    () => (imageState.hash ? mergeQuery(uri, 'hash', imageState.hash) : uri),
+    [uri, imageState]
   );
+  const uriRef = useRef(uri);
 
+  const handleError = useCallback(() => {
+    onChange && onChange({ ...imageState, loadStatus: AsyncStatus.Rejected });
+    setImageState({ ...imageState, loadStatus: AsyncStatus.Rejected });
+  }, [imageState, onChange]);
   const loadImage = useCallback(() => {
+    setImageState({ ...imageState, loadStatus: AsyncStatus.Pending });
     CacheManager.prefetchBlob(source, { headers })
       .then((base64) => {
         if (!base64) {
@@ -77,51 +66,75 @@ const DefaultImage = ({
           return;
         }
         if (horizontal) {
-          loadingRef.current = null;
-          setImageHeight(windowHeight);
-          setLoadStatus(AsyncStatus.Fulfilled);
-          onSuccess &&
-            onSuccess({ width: windowWidth, height: windowHeight, hash, dataUrl: source });
+          onChange &&
+            onChange({
+              ...imageState,
+              dataUrl: source,
+              fillHeight: windowHeight,
+              loadStatus: AsyncStatus.Fulfilled,
+            });
+          setImageState({
+            ...imageState,
+            dataUrl: source,
+            fillHeight: windowHeight,
+            loadStatus: AsyncStatus.Fulfilled,
+          });
           return;
         }
 
         base64 = 'data:image/png;base64,' + base64;
-        ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) => {
-          const fillHeight = (height / width) * windowWidth;
-
-          loadingRef.current = null;
-          setImageHeight(fillHeight);
-          setLoadStatus(AsyncStatus.Fulfilled);
-          onSuccess && onSuccess({ width: windowWidth, height: fillHeight, hash, dataUrl: source });
+        ReactNativeImage.getSize(base64, (width, height) => {
+          const imageHeight = (height / width) * windowWidth;
+          onChange &&
+            onChange({
+              ...imageState,
+              dataUrl: source,
+              fillHeight: imageHeight,
+              loadStatus: AsyncStatus.Fulfilled,
+            });
+          setImageState({
+            ...imageState,
+            dataUrl: source,
+            fillHeight: imageHeight,
+            loadStatus: AsyncStatus.Fulfilled,
+          });
         });
       })
       .catch(handleError);
-  }, [hash, source, headers, horizontal, onSuccess]);
+  }, [source, headers, imageState, horizontal, onChange, handleError]);
   useFocusEffect(
     useCallback(() => {
-      if (loadStatus === AsyncStatus.Pending && !loadingRef.current) {
-        loadingRef.current = InteractionManager.runAfterInteractions(() => {
-          loadImage();
-        });
+      if (imageState.loadStatus === AsyncStatus.Default) {
+        loadImage();
       }
-    }, [loadImage, loadStatus])
+    }, [imageState, loadImage])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      if (uriRef.current !== uri) {
+        uriRef.current = uri;
+        setImageState(prevState);
+      }
+    }, [uri, prevState])
   );
 
-  const handleError = () => {
-    setLoadStatus(AsyncStatus.Rejected);
-  };
   const handleRetry = () => {
     CacheManager.removeCacheEntry(source)
       .then(() => {})
       .catch(() => {})
       .finally(() => {
-        setHash(nanoid());
+        const newHash = nanoid();
+        onChange && onChange({ ...imageState, hash: newHash, loadStatus: AsyncStatus.Default });
+        setImageState({ ...imageState, hash: newHash, loadStatus: AsyncStatus.Default });
       });
   };
 
-  if (loadStatus === AsyncStatus.Pending) {
+  if (
+    imageState.loadStatus === AsyncStatus.Pending ||
+    imageState.loadStatus === AsyncStatus.Default
+  ) {
     return (
-      <Center w={windowWidth} h={horizontal ? windowHeight : prevState.height} bg="black">
+      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
         <Image
           style={styles.loading}
           resizeMode="contain"
@@ -131,9 +144,11 @@ const DefaultImage = ({
       </Center>
     );
   }
-  if (loadStatus === AsyncStatus.Rejected) {
+  if (imageState.loadStatus === AsyncStatus.Rejected) {
     return (
-      <ErrorWithRetry height={horizontal ? windowHeight : prevState.height} onRetry={handleRetry} />
+      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
+        <ErrorWithRetry onRetry={handleRetry} />
+      </Center>
     );
   }
 
@@ -141,7 +156,7 @@ const DefaultImage = ({
     <CachedImage
       source={source}
       options={{ headers }}
-      style={horizontal ? styles.contain : { ...styles.cover, height: imageHeight }}
+      style={horizontal ? styles.contain : { ...styles.cover, height: imageState.fillHeight }}
       resizeMode={horizontal ? 'contain' : 'cover'}
       onError={handleError}
     />
@@ -153,23 +168,20 @@ const JMCImage = ({
   headers = {},
   horizontal = false,
   prevState = defaultState,
-  onSuccess,
+  onChange,
 }: ImageProps) => {
-  const [hash, setHash] = useState(prevState.hash);
-  const [dataUrl, setDataUrl] = useState(prevState.dataUrl);
-  const [loadStatus, setLoadStatus] = useState(prevState.status);
-  const [imageHeight, setImageHeight] = useState(prevState.height);
-  const canvasRef = useRef<Canvas>(null);
-  const source = useMemo(() => {
-    if (hash) {
-      return mergeQuery(uri, 'hash', hash);
-    }
-    return uri;
-  }, [uri, hash]);
-  const loadingRef = useRef<ReturnType<typeof InteractionManager.runAfterInteractions> | null>(
-    null
+  const [imageState, setImageState] = useState(prevState);
+  const source = useMemo(
+    () => (imageState.hash ? mergeQuery(uri, 'hash', imageState.hash) : uri),
+    [uri, imageState]
   );
+  const canvasRef = useRef<Canvas>(null);
+  const uriRef = useRef(uri);
 
+  const handleError = useCallback(() => {
+    onChange && onChange({ ...imageState, loadStatus: AsyncStatus.Rejected });
+    setImageState({ ...imageState, loadStatus: AsyncStatus.Rejected });
+  }, [imageState, onChange]);
   const base64ToUrl = useCallback(
     (base64: string, width: number, height: number) => {
       if (canvasRef.current) {
@@ -212,26 +224,34 @@ const JMCImage = ({
 
           if (canvasRef.current) {
             canvasRef.current.toDataURL().then((res) => {
-              const fillHeight = (height / width) * windowWidth;
-              onSuccess &&
-                onSuccess({
-                  width: windowWidth,
-                  height: fillHeight,
-                  hash,
-                  dataUrl: res.replace(/^"|"$/g, ''),
+              const imageHeight = (height / width) * windowWidth;
+              const newSource = res.replace(/^"|"$/g, '');
+              onChange &&
+                onChange({
+                  ...imageState,
+                  dataUrl: newSource,
+                  fillHeight: imageHeight,
+                  loadStatus: AsyncStatus.Fulfilled,
                 });
-              setDataUrl(res.replace(/^"|"$/g, ''));
-              setImageHeight(fillHeight);
-              setLoadStatus(AsyncStatus.Fulfilled);
+              setImageState({
+                ...imageState,
+                dataUrl: newSource,
+                fillHeight: imageHeight,
+                loadStatus: AsyncStatus.Fulfilled,
+              });
             });
+          } else {
+            handleError();
           }
-          loadingRef.current = null;
         });
+      } else {
+        handleError();
       }
     },
-    [source, hash, onSuccess]
+    [source, imageState, onChange, handleError]
   );
   const loadImage = useCallback(() => {
+    setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
     CacheManager.prefetchBlob(source, { headers })
       .then((base64) => {
         if (!base64) {
@@ -245,45 +265,54 @@ const JMCImage = ({
         );
       })
       .catch(handleError);
-  }, [source, headers, base64ToUrl]);
+  }, [source, headers, base64ToUrl, handleError]);
   useFocusEffect(
     useCallback(() => {
-      if (loadStatus === AsyncStatus.Pending && !loadingRef.current) {
-        loadingRef.current = InteractionManager.runAfterInteractions(() => {
-          loadImage();
-        });
+      if (imageState.loadStatus === AsyncStatus.Default) {
+        loadImage();
       }
-    }, [loadImage, loadStatus])
+    }, [imageState, loadImage])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      if (uriRef.current !== uri) {
+        uriRef.current = uri;
+        setImageState(prevState);
+      }
+    }, [uri, prevState])
   );
 
-  const handleError = () => {
-    setLoadStatus(AsyncStatus.Rejected);
-  };
   const handleRetry = () => {
     CacheManager.removeCacheEntry(source)
       .then(() => {})
       .catch(() => {})
       .finally(() => {
-        setLoadStatus(AsyncStatus.Pending);
-        setHash(nanoid());
+        const newHash = nanoid();
+        onChange && onChange({ ...prevState, hash: newHash, loadStatus: AsyncStatus.Default });
+        setImageState((state) => ({ ...state, hash: newHash, loadStatus: AsyncStatus.Default }));
       });
   };
 
-  if (loadStatus === AsyncStatus.Rejected) {
+  if (imageState.loadStatus === AsyncStatus.Rejected) {
     return (
-      <ErrorWithRetry height={horizontal ? windowHeight : prevState.height} onRetry={handleRetry} />
+      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
+        <ErrorWithRetry onRetry={handleRetry} />
+      </Center>
     );
   }
-  if (!dataUrl || loadStatus === AsyncStatus.Pending) {
+  if (
+    imageState.loadStatus === AsyncStatus.Pending ||
+    imageState.loadStatus === AsyncStatus.Default
+  ) {
     return (
-      <Center w={windowWidth} h={horizontal ? windowHeight : prevState.height} bg="black">
+      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
         <Image
           style={styles.loading}
           resizeMode="contain"
           source={groundPoundGif}
           alt="groundpound"
         />
-        <Canvas key={hash} ref={canvasRef} style={styles.canvas} />
+        <Canvas ref={canvasRef} style={styles.canvas} />
       </Center>
     );
   }
@@ -291,9 +320,9 @@ const JMCImage = ({
   return (
     <Image
       w={horizontal ? windowWidth : windowWidth}
-      h={horizontal ? windowHeight : imageHeight}
+      h={horizontal ? windowHeight : imageState.fillHeight}
       resizeMode={horizontal ? 'contain' : 'cover'}
-      source={{ uri: dataUrl }}
+      source={{ uri: imageState.dataUrl }}
       alt="page"
       bg="black"
     />

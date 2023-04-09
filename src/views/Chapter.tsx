@@ -57,7 +57,6 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [prev, next] = usePrevNext(chapterList, chapterHash);
   const readerRef = useRef<ReaderRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -75,7 +74,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     }, [current, dispatch, mangaHash])
   );
 
-  const handlePrevChapter = useCallback(() => {
+  const handlePrevChapter = () => {
     if (prev) {
       setChapterHash(prev.hash);
       setHashList([prev.hash]);
@@ -85,8 +84,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     } else {
       toast.show({ title: '第一话' });
     }
-  }, [prev, toast]);
-  const handleNextChapter = useCallback(() => {
+  };
+  const handleNextChapter = () => {
     if (next) {
       setChapterHash(next.hash);
       setHashList([next.hash]);
@@ -96,79 +95,63 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     } else {
       toast.show({ title: '最后一话' });
     }
-  }, [next, toast]);
-  const handleTap = useCallback(
-    (position: 'left' | 'mid' | 'right') => {
-      if (position === 'mid') {
-        setShowExtra((value) => !value);
+  };
+  const handleTap = (position: 'left' | 'mid' | 'right') => {
+    if (position === 'mid') {
+      setShowExtra((value) => !value);
+    }
+    if (inverted) {
+      if (position === 'right') {
+        readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
       }
-      if (inverted) {
-        if (position === 'right') {
-          readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
-        }
-        if (position === 'left') {
-          readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
-        }
-      } else {
-        if (position === 'left') {
-          readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
-        }
-        if (position === 'right') {
-          readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
-        }
+      if (position === 'left') {
+        readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
       }
-    },
-    [page, data, inverted]
-  );
-  const handleLongPress = useCallback(
-    (position: 'left' | 'right') => {
-      if (inverted) {
-        if (position === 'right') {
-          handlePrevChapter();
-        }
-        if (position === 'left') {
-          handleNextChapter();
-        }
-      } else {
-        if (position === 'left') {
-          handlePrevChapter();
-        }
-        if (position === 'right') {
-          handleNextChapter();
-        }
+    } else {
+      if (position === 'left') {
+        readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
       }
-    },
-    [inverted, handlePrevChapter, handleNextChapter]
-  );
-  const handleImageLoad = useCallback(
-    (_uri: string, hash: string, index: number) =>
-      dispatch(viewImage({ chapterHash: hash, index })),
-    [dispatch]
-  );
-  const handlePageChange = useCallback(
-    (newPage: number) => {
-      const image = data[newPage];
-      if (newPage >= data.length - 1 && !next && !toast.isActive(lastPageToastId)) {
-        toast.show({ id: lastPageToastId, title: '最后一页' });
+      if (position === 'right') {
+        readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
       }
+    }
+  };
+  const handleLongPress = (position: 'left' | 'right') => {
+    if (inverted) {
+      if (position === 'right') {
+        handlePrevChapter();
+      }
+      if (position === 'left') {
+        handleNextChapter();
+      }
+    } else {
+      if (position === 'left') {
+        handlePrevChapter();
+      }
+      if (position === 'right') {
+        handleNextChapter();
+      }
+    }
+  };
+  const handleImageLoad = (_uri: string, hash: string, index: number) => {
+    dispatch(viewImage({ chapterHash: hash, index }));
+  };
+  const handlePageChange = (newPage: number) => {
+    const image = data[newPage];
+    if (newPage >= data.length - 1 && !next && !toast.isActive(lastPageToastId)) {
+      toast.show({ id: lastPageToastId, title: '最后一页' });
+    }
 
-      timeoutRef.current && clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        setPage(newPage);
-        if (chapterHash !== image.chapterHash) {
-          setChapterHash(image.chapterHash);
-        }
-        pageSliderRef.current?.changePage(image.current);
-      }, 200);
-    },
-    [data, next, toast, chapterHash]
-  );
-  const handleLoadMore = useCallback(() => {
+    setChapterHash(image.chapterHash);
+    setPage(newPage);
+    pageSliderRef.current?.changePage(image.current);
+  };
+  const handleLoadMore = () => {
     if (next && !hashList.includes(next.hash)) {
       setHashList([...hashList, next.hash]);
       dispatch(loadChapter({ chapterHash: next.hash }));
     }
-  }, [next, dispatch, hashList]);
+  };
 
   const handleGoBack = () => navigation.goBack();
   const handleReload = () => dispatch(loadChapter({ chapterHash }));

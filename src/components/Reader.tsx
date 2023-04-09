@@ -9,7 +9,6 @@ import React, {
 } from 'react';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
-import { AsyncStatus } from '~/utils';
 import { Dimensions } from 'react-native';
 import { Box } from 'native-base';
 import ComicImage, { ImageState } from '~/components/ComicImage';
@@ -60,9 +59,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const horizontalStateRef = useRef<ImageState[]>([]);
   const verticalStateRef = useRef<ImageState[]>([]);
 
-  const dataRef = useRef(data);
   const onPageChangeRef = useRef(onPageChange);
-  dataRef.current = data;
   onPageChangeRef.current = onPageChange;
 
   const initialScrollIndex = useMemo(
@@ -88,6 +85,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     },
   }));
 
+  // https://github.com/Shopify/flash-list/issues/637
+  // onViewableItemsChanged is bound in constructor and do not get updated when those props change
   const HandleViewableItemsChanged = ({
     viewableItems,
   }: {
@@ -118,28 +117,18 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     const verticalState = verticalStateRef.current[index];
     return (
       <ComicImage
+        uri={uri}
         horizontal={horizontal}
         useJMC={needUnscramble}
-        uri={uri}
         headers={headers}
         prevState={horizontal ? horizontalState : verticalState}
-        onSuccess={({ height, hash, dataUrl }) => {
-          onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
+        onChange={(state) => {
           if (horizontal) {
-            horizontalStateRef.current[index] = {
-              hash,
-              height,
-              status: AsyncStatus.Fulfilled,
-              dataUrl,
-            };
+            horizontalStateRef.current[index] = state;
           } else {
-            verticalStateRef.current[index] = {
-              hash,
-              height,
-              status: AsyncStatus.Fulfilled,
-              dataUrl,
-            };
+            verticalStateRef.current[index] = state;
           }
+          onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
         }}
       />
     );
@@ -155,7 +144,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         inverted={inverted}
         horizontal={horizontal}
         pagingEnabled={horizontal}
-        estimatedItemSize={horizontal ? windowWidth : (windowHeight * 2) / 3}
+        estimatedItemSize={horizontal ? windowWidth : (windowHeight * 3) / 5}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}
