@@ -16,7 +16,7 @@ const oneTwoWidth = windowWidth / 2;
 
 interface ControllerProps {
   onTap?: (position: 'left' | 'mid' | 'right') => void;
-  onLongPress?: (positoin: 'left' | 'right') => void;
+  onLongPress?: (position: 'left' | 'right') => void;
   children: ReactNode;
   horizontal?: boolean;
 }

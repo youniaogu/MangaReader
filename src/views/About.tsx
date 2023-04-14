@@ -121,7 +121,15 @@ const About = ({ navigation }: StackAboutProps) => {
         )}
         {release.loadStatus === AsyncStatus.Fulfilled && release.latest === undefined && (
           <Center alignItems="center">
-            <Image w={24} h={32} resizeMode="contain" source={christmasGif} alt="christmas" />
+            <Image
+              w={24}
+              h={32}
+              resizeMode="contain"
+              resizeMethod="resize"
+              fadeDuration={0}
+              source={christmasGif}
+              alt="christmas"
+            />
             <Text pb={4} fontWeight="bold">
               暂无更新
             </Text>

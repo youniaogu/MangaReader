@@ -14,7 +14,7 @@ export const storageKey = {
   setting: '@setting',
 };
 
-export function scaleToFill(
+export function aspectFill(
   img: { width: number; height: number },
   container: { width: number; height: number }
 ) {
@@ -31,7 +31,7 @@ export function scaleToFill(
   };
 }
 
-export function scaleToFit(
+export function aspectFit(
   img: { width: number; height: number },
   container: { width: number; height: number }
 ) {

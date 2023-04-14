@@ -6,7 +6,15 @@ const readingGif = require('~/assets/reading.gif');
 const Loading = () => {
   return (
     <Center w="full" h="full" pb={32}>
-      <Image w={32} h={48} resizeMode="contain" source={readingGif} alt="reading" />
+      <Image
+        w={32}
+        h={48}
+        resizeMode="contain"
+        resizeMethod="resize"
+        fadeDuration={0}
+        source={readingGif}
+        alt="reading"
+      />
     </Center>
   );
 };

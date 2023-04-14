@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
 import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
-import { AsyncStatus, scaleToFit, mergeQuery } from '~/utils';
+import { AsyncStatus, aspectFit, mergeQuery } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import { unscramble } from '~/plugins/jmc';
@@ -12,9 +12,6 @@ import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 const groundPoundGif = require('~/assets/ground_pound.gif');
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-const windowScale = Dimensions.get('window').scale;
-const maximumSize = 1864000;
-const maximumScale = maximumSize / (windowScale * windowWidth * windowHeight);
 const defaultState = {
   hash: '',
   dataUrl: '',
@@ -30,10 +27,11 @@ export interface ImageState {
 }
 export interface ImageProps {
   uri: string;
+  index: number;
   headers?: { [name: string]: string };
   horizontal?: boolean;
   prevState?: ImageState;
-  onChange?: (state: ImageState) => void;
+  onChange?: (state: ImageState, idx?: number) => void;
 }
 export interface ComicImageProps extends ImageProps {
   useJMC?: boolean;
@@ -41,6 +39,7 @@ export interface ComicImageProps extends ImageProps {
 
 const DefaultImage = ({
   uri,
+  index,
   headers = {},
   horizontal = false,
   prevState = defaultState,
@@ -53,10 +52,21 @@ const DefaultImage = ({
   );
   const uriRef = useRef(uri);
 
+  const updateData = useCallback(
+    (data: ImageState) => {
+      let isUnmounted = false;
+      onChange && onChange(data, index);
+      !isUnmounted && setImageState(data);
+
+      return () => {
+        isUnmounted = true;
+      };
+    },
+    [index, onChange]
+  );
   const handleError = useCallback(() => {
-    onChange && onChange({ ...imageState, loadStatus: AsyncStatus.Rejected });
-    setImageState({ ...imageState, loadStatus: AsyncStatus.Rejected });
-  }, [imageState, onChange]);
+    updateData({ ...imageState, loadStatus: AsyncStatus.Rejected });
+  }, [imageState, updateData]);
   const loadImage = useCallback(() => {
     setImageState({ ...imageState, loadStatus: AsyncStatus.Pending });
     CacheManager.prefetchBlob(source, { headers })
@@ -66,14 +76,7 @@ const DefaultImage = ({
           return;
         }
         if (horizontal) {
-          onChange &&
-            onChange({
-              ...imageState,
-              dataUrl: source,
-              fillHeight: windowHeight,
-              loadStatus: AsyncStatus.Fulfilled,
-            });
-          setImageState({
+          updateData({
             ...imageState,
             dataUrl: source,
             fillHeight: windowHeight,
@@ -85,14 +88,7 @@ const DefaultImage = ({
         base64 = 'data:image/png;base64,' + base64;
         ReactNativeImage.getSize(base64, (width, height) => {
           const imageHeight = (height / width) * windowWidth;
-          onChange &&
-            onChange({
-              ...imageState,
-              dataUrl: source,
-              fillHeight: imageHeight,
-              loadStatus: AsyncStatus.Fulfilled,
-            });
-          setImageState({
+          updateData({
             ...imageState,
             dataUrl: source,
             fillHeight: imageHeight,
@@ -101,7 +97,7 @@ const DefaultImage = ({
         });
       })
       .catch(handleError);
-  }, [source, headers, imageState, horizontal, onChange, handleError]);
+  }, [source, headers, imageState, horizontal, updateData, handleError]);
   useFocusEffect(
     useCallback(() => {
       if (imageState.loadStatus === AsyncStatus.Default) {
@@ -124,8 +120,7 @@ const DefaultImage = ({
       .catch(() => {})
       .finally(() => {
         const newHash = nanoid();
-        onChange && onChange({ ...imageState, hash: newHash, loadStatus: AsyncStatus.Default });
-        setImageState({ ...imageState, hash: newHash, loadStatus: AsyncStatus.Default });
+        updateData({ ...imageState, hash: newHash, loadStatus: AsyncStatus.Default });
       });
   };
 
@@ -138,6 +133,8 @@ const DefaultImage = ({
         <Image
           style={styles.loading}
           resizeMode="contain"
+          resizeMethod="resize"
+          fadeDuration={0}
           source={groundPoundGif}
           alt="groundpound"
         />
@@ -165,6 +162,7 @@ const DefaultImage = ({
 
 const JMCImage = ({
   uri,
+  index,
   headers = {},
   horizontal = false,
   prevState = defaultState,
@@ -178,10 +176,21 @@ const JMCImage = ({
   const canvasRef = useRef<Canvas>(null);
   const uriRef = useRef(uri);
 
+  const updateData = useCallback(
+    (data: ImageState) => {
+      let isUnmounted = false;
+      onChange && onChange(data, index);
+      !isUnmounted && setImageState(data);
+
+      return () => {
+        isUnmounted = true;
+      };
+    },
+    [index, onChange]
+  );
   const handleError = useCallback(() => {
-    onChange && onChange({ ...imageState, loadStatus: AsyncStatus.Rejected });
-    setImageState({ ...imageState, loadStatus: AsyncStatus.Rejected });
-  }, [imageState, onChange]);
+    updateData({ ...imageState, loadStatus: AsyncStatus.Rejected });
+  }, [imageState, updateData]);
   const base64ToUrl = useCallback(
     (base64: string, width: number, height: number) => {
       if (canvasRef.current) {
@@ -190,9 +199,9 @@ const JMCImage = ({
         const image = new CanvasImage(canvasRef.current, height, width);
         image.src = base64;
 
-        const container = scaleToFit(
+        const container = aspectFit(
           { width, height },
-          { width: windowWidth * maximumScale, height: windowHeight * maximumScale }
+          { width: windowWidth, height: windowHeight }
         );
 
         canvasRef.current.width = container.dWidth;
@@ -201,8 +210,8 @@ const JMCImage = ({
         image.addEventListener('load', () => {
           let prevDy: number = 0;
           let prevDh: number = 0;
-          step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, index) => {
-            if (index <= 0) {
+          step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, idx) => {
+            if (idx <= 0) {
               prevDy = dy * container.scale;
             } else {
               prevDy = prevDh + prevDy;
@@ -260,9 +269,9 @@ const JMCImage = ({
         }
         base64 = 'data:image/png;base64,' + base64;
 
-        ReactNativeImage.getSizeWithHeaders(base64, headers, (width, height) =>
-          base64ToUrl(base64 as string, width, height)
-        );
+        ReactNativeImage.getSize(base64, (width, height) => {
+          base64ToUrl(base64 as string, width, height);
+        });
       })
       .catch(handleError);
   }, [source, headers, base64ToUrl, handleError]);
@@ -288,8 +297,7 @@ const JMCImage = ({
       .catch(() => {})
       .finally(() => {
         const newHash = nanoid();
-        onChange && onChange({ ...prevState, hash: newHash, loadStatus: AsyncStatus.Default });
-        setImageState((state) => ({ ...state, hash: newHash, loadStatus: AsyncStatus.Default }));
+        updateData({ ...prevState, hash: newHash, loadStatus: AsyncStatus.Default });
       });
   };
 
@@ -309,6 +317,8 @@ const JMCImage = ({
         <Image
           style={styles.loading}
           resizeMode="contain"
+          resizeMethod="resize"
+          fadeDuration={0}
           source={groundPoundGif}
           alt="groundpound"
         />
@@ -322,6 +332,8 @@ const JMCImage = ({
       w={horizontal ? windowWidth : windowWidth}
       h={horizontal ? windowHeight : imageState.fillHeight}
       resizeMode={horizontal ? 'contain' : 'cover'}
+      resizeMethod="resize"
+      fadeDuration={0}
       source={{ uri: imageState.dataUrl }}
       alt="page"
       bg="black"

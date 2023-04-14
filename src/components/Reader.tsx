@@ -59,7 +59,11 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const horizontalStateRef = useRef<ImageState[]>([]);
   const verticalStateRef = useRef<ImageState[]>([]);
 
+  const onTapRef = useRef(onTap);
+  const onLongPressRef = useRef(onLongPress);
   const onPageChangeRef = useRef(onPageChange);
+  onTapRef.current = onTap;
+  onLongPressRef.current = onLongPress;
   onPageChangeRef.current = onPageChange;
 
   const initialScrollIndex = useMemo(
@@ -111,22 +115,55 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
     }
   };
-  const renderItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
+  const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
+    const { uri, needUnscramble } = item;
+    const horizontalState = horizontalStateRef.current[index];
+    const verticalState = verticalStateRef.current[index];
+    return (
+      <Controller
+        horizontal
+        onTap={(position) => {
+          onTapRef.current && onTapRef.current(position);
+        }}
+        onLongPress={(position) => {
+          onLongPressRef.current && onLongPressRef.current(position);
+        }}
+      >
+        <ComicImage
+          horizontal
+          uri={uri}
+          index={index}
+          useJMC={needUnscramble}
+          headers={headers}
+          prevState={horizontal ? horizontalState : verticalState}
+          onChange={(state, idx = index) => {
+            if (horizontal) {
+              horizontalStateRef.current[idx] = state;
+            } else {
+              verticalStateRef.current[idx] = state;
+            }
+            onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
+          }}
+        />
+      </Controller>
+    );
+  };
+  const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
     const horizontalState = horizontalStateRef.current[index];
     const verticalState = verticalStateRef.current[index];
     return (
       <ComicImage
         uri={uri}
-        horizontal={horizontal}
+        index={index}
         useJMC={needUnscramble}
         headers={headers}
         prevState={horizontal ? horizontalState : verticalState}
-        onChange={(state) => {
+        onChange={(state, idx = index) => {
           if (horizontal) {
-            horizontalStateRef.current[index] = state;
+            horizontalStateRef.current[idx] = state;
           } else {
-            verticalStateRef.current[index] = state;
+            verticalStateRef.current[idx] = state;
           }
           onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
         }}
@@ -134,21 +171,36 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     );
   };
 
-  return (
-    <Controller horizontal={horizontal} onTap={onTap} onLongPress={onLongPress}>
+  if (horizontal) {
+    return (
       <FlashList
-        key={horizontal ? 'horizontal' : 'vertical'}
         ref={flashListRef}
         data={data}
-        initialScrollIndex={horizontal ? initialScrollIndex : undefined}
         inverted={inverted}
-        horizontal={horizontal}
-        pagingEnabled={horizontal}
-        estimatedItemSize={horizontal ? windowWidth : (windowHeight * 3) / 5}
+        horizontal
+        pagingEnabled
+        initialScrollIndex={initialScrollIndex}
+        estimatedItemSize={windowWidth}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}
-        renderItem={renderItem}
+        renderItem={renderHorizontalItem}
+        keyExtractor={(item) => item.uri}
+      />
+    );
+  }
+
+  return (
+    <Controller onTap={onTap} onLongPress={onLongPress}>
+      <FlashList
+        ref={flashListRef}
+        data={data}
+        inverted={inverted}
+        estimatedItemSize={(windowHeight * 3) / 5}
+        onEndReached={onLoadMore}
+        onEndReachedThreshold={5}
+        onViewableItemsChanged={HandleViewableItemsChanged}
+        renderItem={renderVerticalItem}
         keyExtractor={(item) => item.uri}
         ListHeaderComponent={<Box height={0} safeAreaTop />}
         ListFooterComponent={<Box height={0} safeAreaBottom />}
