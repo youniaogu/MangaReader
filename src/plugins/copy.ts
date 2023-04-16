@@ -44,13 +44,14 @@ interface MangaInfoResponse
       last_chapter: { uuid: string; name: string };
     };
   }> {}
-interface ChapterListResponse
-  extends BaseResponse<{
-    total: number;
-    limit: number;
-    offset: number;
-    list: { uuid: string; name: string; comic_path_word: string }[];
-  }> {}
+interface ChapterListReponse extends BaseResponse<string> {}
+interface ChapterListInfo {
+  build: {
+    path_word: string;
+    type: { id: number; name: string }[];
+  };
+  groups: Record<'default' | string, { chapters: { id: string; name: string }[] }>;
+}
 
 const discoveryOptions = [
   {
@@ -218,14 +219,13 @@ class CopyManga extends Base {
       headers: new Headers(this.fetchHeaders),
     };
   };
-  prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId, page) => {
+  prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId) => {
     return {
-      url: `https://api.copymanga.net/api/v3/comic/${mangaId}/group/default/chapters`,
-      body: {
-        limit: 100,
-        offset: (page - 1) * 100,
-      },
-      headers: new Headers(this.fetchHeaders),
+      url: `https://www.copymanga.site/comicdetail/${mangaId}/chapters`,
+      headers: new Headers({
+        'user-agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+      }),
     };
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
@@ -339,24 +339,30 @@ class CopyManga extends Base {
     }
   };
 
-  handleChapterList: Base['handleChapterList'] = (res: ChapterListResponse) => {
+  handleChapterList: Base['handleChapterList'] = (res: ChapterListReponse) => {
     try {
       if (res.code === 200) {
-        const { list, total, limit, offset } = res.results;
+        const data: ChapterListInfo = JSON.parse(AESDecrypt(res.results || ''));
+        const { build, groups } = data;
+        const list = groups.default;
+
+        Object.keys(groups)
+          .filter((key) => key !== 'default')
+          .forEach((key) => {
+            list.chapters = groups[key].chapters.concat(list.chapters);
+          });
 
         return {
-          chapterList: list.reverse().map((item) => {
-            const { name, comic_path_word, uuid } = item;
-
-            return {
-              hash: Base.combineHash(this.id, comic_path_word, uuid),
-              mangaId: comic_path_word,
-              chapterId: uuid,
-              href: `https://copymanga.site/h5/comicContent/${comic_path_word}/${uuid}`,
-              title: name,
-            };
-          }),
-          canLoadMore: total > limit + offset,
+          chapterList: list.chapters
+            .map((item) => ({
+              hash: Base.combineHash(this.id, build.path_word, item.id),
+              mangaId: build.path_word,
+              chapterId: item.id,
+              href: `https://copymanga.site/h5/comicContent/${build.path_word}/${item.id}`,
+              title: item.name,
+            }))
+            .reverse(),
+          canLoadMore: false,
         };
       } else {
         throw new Error(ErrorMessage.WrongResponse + res.message);

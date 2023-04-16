@@ -117,10 +117,9 @@ const DefaultImage = ({
     CacheManager.removeCacheEntry(source)
       .then(() => {})
       .catch(() => {})
-      .finally(() => {
-        const newHash = nanoid();
-        updateData({ ...imageState, hash: newHash, loadStatus: AsyncStatus.Default });
-      });
+      .finally(() =>
+        updateData({ ...imageState, hash: nanoid(), loadStatus: AsyncStatus.Default })
+      );
   };
 
   if (
