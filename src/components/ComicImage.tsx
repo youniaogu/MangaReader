@@ -6,8 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import { unscramble } from '~/plugins/jmc';
 import { nanoid } from '@reduxjs/toolkit';
-import ErrorWithRetry from '~/components/ErrorWithRetry';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
+import ErrorWithRetry from '~/components/ErrorWithRetry';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
 const windowWidth = Dimensions.get('window').width;
@@ -87,11 +87,10 @@ const DefaultImage = ({
 
         base64 = 'data:image/png;base64,' + base64;
         ReactNativeImage.getSize(base64, (width, height) => {
-          const imageHeight = (height / width) * windowWidth;
           updateData({
             ...imageState,
             dataUrl: source,
-            fillHeight: imageHeight,
+            fillHeight: (height / width) * windowWidth,
             loadStatus: AsyncStatus.Fulfilled,
           });
         });
@@ -153,7 +152,7 @@ const DefaultImage = ({
     <CachedImage
       source={source}
       options={{ headers }}
-      style={horizontal ? styles.contain : { ...styles.cover, height: imageState.fillHeight }}
+      style={{ width: windowWidth, height: horizontal ? windowHeight : imageState.fillHeight }}
       resizeMode={horizontal ? 'contain' : 'cover'}
       onError={handleError}
     />
@@ -233,19 +232,10 @@ const JMCImage = ({
 
           if (canvasRef.current) {
             canvasRef.current.toDataURL().then((res) => {
-              const imageHeight = (height / width) * windowWidth;
-              const newSource = res.replace(/^"|"$/g, '');
-              onChange &&
-                onChange({
-                  ...imageState,
-                  dataUrl: newSource,
-                  fillHeight: imageHeight,
-                  loadStatus: AsyncStatus.Fulfilled,
-                });
-              setImageState({
+              updateData({
                 ...imageState,
-                dataUrl: newSource,
-                fillHeight: imageHeight,
+                dataUrl: res.replace(/^"|"$/g, ''),
+                fillHeight: (height / width) * windowWidth,
                 loadStatus: AsyncStatus.Fulfilled,
               });
             });
@@ -257,7 +247,7 @@ const JMCImage = ({
         handleError();
       }
     },
-    [source, imageState, onChange, handleError]
+    [source, imageState, updateData, handleError]
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
@@ -342,13 +332,6 @@ const JMCImage = ({
 };
 
 const styles = StyleSheet.create({
-  contain: {
-    width: windowWidth,
-    height: windowHeight,
-  },
-  cover: {
-    width: windowWidth,
-  },
   loading: {
     width: windowWidth * 0.3,
     height: windowHeight,

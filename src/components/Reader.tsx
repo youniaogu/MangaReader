@@ -2,10 +2,10 @@ import React, {
   memo,
   useRef,
   useMemo,
+  useCallback,
   useImperativeHandle,
   forwardRef,
   ForwardRefRenderFunction,
-  useCallback,
 } from 'react';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
@@ -38,6 +38,7 @@ export interface ReaderProps {
 export interface ReaderRef {
   scrollToIndex: (index: number, animated?: boolean) => void;
   scrollToOffset: (offset: number, animated?: boolean) => void;
+  clearStateRef: () => void;
 }
 
 const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
@@ -86,6 +87,10 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     },
     scrollToOffset: (offset: number, animated = true) => {
       flashListRef.current?.scrollToOffset({ offset, animated });
+    },
+    clearStateRef: () => {
+      horizontalStateRef.current = [];
+      verticalStateRef.current = [];
     },
   }));
 

@@ -80,6 +80,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       setHashList([prev.hash]);
       setPage(0);
       pageSliderRef.current?.changePage(1);
+      readerRef.current?.clearStateRef();
       readerRef.current?.scrollToIndex(0, false);
     } else {
       toast.show({ title: '第一话' });
@@ -91,6 +92,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       setHashList([next.hash]);
       setPage(0);
       pageSliderRef.current?.changePage(1);
+      readerRef.current?.clearStateRef();
       readerRef.current?.scrollToIndex(0, false);
     } else {
       toast.show({ title: '最后一话' });
