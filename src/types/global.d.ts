@@ -134,6 +134,8 @@ declare global {
       direction: ReaderDirection;
       sequence: Sequence;
       firstPrehandle: boolean;
+      androidAlbumPath: string;
+      iosAlbumPath: string;
     };
     plugin: {
       source: Plugin;

@@ -95,6 +95,12 @@ export function fixSettingShape(setting: RootState['setting']): RootState['setti
   if (!nonNullable(setting.firstPrehandle)) {
     setting.firstPrehandle = true;
   }
+  if (!nonNullable(setting.androidAlbumPath)) {
+    setting.androidAlbumPath = '/DCIM';
+  }
+  if (!nonNullable(setting.iosAlbumPath)) {
+    setting.iosAlbumPath = '';
+  }
 
   return setting;
 }

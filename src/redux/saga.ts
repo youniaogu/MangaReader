@@ -28,6 +28,7 @@ import { Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, PluginMap } from '~/plugins';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
+import { Dirs, FileSystem } from 'react-native-file-access';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LZString from 'lz-string';
@@ -641,10 +642,22 @@ function* prehandleChapterSaga() {
       const album = chapter.title;
       const images = chapter.images.map((item) => item.uri);
       const firstPrehandle = ((state: RootState) => state.setting.firstPrehandle)(yield select());
+      const androidAlbumPath = ((state: RootState) => state.setting.androidAlbumPath)(
+        yield select()
+      );
 
       if (save && images.find((item) => item.includes('.webp'))) {
         yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
         return;
+      }
+      if (Platform.OS === 'android') {
+        const isExisted: boolean = yield call(
+          FileSystem.exists,
+          `${Dirs.SDCardDir}/${androidAlbumPath}/${album}`
+        );
+        if (!isExisted) {
+          yield call(FileSystem.mkdir, `${Dirs.SDCardDir}/${androidAlbumPath}/${album}`);
+        }
       }
 
       yield put(
@@ -681,7 +694,17 @@ function* prehandleChapterSaga() {
         if (save) {
           const cacheEntry = CacheManager.get(source, undefined);
           const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
-          yield call(CameraRoll.save, `file://${path}`, { album });
+
+          if (Platform.OS === 'ios') {
+            yield call(CameraRoll.save, `file://${path}`, { album });
+          } else {
+            const [, , suffix] = path.match(/.*\/(.*)(\..*)$/) || [];
+            yield call(
+              FileSystem.cp,
+              `file://${path}`,
+              `${Dirs.SDCardDir}/${androidAlbumPath}/${album}/${index}.${suffix}`
+            );
+          }
         }
         yield put(viewImage({ chapterHash, index, isPrefetch: true }));
         yield put(

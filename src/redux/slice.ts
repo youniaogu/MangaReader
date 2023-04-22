@@ -24,6 +24,8 @@ export const initialState: RootState = {
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
     firstPrehandle: true,
+    androidAlbumPath: '/DCIM',
+    iosAlbumPath: '',
   },
   plugin: {
     source: defaultPlugin,
