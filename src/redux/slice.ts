@@ -189,6 +189,9 @@ const settingSlice = createSlice({
     setSequence(state, action: PayloadAction<Sequence>) {
       state.sequence = action.payload;
     },
+    setAndroidAlbumPath(state, action: PayloadAction<string>) {
+      state.androidAlbumPath = action.payload;
+    },
     syncSetting(_state, action: PayloadAction<RootState['setting']>) {
       return action.payload;
     },

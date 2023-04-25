@@ -653,10 +653,10 @@ function* prehandleChapterSaga() {
       if (Platform.OS === 'android') {
         const isExisted: boolean = yield call(
           FileSystem.exists,
-          `${Dirs.SDCardDir}/${androidAlbumPath}/${album}`
+          `${Dirs.SDCardDir}${androidAlbumPath}/${album}`
         );
         if (!isExisted) {
-          yield call(FileSystem.mkdir, `${Dirs.SDCardDir}/${androidAlbumPath}/${album}`);
+          yield call(FileSystem.mkdir, `${Dirs.SDCardDir}${androidAlbumPath}/${album}`);
         }
       }
 
@@ -702,7 +702,7 @@ function* prehandleChapterSaga() {
             yield call(
               FileSystem.cp,
               `file://${path}`,
-              `${Dirs.SDCardDir}/${androidAlbumPath}/${album}/${index}.${suffix}`
+              `${Dirs.SDCardDir}${androidAlbumPath}/${album}/${index}.${suffix}`
             );
           }
         }
