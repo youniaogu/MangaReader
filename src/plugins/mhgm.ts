@@ -132,20 +132,20 @@ class ManHuaGuiMobile extends Base {
       url: `https://m.manhuagui.com/s/${keyword}_o${sort === Options.Default ? '0' : sort}.html/`,
       method: 'POST',
       body: page > 1 ? body : undefined,
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers({ ...this.defaultHeaders, host: 'm.manhuagui.com' }),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
       url: 'https://m.manhuagui.com/comic/' + mangaId,
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers({ ...this.defaultHeaders, host: 'm.manhuagui.com' }),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
       url: `https://m.manhuagui.com/comic/${mangaId}/${chapterId}.html`,
-      headers: new Headers(this.defaultHeaders),
+      headers: new Headers({ ...this.defaultHeaders, host: 'm.manhuagui.com' }),
     };
   };
 
