@@ -267,7 +267,7 @@ class CopyManga extends Base {
             mangaId,
             chapterId,
             href: `https://18comic.vip${chapterHref}`,
-            title: chapterTitle.replaceAll('\n', ''),
+            title: chapterTitle.replaceAll(/[\r\n]+/g, '').trim(),
           };
         })
         .reverse();
