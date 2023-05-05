@@ -264,7 +264,6 @@ const About = ({ navigation }: StackAboutProps) => {
       <PathModal
         isOpen={isAlbumPathOpen}
         leftAddon={Dirs.SDCardDir}
-        rightAddon="/{chapterName}"
         value={androidAlbumPath}
         onClose={onAlbumPathClose}
         onChange={(text) => dispatch(setAndroidAlbumPath(text))}
