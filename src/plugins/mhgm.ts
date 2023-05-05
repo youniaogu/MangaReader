@@ -137,7 +137,7 @@ class ManHuaGuiMobile extends Base {
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: 'https://m.manhuagui.com/comic/' + mangaId,
+      url: `https://m.manhuagui.com/comic/${mangaId}/`,
       headers: new Headers({ ...this.defaultHeaders, host: 'm.manhuagui.com' }),
     };
   };
