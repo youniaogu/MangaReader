@@ -15,7 +15,6 @@ import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { AsyncStatus, BackupRestore } from '~/utils';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { Linking, Platform } from 'react-native';
-import { Dirs } from 'react-native-file-access';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -25,7 +24,7 @@ import PathModal from '~/components/PathModal';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LZString from 'lz-string';
 
-const { restore, clearCache, loadLatestRelease, setAndroidAlbumPath } = action;
+const { restore, clearCache, loadLatestRelease, setAndroidDownloadPath } = action;
 const christmasGif = require('~/assets/christmas.gif');
 const BackupRestoreOptions = [
   { label: '剪贴板', value: BackupRestore.Clipboard },
@@ -49,7 +48,7 @@ const About = ({ navigation }: StackAboutProps) => {
   const favorites = useAppSelector((state) => state.favorites);
   const clearStatus = useAppSelector((state) => state.datasync.clearStatus);
   const restoreStatus = useAppSelector((state) => state.datasync.restoreStatus);
-  const androidAlbumPath = useAppSelector((state) => state.setting.androidAlbumPath);
+  const androidDownloadPath = useAppSelector((state) => state.setting.androidDownloadPath);
 
   const compressed = useMemo(() => {
     const uncompressed = JSON.stringify({
@@ -109,6 +108,11 @@ const About = ({ navigation }: StackAboutProps) => {
   const handleStorageCacheClear = () => {
     dispatch(clearCache());
     onModalClose();
+  };
+
+  const handleAlbumPathClose = (path: string) => {
+    onAlbumPathClose();
+    dispatch(setAndroidDownloadPath(path));
   };
 
   return (
@@ -188,14 +192,14 @@ const About = ({ navigation }: StackAboutProps) => {
         >
           恢复
         </Button>
-        {Platform.OS === 'android' && (
+        {(Platform.OS === 'android' || __DEV__) && (
           <Button
             shadow={2}
             _text={{ fontWeight: 'bold' }}
             leftIcon={<Icon as={MaterialIcons} name="drive-file-move" size="lg" />}
             onPress={onAlbumPathOpen}
           >
-            {`${androidAlbumPath}`}
+            {`${androidDownloadPath}`}
           </Button>
         )}
         <Button
@@ -263,10 +267,8 @@ const About = ({ navigation }: StackAboutProps) => {
 
       <PathModal
         isOpen={isAlbumPathOpen}
-        leftAddon={Dirs.SDCardDir}
-        value={androidAlbumPath}
-        onClose={onAlbumPathClose}
-        onChange={(text) => dispatch(setAndroidAlbumPath(text))}
+        defaultValue={androidDownloadPath}
+        onClose={handleAlbumPathClose}
       />
       <QrcodeModal isOpen={isQrcodeOpen} value={compressed} onClose={onQrcodeClose} />
     </ScrollView>

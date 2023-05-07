@@ -1,6 +1,7 @@
 import { AsyncStatus, MangaStatus, LayoutMode, ReaderDirection, Sequence } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
+import { Dirs } from 'react-native-file-access';
 
 export const initialState: RootState = {
   app: {
@@ -24,8 +25,7 @@ export const initialState: RootState = {
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
     firstPrehandle: true,
-    androidAlbumPath: '/DCIM',
-    iosAlbumPath: '',
+    androidDownloadPath: Dirs.SDCardDir + '/DCIM',
   },
   plugin: {
     source: defaultPlugin,
@@ -189,8 +189,8 @@ const settingSlice = createSlice({
     setSequence(state, action: PayloadAction<Sequence>) {
       state.sequence = action.payload;
     },
-    setAndroidAlbumPath(state, action: PayloadAction<string>) {
-      state.androidAlbumPath = action.payload;
+    setAndroidDownloadPath(state, action: PayloadAction<string>) {
+      state.androidDownloadPath = action.payload;
     },
     syncSetting(_state, action: PayloadAction<RootState['setting']>) {
       return action.payload;

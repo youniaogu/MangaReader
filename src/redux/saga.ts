@@ -28,7 +28,7 @@ import { Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, PluginMap } from '~/plugins';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { Dirs, FileSystem } from 'react-native-file-access';
+import { FileSystem } from 'react-native-file-access';
 import { action } from './slice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LZString from 'lz-string';
@@ -642,7 +642,7 @@ function* prehandleChapterSaga() {
       const album = chapter.title;
       const images = chapter.images.map((item) => item.uri);
       const firstPrehandle = ((state: RootState) => state.setting.firstPrehandle)(yield select());
-      const androidAlbumPath = ((state: RootState) => state.setting.androidAlbumPath)(
+      const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
         yield select()
       );
 
@@ -651,12 +651,9 @@ function* prehandleChapterSaga() {
         return;
       }
       if (Platform.OS === 'android') {
-        const isExisted: boolean = yield call(
-          FileSystem.exists,
-          `${Dirs.SDCardDir}${androidAlbumPath}/${album}`
-        );
+        const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}/${album}`);
         if (!isExisted) {
-          yield call(FileSystem.mkdir, `${Dirs.SDCardDir}${androidAlbumPath}/${album}`);
+          yield call(FileSystem.mkdir, `${androidDownloadPath}/${album}`);
         }
       }
 
@@ -702,7 +699,7 @@ function* prehandleChapterSaga() {
             yield call(
               FileSystem.cp,
               `file://${path}`,
-              `${Dirs.SDCardDir}${androidAlbumPath}/${album}/${index}.${suffix}`
+              `${androidDownloadPath}/${album}/${index}.${suffix}`
             );
           }
         }

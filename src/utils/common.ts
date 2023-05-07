@@ -1,6 +1,7 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 import { ErrorMessage } from './enum';
 import { Dimensions } from 'react-native';
+import { Dirs } from 'react-native-file-access';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
 
@@ -95,11 +96,8 @@ export function fixSettingShape(setting: RootState['setting']): RootState['setti
   if (!nonNullable(setting.firstPrehandle)) {
     setting.firstPrehandle = true;
   }
-  if (!nonNullable(setting.androidAlbumPath)) {
-    setting.androidAlbumPath = '/DCIM';
-  }
-  if (!nonNullable(setting.iosAlbumPath)) {
-    setting.iosAlbumPath = '';
+  if (!nonNullable(setting.androidDownloadPath)) {
+    setting.androidDownloadPath = Dirs.SDCardDir + '/DCIM';
   }
 
   return setting;
