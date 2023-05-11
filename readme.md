@@ -14,6 +14,18 @@
   <img src="./demo.gif" alt="demo" />
 </p>
 
+## Plugins
+
+- [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
+- [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
+- [x] [copymanga](https://www.copymanga.org/)
+- [x] [manhuadb](https://www.manhuadb.com/)
+- [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip，目前主站到国内站点的自动跳转失效，需要代理）
+- [x] [dongmanzhijia](https://m.dmzj.com/)
+- [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
+- [x] [klmanga](https://klmanga.net/)
+- [x] [nhentai](https://nhentai.net/)（需要代理，安卓版本要求 9 及以上）
+
 ## Installation
 
 ```bash
