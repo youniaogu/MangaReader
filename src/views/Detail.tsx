@@ -264,6 +264,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         p={`${gap / 2}px`}
         numColumns={numColumns}
         data={chapters}
+        initialNumToRender={0}
         refreshControl={
           <RefreshControl
             refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}

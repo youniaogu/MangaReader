@@ -1,5 +1,6 @@
-import React, { Fragment, FC, memo, ReactNode } from 'react';
+import React, { FC, memo, ReactNode } from 'react';
 import { Actionsheet, ScrollView } from 'native-base';
+import Delay from './Delay';
 
 interface ActionsheetSelectProps {
   isOpen?: boolean;
@@ -27,7 +28,7 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
   };
 
   return (
-    <Fragment>
+    <Delay>
       <Actionsheet isOpen={isOpen} onClose={handleClose}>
         <Actionsheet.Content>
           {headerComponent}
@@ -44,7 +45,7 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
           </ScrollView>
         </Actionsheet.Content>
       </Actionsheet>
-    </Fragment>
+    </Delay>
   );
 };
 

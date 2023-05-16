@@ -20,7 +20,7 @@ const PathModal = ({ isOpen = true, defaultValue = '', onClose }: PathModalProps
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} size="full">
+    <Modal useRNModal isOpen={isOpen} onClose={handleClose} size="full">
       <Modal.Content w="full" p={2}>
         <Text fontSize="xs" color="gray.500" pb={1}>
           漫画下载目录：

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import { Box, Text, Icon, FlatList, Pressable } from 'native-base';
 import { splitWidth, coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -38,6 +38,15 @@ const Bookshelf = ({
   loading = false,
   emptyText,
 }: BookshelfProps) => {
+  const [delayDisplay, setDelayDisplay] = useState(!(loading && list.length === 0));
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDelayDisplay(false);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [setDelayDisplay]);
+
   const handlePress = (hash: string) => {
     return () => {
       itemOnPress(hash);
@@ -47,7 +56,7 @@ const Bookshelf = ({
     !loading && loadMore && loadMore();
   };
 
-  if (loading && list.length === 0) {
+  if ((loading && list.length === 0) || delayDisplay) {
     return <Loading />;
   }
   if (!loading && list.length === 0) {
@@ -61,7 +70,7 @@ const Bookshelf = ({
       data={list}
       onEndReached={handleEndReached}
       onEndReachedThreshold={1}
-      windowSize={3}
+      windowSize={12}
       initialNumToRender={12}
       maxToRenderPerBatch={12}
       keyExtractor={(item) => item.hash}

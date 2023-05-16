@@ -26,7 +26,7 @@ const QrcodeModal = ({ isOpen = true, value, onClose }: QrcodeModalProps) => {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="full">
+    <Modal useRNModal isOpen={isOpen} onClose={onClose} size="full">
       <Modal.Content w={windowWidth} h={windowWidth}>
         <Modal.Body p={0}>
           {isOpen ? (
