@@ -186,6 +186,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         pagingEnabled
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
+        estimatedListSize={{ width: windowWidth, height: windowHeight }}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}
@@ -202,6 +203,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         data={data}
         inverted={inverted}
         estimatedItemSize={(windowHeight * 3) / 5}
+        estimatedListSize={{ width: windowWidth, height: windowHeight }}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}

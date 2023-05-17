@@ -1,19 +1,19 @@
-import React, { memo, useEffect, useState } from 'react';
-import { Box, Text, Icon, FlatList, Pressable } from 'native-base';
+import React, { memo, useMemo } from 'react';
 import { splitWidth, coverAspectRatio } from '~/utils';
+import { Box, Text, Icon, Pressable } from 'native-base';
+import { StyleSheet, Dimensions } from 'react-native';
+import { useDelayRender } from '~/hooks';
 import { CachedImage } from '@georstat/react-native-image-cache';
-import { StyleSheet } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import WhiteCurtain from '~/components/WhiteCurtain';
 import SpinLoading from '~/components/SpinLoading';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
 
-const { gap, partWidth, numColumns } = splitWidth({
-  gap: 8,
-  minNumColumns: 3,
-  maxPartWidth: 200,
-});
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+const { gap, partWidth, numColumns } = splitWidth({ gap: 8, minNumColumns: 3, maxPartWidth: 200 });
 
 interface BookshelfProps {
   list: Manga[];
@@ -38,14 +38,11 @@ const Bookshelf = ({
   loading = false,
   emptyText,
 }: BookshelfProps) => {
-  const [delayDisplay, setDelayDisplay] = useState(!(loading && list.length === 0));
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setDelayDisplay(false);
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [setDelayDisplay]);
+  const render = useDelayRender(loading && list.length === 0);
+  const extraData = useMemo(
+    () => ({ trend: trendList || [], active: activeList || [], negative: negativeList || [] }),
+    [activeList, trendList, negativeList]
+  );
 
   const handlePress = (hash: string) => {
     return () => {
@@ -56,7 +53,7 @@ const Bookshelf = ({
     !loading && loadMore && loadMore();
   };
 
-  if ((loading && list.length === 0) || delayDisplay) {
+  if ((loading && list.length === 0) || !render) {
     return <Loading />;
   }
   if (!loading && list.length === 0) {
@@ -64,20 +61,20 @@ const Bookshelf = ({
   }
 
   return (
-    <FlatList
-      p={`${gap / 2}px`}
-      numColumns={numColumns}
+    <FlashList
       data={list}
+      extraData={extraData}
+      numColumns={numColumns}
+      estimatedItemSize={partWidth / coverAspectRatio}
+      estimatedListSize={{ width: windowWidth, height: windowHeight }}
+      contentContainerStyle={{ padding: gap / 2 }}
       onEndReached={handleEndReached}
       onEndReachedThreshold={1}
-      windowSize={12}
-      initialNumToRender={12}
-      maxToRenderPerBatch={12}
       keyExtractor={(item) => item.hash}
       ListFooterComponent={
         loading ? <SpinLoading height={24} safeAreaBottom /> : <Box height={0} safeAreaBottom />
       }
-      renderItem={({ item }) => (
+      renderItem={({ item, extraData: { active, trend, negative } }) => (
         <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
           <Box width={partWidth + gap} flexDirection="column" p={`${gap / 2}px`}>
             <Box position="relative" shadow={0} bg="white" borderRadius={6}>
@@ -87,7 +84,7 @@ const Bookshelf = ({
                 style={styles.img}
                 resizeMode="cover"
               />
-              {trendList && trendList.includes(item.hash) && (
+              {trend.includes(item.hash) && (
                 <Box
                   shadow={0}
                   position="absolute"
@@ -103,7 +100,7 @@ const Bookshelf = ({
                   </Text>
                 </Box>
               )}
-              {negativeList && negativeList.includes(item.hash) && (
+              {negative.includes(item.hash) && (
                 <Icon
                   shadow="icon"
                   position="absolute"
@@ -115,7 +112,7 @@ const Bookshelf = ({
                   color="purple.700"
                 />
               )}
-              <WhiteCurtain actived={activeList && activeList.includes(item.hash)}>
+              <WhiteCurtain actived={active.includes(item.hash)}>
                 <Box
                   position="absolute"
                   w="full"

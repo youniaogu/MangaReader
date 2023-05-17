@@ -6,7 +6,6 @@ import {
   Icon,
   HStack,
   VStack,
-  FlatList,
   Pressable,
   Toast,
   useTheme,
@@ -22,12 +21,13 @@ import {
   AsyncStatus,
   PrefetchDownload,
 } from '~/utils';
-import { Dimensions, StyleSheet, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
+import { Dimensions, StyleSheet, RefreshControl, Linking } from 'react-native';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
+import { useOnce, useDelayRender } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
-import { useOnce } from '~/hooks';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
@@ -52,7 +52,9 @@ const { gap, partWidth, numColumns } = splitWidth({
   minNumColumns: 4,
   maxPartWidth: 100,
 });
-const coverWidth = Math.min((Dimensions.get('window').width * 1) / 3, 200);
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+const coverWidth = Math.min((windowWidth * 1) / 3, 200);
 const coverHeight = coverWidth / coverAspectRatio;
 const PrefetchDownloadOptions = [
   { label: '预加载', value: PrefetchDownload.Prefetch },
@@ -60,10 +62,11 @@ const PrefetchDownloadOptions = [
 ];
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
+  const mangaHash = route.params.mangaHash;
   const { isOpen, onOpen, onClose } = useDisclose();
   const { colors } = useTheme();
   const [chapter, setChapter] = useState<{ hash: string; title: string }>();
-  const mangaHash = route.params.mangaHash;
+  const render = useDelayRender();
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const loadingMangaHash = useAppSelector((state) => state.manga.loadingMangaHash);
@@ -74,6 +77,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const sequence = useAppSelector((state) => state.setting.sequence);
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
   const lastWatch = useMemo(() => lastWatchDict[mangaHash] || {}, [lastWatchDict, mangaHash]);
+  const extraData = useMemo(
+    () => ({ dict: reocrdDict, chapterHash: lastWatch.chapter }),
+    [reocrdDict, lastWatch.chapter]
+  );
   const chapters = useMemo(() => {
     if (!data) {
       return [];
@@ -166,9 +173,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     };
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
-    const isActived = item.hash === lastWatch.chapter;
-    const record = reocrdDict[item.hash];
+  const renderItem = ({
+    item,
+    extraData: { dict, chapterHash },
+  }: ListRenderItemInfo<ChapterItem>) => {
+    const isActived = item.hash === chapterHash;
+    const record = dict[item.hash];
+
     return (
       <Pressable
         _pressed={{ opacity: 0.8 }}
@@ -258,24 +269,30 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         </Flex>
       </Flex>
 
-      {/* 待优化 */}
-      <FlatList
-        h="full"
-        p={`${gap / 2}px`}
-        numColumns={numColumns}
-        data={chapters}
-        initialNumToRender={0}
-        refreshControl={
-          <RefreshControl
-            refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}
-            onRefresh={handleReload}
-            tintColor={colors.purple[500]}
-          />
-        }
-        renderItem={renderItem}
-        ListFooterComponent={<Box safeAreaBottom />}
-        keyExtractor={(item) => item.hash}
-      />
+      {chapters.length > 0 && render ? (
+        <FlashList
+          data={chapters}
+          extraData={extraData}
+          contentContainerStyle={{ padding: gap / 2 }}
+          numColumns={numColumns}
+          estimatedItemSize={24}
+          estimatedListSize={{ width: windowWidth, height: windowHeight }}
+          refreshControl={
+            <RefreshControl
+              refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}
+              onRefresh={handleReload}
+              tintColor={colors.purple[500]}
+            />
+          }
+          renderItem={renderItem}
+          ListFooterComponent={<Box safeAreaBottom />}
+          keyExtractor={(item) => item.hash}
+        />
+      ) : (
+        <Flex w="full" flexGrow={1} alignItems="center" justifyContent="center" safeAreaBottom>
+          <SpinLoading />
+        </Flex>
+      )}
 
       <ActionsheetSelect
         isOpen={isOpen}
