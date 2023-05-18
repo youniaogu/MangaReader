@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const useDelayRender = (defaultValue = false, duration = 500) => {
+export const useDelayRender = (defaultValue = false, duration = 500) => {
   const [render, setRender] = useState(defaultValue);
 
   useEffect(() => {
@@ -12,5 +12,3 @@ const useDelayRender = (defaultValue = false, duration = 500) => {
 
   return render;
 };
-
-export default useDelayRender;
