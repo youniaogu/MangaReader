@@ -1,6 +1,5 @@
 import { delay, race, Effect } from 'redux-saga/effects';
 import { ErrorMessage } from './enum';
-import { Dimensions } from 'react-native';
 import { Dirs } from 'react-native-file-access';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
@@ -204,20 +203,4 @@ export function matchRestoreShape(data: any): data is BackupData {
 
 export function nonNullable<T>(v: T | null | undefined): v is T {
   return v !== null && v !== undefined;
-}
-
-export function splitWidth({
-  width = Dimensions.get('window').width,
-  gap = 0,
-  maxPartWidth = 210,
-  minNumColumns = 3,
-}: {
-  gap?: number;
-  width?: number;
-  maxPartWidth?: number;
-  minNumColumns?: number;
-}) {
-  const numColumns = Math.max(Math.floor(width / maxPartWidth), minNumColumns);
-  const partWidth = (width - gap * (numColumns + 1)) / numColumns;
-  return { width, gap, partWidth, numColumns };
 }

@@ -13,7 +13,6 @@ import {
   ScrollView,
 } from 'native-base';
 import {
-  splitWidth,
   nonNullable,
   coverAspectRatio,
   Sequence,
@@ -21,10 +20,10 @@ import {
   AsyncStatus,
   PrefetchDownload,
 } from '~/utils';
-import { Dimensions, StyleSheet, RefreshControl, Linking } from 'react-native';
+import { StyleSheet, RefreshControl, Linking, useWindowDimensions } from 'react-native';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { useOnce, useDelayRender, useSplitWidth } from '~/hooks';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
-import { useOnce, useDelayRender } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
@@ -47,15 +46,6 @@ const {
   setPrehandleLogStatus,
   setPrehandleLogVisible,
 } = action;
-const { gap, partWidth, numColumns } = splitWidth({
-  gap: 12,
-  minNumColumns: 4,
-  maxPartWidth: 100,
-});
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
-const coverWidth = Math.min((windowWidth * 1) / 3, 200);
-const coverHeight = coverWidth / coverAspectRatio;
 const PrefetchDownloadOptions = [
   { label: '预加载', value: PrefetchDownload.Prefetch },
   { label: '下载', value: PrefetchDownload.Download },
@@ -63,6 +53,12 @@ const PrefetchDownloadOptions = [
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaHash = route.params.mangaHash;
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const { gap, splitWidth, numColumns } = useSplitWidth({
+    gap: 12,
+    minNumColumns: 4,
+    maxSplitWidth: 100,
+  });
   const { isOpen, onOpen, onClose } = useDisclose();
   const { colors } = useTheme();
   const [chapter, setChapter] = useState<{ hash: string; title: string }>();
@@ -187,7 +183,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         onLongPress={handleLongPress(item.hash, item.title)}
         delayLongPress={200}
       >
-        <Box w={partWidth + gap} p={`${gap / 2}px`} position="relative">
+        <Box w={splitWidth + gap} p={`${gap / 2}px`} position="relative">
           <Text
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
@@ -223,7 +219,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   return (
     <Box w="full" h="full">
       <Flex w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
-        <CachedImage source={data.cover} style={styles.img} resizeMode="cover" />
+        <CachedImage
+          source={data.cover}
+          style={{
+            ...styles.img,
+            width: Math.min((windowWidth * 1) / 3, 200),
+            height: Math.min((windowWidth * 1) / 3, 200) / coverAspectRatio,
+          }}
+          resizeMode="cover"
+        />
         <Flex flexGrow={1} flexShrink={1} pl={4}>
           <Text
             color="white"
@@ -433,8 +437,6 @@ export const PrehandleDrawer = () => {
 
 const styles = StyleSheet.create({
   img: {
-    width: coverWidth,
-    height: coverHeight,
     flexGrow: 0,
     flexShrink: 0,
     borderRadius: 8,

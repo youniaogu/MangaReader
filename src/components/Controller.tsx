@@ -6,13 +6,9 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 
 const doubleTapScaleValue = 2;
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
-const oneThirdWidth = windowWidth / 3;
-const oneTwoWidth = windowWidth / 2;
 
 interface ControllerProps {
   onTap?: (position: 'left' | 'mid' | 'right') => void;
@@ -22,7 +18,11 @@ interface ControllerProps {
 }
 
 const Controller = ({ onTap, children, horizontal = false, onLongPress }: ControllerProps) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [enabled, setEnabled] = useState(false);
+  const oneThirdWidth = windowWidth / 3;
+  const oneTwoWidth = windowWidth / 2;
+
   const width = useSharedValue(windowWidth);
   const height = useSharedValue(windowHeight);
 

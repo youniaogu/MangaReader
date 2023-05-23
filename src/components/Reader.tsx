@@ -8,14 +8,11 @@ import React, {
   ForwardRefRenderFunction,
 } from 'react';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
+import { useWindowDimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { Dimensions } from 'react-native';
 import { Box } from 'native-base';
 import ComicImage, { ImageState } from '~/components/ComicImage';
 import Controller from '~/components/Controller';
-
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 export interface ReaderProps {
   initPage?: number;
@@ -56,6 +53,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   },
   ref
 ) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const flashListRef = useRef<FlashList<(typeof data)[0]>>(null);
   const horizontalStateRef = useRef<ImageState[]>([]);
   const verticalStateRef = useRef<ImageState[]>([]);

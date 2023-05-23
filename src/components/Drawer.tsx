@@ -7,11 +7,8 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { View } from 'native-base';
-
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 
 export interface DrawerRef {
   open: () => void;
@@ -26,16 +23,12 @@ interface DrawerProps {
 }
 
 const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
-  {
-    contentWidth = Math.min(windowWidth * 0.55, 300),
-    leakWidth = 12,
-    maskOpacity = 0.5,
-    defaultDuration = 300,
-    children,
-  },
+  { contentWidth = 300, leakWidth = 12, maskOpacity = 0.5, defaultDuration = 300, children },
   ref
 ) => {
-  const hideTranslateX = contentWidth - leakWidth;
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const minContentWidth = Math.min(windowWidth * 0.55, contentWidth);
+  const hideTranslateX = minContentWidth - leakWidth;
   const translationX = useSharedValue(hideTranslateX);
   const savedTranslationX = useSharedValue(hideTranslateX);
 
@@ -59,7 +52,7 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
     return {
       position: 'absolute',
       right: 0,
-      width: contentWidth,
+      width: minContentWidth,
       height: windowHeight,
       paddingLeft: leakWidth,
       transform: [{ translateX: translationX.value }],
@@ -91,7 +84,7 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
   const tapGesture = Gesture.Tap()
     .shouldCancelWhenOutside(false)
     .onStart((e) => {
-      if (e.absoluteX < windowWidth - contentWidth) {
+      if (e.absoluteX < windowWidth - minContentWidth) {
         width.value = withDelay(defaultDuration, withTiming(0, { duration: 0 }));
         savedWidth.value = 0;
         opacity.value = withTiming(0, { duration: defaultDuration, easing: Easing.linear });

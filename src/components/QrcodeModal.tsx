@@ -1,10 +1,8 @@
 import React from 'react';
 import { Modal, Center, useToast } from 'native-base';
-import { Dimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Empty from '~/components/Empty';
-
-const windowWidth = Dimensions.get('window').width;
 
 interface QrcodeModalProps {
   isOpen?: boolean;
@@ -13,6 +11,7 @@ interface QrcodeModalProps {
 }
 
 const QrcodeModal = ({ isOpen = true, value, onClose }: QrcodeModalProps) => {
+  const { width: windowWidth } = useWindowDimensions();
   const toast = useToast();
   const handleError = (error: Error) => {
     // Warning: Cannot update a component (`ToastProvider`) while rendering a different component (`QRCode`)
