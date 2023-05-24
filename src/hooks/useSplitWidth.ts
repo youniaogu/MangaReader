@@ -1,13 +1,6 @@
+import { useDebouncedSafeAreaInsets } from './useDebouncedSafeAreaInsets';
 import { useWindowDimensions } from 'react-native';
-import { useSafeArea } from 'native-base';
 import { useMemo } from 'react';
-
-interface SafeArea {
-  pt?: string;
-  pl?: string;
-  pr?: string;
-  pb?: string;
-}
 
 export const useSplitWidth = ({
   gap = 0,
@@ -21,17 +14,10 @@ export const useSplitWidth = ({
   maxSplitWidth?: number;
 }) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const { pl, pr }: SafeArea = useSafeArea({ safeAreaX: true });
+  const insets = useDebouncedSafeAreaInsets();
 
-  const { left, right } = useMemo(
-    () => ({
-      left: pl ? Number(pl.replace('px', '')) : 0,
-      right: pr ? Number(pr.replace('px', '')) : 0,
-    }),
-    [pl, pr]
-  );
   const split = useMemo(() => {
-    const defaultWidth = windowWidth - left - right;
+    const defaultWidth = windowWidth - insets.left - insets.right;
     const maxWindowSplitWidth = Math.min(windowWidth, windowHeight) / minNumColumns;
 
     const numColumns = Math.max(
@@ -41,7 +27,7 @@ export const useSplitWidth = ({
     const splitWidth = ((width || defaultWidth) - gap * (numColumns + 1)) / numColumns;
 
     return { gap, splitWidth, numColumns };
-  }, [gap, left, right, width, windowWidth, windowHeight, minNumColumns, maxSplitWidth]);
+  }, [gap, insets, width, windowWidth, windowHeight, minNumColumns, maxSplitWidth]);
 
   return split;
 };
