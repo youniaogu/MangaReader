@@ -20,9 +20,9 @@ import {
   AsyncStatus,
   PrefetchDownload,
 } from '~/utils';
-import { StyleSheet, RefreshControl, Linking, useWindowDimensions } from 'react-native';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useOnce, useDelayRender, useSplitWidth } from '~/hooks';
+import { StyleSheet, RefreshControl, Linking } from 'react-native';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -53,8 +53,7 @@ const PrefetchDownloadOptions = [
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaHash = route.params.mangaHash;
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
-  const { gap, splitWidth, numColumns } = useSplitWidth({
+  const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
     gap: 12,
     minNumColumns: 4,
     maxSplitWidth: 100,
@@ -74,8 +73,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
   const lastWatch = useMemo(() => lastWatchDict[mangaHash] || {}, [lastWatchDict, mangaHash]);
   const extraData = useMemo(
-    () => ({ dict: reocrdDict, chapterHash: lastWatch.chapter }),
-    [reocrdDict, lastWatch.chapter]
+    () => ({ width: splitWidth, dict: reocrdDict, chapterHash: lastWatch.chapter }),
+    [splitWidth, reocrdDict, lastWatch.chapter]
   );
   const chapters = useMemo(() => {
     if (!data) {
@@ -171,7 +170,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const renderItem = ({
     item,
-    extraData: { dict, chapterHash },
+    extraData: { width, dict, chapterHash },
   }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.hash === chapterHash;
     const record = dict[item.hash];
@@ -183,7 +182,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         onLongPress={handleLongPress(item.hash, item.title)}
         delayLongPress={200}
       >
-        <Box w={splitWidth + gap} p={`${gap / 2}px`} position="relative">
+        <Box w={width + gap} p={`${gap / 2}px`} position="relative">
           <Text
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
@@ -218,13 +217,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   return (
     <Box w="full" h="full">
-      <Flex w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
+      <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
         <CachedImage
           source={data.cover}
           style={{
             ...styles.img,
-            width: Math.min((windowWidth * 1) / 3, 200),
-            height: Math.min((windowWidth * 1) / 3, 200) / coverAspectRatio,
+            width: Math.min(Math.min(windowWidth, windowHeight) / 3, 200),
+            height: Math.min(Math.min(windowWidth, windowHeight) / 3, 200) / coverAspectRatio,
           }}
           resizeMode="cover"
         />
@@ -277,7 +276,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         <FlashList
           data={chapters}
           extraData={extraData}
-          contentContainerStyle={{ padding: gap / 2 }}
+          contentContainerStyle={{
+            padding: gap / 2,
+            paddingLeft: gap / 2 + insets.left,
+            paddingRight: gap / 2 + insets.right,
+          }}
           numColumns={numColumns}
           estimatedItemSize={24}
           estimatedListSize={{ width: windowWidth, height: windowHeight }}

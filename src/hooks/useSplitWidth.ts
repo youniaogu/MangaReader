@@ -26,7 +26,7 @@ export const useSplitWidth = ({
     );
     const splitWidth = ((width || defaultWidth) - gap * (numColumns + 1)) / numColumns;
 
-    return { gap, splitWidth, numColumns };
+    return { gap, insets, splitWidth, numColumns, windowWidth, windowHeight };
   }, [gap, insets, width, windowWidth, windowHeight, minNumColumns, maxSplitWidth]);
 
   return split;

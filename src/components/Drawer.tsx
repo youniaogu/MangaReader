@@ -1,4 +1,10 @@
-import React, { forwardRef, useImperativeHandle, ReactNode, ForwardRefRenderFunction } from 'react';
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  ReactNode,
+  ForwardRefRenderFunction,
+  useEffect,
+} from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -58,6 +64,15 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
       transform: [{ translateX: translationX.value }],
     };
   });
+
+  useEffect(() => {
+    if (translationX.value > 0) {
+      translationX.value = hideTranslateX;
+    }
+    if (savedTranslationX.value > 0) {
+      savedTranslationX.value = hideTranslateX;
+    }
+  }, [hideTranslateX, translationX, savedTranslationX]);
 
   useImperativeHandle(ref, () => ({
     open: () => {
