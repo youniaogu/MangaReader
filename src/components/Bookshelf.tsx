@@ -42,8 +42,13 @@ const Bookshelf = ({
   });
   const render = useDelayRender(loading && list.length === 0);
   const extraData = useMemo(
-    () => ({ trend: trendList || [], active: activeList || [], negative: negativeList || [] }),
-    [activeList, trendList, negativeList]
+    () => ({
+      width: splitWidth,
+      trend: trendList || [],
+      active: activeList || [],
+      negative: negativeList || [],
+    }),
+    [splitWidth, activeList, trendList, negativeList]
   );
 
   const handlePress = (hash: string) => {
@@ -77,14 +82,14 @@ const Bookshelf = ({
         ListFooterComponent={
           loading ? <SpinLoading height={24} safeAreaBottom /> : <Box height={0} safeAreaBottom />
         }
-        renderItem={({ item, extraData: { active, trend, negative } }) => (
+        renderItem={({ item, extraData: { width, active, trend, negative } }) => (
           <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
-            <Box width={splitWidth + gap} flexDirection="column" p={`${gap / 2}px`}>
+            <Box width={width + gap} flexDirection="column" p={`${gap / 2}px`}>
               <Box position="relative" shadow={0} bg="white" borderRadius={6}>
                 <CachedImage
                   options={{ headers: item.headers }}
                   source={item.cover}
-                  style={{ ...styles.img, height: splitWidth / coverAspectRatio }}
+                  style={{ ...styles.img, height: width / coverAspectRatio }}
                   resizeMode="cover"
                 />
                 {trend.includes(item.hash) && (
