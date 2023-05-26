@@ -13,8 +13,8 @@ process.env.PUBLISH_TIME = packageJson.publishTime;
 CacheManager.config = {
   baseDir: `${Dirs.CacheDir}/images_cache/`,
   cacheLimit: 0,
-  sourceAnimationDuration: 0,
-  thumbnailAnimationDuration: 0,
+  sourceAnimationDuration: 500,
+  thumbnailAnimationDuration: 500,
 };
 
 LogBox.ignoreLogs(['Require cycle:', 'Remote debugger']);

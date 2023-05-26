@@ -61,7 +61,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const { isOpen, onOpen, onClose } = useDisclose();
   const { colors } = useTheme();
   const [chapter, setChapter] = useState<{ hash: string; title: string }>();
-  const render = useDelayRender();
+  const render = useDelayRender(false, 300);
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const loadingMangaHash = useAppSelector((state) => state.manga.loadingMangaHash);

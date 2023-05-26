@@ -133,7 +133,7 @@ const DefaultImage = ({
         bg="black"
       >
         <Image
-          style={{ width: windowWidth * 0.3, height: windowHeight }}
+          style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
           resizeMethod="resize"
           fadeDuration={0}
@@ -325,7 +325,7 @@ const JMCImage = ({
         bg="black"
       >
         <Image
-          style={{ width: windowWidth * 0.3, height: windowHeight }}
+          style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
           resizeMethod="resize"
           fadeDuration={0}

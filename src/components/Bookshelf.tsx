@@ -37,7 +37,7 @@ const Bookshelf = ({
   const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
     gap: 8,
     minNumColumns: 3,
-    maxSplitWidth: 200,
+    maxSplitWidth: 180,
   });
   const render = useDelayRender(loading && list.length === 0);
   const extraData = useMemo(
