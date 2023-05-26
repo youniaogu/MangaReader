@@ -7674,6 +7674,11 @@ react-native-vision-camera@2.15.1:
   resolved "https://registry.npmjs.org/react-native-vision-camera/-/react-native-vision-camera-2.15.1.tgz#2259cce3b4ff4ac6c8e9eb859a71a12731ceddf6"
   integrity sha512-mvz9T6DRfHSee52dpwZxyIdhED8ebmMbVoIpAC2MwkAv1tAV2iZhScRNhpf3Pj9pbh9hpO7Kan0Kc+k7GQGhpw==
 
+react-native-volume-manager@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.npmjs.org/react-native-volume-manager/-/react-native-volume-manager-1.5.1.tgz#e14bfc898bbee4de85ce42a75dda9e3d0ef05b93"
+  integrity sha512-8w/s2HgRCX8G7sVszfi3yywQT4BYQpPSakl569/F1PG/wS2+75GGmlbZi4v1SCqRDPhmrodyN3Shi4LVjj54qg==
+
 react-native-webview@^11.23.0:
   version "11.26.1"
   resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-11.26.1.tgz#658c09ed5162dc170b361e48c2dd26c9712879da"

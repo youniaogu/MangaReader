@@ -4,3 +4,4 @@ export * from './usePrevNext';
 export * from './useDelayRender';
 export * from './useSplitWidth';
 export * from './useDebouncedSafeAreaInsets';
+export * from './useVolumeUpDown';

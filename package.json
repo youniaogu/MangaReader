@@ -46,6 +46,7 @@
     "react-native-svg": "^13.6.0",
     "react-native-vector-icons": "^9.1.0",
     "react-native-vision-camera": "2.15.1",
+    "react-native-volume-manager": "^1.5.1",
     "react-native-webview": "^11.23.0",
     "react-redux": "^8.0.1",
     "redux-logger": "^3.0.6",
