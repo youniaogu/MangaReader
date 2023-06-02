@@ -4,10 +4,8 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withSequence,
-  runOnJS,
 } from 'react-native-reanimated';
-import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { Icon } from 'native-base';
+import { Icon, Pressable } from 'native-base';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 enum Color {
@@ -34,21 +32,13 @@ const RedHeart = ({ actived = false, onPress }: RedHeartProps) => {
     justifyContent: 'center',
     transform: [{ scale: scale.value }],
   }));
-  const singleTap = Gesture.Tap().onStart(() => {
+  const handleTap = () => {
     scale.value = withSequence(withSpring(biggerScale), withSpring(defaultScale));
-    runOnJS(handlePress)();
-  });
-  const longPress = Gesture.LongPress()
-    .onStart(() => {
-      scale.value = withSpring(biggerScale);
-      runOnJS(handlePress)();
-    })
-    .onEnd(() => {
-      scale.value = withSequence(withSpring(biggerScale), withSpring(defaultScale));
-    });
+    handlePress();
+  };
 
   return (
-    <GestureDetector gesture={Gesture.Exclusive(longPress, singleTap)}>
+    <Pressable onPress={handleTap}>
       <Animated.View style={animatedStyle}>
         <Icon
           m={2}
@@ -58,7 +48,7 @@ const RedHeart = ({ actived = false, onPress }: RedHeartProps) => {
           color={actived ? Color.Actived : Color.Default}
         />
       </Animated.View>
-    </GestureDetector>
+    </Pressable>
   );
 };
 

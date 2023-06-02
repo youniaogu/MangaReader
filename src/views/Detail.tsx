@@ -5,16 +5,12 @@ import {
   Text,
   Icon,
   HStack,
-  VStack,
-  FlatList,
   Pressable,
   Toast,
   useTheme,
   useDisclose,
-  ScrollView,
 } from 'native-base';
 import {
-  splitWidth,
   nonNullable,
   coverAspectRatio,
   Sequence,
@@ -22,12 +18,13 @@ import {
   AsyncStatus,
   PrefetchDownload,
 } from '~/utils';
-import { Dimensions, StyleSheet, RefreshControl, Linking, ListRenderItemInfo } from 'react-native';
+import { useOnce, useDelayRender, useSplitWidth, useDebouncedSafeAreaInsets } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { StyleSheet, RefreshControl, Linking } from 'react-native';
+import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import { useRoute } from '@react-navigation/native';
-import { useOnce } from '~/hooks';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
@@ -47,23 +44,22 @@ const {
   setPrehandleLogStatus,
   setPrehandleLogVisible,
 } = action;
-const { gap, partWidth, numColumns } = splitWidth({
-  gap: 12,
-  minNumColumns: 4,
-  maxPartWidth: 100,
-});
-const coverWidth = Math.min((Dimensions.get('window').width * 1) / 3, 200);
-const coverHeight = coverWidth / coverAspectRatio;
 const PrefetchDownloadOptions = [
   { label: '预加载', value: PrefetchDownload.Prefetch },
   { label: '下载', value: PrefetchDownload.Download },
 ];
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
+  const mangaHash = route.params.mangaHash;
+  const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
+    gap: 12,
+    minNumColumns: 3,
+    maxSplitWidth: 100,
+  });
   const { isOpen, onOpen, onClose } = useDisclose();
   const { colors } = useTheme();
   const [chapter, setChapter] = useState<{ hash: string; title: string }>();
-  const mangaHash = route.params.mangaHash;
+  const render = useDelayRender(false, 300);
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector((state) => state.manga.loadStatus);
   const loadingMangaHash = useAppSelector((state) => state.manga.loadingMangaHash);
@@ -74,6 +70,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const sequence = useAppSelector((state) => state.setting.sequence);
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
   const lastWatch = useMemo(() => lastWatchDict[mangaHash] || {}, [lastWatchDict, mangaHash]);
+  const extraData = useMemo(
+    () => ({ width: splitWidth, dict: reocrdDict, chapterHash: lastWatch.chapter }),
+    [splitWidth, reocrdDict, lastWatch.chapter]
+  );
   const chapters = useMemo(() => {
     if (!data) {
       return [];
@@ -110,19 +110,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     dispatch(loadManga({ mangaHash }));
   }, [dispatch, mangaHash]);
   const handleSearch = (keyword: string) => {
-    return () => {
-      if (!nonNullable(data)) {
-        return;
-      }
-      navigation.navigate('Search', { keyword, source: data.source });
-    };
+    if (!nonNullable(data)) {
+      return;
+    }
+    navigation.navigate('Search', { keyword, source: data.source });
   };
 
   const handleLongPress = (chapterHash: string, chapterTitle: string) => {
-    return () => {
-      onOpen();
-      setChapter({ hash: chapterHash, title: chapterTitle });
-    };
+    onOpen();
+    setChapter({ hash: chapterHash, title: chapterTitle });
   };
   const handlePrefetch = () => {
     chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
@@ -153,31 +149,34 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   };
 
   const handleChapter = (chapterHash: string) => {
-    return () => {
-      if (favorites.find((item) => item.mangaHash === mangaHash)) {
-        dispatch(viewFavorites(mangaHash));
-      }
+    if (favorites.find((item) => item.mangaHash === mangaHash)) {
+      dispatch(viewFavorites(mangaHash));
+    }
 
-      navigation.navigate('Chapter', {
-        mangaHash,
-        chapterHash,
-        page: chapterHash === lastWatch.chapter ? lastWatch.page || 1 : 1,
-      });
-    };
+    navigation.navigate('Chapter', {
+      mangaHash,
+      chapterHash,
+      page: chapterHash === lastWatch.chapter ? lastWatch.page || 1 : 1,
+    });
   };
 
-  const renderItem = ({ item }: ListRenderItemInfo<ChapterItem>) => {
-    const isActived = item.hash === lastWatch.chapter;
-    const record = reocrdDict[item.hash];
+  const renderItem = ({
+    item,
+    extraData: { width, dict, chapterHash },
+  }: ListRenderItemInfo<ChapterItem>) => {
+    const isActived = item.hash === chapterHash;
+    const record = dict[item.hash];
+
     return (
       <Pressable
         _pressed={{ opacity: 0.8 }}
-        onPress={handleChapter(item.hash)}
-        onLongPress={handleLongPress(item.hash, item.title)}
+        onPress={() => handleChapter(item.hash)}
+        onLongPress={() => handleLongPress(item.hash, item.title)}
         delayLongPress={200}
       >
-        <Box w={partWidth + gap} p={`${gap / 2}px`} position="relative">
+        <Box w={width + gap} p={`${gap / 2}px`} position="relative">
           <Text
+            py={2}
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
             color={isActived ? 'white' : '#717171'}
@@ -188,7 +187,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             textAlign="center"
             numberOfLines={1}
             fontWeight="bold"
-            p={1}
           >
             {item.title}
           </Text>
@@ -211,15 +209,23 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   return (
     <Box w="full" h="full">
-      <Flex w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
-        <CachedImage source={data.cover} style={styles.img} resizeMode="cover" />
+      <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
+        <CachedImage
+          source={data.cover}
+          style={{
+            ...styles.img,
+            width: Math.min(Math.min(windowWidth, windowHeight) / 4, 200),
+            height: Math.min(Math.min(windowWidth, windowHeight) / 4, 200) / coverAspectRatio,
+          }}
+          resizeMode="cover"
+        />
         <Flex flexGrow={1} flexShrink={1} pl={4}>
           <Text
             color="white"
             fontSize={20}
             fontWeight="bold"
             numberOfLines={2}
-            onPress={handleSearch(data.title)}
+            onPress={() => handleSearch(data.title)}
           >
             {data.title}
           </Text>
@@ -227,7 +233,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             作者：
             {data.author.map((text, index) => (
               <Fragment key={text}>
-                <Text onPress={handleSearch(text)}>{text}</Text>
+                <Text onPress={() => handleSearch(text)}>{text}</Text>
                 {index < data.author.length - 1 && <Text>、</Text>}
               </Fragment>
             ))}
@@ -240,7 +246,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             分类：
             {data.tag.map((text, index) => (
               <Fragment key={text}>
-                <Text onPress={handleSearch(text)}>{text}</Text>
+                <Text onPress={() => handleSearch(text)}>{text}</Text>
                 {index < data.tag.length - 1 && <Text>、</Text>}
               </Fragment>
             ))}
@@ -258,23 +264,33 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         </Flex>
       </Flex>
 
-      {/* 待优化 */}
-      <FlatList
-        h="full"
-        p={`${gap / 2}px`}
-        numColumns={numColumns}
-        data={chapters}
-        refreshControl={
-          <RefreshControl
-            refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}
-            onRefresh={handleReload}
-            tintColor={colors.purple[500]}
-          />
-        }
-        renderItem={renderItem}
-        ListFooterComponent={<Box safeAreaBottom />}
-        keyExtractor={(item) => item.hash}
-      />
+      {chapters.length > 0 && render ? (
+        <FlashList
+          data={chapters}
+          extraData={extraData}
+          contentContainerStyle={{
+            padding: gap / 2,
+            paddingLeft: gap / 2 + insets.left,
+            paddingRight: gap / 2 + insets.right,
+          }}
+          numColumns={numColumns}
+          estimatedItemSize={24}
+          refreshControl={
+            <RefreshControl
+              refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}
+              onRefresh={handleReload}
+              tintColor={colors.purple[500]}
+            />
+          }
+          renderItem={renderItem}
+          ListFooterComponent={<Box safeAreaBottom />}
+          keyExtractor={(item) => item.hash}
+        />
+      ) : (
+        <Flex w="full" flexGrow={1} alignItems="center" justifyContent="center" safeAreaBottom>
+          <SpinLoading />
+        </Flex>
+      )}
 
       <ActionsheetSelect
         isOpen={isOpen}
@@ -355,6 +371,7 @@ export const PrehandleDrawer = () => {
   const showDrawer = useAppSelector((state) => state.chapter.showDrawer);
   const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const drawerRef = useRef<DrawerRef>(null);
+  const insets = useDebouncedSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
@@ -365,58 +382,61 @@ export const PrehandleDrawer = () => {
     }, [dispatch, openDrawer])
   );
 
+  const renderItem = ({ item, index }: ListRenderItemInfo<(typeof prehandleLog)[0]>) => {
+    return (
+      <Box
+        key={item.id}
+        flexDirection="row"
+        alignItems="center"
+        borderColor="gray.200"
+        borderBottomWidth={1}
+        borderTopWidth={index === 0 ? 1 : 0}
+        p={3}
+      >
+        <Text flex={1} fontWeight="bold" fontSize="lg" color="purple.900" numberOfLines={1} mr={1}>
+          {item.text}
+        </Text>
+        {item.status === AsyncStatus.Pending && (
+          <Box>
+            <SpinLoading size="sm" height={1} />
+          </Box>
+        )}
+        {item.status === AsyncStatus.Rejected && (
+          <Text fontWeight="bold" fontSize="md" color="red.700">
+            Fail
+          </Text>
+        )}
+      </Box>
+    );
+  };
+
   if (!showDrawer) {
     return null;
   }
 
   return (
     <Drawer ref={drawerRef}>
-      <ScrollView bg="gray.100" height="full">
-        <VStack safeAreaY>
-          {prehandleLog.map((item, index) => {
-            return (
-              <Box
-                key={item.id}
-                flexDirection="row"
-                alignItems="center"
-                borderColor="gray.200"
-                borderBottomWidth={1}
-                borderTopWidth={index === 0 ? 1 : 0}
-                p={3}
-              >
-                <Text
-                  flex={1}
-                  fontWeight="bold"
-                  fontSize="lg"
-                  color="purple.900"
-                  numberOfLines={1}
-                  mr={1}
-                >
-                  {item.text}
-                </Text>
-                {item.status === AsyncStatus.Pending && (
-                  <Box>
-                    <SpinLoading size="sm" height={1} />
-                  </Box>
-                )}
-                {item.status === AsyncStatus.Rejected && (
-                  <Text fontWeight="bold" fontSize="md" color="red.700">
-                    Fail
-                  </Text>
-                )}
-              </Box>
-            );
-          })}
-        </VStack>
-      </ScrollView>
+      <Box bg="gray.100" h="full">
+        {prehandleLog.length > 0 && (
+          <FlashList
+            data={prehandleLog}
+            renderItem={renderItem}
+            estimatedItemSize={50}
+            contentContainerStyle={{
+              paddingTop: insets.top,
+              paddingLeft: insets.left,
+              paddingRight: insets.right,
+              paddingBottom: insets.bottom,
+            }}
+          />
+        )}
+      </Box>
     </Drawer>
   );
 };
 
 const styles = StyleSheet.create({
   img: {
-    width: coverWidth,
-    height: coverHeight,
     flexGrow: 0,
     flexShrink: 0,
     borderRadius: 8,

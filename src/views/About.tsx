@@ -248,7 +248,7 @@ const About = ({ navigation }: StackAboutProps) => {
           </Text>
         }
       />
-      <Modal size="xl" isOpen={isModalOpen} onClose={onModalClose}>
+      <Modal useRNModal size="xl" isOpen={isModalOpen} onClose={onModalClose}>
         <Modal.Content>
           <Modal.Header>警告</Modal.Header>
           <Modal.Body>此操作会清空收藏列表、漫画数据、插件和观看设置，请谨慎！</Modal.Body>

@@ -22,7 +22,6 @@ const Header = ({ navigation, options, route, enableShake = false }: HeaderProps
   };
 
   const { headerLeft, headerRight } = options;
-
   const Left = headerLeft ? headerLeft({ canGoBack }) : null;
   const Right = headerRight ? headerRight({ canGoBack }) : null;
 

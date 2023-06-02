@@ -1,9 +1,9 @@
 import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
+import { LayoutMode, AsyncStatus, ReaderDirection, Volume } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast } from 'native-base';
-import { LayoutMode, AsyncStatus, ReaderDirection } from '~/utils';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { usePrevNext, useVolumeUpDown } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
-import { usePrevNext } from '~/hooks';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 import Reader, { ReaderRef } from '~/components/Reader';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
@@ -72,6 +72,19 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     useCallback(() => {
       dispatch(viewPage({ mangaHash, page: current }));
     }, [current, dispatch, mangaHash])
+  );
+  useVolumeUpDown(
+    useCallback(
+      (type) => {
+        if (type === Volume.Down) {
+          readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)), false);
+        }
+        if (type === Volume.Up) {
+          readerRef.current?.scrollToIndex(Math.max(page - 1, 0), false);
+        }
+      },
+      [page, data.length]
+    )
   );
 
   const handlePrevChapter = () => {

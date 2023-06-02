@@ -70,3 +70,8 @@ export enum Sequence {
   Asc = 'Asc',
   Desc = 'Desc',
 }
+
+export enum Volume {
+  Up = 'Up',
+  Down = 'Down',
+}

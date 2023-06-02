@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
-import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
+import { Image as ReactNativeImage, StyleSheet, useWindowDimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { AsyncStatus, aspectFit, mergeQuery } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
@@ -10,19 +10,17 @@ import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
 const defaultState = {
   hash: '',
   dataUrl: '',
-  fillHeight: (windowHeight * 3) / 5,
+  fillHeight: undefined,
   loadStatus: AsyncStatus.Default,
 };
 
 export interface ImageState {
   hash: string;
   dataUrl: string;
-  fillHeight: number;
+  fillHeight?: number;
   loadStatus: AsyncStatus;
 }
 export interface ImageProps {
@@ -45,11 +43,13 @@ const DefaultImage = ({
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [imageState, setImageState] = useState(prevState);
   const source = useMemo(
     () => (imageState.hash ? mergeQuery(uri, 'hash', imageState.hash) : uri),
     [uri, imageState]
   );
+  const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
   const uriRef = useRef(uri);
 
   const updateData = useCallback(
@@ -96,7 +96,7 @@ const DefaultImage = ({
         });
       })
       .catch(handleError);
-  }, [source, headers, imageState, horizontal, updateData, handleError]);
+  }, [source, headers, imageState, horizontal, updateData, handleError, windowWidth, windowHeight]);
   useFocusEffect(
     useCallback(() => {
       if (imageState.loadStatus === AsyncStatus.Default) {
@@ -127,9 +127,13 @@ const DefaultImage = ({
     imageState.loadStatus === AsyncStatus.Default
   ) {
     return (
-      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
+      <Center
+        w={windowWidth}
+        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
+        bg="black"
+      >
         <Image
-          style={styles.loading}
+          style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
           resizeMethod="resize"
           fadeDuration={0}
@@ -141,7 +145,11 @@ const DefaultImage = ({
   }
   if (imageState.loadStatus === AsyncStatus.Rejected) {
     return (
-      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
+      <Center
+        w={windowWidth}
+        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
+        bg="black"
+      >
         <ErrorWithRetry onRetry={handleRetry} />
       </Center>
     );
@@ -151,7 +159,10 @@ const DefaultImage = ({
     <CachedImage
       source={source}
       options={{ headers }}
-      style={{ width: windowWidth, height: horizontal ? windowHeight : imageState.fillHeight }}
+      style={{
+        width: windowWidth,
+        height: horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight,
+      }}
       resizeMode={horizontal ? 'contain' : 'cover'}
       onError={handleError}
     />
@@ -166,11 +177,13 @@ const JMCImage = ({
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [imageState, setImageState] = useState(prevState);
   const source = useMemo(
     () => (imageState.hash ? mergeQuery(uri, 'hash', imageState.hash) : uri),
     [uri, imageState]
   );
+  const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
   const canvasRef = useRef<Canvas>(null);
   const uriRef = useRef(uri);
 
@@ -246,7 +259,7 @@ const JMCImage = ({
         handleError();
       }
     },
-    [source, imageState, updateData, handleError]
+    [source, imageState, updateData, handleError, windowWidth, windowHeight]
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
@@ -292,7 +305,11 @@ const JMCImage = ({
 
   if (imageState.loadStatus === AsyncStatus.Rejected) {
     return (
-      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
+      <Center
+        w={windowWidth}
+        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
+        bg="black"
+      >
         <ErrorWithRetry onRetry={handleRetry} />
       </Center>
     );
@@ -302,9 +319,13 @@ const JMCImage = ({
     imageState.loadStatus === AsyncStatus.Default
   ) {
     return (
-      <Center w={windowWidth} h={horizontal ? windowHeight : imageState.fillHeight} bg="black">
+      <Center
+        w={windowWidth}
+        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
+        bg="black"
+      >
         <Image
-          style={styles.loading}
+          style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
           resizeMethod="resize"
           fadeDuration={0}
@@ -319,7 +340,7 @@ const JMCImage = ({
   return (
     <Image
       w={horizontal ? windowWidth : windowWidth}
-      h={horizontal ? windowHeight : imageState.fillHeight}
+      h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
       resizeMode={horizontal ? 'contain' : 'cover'}
       resizeMethod="resize"
       fadeDuration={0}
@@ -331,10 +352,6 @@ const JMCImage = ({
 };
 
 const styles = StyleSheet.create({
-  loading: {
-    width: windowWidth * 0.3,
-    height: windowHeight,
-  },
   canvas: {
     zIndex: -1,
     opacity: 0,

@@ -92,7 +92,7 @@ export const SearchOption = () => {
   }
 
   return (
-    <HStack px={2} pb={2} bg="purple.500">
+    <HStack safeAreaX px={2} pb={2} bg="purple.500">
       {discoveryOptions.map((item) => {
         return (
           <Button

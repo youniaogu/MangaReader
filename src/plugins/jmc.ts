@@ -70,7 +70,11 @@ class CopyManga extends Base {
       description: '禁漫天堂：主打韩漫、本子类，需要代理',
       href: 'https://18comic.vip',
       userAgent,
-      defaultHeaders: { 'User-Agent': userAgent },
+      defaultHeaders: {
+        'User-Agent': userAgent,
+        Host: '18comic.vip',
+        Referer: 'https://18comic.vip',
+      },
       config: { origin: { label: '域名', value: 'https://18comic.vip' } },
       option: { discovery: discoveryOptions, search: searchOptions },
     });
