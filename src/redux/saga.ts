@@ -618,21 +618,6 @@ function* prehandleChapterSaga() {
     function* ({ payload: { chapterHash, save = false } }: ReturnType<typeof prehandleChapter>) {
       const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
-      if (Platform.OS === 'android' && save) {
-        const readPermission =
-          Platform.Version >= 33
-            ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-            : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-        const writePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-        const hasReadPermission: boolean = yield call(hasAndroidPermission, readPermission);
-        const hasWritePermission: boolean = yield call(hasAndroidPermission, writePermission);
-        if (!hasReadPermission || !hasWritePermission) {
-          yield put(
-            prehandleChapterCompletion({ error: new Error(ErrorMessage.WithoutPermission) })
-          );
-          return;
-        }
-      }
       if (!nonNullable(chapter)) {
         yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.WrongDataType) }));
         return;
@@ -646,15 +631,24 @@ function* prehandleChapterSaga() {
         yield select()
       );
 
-      if (save && images.find((item) => item.includes('.webp'))) {
-        yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
-        return;
-      }
-      if (Platform.OS === 'android') {
+      if (Platform.OS === 'android' && save) {
+        const writePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+        const hasWritePermission: boolean = yield call(hasAndroidPermission, writePermission);
+        if (!hasWritePermission) {
+          yield put(
+            prehandleChapterCompletion({ error: new Error(ErrorMessage.WithoutPermission) })
+          );
+          return;
+        }
         const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}/${album}`);
         if (!isExisted) {
           yield call(FileSystem.mkdir, `${androidDownloadPath}/${album}`);
         }
+      }
+
+      if (save && images.find((item) => item.includes('.webp'))) {
+        yield put(prehandleChapterCompletion({ error: new Error(ErrorMessage.IOSNotSupportWebp) }));
+        return;
       }
 
       yield put(

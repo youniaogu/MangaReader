@@ -5,12 +5,10 @@ import {
   Text,
   Icon,
   HStack,
-  VStack,
   Pressable,
   Toast,
   useTheme,
   useDisclose,
-  ScrollView,
 } from 'native-base';
 import {
   nonNullable,
@@ -20,8 +18,8 @@ import {
   AsyncStatus,
   PrefetchDownload,
 } from '~/utils';
+import { useOnce, useDelayRender, useSplitWidth, useDebouncedSafeAreaInsets } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { useOnce, useDelayRender, useSplitWidth } from '~/hooks';
 import { StyleSheet, RefreshControl, Linking } from 'react-native';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
@@ -55,7 +53,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const mangaHash = route.params.mangaHash;
   const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
     gap: 12,
-    minNumColumns: 4,
+    minNumColumns: 3,
     maxSplitWidth: 100,
   });
   const { isOpen, onOpen, onClose } = useDisclose();
@@ -112,19 +110,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     dispatch(loadManga({ mangaHash }));
   }, [dispatch, mangaHash]);
   const handleSearch = (keyword: string) => {
-    return () => {
-      if (!nonNullable(data)) {
-        return;
-      }
-      navigation.navigate('Search', { keyword, source: data.source });
-    };
+    if (!nonNullable(data)) {
+      return;
+    }
+    navigation.navigate('Search', { keyword, source: data.source });
   };
 
   const handleLongPress = (chapterHash: string, chapterTitle: string) => {
-    return () => {
-      onOpen();
-      setChapter({ hash: chapterHash, title: chapterTitle });
-    };
+    onOpen();
+    setChapter({ hash: chapterHash, title: chapterTitle });
   };
   const handlePrefetch = () => {
     chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
@@ -155,17 +149,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   };
 
   const handleChapter = (chapterHash: string) => {
-    return () => {
-      if (favorites.find((item) => item.mangaHash === mangaHash)) {
-        dispatch(viewFavorites(mangaHash));
-      }
+    if (favorites.find((item) => item.mangaHash === mangaHash)) {
+      dispatch(viewFavorites(mangaHash));
+    }
 
-      navigation.navigate('Chapter', {
-        mangaHash,
-        chapterHash,
-        page: chapterHash === lastWatch.chapter ? lastWatch.page || 1 : 1,
-      });
-    };
+    navigation.navigate('Chapter', {
+      mangaHash,
+      chapterHash,
+      page: chapterHash === lastWatch.chapter ? lastWatch.page || 1 : 1,
+    });
   };
 
   const renderItem = ({
@@ -178,12 +170,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     return (
       <Pressable
         _pressed={{ opacity: 0.8 }}
-        onPress={handleChapter(item.hash)}
-        onLongPress={handleLongPress(item.hash, item.title)}
+        onPress={() => handleChapter(item.hash)}
+        onLongPress={() => handleLongPress(item.hash, item.title)}
         delayLongPress={200}
       >
         <Box w={width + gap} p={`${gap / 2}px`} position="relative">
           <Text
+            py={2}
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
             color={isActived ? 'white' : '#717171'}
@@ -194,7 +187,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             textAlign="center"
             numberOfLines={1}
             fontWeight="bold"
-            p={1}
           >
             {item.title}
           </Text>
@@ -222,8 +214,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           source={data.cover}
           style={{
             ...styles.img,
-            width: Math.min(Math.min(windowWidth, windowHeight) / 3, 200),
-            height: Math.min(Math.min(windowWidth, windowHeight) / 3, 200) / coverAspectRatio,
+            width: Math.min(Math.min(windowWidth, windowHeight) / 4, 200),
+            height: Math.min(Math.min(windowWidth, windowHeight) / 4, 200) / coverAspectRatio,
           }}
           resizeMode="cover"
         />
@@ -233,7 +225,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             fontSize={20}
             fontWeight="bold"
             numberOfLines={2}
-            onPress={handleSearch(data.title)}
+            onPress={() => handleSearch(data.title)}
           >
             {data.title}
           </Text>
@@ -241,7 +233,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             作者：
             {data.author.map((text, index) => (
               <Fragment key={text}>
-                <Text onPress={handleSearch(text)}>{text}</Text>
+                <Text onPress={() => handleSearch(text)}>{text}</Text>
                 {index < data.author.length - 1 && <Text>、</Text>}
               </Fragment>
             ))}
@@ -254,7 +246,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             分类：
             {data.tag.map((text, index) => (
               <Fragment key={text}>
-                <Text onPress={handleSearch(text)}>{text}</Text>
+                <Text onPress={() => handleSearch(text)}>{text}</Text>
                 {index < data.tag.length - 1 && <Text>、</Text>}
               </Fragment>
             ))}
@@ -283,7 +275,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           }}
           numColumns={numColumns}
           estimatedItemSize={24}
-          estimatedListSize={{ width: windowWidth, height: windowHeight }}
           refreshControl={
             <RefreshControl
               refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}
@@ -380,6 +371,7 @@ export const PrehandleDrawer = () => {
   const showDrawer = useAppSelector((state) => state.chapter.showDrawer);
   const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const drawerRef = useRef<DrawerRef>(null);
+  const insets = useDebouncedSafeAreaInsets();
 
   useFocusEffect(
     useCallback(() => {
@@ -390,50 +382,55 @@ export const PrehandleDrawer = () => {
     }, [dispatch, openDrawer])
   );
 
+  const renderItem = ({ item, index }: ListRenderItemInfo<(typeof prehandleLog)[0]>) => {
+    return (
+      <Box
+        key={item.id}
+        flexDirection="row"
+        alignItems="center"
+        borderColor="gray.200"
+        borderBottomWidth={1}
+        borderTopWidth={index === 0 ? 1 : 0}
+        p={3}
+      >
+        <Text flex={1} fontWeight="bold" fontSize="lg" color="purple.900" numberOfLines={1} mr={1}>
+          {item.text}
+        </Text>
+        {item.status === AsyncStatus.Pending && (
+          <Box>
+            <SpinLoading size="sm" height={1} />
+          </Box>
+        )}
+        {item.status === AsyncStatus.Rejected && (
+          <Text fontWeight="bold" fontSize="md" color="red.700">
+            Fail
+          </Text>
+        )}
+      </Box>
+    );
+  };
+
   if (!showDrawer) {
     return null;
   }
 
   return (
     <Drawer ref={drawerRef}>
-      <ScrollView bg="gray.100" height="full">
-        <VStack safeAreaY>
-          {prehandleLog.map((item, index) => {
-            return (
-              <Box
-                key={item.id}
-                flexDirection="row"
-                alignItems="center"
-                borderColor="gray.200"
-                borderBottomWidth={1}
-                borderTopWidth={index === 0 ? 1 : 0}
-                p={3}
-              >
-                <Text
-                  flex={1}
-                  fontWeight="bold"
-                  fontSize="lg"
-                  color="purple.900"
-                  numberOfLines={1}
-                  mr={1}
-                >
-                  {item.text}
-                </Text>
-                {item.status === AsyncStatus.Pending && (
-                  <Box>
-                    <SpinLoading size="sm" height={1} />
-                  </Box>
-                )}
-                {item.status === AsyncStatus.Rejected && (
-                  <Text fontWeight="bold" fontSize="md" color="red.700">
-                    Fail
-                  </Text>
-                )}
-              </Box>
-            );
-          })}
-        </VStack>
-      </ScrollView>
+      <Box bg="gray.100" h="full">
+        {prehandleLog.length > 0 && (
+          <FlashList
+            data={prehandleLog}
+            renderItem={renderItem}
+            estimatedItemSize={50}
+            contentContainerStyle={{
+              paddingTop: insets.top,
+              paddingLeft: insets.left,
+              paddingRight: insets.right,
+              paddingBottom: insets.bottom,
+            }}
+          />
+        )}
+      </Box>
     </Drawer>
   );
 };
