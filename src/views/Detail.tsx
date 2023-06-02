@@ -176,6 +176,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       >
         <Box w={width + gap} p={`${gap / 2}px`} position="relative">
           <Text
+            px={1}
             py={2}
             position="relative"
             bg={isActived ? 'purple.500' : 'transparent'}
@@ -214,8 +215,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           source={data.cover}
           style={{
             ...styles.img,
-            width: Math.min(Math.min(windowWidth, windowHeight) / 4, 200),
-            height: Math.min(Math.min(windowWidth, windowHeight) / 4, 200) / coverAspectRatio,
+            width: Math.min(Math.min(windowWidth, windowHeight) / 3, 200),
+            height: Math.min(Math.min(windowWidth, windowHeight) / 3, 200) / coverAspectRatio,
           }}
           resizeMode="cover"
         />
