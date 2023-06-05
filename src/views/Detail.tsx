@@ -276,6 +276,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           }}
           numColumns={numColumns}
           estimatedItemSize={24}
+          estimatedListSize={{ width: windowWidth, height: windowHeight }}
           refreshControl={
             <RefreshControl
               refreshing={loadStatus === AsyncStatus.Pending && mangaHash === loadingMangaHash}

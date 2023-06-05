@@ -130,7 +130,6 @@ const DefaultImage = ({
       <Center
         w={windowWidth}
         h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-        bg="black"
       >
         <Image
           style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
@@ -148,7 +147,6 @@ const DefaultImage = ({
       <Center
         w={windowWidth}
         h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-        bg="black"
       >
         <ErrorWithRetry onRetry={handleRetry} />
       </Center>
@@ -322,7 +320,6 @@ const JMCImage = ({
       <Center
         w={windowWidth}
         h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-        bg="black"
       >
         <Image
           style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
@@ -346,7 +343,6 @@ const JMCImage = ({
       fadeDuration={0}
       source={{ uri: imageState.dataUrl }}
       alt="page"
-      bg="black"
     />
   );
 };

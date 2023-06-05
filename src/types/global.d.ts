@@ -1,8 +1,9 @@
 import {
-  Sequence,
   AsyncStatus,
   MangaStatus,
+  Sequence,
   LayoutMode,
+  LightSwitch,
   ReaderDirection,
   customTheme,
 } from '~/utils';
@@ -131,6 +132,7 @@ declare global {
     release: Release;
     setting: {
       mode: LayoutMode;
+      light: LightSwitch;
       direction: ReaderDirection;
       sequence: Sequence;
       firstPrehandle: boolean;

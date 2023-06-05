@@ -75,3 +75,8 @@ export enum Volume {
   Up = 'Up',
   Down = 'Down',
 }
+
+export enum LightSwitch {
+  Off = 'Off',
+  On = 'On',
+}

@@ -1,5 +1,5 @@
 import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
-import { LayoutMode, AsyncStatus, ReaderDirection, Volume } from '~/utils';
+import { AsyncStatus, Volume, LayoutMode, LightSwitch, ReaderDirection } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { usePrevNext, useVolumeUpDown } from '~/hooks';
@@ -10,7 +10,7 @@ import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
 
-const { loadChapter, viewChapter, viewPage, viewImage, setMode, setDirection } = action;
+const { loadChapter, viewChapter, viewPage, viewImage, setMode, setDirection, setLight } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
@@ -24,6 +24,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const mode = useAppSelector((state) => state.setting.mode);
+  const light = useAppSelector((state) => state.setting.light);
   const direction = useAppSelector((state) => state.setting.direction);
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const chapterDict = useAppSelector((state) => state.dict.chapter);
@@ -32,6 +33,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     () => mode === LayoutMode.Horizontal && direction === ReaderDirection.Left,
     [mode, direction]
   );
+  const lightOn = useMemo(() => light === LightSwitch.On, [light]);
   const horizontal = useMemo(() => mode === LayoutMode.Horizontal, [mode]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useMemo(() => {
@@ -172,6 +174,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   const handleGoBack = () => navigation.goBack();
   const handleReload = () => dispatch(loadChapter({ chapterHash }));
+  const handleLightOn = () => dispatch(setLight(LightSwitch.On));
+  const handleLightOff = () => dispatch(setLight(LightSwitch.Off));
   const handleLeft = () => dispatch(setDirection(ReaderDirection.Left));
   const handleRight = () => dispatch(setDirection(ReaderDirection.Right));
   const handleVertical = () => dispatch(setMode(LayoutMode.Vertical));
@@ -187,22 +191,33 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   if (data.length <= 0) {
     return (
-      <Center w="full" h="full" bg="black">
+      <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
         <SpinLoading color="white" />
       </Center>
     );
   }
   if (loadStatus === AsyncStatus.Rejected) {
     return (
-      <Center w="full" h="full" bg="black">
+      <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
         <ErrorWithRetry onRetry={handleReload} />
       </Center>
     );
   }
 
   return (
-    <Box w="full" h="full" bg="black">
-      <StatusBar backgroundColor="black" barStyle={showExtra ? 'light-content' : 'dark-content'} />
+    <Box w="full" h="full" bg={lightOn ? 'white' : 'black'}>
+      <StatusBar
+        backgroundColor="black"
+        barStyle={
+          showExtra
+            ? lightOn
+              ? 'dark-content'
+              : 'light-content'
+            : lightOn
+            ? 'light-content'
+            : 'dark-content'
+        }
+      />
 
       <Reader
         ref={readerRef}
@@ -229,45 +244,59 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
             safeAreaLeft
             safeAreaRight
           >
-            <VectorIcon name="arrow-back" size="2xl" shadow="icon" onPress={handleGoBack} />
+            <VectorIcon
+              name="arrow-back"
+              size="2xl"
+              shadow="icon"
+              color={lightOn ? 'black' : 'white'}
+              onPress={handleGoBack}
+            />
             <Text
               flexShrink={1}
               shadow="icon"
               fontSize="md"
-              numberOfLines={1}
-              color="white"
               fontWeight="bold"
+              numberOfLines={1}
+              color={lightOn ? 'black' : 'white'}
             >
               {title}
             </Text>
-            <VectorIcon name="replay" size="md" shadow="icon" onPress={handleReload} />
+            <VectorIcon
+              name="replay"
+              size="md"
+              shadow="icon"
+              color={lightOn ? 'black' : 'white'}
+              onPress={handleReload}
+            />
 
             <Box flexGrow={1} flexShrink={1} />
 
-            {horizontal &&
-              (inverted ? (
-                <VectorIcon name="west" size="lg" shadow="icon" onPress={handleRight} />
-              ) : (
-                <VectorIcon name="east" size="lg" shadow="icon" onPress={handleLeft} />
-              ))}
-            <Text shadow="icon" color="white" fontWeight="bold">
-              {current} / {max}
-            </Text>
-            {horizontal ? (
+            <VectorIcon
+              name="lightbulb"
+              size="lg"
+              shadow="icon"
+              color={lightOn ? 'black' : 'white'}
+              onPress={lightOn ? handleLightOff : handleLightOn}
+            />
+            {horizontal && (
               <VectorIcon
-                name="stay-primary-landscape"
+                name={inverted ? 'west' : 'east'}
                 size="lg"
                 shadow="icon"
-                onPress={handleVertical}
-              />
-            ) : (
-              <VectorIcon
-                name="stay-primary-portrait"
-                size="lg"
-                shadow="icon"
-                onPress={handleHorizontal}
+                color={lightOn ? 'black' : 'white'}
+                onPress={inverted ? handleRight : handleLeft}
               />
             )}
+            <Text shadow="icon" color={lightOn ? 'black' : 'white'} fontWeight="bold">
+              {current} / {max}
+            </Text>
+            <VectorIcon
+              name={horizontal ? 'stay-primary-landscape' : 'stay-primary-portrait'}
+              size="lg"
+              shadow="icon"
+              color={lightOn ? 'black' : 'white'}
+              onPress={horizontal ? handleVertical : handleHorizontal}
+            />
           </Flex>
 
           <Flex
@@ -286,6 +315,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
                 name="skip-previous"
                 size="lg"
                 shadow="icon"
+                color={lightOn ? 'black' : 'white'}
                 onPress={handlePrevChapter}
               />
             ) : (
@@ -301,7 +331,13 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               />
             </Box>
             {next ? (
-              <VectorIcon name="skip-next" size="lg" shadow="icon" onPress={handleNextChapter} />
+              <VectorIcon
+                name="skip-next"
+                size="lg"
+                shadow="icon"
+                color={lightOn ? 'black' : 'white'}
+                onPress={handleNextChapter}
+              />
             ) : (
               <Box w={45} />
             )}

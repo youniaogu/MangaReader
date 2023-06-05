@@ -1,4 +1,11 @@
-import { AsyncStatus, MangaStatus, LayoutMode, ReaderDirection, Sequence } from '~/utils';
+import {
+  AsyncStatus,
+  MangaStatus,
+  Sequence,
+  LayoutMode,
+  LightSwitch,
+  ReaderDirection,
+} from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
 import { Dirs } from 'react-native-file-access';
@@ -22,6 +29,7 @@ export const initialState: RootState = {
   },
   setting: {
     mode: LayoutMode.Horizontal,
+    light: LightSwitch.Off,
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
     firstPrehandle: true,
@@ -182,6 +190,9 @@ const settingSlice = createSlice({
   reducers: {
     setMode(state, action: PayloadAction<LayoutMode>) {
       state.mode = action.payload;
+    },
+    setLight(state, action: PayloadAction<LightSwitch>) {
+      state.light = action.payload;
     },
     setDirection(state, action: PayloadAction<ReaderDirection>) {
       state.direction = action.payload;

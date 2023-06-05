@@ -1,6 +1,6 @@
 import { delay, race, Effect } from 'redux-saga/effects';
-import { ErrorMessage } from './enum';
 import { Dirs } from 'react-native-file-access';
+import { ErrorMessage, LightSwitch } from './enum';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
 
@@ -92,6 +92,9 @@ export function fixDictShape(dict: RootState['dict']): RootState['dict'] {
 }
 
 export function fixSettingShape(setting: RootState['setting']): RootState['setting'] {
+  if (!nonNullable(setting.light)) {
+    setting.light = LightSwitch.Off;
+  }
   if (!nonNullable(setting.firstPrehandle)) {
     setting.firstPrehandle = true;
   }
