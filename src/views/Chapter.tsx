@@ -57,6 +57,16 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [prev, next] = usePrevNext(chapterList, chapterHash);
   const readerRef = useRef<ReaderRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
+  const callbackRef = useRef<(type: Volume) => void>();
+
+  callbackRef.current = (type) => {
+    if (type === Volume.Down) {
+      readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)), false);
+    }
+    if (type === Volume.Up) {
+      readerRef.current?.scrollToIndex(Math.max(page - 1, 0), false);
+    }
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -74,17 +84,9 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     }, [current, dispatch, mangaHash])
   );
   useVolumeUpDown(
-    useCallback(
-      (type) => {
-        if (type === Volume.Down) {
-          readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)), false);
-        }
-        if (type === Volume.Up) {
-          readerRef.current?.scrollToIndex(Math.max(page - 1, 0), false);
-        }
-      },
-      [page, data.length]
-    )
+    useCallback((type) => {
+      callbackRef.current && callbackRef.current(type);
+    }, [])
   );
 
   const handlePrevChapter = () => {
