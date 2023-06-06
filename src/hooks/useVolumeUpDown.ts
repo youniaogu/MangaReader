@@ -25,7 +25,12 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
         }
 
         volumeListener = VolumeManager.addVolumeListener((result) => {
-          VolumeManager.setVolume(prev);
+          setTimeout(() => {
+            if (Math.abs(result.volume - prev) > 0.0001) {
+              VolumeManager.setVolume(prev);
+            }
+          }, 200);
+
           if (result.volume - prev > 0.0001) {
             callback(Volume.Up);
           } else if (result.volume - prev < -0.0001) {
