@@ -192,7 +192,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   if (data.length <= 0) {
     return (
       <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
-        <SpinLoading color="white" />
+        <SpinLoading color={lightOn ? 'black' : 'white'} />
       </Center>
     );
   }
