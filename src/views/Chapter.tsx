@@ -207,7 +207,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   return (
     <Box w="full" h="full" bg={lightOn ? 'white' : 'black'}>
       <StatusBar
-        backgroundColor="black"
+        backgroundColor={lightOn ? 'white' : 'black'}
         barStyle={
           showExtra
             ? lightOn
