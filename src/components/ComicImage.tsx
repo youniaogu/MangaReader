@@ -306,7 +306,6 @@ const JMCImage = ({
       <Center
         w={windowWidth}
         h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-        bg="black"
       >
         <ErrorWithRetry onRetry={handleRetry} />
       </Center>

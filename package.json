@@ -6,6 +6,8 @@
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
+    "android-release": "react-native run-android --variant release",
+    "ios-release": "react-native run-ios --configuration Release",
     "start": "react-native start",
     "build-android": "cd ./android && ./gradlew assembleRelease",
     "test": "jest",
