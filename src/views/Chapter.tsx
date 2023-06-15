@@ -72,8 +72,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(viewChapter({ mangaHash, chapterHash }));
-    }, [dispatch, mangaHash, chapterHash])
+      dispatch(viewChapter({ mangaHash, chapterHash, chapterTitle: title }));
+    }, [dispatch, mangaHash, chapterHash, title])
   );
   useFocusEffect(
     useCallback(() => {

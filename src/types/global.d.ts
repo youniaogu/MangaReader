@@ -192,7 +192,7 @@ declare global {
         string,
         { total: number; progress: number; imagesLoaded: number[]; isVisited: boolean }
       >;
-      lastWatch: Record<string, { page?: number; chapter?: string }>;
+      lastWatch: Record<string, { page?: number; chapter?: string; title?: string }>;
     };
   }
 

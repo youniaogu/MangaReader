@@ -516,12 +516,16 @@ const dictSlice = createSlice({
     syncDict(_state, action: PayloadAction<RootState['dict']>) {
       return action.payload;
     },
-    viewChapter(state, action: PayloadAction<{ mangaHash: string; chapterHash: string }>) {
-      const { mangaHash, chapterHash } = action.payload;
+    viewChapter(
+      state,
+      action: PayloadAction<{ mangaHash: string; chapterHash: string; chapterTitle: string }>
+    ) {
+      const { mangaHash, chapterHash, chapterTitle } = action.payload;
       if (!state.lastWatch[mangaHash]) {
         state.lastWatch[mangaHash] = {};
       }
       state.lastWatch[mangaHash].chapter = chapterHash;
+      state.lastWatch[mangaHash].title = chapterTitle;
     },
     viewPage(state, action: PayloadAction<{ mangaHash: string; page: number }>) {
       const { mangaHash, page } = action.payload;

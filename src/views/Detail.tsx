@@ -210,7 +210,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   return (
     <Box w="full" h="full">
-      <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={5}>
+      <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={4}>
         <CachedImage
           source={data.cover}
           style={{
@@ -223,7 +223,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
         <Flex flexGrow={1} flexShrink={1} pl={4}>
           <Text
             color="white"
-            fontSize={20}
+            fontSize={18}
             fontWeight="bold"
             numberOfLines={2}
             onPress={() => handleSearch(data.title)}
@@ -240,9 +240,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             ))}
             {data.author.length <= 0 && '未知'}
           </Text>
-
           <Box flexGrow={1} />
-
+          <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
+            上次观看：{lastWatch.title || '未知'}
+          </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             分类：
             {data.tag.map((text, index) => (
