@@ -109,14 +109,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       return;
     }
 
-    const last = viewableItems[viewableItems.length - 1];
-    if (horizontal) {
-      if (viewableItems.length === 1) {
-        onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
-      }
-    } else {
-      onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
-    }
+    onPageChangeRef.current &&
+      onPageChangeRef.current(viewableItems[viewableItems.length - 1].index || 0);
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
@@ -182,6 +176,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         inverted={inverted}
         horizontal
         pagingEnabled
+        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
