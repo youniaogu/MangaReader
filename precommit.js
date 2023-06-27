@@ -18,7 +18,10 @@ if (revision.includes('ios/MangaReader.xcodeproj/project.pbxproj')) {
   [...fileContent.matchAll(PATTERN_PRODUCT_BUNDLE_IDENTIFIER)].forEach((item) => {
     const [, bundleIdentifier] = item || [];
 
-    if (bundleIdentifier !== DEFAULT_BUNDLE_IDENTIFIER) {
+    if (
+      bundleIdentifier !== DEFAULT_BUNDLE_IDENTIFIER &&
+      bundleIdentifier !== '"org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)"'
+    ) {
       throw new Error('开源项目请不要上传私人bundle identifier');
     }
   });
