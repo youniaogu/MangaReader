@@ -57,9 +57,6 @@ export const SearchAndAbout = () => {
     }, [batchStatus])
   );
 
-  const handleScan = () => {
-    RootNavigation.navigate('Scan');
-  };
   const handleSearch = () => {
     RootNavigation.navigate('Discovery');
   };
@@ -69,7 +66,6 @@ export const SearchAndAbout = () => {
 
   return (
     <HStack flexShrink={0}>
-      <VectorIcon name="qr-code-scanner" onPress={handleScan} />
       <VectorIcon name="search" onPress={handleSearch} />
       <View position="relative">
         <Rotate enable={enableRotate}>

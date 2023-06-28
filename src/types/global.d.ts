@@ -49,7 +49,6 @@ declare global {
     Detail: { mangaHash: string };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
-    Scan: undefined;
     Webview: { uri: string; userAgent?: string };
     About: undefined;
   };
@@ -59,7 +58,6 @@ declare global {
   type StackDetailProps = NativeStackScreenProps<RootStackParamList, 'Detail'>;
   type StackChapterProps = NativeStackScreenProps<RootStackParamList, 'Chapter'>;
   type StackPluginProps = NativeStackScreenProps<RootStackParamList, 'Plugin'>;
-  type StackScanProps = NativeStackScreenProps<RootStackParamList, 'Scan'>;
   type StackWebviewProps = NativeStackScreenProps<RootStackParamList, 'Webview'>;
   type StackAboutProps = NativeStackScreenProps<RootStackParamList, 'About'>;
 

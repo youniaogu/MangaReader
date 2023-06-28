@@ -19,23 +19,18 @@ import ActionsheetSelect from '~/components/ActionsheetSelect';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
-import QrcodeModal from '~/components/QrcodeModal';
 import PathModal from '~/components/PathModal';
 import Clipboard from '@react-native-clipboard/clipboard';
 import LZString from 'lz-string';
 
 const { restore, clearCache, loadLatestRelease, setAndroidDownloadPath } = action;
 const christmasGif = require('~/assets/christmas.gif');
-const BackupRestoreOptions = [
-  { label: '剪贴板', value: BackupRestore.Clipboard },
-  { label: '二维码', value: BackupRestore.Qrcode },
-];
+const BackupRestoreOptions = [{ label: '剪贴板', value: BackupRestore.Clipboard }];
 
-const About = ({ navigation }: StackAboutProps) => {
+const About = () => {
   const toast = useToast();
   const { isOpen: isClearing, onOpen: openClearing, onClose: closeClearing } = useDisclose();
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclose();
-  const { isOpen: isQrcodeOpen, onOpen: onQrcodeOpen, onClose: onQrcodeClose } = useDisclose();
   const { isOpen: isBackupOpen, onOpen: onBackupOpen, onClose: onBackupClose } = useDisclose();
   const { isOpen: isRestoreOpen, onOpen: onRestoreOpen, onClose: onRestoreClose } = useDisclose();
   const {
@@ -67,9 +62,6 @@ const About = ({ navigation }: StackAboutProps) => {
       Clipboard.setString(compressed);
       toast.show({ title: '复制成功' });
     }
-    if (value === BackupRestore.Qrcode) {
-      onQrcodeOpen();
-    }
   };
   const handleRestoreChange = (value: string) => {
     if (value === BackupRestore.Clipboard) {
@@ -78,9 +70,6 @@ const About = ({ navigation }: StackAboutProps) => {
           Clipboard.getString().then((data) => dispatch(restore(data)));
         }
       });
-    }
-    if (value === BackupRestore.Qrcode) {
-      navigation.navigate('Scan');
     }
   };
 
@@ -270,7 +259,6 @@ const About = ({ navigation }: StackAboutProps) => {
         defaultValue={androidDownloadPath}
         onClose={handleAlbumPathClose}
       />
-      <QrcodeModal isOpen={isQrcodeOpen} value={compressed} onClose={onQrcodeClose} />
     </ScrollView>
   );
 };
