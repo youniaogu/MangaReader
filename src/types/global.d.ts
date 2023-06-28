@@ -10,6 +10,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { Plugin } from '~/plugins';
+import '@types/cheerio';
 
 type CustomTheme = typeof customTheme;
 
