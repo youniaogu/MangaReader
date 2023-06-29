@@ -6,7 +6,7 @@
   "scripts": {
     "start": "react-native start",
     "android": "react-native run-android",
-    "android-release": "react-native run-android --variant release",
+    "android-release": "react-native run-android --mode release",
     "build-android": "cd ./android && ./gradlew assembleRelease",
     "ios": "react-native run-ios",
     "ios-release": "react-native run-ios --configuration Release",
