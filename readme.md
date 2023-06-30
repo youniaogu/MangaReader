@@ -1,7 +1,9 @@
 # MangaReader
 
 ![platform](https://img.shields.io/badge/platform-android%20%7C%20ios-lightgrey)
-![last-modified](https://img.shields.io/aur/last-modified/MangaReader)
+![last commit](https://img.shields.io/github/last-commit/youniaogu/MangaReader/master)
+![license](https://img.shields.io/github/license/youniaogu/MangaReader)
+![issues](https://img.shields.io/github/issues-raw/youniaogu/MangaReader)
 
 一个漫画 APP📱，基于 react-native 构建，兼容 Android、Ios 平台
 
