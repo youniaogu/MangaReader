@@ -689,7 +689,7 @@ function* prehandleChapterSaga() {
           if (Platform.OS === 'ios') {
             yield call(CameraRoll.save, `file://${path}`, { album });
           } else {
-            const [, , suffix] = path.match(/.*\/(.*)(\..*)$/) || [];
+            const [, , suffix] = path.match(/.*\/(.*)\.(.*)$/) || [];
             yield call(
               FileSystem.cp,
               `file://${path}`,
