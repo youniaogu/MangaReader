@@ -514,7 +514,11 @@ function* loadChapterListSaga() {
       }
 
       const { error: fetchError, data } = yield call(fetchData, body);
-      const { error: pluginError, chapterList = [], canLoadMore } = plugin.handleChapterList(data);
+      const {
+        error: pluginError,
+        chapterList = [],
+        canLoadMore,
+      } = plugin.handleChapterList(data, mangaId);
 
       if (pluginError || fetchError) {
         yield put(

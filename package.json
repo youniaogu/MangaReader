@@ -30,6 +30,7 @@
     "@shopify/flash-list": "^1.4.3",
     "base-64": "^1.0.0",
     "blueimp-md5": "2.2.0",
+    "buffer": "^6.0.3",
     "cheerio": "1.0.0-rc.10",
     "crypto-js": "^4.1.1",
     "lz-string": "^1.4.4",

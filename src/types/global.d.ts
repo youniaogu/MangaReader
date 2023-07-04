@@ -38,7 +38,7 @@ declare global {
   };
 
   type InitPluginOptions = {
-    OS: 'android' | 'ios';
+    OS: 'ios' | 'android' | 'windows' | 'macos' | 'web';
   };
 
   type OptionItem = { label: string; value: string };

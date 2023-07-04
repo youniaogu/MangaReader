@@ -8,6 +8,7 @@ import JMC from './jmc';
 import MHM from './mhm';
 import KL from './kl';
 import NH from './nh';
+import PICA from './pica';
 
 export * from './base';
 
@@ -21,9 +22,8 @@ export const PluginMap = new Map<Plugin, Base>([
   [MHM.id, MHM],
   [KL.id, KL],
   [NH.id, NH],
+  [PICA.id, PICA],
 ]);
-export const isJMC = JMC.is;
-export const nHentaiUserAgent = NH.userAgent;
 export const combineHash = Base.combineHash;
 export const splitHash = Base.splitHash;
 export const defaultPlugin: Plugin = PluginMap.entries().next().value[0];

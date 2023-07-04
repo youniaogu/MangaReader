@@ -38,6 +38,7 @@ export enum Plugin {
   MHM = 'MHM',
   KL = 'KL',
   NH = 'NH',
+  PICA = 'PICA',
 }
 
 export enum Options {
@@ -298,7 +299,8 @@ abstract class Base {
    * @memberof Base
    */
   abstract handleChapterList(
-    response: any
+    response: any,
+    mangaId: string
   ):
     | { error: Error; chapterList?: undefined; canLoadMore?: boolean }
     | { error?: undefined; chapterList: Manga['chapters']; canLoadMore: boolean };
