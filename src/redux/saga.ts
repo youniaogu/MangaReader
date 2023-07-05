@@ -575,13 +575,46 @@ function* loadChapterSaga() {
         return;
       }
 
-      const { error: fetchError, data } = yield call(
-        fetchData,
-        plugin.prepareChapterFetch(mangaId, chapterId)
-      );
-      const { error: pluginError, chapter } = plugin.handleChapter(data, mangaId, chapterId);
+      let page = 1;
+      let error: Error | undefined;
+      let chapterList: Chapter | undefined;
+      while (true) {
+        const { error: fetchError, data } = yield call(
+          fetchData,
+          plugin.prepareChapterFetch(mangaId, chapterId, page)
+        );
+        const {
+          error: pluginError,
+          chapter,
+          canLoadMore,
+        } = plugin.handleChapter(data, mangaId, chapterId, page);
 
-      yield put(loadChapterCompletion({ error: fetchError || pluginError, data: chapter }));
+        if (fetchError || pluginError) {
+          error = fetchError || pluginError;
+          break;
+        } else {
+          chapterList = {
+            ...chapterList,
+            ...chapter,
+            images: [...(chapterList?.images || []), ...chapter.images],
+          };
+        }
+        if (!canLoadMore) {
+          break;
+        }
+        page++;
+      }
+
+      if (error) {
+        yield put(loadChapterCompletion({ error }));
+        return;
+      }
+      if (!chapterList) {
+        yield put(loadChapterCompletion({ error: new Error(ErrorMessage.Unknown) }));
+        return;
+      }
+
+      yield put(loadChapterCompletion({ error, data: chapterList }));
     }
   );
 }

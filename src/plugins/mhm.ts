@@ -314,6 +314,7 @@ class ManHuaMao extends Base {
         .map((pathname) => encodeURI(decodeURI(`https://mao.mhtupian.com/uploads/${pathname}`)));
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,

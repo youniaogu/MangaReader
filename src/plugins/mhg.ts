@@ -417,6 +417,7 @@ class ManHuaGui extends Base {
       const { bid, cid, bname, cname, files = [], path, sl } = data;
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, bid, cid),
           mangaId: bid,

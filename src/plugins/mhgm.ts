@@ -393,6 +393,7 @@ class ManHuaGuiMobile extends Base {
       const { bookId, chapterId, bookName, chapterTitle, images = [], sl } = data;
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, bookId, chapterId),
           mangaId: bookId,

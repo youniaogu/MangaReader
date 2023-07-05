@@ -374,6 +374,7 @@ class KL extends Base {
       );
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,

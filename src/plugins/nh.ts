@@ -296,6 +296,7 @@ class NHentai extends Base {
       const [, href] = picture.match(PATTERN_PICTURE) || [];
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,

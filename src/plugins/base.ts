@@ -255,7 +255,7 @@ abstract class Base {
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareChapterFetch(mangaId: string, chapterId: string): FetchData;
+  abstract prepareChapterFetch(mangaId: string, chapterId: string, page: number): FetchData;
 
   /**
    * @description crawl data from website or interface
@@ -315,8 +315,11 @@ abstract class Base {
   abstract handleChapter(
     response: any,
     mangaId: string,
-    chapterId: string
-  ): { error: Error; chapter?: undefined } | { error?: undefined; chapter: Chapter };
+    chapterId: string,
+    page: number
+  ):
+    | { error: Error; chapter?: undefined; canLoadMore?: boolean }
+    | { error?: undefined; chapter: Chapter; canLoadMore: boolean };
 }
 
 export default Base;

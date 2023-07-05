@@ -365,6 +365,7 @@ class ManHuaDB extends Base {
       const images: { img: string; p: number }[] = JSON.parse(base64.decode(scriptContent));
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,

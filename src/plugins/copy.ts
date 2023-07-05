@@ -389,6 +389,7 @@ class CopyManga extends Base {
         ($('h4.header').first().text() || '').match(PATTERN_HEADER) || [];
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,

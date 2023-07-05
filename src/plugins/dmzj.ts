@@ -369,6 +369,7 @@ class DongManZhiJia extends Base {
       const [, name] = (folder || '').match(PATTERN_MANGA_TITLE) || [];
 
       return {
+        canLoadMore: false,
         chapter: {
           hash: Base.combineHash(this.id, comic_id, id),
           mangaId: comic_id,

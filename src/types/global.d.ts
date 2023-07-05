@@ -94,7 +94,7 @@ declare global {
     hash: string;
     mangaId: string;
     chapterId: string;
-    name: string;
+    name?: string;
     title: string;
     headers?: Record<string, string>;
     images: { uri: string; needUnscramble?: boolean }[];
