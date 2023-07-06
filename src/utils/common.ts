@@ -4,7 +4,7 @@ import { ErrorMessage, LightSwitch } from './enum';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
 
-export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)$/;
+export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)/;
 export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
 export const coverAspectRatio = 2 / 3;
 export const storageKey = {
