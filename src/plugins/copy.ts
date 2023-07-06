@@ -239,140 +239,108 @@ class CopyManga extends Base {
   };
 
   handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse) => {
-    try {
-      if (res.code === 200) {
-        return {
-          discovery: res.results.list.map((item) => {
-            return {
-              href: `https://copymanga.tv/h5/details/comic/${item.path_word}`,
-              hash: Base.combineHash(this.id, item.path_word),
-              source: this.id,
-              sourceName: this.name,
-              mangaId: item.path_word,
-              cover: item.cover,
-              title: item.name,
-              updateTime: item.datetime_updated,
-              author: item.author.map((obj) => obj.name),
-              tag: item.theme.map((obj) => obj.name),
-            };
-          }),
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (res.code === 200) {
+      return {
+        discovery: res.results.list.map((item) => {
+          return {
+            href: `https://copymanga.tv/h5/details/comic/${item.path_word}`,
+            hash: Base.combineHash(this.id, item.path_word),
+            source: this.id,
+            sourceName: this.name,
+            mangaId: item.path_word,
+            cover: item.cover,
+            title: item.name,
+            updateTime: item.datetime_updated,
+            author: item.author.map((obj) => obj.name),
+            tag: item.theme.map((obj) => obj.name),
+          };
+        }),
+      };
+    } else {
+      return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
   };
 
   handleSearch: Base['handleSearch'] = (res: SearchResponse) => {
-    try {
-      if (res.code === 200) {
-        return {
-          search: res.results.list.map((item) => {
-            return {
-              href: `https://copymanga.tv/h5/details/comic/${item.path_word}`,
-              hash: Base.combineHash(this.id, item.path_word),
-              source: this.id,
-              sourceName: this.name,
-              mangaId: item.path_word,
-              cover: item.cover,
-              title: item.name,
-            };
-          }),
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (res.code === 200) {
+      return {
+        search: res.results.list.map((item) => {
+          return {
+            href: `https://copymanga.tv/h5/details/comic/${item.path_word}`,
+            hash: Base.combineHash(this.id, item.path_word),
+            source: this.id,
+            sourceName: this.name,
+            mangaId: item.path_word,
+            cover: item.cover,
+            title: item.name,
+          };
+        }),
+      };
+    } else {
+      return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
   };
 
   handleMangaInfo: Base['handleMangaInfo'] = (res: MangaInfoResponse) => {
-    try {
-      if (res.code === 200) {
-        const { name, status, cover, path_word, author, theme, datetime_updated, last_chapter } =
-          res.results.comic;
+    if (res.code === 200) {
+      const { name, status, cover, path_word, author, theme, datetime_updated, last_chapter } =
+        res.results.comic;
 
-        let mangaStatus = MangaStatus.Unknown;
-        if (status.value === 0) {
-          mangaStatus = MangaStatus.Serial;
-        }
-        if (status.value === 1) {
-          mangaStatus = MangaStatus.End;
-        }
+      let mangaStatus = MangaStatus.Unknown;
+      if (status.value === 0) {
+        mangaStatus = MangaStatus.Serial;
+      }
+      if (status.value === 1) {
+        mangaStatus = MangaStatus.End;
+      }
 
-        return {
-          manga: {
-            href: `https://copymanga.tv/h5/details/comic/${path_word}`,
-            hash: Base.combineHash(this.id, path_word),
-            source: this.id,
-            sourceName: this.name,
-            mangaId: path_word,
-            cover,
-            title: name,
-            latest: last_chapter.name,
-            updateTime: datetime_updated,
-            author: author.map((obj) => obj.name),
-            tag: theme.map((obj) => obj.name),
-            status: mangaStatus,
-          },
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+      return {
+        manga: {
+          href: `https://copymanga.tv/h5/details/comic/${path_word}`,
+          hash: Base.combineHash(this.id, path_word),
+          source: this.id,
+          sourceName: this.name,
+          mangaId: path_word,
+          cover,
+          title: name,
+          latest: last_chapter.name,
+          updateTime: datetime_updated,
+          author: author.map((obj) => obj.name),
+          tag: theme.map((obj) => obj.name),
+          status: mangaStatus,
+        },
+      };
+    } else {
+      return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
   };
 
   handleChapterList: Base['handleChapterList'] = (res: ChapterListReponse) => {
-    try {
-      if (res.code === 200) {
-        const data: ChapterListInfo = JSON.parse(AESDecrypt(res.results || ''));
-        const { build, groups } = data;
-        const list = groups.default;
+    if (res.code === 200) {
+      const data: ChapterListInfo = JSON.parse(AESDecrypt(res.results || ''));
+      const { build, groups } = data;
+      const list = groups.default;
 
-        Object.keys(groups)
-          .filter((key) => key !== 'default')
-          .forEach((key) => {
-            list.chapters = groups[key].chapters.concat(list.chapters);
-          });
+      Object.keys(groups)
+        .filter((key) => key !== 'default')
+        .forEach((key) => {
+          list.chapters = groups[key].chapters.concat(list.chapters);
+        });
 
-        return {
-          chapterList: list.chapters
-            .map((item) => ({
-              hash: Base.combineHash(this.id, build.path_word, item.id),
-              mangaId: build.path_word,
-              chapterId: item.id,
-              href: `https://copymanga.tv/h5/comicContent/${build.path_word}/${item.id}`,
-              title: item.name,
-            }))
-            .reverse(),
-          canLoadMore: false,
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+      return {
+        chapterList: list.chapters
+          .map((item) => ({
+            hash: Base.combineHash(this.id, build.path_word, item.id),
+            mangaId: build.path_word,
+            chapterId: item.id,
+            href: `https://copymanga.tv/h5/comicContent/${build.path_word}/${item.id}`,
+            title: item.name,
+          }))
+          .reverse(),
+        canLoadMore: false,
+      };
+    } else {
+      return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
   };
 
@@ -381,32 +349,24 @@ class CopyManga extends Base {
     mangaId: string,
     chapterId: string
   ) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const contentkey = $('div.imageData').first().attr('contentkey') || '';
-      const images = JSON.parse(AESDecrypt(contentkey));
-      const [, name = '', title = ''] =
-        ($('h4.header').first().text() || '').match(PATTERN_HEADER) || [];
+    const $ = cheerio.load(text || '');
+    const contentkey = $('div.imageData').first().attr('contentkey') || '';
+    const images = JSON.parse(AESDecrypt(contentkey));
+    const [, name = '', title = ''] =
+      ($('h4.header').first().text() || '').match(PATTERN_HEADER) || [];
 
-      return {
-        canLoadMore: false,
-        chapter: {
-          hash: Base.combineHash(this.id, mangaId, chapterId),
-          mangaId,
-          chapterId,
-          name,
-          title,
-          headers: this.imageHeaders,
-          images: images.map((item: { url: string }) => ({ uri: item.url })),
-        },
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
+    return {
+      canLoadMore: false,
+      chapter: {
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        name,
+        title,
+        headers: this.imageHeaders,
+        images: images.map((item: { url: string }) => ({ uri: item.url })),
+      },
+    };
   };
 }
 

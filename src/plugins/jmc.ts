@@ -117,212 +117,182 @@ class CopyManga extends Base {
   };
 
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const list: IncreaseManga[] = [];
+    const $ = cheerio.load(text || '');
+    const list: IncreaseManga[] = [];
 
-      $('div.row div.list-col')
-        .has('div.thumb-overlay-albums')
-        .toArray()
-        .forEach((div) => {
-          const $$ = cheerio.load(div);
-          const a = $$('a').first();
-          const img = $$('img');
-          const title = img.attr('title') || '';
-          const href = a.attr('href') || '';
-          const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
-          const [, cover] = src.match(PATTERN_HTTP_URL) || [];
-          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+    $('div.row div.list-col')
+      .has('div.thumb-overlay-albums')
+      .toArray()
+      .forEach((div) => {
+        const $$ = cheerio.load(div);
+        const a = $$('a').first();
+        const img = $$('img');
+        const title = img.attr('title') || '';
+        const href = a.attr('href') || '';
+        const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+        const [, cover] = src.match(PATTERN_HTTP_URL) || [];
+        const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-          const author = (
-            $$(
-              'div.title-truncate:not(.video-title):not(.tags) a'
-            ).toArray() as cheerio.TagElement[]
-          )
-            .filter((item) => item.children[0])
-            .map((item) => item.children[0].data || '');
-          const tag = ($$('div.title-truncate.tags a').toArray() as cheerio.TagElement[])
-            .filter((item) => item.children[0])
-            .map((item) => item.children[0].data || '');
+        const author = (
+          $$('div.title-truncate:not(.video-title):not(.tags) a').toArray() as cheerio.TagElement[]
+        )
+          .filter((item) => item.children[0])
+          .map((item) => item.children[0].data || '');
+        const tag = ($$('div.title-truncate.tags a').toArray() as cheerio.TagElement[])
+          .filter((item) => item.children[0])
+          .map((item) => item.children[0].data || '');
 
-          let status = MangaStatus.Unknown;
-          if (tag.includes('連載中')) {
-            status = MangaStatus.Serial;
-          } else if (tag.includes('完結')) {
-            status = MangaStatus.End;
-          }
+        let status = MangaStatus.Unknown;
+        if (tag.includes('連載中')) {
+          status = MangaStatus.Serial;
+        } else if (tag.includes('完結')) {
+          status = MangaStatus.End;
+        }
 
-          list.push({
-            href: 'https://18comic.vip' + href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            headers: this.defaultHeaders,
-            mangaId,
-            title,
-            status,
-            cover,
-            author,
-            tag,
-          });
-        });
-
-      return { discovery: list };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
-  };
-
-  handleSearch: Base['handleSearch'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const list: IncreaseManga[] = [];
-
-      $('div.row div.list-col')
-        .has('div.thumb-overlay')
-        .toArray()
-        .forEach((div) => {
-          const $$ = cheerio.load(div);
-          const a = $$('a').first();
-          const img = $$('img');
-          const title = img.attr('title') || '';
-          const href = a.attr('href') || '';
-          const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
-          const [, cover] = src.match(PATTERN_HTTP_URL) || [];
-          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
-
-          const author = (
-            $$(
-              'div.title-truncate:not(.video-title):not(.tags) a'
-            ).toArray() as cheerio.TagElement[]
-          )
-            .filter((item) => item.children[0])
-            .map((item) => item.children[0].data || '');
-          const tag = ($$('div.title-truncate.tags a').toArray() as cheerio.TagElement[])
-            .filter((item) => item.children[0])
-            .map((item) => item.children[0].data || '');
-
-          let status = MangaStatus.Unknown;
-          if (tag.includes('連載中')) {
-            status = MangaStatus.Serial;
-          } else if (tag.includes('完結')) {
-            status = MangaStatus.End;
-          }
-
-          list.push({
-            href: 'https://18comic.vip' + href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            headers: this.defaultHeaders,
-            mangaId,
-            title,
-            status,
-            cover,
-            author,
-            tag,
-          });
-        });
-
-      return { search: list };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
-  };
-
-  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-
-      const [, mangaId] =
-        ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
-      const href = `https://18comic.vip/album/${mangaId}`;
-      const title = $('h1#book-name').text() || '';
-      const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
-      const img = $('div#album_photo_cover div.thumb-overlay img').first();
-      const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
-      const [, cover] = src.match(PATTERN_HTTP_URL) || [];
-      const tag = (
-        $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
-      ).map((item) => item.children[0].data || '');
-      const author = (
-        $(
-          'div#intro-block div.tag-block span[data-type=author] a'
-        ).toArray() as cheerio.TagElement[]
-      ).map((item) => item.children[0].data || '');
-      const chapters = (
-        $('div#episode-block div.episode ul.btn-toolbar a').toArray() as cheerio.TagElement[]
-      )
-        .map((a) => {
-          const $$ = cheerio.load(a);
-          const chapterHref = a.attribs.href;
-          const chapterTitle = ($$('li')[0] as cheerio.TagElement).children[0].data || '';
-          const [, chapterId] = chapterHref.match(PATTERN_CHAPTER_ID) || [];
-
-          return {
-            hash: Base.combineHash(this.id, mangaId, chapterId),
-            mangaId,
-            chapterId,
-            href: `https://18comic.vip${chapterHref}`,
-            title: chapterTitle.replaceAll(/[\r\n]+/g, '').trim(),
-          };
-        })
-        .reverse();
-      const firstChapterHref = $('a.reading').first().attr('href');
-      const [, firstChapterId] = firstChapterHref?.match(PATTERN_CHAPTER_ID) || [];
-
-      let status = MangaStatus.Unknown;
-      if (tag.includes('連載中')) {
-        status = MangaStatus.Serial;
-      } else if (tag.includes('完結')) {
-        status = MangaStatus.End;
-      } else if (chapters.length <= 0) {
-        status = MangaStatus.End;
-      }
-
-      if (chapters.length <= 0) {
-        chapters.push({
-          hash: Base.combineHash(this.id, mangaId, firstChapterId),
-          mangaId,
-          chapterId: firstChapterId,
-          href: `https://18comic.vip${firstChapterHref}`,
-          title: '开始阅读',
-        });
-      }
-      const latest = chapters[0].title || '';
-
-      return {
-        manga: {
-          href,
+        list.push({
+          href: 'https://18comic.vip' + href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
-          mangaId: mangaId,
-          cover,
+          headers: this.defaultHeaders,
+          mangaId,
           title,
-          latest,
-          updateTime,
+          status,
+          cover,
           author,
           tag,
+        });
+      });
+
+    return { discovery: list };
+  };
+
+  handleSearch: Base['handleSearch'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+    const list: IncreaseManga[] = [];
+
+    $('div.row div.list-col')
+      .has('div.thumb-overlay')
+      .toArray()
+      .forEach((div) => {
+        const $$ = cheerio.load(div);
+        const a = $$('a').first();
+        const img = $$('img');
+        const title = img.attr('title') || '';
+        const href = a.attr('href') || '';
+        const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+        const [, cover] = src.match(PATTERN_HTTP_URL) || [];
+        const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+
+        const author = (
+          $$('div.title-truncate:not(.video-title):not(.tags) a').toArray() as cheerio.TagElement[]
+        )
+          .filter((item) => item.children[0])
+          .map((item) => item.children[0].data || '');
+        const tag = ($$('div.title-truncate.tags a').toArray() as cheerio.TagElement[])
+          .filter((item) => item.children[0])
+          .map((item) => item.children[0].data || '');
+
+        let status = MangaStatus.Unknown;
+        if (tag.includes('連載中')) {
+          status = MangaStatus.Serial;
+        } else if (tag.includes('完結')) {
+          status = MangaStatus.End;
+        }
+
+        list.push({
+          href: 'https://18comic.vip' + href,
+          hash: Base.combineHash(this.id, mangaId),
+          source: this.id,
+          sourceName: this.name,
+          headers: this.defaultHeaders,
+          mangaId,
+          title,
           status,
-          chapters,
-        },
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+          cover,
+          author,
+          tag,
+        });
+      });
+
+    return { search: list };
+  };
+
+  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+
+    const [, mangaId] =
+      ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
+    const href = `https://18comic.vip/album/${mangaId}`;
+    const title = $('h1#book-name').text() || '';
+    const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
+    const img = $('div#album_photo_cover div.thumb-overlay img').first();
+    const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
+    const [, cover] = src.match(PATTERN_HTTP_URL) || [];
+    const tag = (
+      $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
+    ).map((item) => item.children[0].data || '');
+    const author = (
+      $('div#intro-block div.tag-block span[data-type=author] a').toArray() as cheerio.TagElement[]
+    ).map((item) => item.children[0].data || '');
+    const chapters = (
+      $('div#episode-block div.episode ul.btn-toolbar a').toArray() as cheerio.TagElement[]
+    )
+      .map((a) => {
+        const $$ = cheerio.load(a);
+        const chapterHref = a.attribs.href;
+        const chapterTitle = ($$('li')[0] as cheerio.TagElement).children[0].data || '';
+        const [, chapterId] = chapterHref.match(PATTERN_CHAPTER_ID) || [];
+
+        return {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          href: `https://18comic.vip${chapterHref}`,
+          title: chapterTitle.replaceAll(/[\r\n]+/g, '').trim(),
+        };
+      })
+      .reverse();
+    const firstChapterHref = $('a.reading').first().attr('href');
+    const [, firstChapterId] = firstChapterHref?.match(PATTERN_CHAPTER_ID) || [];
+
+    let status = MangaStatus.Unknown;
+    if (tag.includes('連載中')) {
+      status = MangaStatus.Serial;
+    } else if (tag.includes('完結')) {
+      status = MangaStatus.End;
+    } else if (chapters.length <= 0) {
+      status = MangaStatus.End;
     }
+
+    if (chapters.length <= 0) {
+      chapters.push({
+        hash: Base.combineHash(this.id, mangaId, firstChapterId),
+        mangaId,
+        chapterId: firstChapterId,
+        href: `https://18comic.vip${firstChapterHref}`,
+        title: '开始阅读',
+      });
+    }
+    const latest = chapters[0].title || '';
+
+    return {
+      manga: {
+        href,
+        hash: Base.combineHash(this.id, mangaId),
+        source: this.id,
+        sourceName: this.name,
+        mangaId: mangaId,
+        cover,
+        title,
+        latest,
+        updateTime,
+        author,
+        tag,
+        status,
+        chapters,
+      },
+    };
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
@@ -330,62 +300,54 @@ class CopyManga extends Base {
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
+    const $ = cheerio.load(text || '');
 
-      const scriptContent =
-        ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
-          (script) =>
-            PATTERN_SCRIPT_MANGA_ID.test(script.children[0].data || '') &&
-            PATTERN_SCRIPT_CHAPTER_ID.test(script.children[0].data || '') &&
-            PATTERN_SCRIPT_SCRAMBLE_ID.test(script.children[0].data || '')
-        )[0].children[0].data || '';
-      let [, mangaId] = scriptContent.match(PATTERN_SCRIPT_MANGA_ID) || [];
-      const [, chapterId] = scriptContent.match(PATTERN_SCRIPT_CHAPTER_ID) || [];
-      const [, scrambleId] = scriptContent.match(PATTERN_SCRIPT_SCRAMBLE_ID) || [];
-      const title = $('div.container div.panel-heading div.pull-left').text().replaceAll('\n', '');
-      const images = (
-        $(
-          'div.panel-body div.thumb-overlay-albums div.scramble-page img.lazy_img'
-        ).toArray() as cheerio.TagElement[]
-      ).map((img) => {
-        const src = img.attribs['data-original'] || img.attribs.src || '';
-        const [, image] = src.match(PATTERN_HTTP_URL) || [];
-        return image;
-      });
+    const scriptContent =
+      ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
+        (script) =>
+          PATTERN_SCRIPT_MANGA_ID.test(script.children[0].data || '') &&
+          PATTERN_SCRIPT_CHAPTER_ID.test(script.children[0].data || '') &&
+          PATTERN_SCRIPT_SCRAMBLE_ID.test(script.children[0].data || '')
+      )[0].children[0].data || '';
+    let [, mangaId] = scriptContent.match(PATTERN_SCRIPT_MANGA_ID) || [];
+    const [, chapterId] = scriptContent.match(PATTERN_SCRIPT_CHAPTER_ID) || [];
+    const [, scrambleId] = scriptContent.match(PATTERN_SCRIPT_SCRAMBLE_ID) || [];
+    const title = $('div.container div.panel-heading div.pull-left').text().replaceAll('\n', '');
+    const images = (
+      $(
+        'div.panel-body div.thumb-overlay-albums div.scramble-page img.lazy_img'
+      ).toArray() as cheerio.TagElement[]
+    ).map((img) => {
+      const src = img.attribs['data-original'] || img.attribs.src || '';
+      const [, image] = src.match(PATTERN_HTTP_URL) || [];
+      return image;
+    });
 
-      if (mangaId === '0') {
-        mangaId = chapterId;
-      }
-
-      return {
-        canLoadMore: false,
-        chapter: {
-          hash: Base.combineHash(this.id, mangaId, chapterId),
-          mangaId,
-          chapterId,
-          name: '',
-          title,
-          headers: {
-            ...this.defaultHeaders,
-            referer: 'https://18comic.vip/',
-            accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-          },
-          images: images.map((uri) => ({
-            uri,
-            needUnscramble: !uri.includes('.gif') && Number(chapterId) >= Number(scrambleId),
-          })),
-        },
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (mangaId === '0') {
+      mangaId = chapterId;
     }
+
+    return {
+      canLoadMore: false,
+      chapter: {
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        name: '',
+        title,
+        headers: {
+          ...this.defaultHeaders,
+          referer: 'https://18comic.vip/',
+          accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+          'accept-encoding': 'gzip, deflate, br',
+          'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        },
+        images: images.map((uri) => ({
+          uri,
+          needUnscramble: !uri.includes('.gif') && Number(chapterId) >= Number(scrambleId),
+        })),
+      },
+    };
   };
 }
 

@@ -207,3 +207,15 @@ export function matchRestoreShape(data: any): data is BackupData {
 export function nonNullable<T>(v: T | null | undefined): v is T {
   return v !== null && v !== undefined;
 }
+
+export function trycatch<T extends (...args: any) => any>(fn: T): ReturnType<T> {
+  try {
+    return fn();
+  } catch (error) {
+    if (error instanceof Error) {
+      return { error } as ReturnType<T>;
+    } else {
+      return { error: new Error(ErrorMessage.Unknown) } as ReturnType<T>;
+    }
+  }
+}

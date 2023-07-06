@@ -180,182 +180,158 @@ class KL extends Base {
   };
 
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const list: IncreaseManga[] = [];
+    const $ = cheerio.load(text || '');
+    const list: IncreaseManga[] = [];
 
-      $('div.bodythumb div.thumb-item-flow')
-        .toArray()
-        .forEach((div) => {
-          const $$ = cheerio.load(div);
+    $('div.bodythumb div.thumb-item-flow')
+      .toArray()
+      .forEach((div) => {
+        const $$ = cheerio.load(div);
 
-          const href = $$('div.series-title > a').attr('href') || '';
-          const bg = $$('div.thumb-wrapper div.content').attr('data-bg') || '';
-          const title = $$('div.series-title .title-thumb').text() || '';
-          const updateTime = $$('time.timeago').text() || '';
-          const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
-          const [, latest] =
-            ($$('div.thumb-detail a').text() || '').match(PATTERN_LATEST_CHAPTER) || [];
+        const href = $$('div.series-title > a').attr('href') || '';
+        const bg = $$('div.thumb-wrapper div.content').attr('data-bg') || '';
+        const title = $$('div.series-title .title-thumb').text() || '';
+        const updateTime = $$('time.timeago').text() || '';
+        const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
+        const [, latest] =
+          ($$('div.thumb-detail a').text() || '').match(PATTERN_LATEST_CHAPTER) || [];
 
-          let cover = bg;
-          if (bg !== '' && !cover.includes('http')) {
-            cover = 'https://klmanga.net' + bg;
-          }
-
-          list.push({
-            href: 'https://klmanga.net/' + href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            headers: this.defaultHeaders,
-            mangaId,
-            title,
-            status: MangaStatus.Unknown,
-            cover,
-            latest,
-            updateTime,
-          });
-        });
-
-      return { discovery: list };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
-  };
-
-  handleSearch: Base['handleSearch'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const list: IncreaseManga[] = [];
-
-      $('div.bodythumb div.thumb-item-flow')
-        .toArray()
-        .forEach((div) => {
-          const $$ = cheerio.load(div);
-
-          const href = $$('div.series-title > a').attr('href') || '';
-          const bg = $$('div.thumb-wrapper div.content').attr('data-bg') || '';
-          const title = $$('div.series-title .title-thumb').text() || '';
-          const updateTime = $$('time.timeago').text() || '';
-          const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
-          const [, latest] =
-            ($$('div.thumb-detail a').text() || '').match(PATTERN_LATEST_CHAPTER) || [];
-
-          let cover = bg;
-          if (bg !== '' && !bg.includes('http')) {
-            cover = 'https://klmanga.net' + bg;
-          }
-
-          list.push({
-            href: 'https://klmanga.net/' + href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            mangaId,
-            title,
-            status: MangaStatus.Unknown,
-            cover,
-            latest,
-            updateTime,
-          });
-        });
-
-      return { search: list };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
-  };
-
-  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-
-      const isChecking = $('title').first().text() === 'KLManga is checking.... ';
-      if (isChecking) {
-        throw new Error(ErrorMessage.DDoSRetry);
-      }
-
-      const href = $('link[rel=alternate]').attr('href') || '';
-      const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
-      const bg = $('div.info-cover img.thumbnail').attr('src') || '';
-      const title = $('ul.manga-info h3').text();
-      const updateTime = $('ul.manga-info i > span').text();
-      const li = $('ul.manga-info > li').toArray();
-      const statusList = li
-        .filter((item) => cheerio.load(item)('b').text().includes('Status'))
-        .map((item) => cheerio.load(item)('a').text());
-      const author = li
-        .filter((item) => cheerio.load(item)('b').text().includes('Magazine'))
-        .map((item) => cheerio.load(item)('a').text());
-      const tag = li
-        .filter((item) => cheerio.load(item)('b').text().includes('Genre'))
-        .map((item) =>
-          (cheerio.load(item)('a').toArray() as cheerio.TagElement[]).map(
-            (a) => a.children[0].data || ''
-          )
-        );
-      const chapters = ($('div#tab-chapper tr a.chapter').toArray() as cheerio.TagElement[]).map(
-        (a) => {
-          const $$ = cheerio.load(a);
-          const chapterHref = a.attribs.href;
-          const [, chapterTitle] = $$('b').text().match(PATTERN_CHAPTER_NUMBER) || [];
-          const [, chapterId] = chapterHref.match(PATTERN_HREF_ID) || [];
-
-          return {
-            hash: Base.combineHash(this.id, mangaId, chapterId),
-            mangaId,
-            chapterId,
-            href: `https://klmanga.net/${chapterHref}`,
-            title: chapterTitle,
-          };
+        let cover = bg;
+        if (bg !== '' && !cover.includes('http')) {
+          cover = 'https://klmanga.net' + bg;
         }
-      );
-      const latest = chapters[0].title || '';
 
-      let cover = bg;
-      if (bg !== '' && !bg.includes('http')) {
-        cover = 'https://klmanga.net' + bg;
-      }
-
-      let status = MangaStatus.Unknown;
-      if (statusList.includes('Incomplete')) {
-        status = MangaStatus.Serial;
-      } else if (statusList.includes('Complete')) {
-        status = MangaStatus.End;
-      }
-
-      return {
-        manga: {
-          href,
+        list.push({
+          href: 'https://klmanga.net/' + href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
-          mangaId: mangaId,
-          cover,
+          headers: this.defaultHeaders,
+          mangaId,
           title,
+          status: MangaStatus.Unknown,
+          cover,
           latest,
           updateTime,
-          author,
-          tag: tag.flat(),
-          status,
-          chapters,
-        },
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+        });
+      });
+
+    return { discovery: list };
+  };
+
+  handleSearch: Base['handleSearch'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+    const list: IncreaseManga[] = [];
+
+    $('div.bodythumb div.thumb-item-flow')
+      .toArray()
+      .forEach((div) => {
+        const $$ = cheerio.load(div);
+
+        const href = $$('div.series-title > a').attr('href') || '';
+        const bg = $$('div.thumb-wrapper div.content').attr('data-bg') || '';
+        const title = $$('div.series-title .title-thumb').text() || '';
+        const updateTime = $$('time.timeago').text() || '';
+        const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
+        const [, latest] =
+          ($$('div.thumb-detail a').text() || '').match(PATTERN_LATEST_CHAPTER) || [];
+
+        let cover = bg;
+        if (bg !== '' && !bg.includes('http')) {
+          cover = 'https://klmanga.net' + bg;
+        }
+
+        list.push({
+          href: 'https://klmanga.net/' + href,
+          hash: Base.combineHash(this.id, mangaId),
+          source: this.id,
+          sourceName: this.name,
+          mangaId,
+          title,
+          status: MangaStatus.Unknown,
+          cover,
+          latest,
+          updateTime,
+        });
+      });
+
+    return { search: list };
+  };
+
+  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+
+    const isChecking = $('title').first().text() === 'KLManga is checking.... ';
+    if (isChecking) {
+      throw new Error(ErrorMessage.DDoSRetry);
     }
+
+    const href = $('link[rel=alternate]').attr('href') || '';
+    const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
+    const bg = $('div.info-cover img.thumbnail').attr('src') || '';
+    const title = $('ul.manga-info h3').text();
+    const updateTime = $('ul.manga-info i > span').text();
+    const li = $('ul.manga-info > li').toArray();
+    const statusList = li
+      .filter((item) => cheerio.load(item)('b').text().includes('Status'))
+      .map((item) => cheerio.load(item)('a').text());
+    const author = li
+      .filter((item) => cheerio.load(item)('b').text().includes('Magazine'))
+      .map((item) => cheerio.load(item)('a').text());
+    const tag = li
+      .filter((item) => cheerio.load(item)('b').text().includes('Genre'))
+      .map((item) =>
+        (cheerio.load(item)('a').toArray() as cheerio.TagElement[]).map(
+          (a) => a.children[0].data || ''
+        )
+      );
+    const chapters = ($('div#tab-chapper tr a.chapter').toArray() as cheerio.TagElement[]).map(
+      (a) => {
+        const $$ = cheerio.load(a);
+        const chapterHref = a.attribs.href;
+        const [, chapterTitle] = $$('b').text().match(PATTERN_CHAPTER_NUMBER) || [];
+        const [, chapterId] = chapterHref.match(PATTERN_HREF_ID) || [];
+
+        return {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          href: `https://klmanga.net/${chapterHref}`,
+          title: chapterTitle,
+        };
+      }
+    );
+    const latest = chapters[0].title || '';
+
+    let cover = bg;
+    if (bg !== '' && !bg.includes('http')) {
+      cover = 'https://klmanga.net' + bg;
+    }
+
+    let status = MangaStatus.Unknown;
+    if (statusList.includes('Incomplete')) {
+      status = MangaStatus.Serial;
+    } else if (statusList.includes('Complete')) {
+      status = MangaStatus.End;
+    }
+
+    return {
+      manga: {
+        href,
+        hash: Base.combineHash(this.id, mangaId),
+        source: this.id,
+        sourceName: this.name,
+        mangaId: mangaId,
+        cover,
+        title,
+        latest,
+        updateTime,
+        author,
+        tag: tag.flat(),
+        status,
+        chapters,
+      },
+    };
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
@@ -363,35 +339,27 @@ class KL extends Base {
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null, mangaId, chapterId) => {
-    try {
-      const $ = cheerio.load(text || '');
+    const $ = cheerio.load(text || '');
 
-      const [, , name = '', title = ''] = (
-        $('div.chapter-content-top li span[itemprop=name]').toArray() as cheerio.TagElement[]
-      ).map((span) => span.children[0].data);
-      const images = ($('div.chapter-content p img').toArray() as cheerio.TagElement[]).map(
-        (img) => img.attribs['data-aload']
-      );
+    const [, , name = '', title = ''] = (
+      $('div.chapter-content-top li span[itemprop=name]').toArray() as cheerio.TagElement[]
+    ).map((span) => span.children[0].data);
+    const images = ($('div.chapter-content p img').toArray() as cheerio.TagElement[]).map(
+      (img) => img.attribs['data-aload']
+    );
 
-      return {
-        canLoadMore: false,
-        chapter: {
-          hash: Base.combineHash(this.id, mangaId, chapterId),
-          mangaId,
-          chapterId,
-          name,
-          title,
-          headers: this.defaultHeaders,
-          images: images.map((uri) => ({ uri: uri.replaceAll('\n', '') })),
-        },
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
+    return {
+      canLoadMore: false,
+      chapter: {
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        name,
+        title,
+        headers: this.defaultHeaders,
+        images: images.map((uri) => ({ uri: uri.replaceAll('\n', '') })),
+      },
+    };
   };
 }
 

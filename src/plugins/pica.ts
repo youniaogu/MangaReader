@@ -323,148 +323,118 @@ class PicaComic extends Base {
   };
 
   handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse) => {
-    try {
-      if (res.code === 200) {
-        return {
-          discovery: res.data.comics.docs.map((item) => ({
-            href: `https://manhuabika.com/pcomicview/?cid=${item.id}`,
-            hash: Base.combineHash(this.id, item.id),
-            source: this.id,
-            sourceName: this.name,
-            mangaId: item.id,
-            cover: this.stringifyImageUrl(item.thumb),
-            title: item.title,
-            status: item.finished ? MangaStatus.End : MangaStatus.Serial,
-            author: item.author.split(','),
-            tag: item.categories,
-          })),
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (res.code === 200) {
+      return {
+        discovery: res.data.comics.docs.map((item) => ({
+          href: `https://manhuabika.com/pcomicview/?cid=${item.id}`,
+          hash: Base.combineHash(this.id, item.id),
+          source: this.id,
+          sourceName: this.name,
+          mangaId: item.id,
+          cover: this.stringifyImageUrl(item.thumb),
+          title: item.title,
+          status: item.finished ? MangaStatus.End : MangaStatus.Serial,
+          author: item.author.split(','),
+          tag: item.categories,
+        })),
+      };
+    } else if (res.code === 401) {
+      return { error: new Error(ErrorMessage.TokenInvalid) };
+    } else {
+      throw new Error(ErrorMessage.WrongResponse + res.message);
     }
   };
 
   handleSearch: Base['handleSearch'] = (res: SearchResponse) => {
-    try {
-      if (res.code === 200) {
-        return {
-          search: res.data.comics.docs.map((item) => ({
-            href: `https://manhuabika.com/pcomicview/?cid=${item._id}`,
-            hash: Base.combineHash(this.id, item._id),
-            source: this.id,
-            sourceName: this.name,
-            mangaId: item._id,
-            cover: this.stringifyImageUrl(item.thumb),
-            title: item.title,
-            status: item.finished ? MangaStatus.End : MangaStatus.Serial,
-            author: item.author.split(','),
-            tag: item.categories,
-          })),
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (res.code === 200) {
+      return {
+        search: res.data.comics.docs.map((item) => ({
+          href: `https://manhuabika.com/pcomicview/?cid=${item._id}`,
+          hash: Base.combineHash(this.id, item._id),
+          source: this.id,
+          sourceName: this.name,
+          mangaId: item._id,
+          cover: this.stringifyImageUrl(item.thumb),
+          title: item.title,
+          status: item.finished ? MangaStatus.End : MangaStatus.Serial,
+          author: item.author.split(','),
+          tag: item.categories,
+        })),
+      };
+    } else if (res.code === 401) {
+      return { error: new Error(ErrorMessage.TokenInvalid) };
+    } else {
+      return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
   };
 
   handleMangaInfo: Base['handleMangaInfo'] = (res: MangaInfoResponse) => {
-    try {
-      if (res.code === 200) {
-        const { _id, tags, title, thumb, author, finished, updated_at } = res.data.comic;
-        return {
-          manga: {
-            href: `https://manhuabika.com/pcomicview/?cid=${_id}`,
-            hash: Base.combineHash(this.id, _id),
-            source: this.id,
-            sourceName: this.name,
-            mangaId: _id,
-            cover: this.stringifyImageUrl(thumb),
-            title,
-            updateTime: moment(updated_at).format('YYYY-MM-DD'),
-            author: author.split(','),
-            tag: tags,
-            status: finished ? MangaStatus.End : MangaStatus.Serial,
-          },
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (res.code === 200) {
+      const { _id, tags, title, thumb, author, finished, updated_at } = res.data.comic;
+      return {
+        manga: {
+          href: `https://manhuabika.com/pcomicview/?cid=${_id}`,
+          hash: Base.combineHash(this.id, _id),
+          source: this.id,
+          sourceName: this.name,
+          mangaId: _id,
+          cover: this.stringifyImageUrl(thumb),
+          title,
+          updateTime: moment(updated_at).format('YYYY-MM-DD'),
+          author: author.split(','),
+          tag: tags,
+          status: finished ? MangaStatus.End : MangaStatus.Serial,
+        },
+      };
+    } else if (res.code === 401) {
+      return { error: new Error(ErrorMessage.TokenInvalid) };
+    } else {
+      throw new Error(ErrorMessage.WrongResponse + res.message);
     }
   };
 
   handleChapterList: Base['handleChapterList'] = (res: ChapterListResponse, mangaId) => {
-    try {
-      if (res.code === 200) {
-        const { docs, page, total, limit } = res.data.eps;
-        return {
-          canLoadMore: total > page * limit,
-          chapterList: docs
-            .sort((a, b) => a.order - b.order)
-            .map((item) => ({
-              hash: Base.combineHash(this.id, mangaId, String(item.order)),
-              mangaId,
-              chapterId: String(item.order),
-              href: `https://manhuabika.com/pchapter/?cid=${mangaId}&chapter=${item.order}`,
-              title: item.title,
-            }))
-            .reverse(),
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (res.code === 200) {
+      const { docs, page, total, limit } = res.data.eps;
+      return {
+        canLoadMore: total > page * limit,
+        chapterList: docs
+          .sort((a, b) => a.order - b.order)
+          .map((item) => ({
+            hash: Base.combineHash(this.id, mangaId, String(item.order)),
+            mangaId,
+            chapterId: String(item.order),
+            href: `https://manhuabika.com/pchapter/?cid=${mangaId}&chapter=${item.order}`,
+            title: item.title,
+          }))
+          .reverse(),
+      };
+    } else if (res.code === 401) {
+      return { error: new Error(ErrorMessage.TokenInvalid) };
+    } else {
+      throw new Error(ErrorMessage.WrongResponse + res.message);
     }
   };
 
   handleChapter: Base['handleChapter'] = (res: ChapterResponse, mangaId, chapterId) => {
-    try {
-      if (res.code === 200) {
-        const { ep, pages } = res.data;
-        const { docs, page, total, limit } = pages;
+    if (res.code === 200) {
+      const { ep, pages } = res.data;
+      const { docs, page, total, limit } = pages;
 
-        return {
-          chapter: {
-            hash: Base.combineHash(this.id, mangaId, chapterId),
-            mangaId,
-            chapterId,
-            title: ep.title,
-            images: docs.map((item) => ({ uri: this.stringifyImageUrl(item.media) })),
-          },
-          canLoadMore: total < limit * page,
-        };
-      } else {
-        throw new Error(ErrorMessage.WrongResponse + res.message);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+      return {
+        chapter: {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          title: ep.title,
+          images: docs.map((item) => ({ uri: this.stringifyImageUrl(item.media) })),
+        },
+        canLoadMore: total < limit * page,
+      };
+    } else if (res.code === 401) {
+      return { error: new Error(ErrorMessage.TokenInvalid) };
+    } else {
+      throw new Error(ErrorMessage.WrongResponse + res.message);
     }
   };
 

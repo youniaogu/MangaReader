@@ -19,6 +19,7 @@ import {
   fixSettingShape,
   getLatestRelease,
   matchRestoreShape,
+  trycatch,
   nonNullable,
   ErrorMessage,
   AsyncStatus,
@@ -371,7 +372,7 @@ function* loadDiscoverySaga() {
         fetchData,
         plugin.prepareDiscoveryFetch(page, filterWithDefault)
       );
-      const { error: pluginError, discovery } = plugin.handleDiscovery(data);
+      const { error: pluginError, discovery } = trycatch(() => plugin.handleDiscovery(data));
 
       yield put(loadDiscoveryCompletion({ error: fetchError || pluginError, data: discovery }));
     }
@@ -406,7 +407,7 @@ function* loadSearchSaga() {
         fetchData,
         plugin.prepareSearchFetch(keyword, page, filterWithDefault)
       );
-      const { error: pluginError, search } = plugin.handleSearch(data);
+      const { error: pluginError, search } = trycatch(() => plugin.handleSearch(data));
 
       yield put(loadSearchCompletion({ error: fetchError || pluginError, data: search }));
     }
@@ -488,7 +489,7 @@ function* loadMangaInfoSaga() {
         fetchData,
         plugin.prepareMangaInfoFetch(mangaId)
       );
-      const { error: pluginError, manga } = plugin.handleMangaInfo(data);
+      const { error: pluginError, manga } = trycatch(() => plugin.handleMangaInfo(data));
 
       yield put(loadMangaInfoCompletion({ error: fetchError || pluginError, data: manga }));
     }
@@ -518,7 +519,7 @@ function* loadChapterListSaga() {
         error: pluginError,
         chapterList = [],
         canLoadMore,
-      } = plugin.handleChapterList(data, mangaId);
+      } = trycatch(() => plugin.handleChapterList(data, mangaId));
 
       if (pluginError || fetchError) {
         yield put(
@@ -587,7 +588,7 @@ function* loadChapterSaga() {
           error: pluginError,
           chapter,
           canLoadMore,
-        } = plugin.handleChapter(data, mangaId, chapterId, page);
+        } = trycatch(() => plugin.handleChapter(data, mangaId, chapterId, page));
 
         if (fetchError || pluginError) {
           error = fetchError || pluginError;

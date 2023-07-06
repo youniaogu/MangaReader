@@ -48,6 +48,7 @@ export enum ErrorMessage {
   CookieInvalid = 'Cookie失效，请重新获取',
   WithoutPermission = '授权失败',
   IOSNotSupportWebp = '暂不支持.webp格式下载',
+  TokenInvalid = 'Token失效，请重新获取',
 }
 
 export enum Orientation {

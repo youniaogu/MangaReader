@@ -123,34 +123,68 @@ class ManHuaMao extends Base {
   };
 
   handleDiscovery: Base['handleDiscovery'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const list: IncreaseManga[] = [];
+    const $ = cheerio.load(text || '');
+    const list: IncreaseManga[] = [];
 
-      ($('div.comic-book-unit').toArray() as cheerio.TagElement[]).forEach((div) => {
+    ($('div.comic-book-unit').toArray() as cheerio.TagElement[]).forEach((div) => {
+      const $$ = cheerio.load(div);
+      const img = $$('a img.comic-book-cover');
+
+      const href = $$('a.d-block').attr('href') || '';
+      const title = $$('div.media-body h2 a').first().text() || '';
+      const cover = img.attr('src') || img.attr('data-original') || '';
+      const author = (
+        $$('div.media-body div.comic-creators ul a').toArray() as cheerio.TagElement[]
+      ).map((a) => a.children[0].data || '');
+      const tags = (
+        $$(
+          'div.media-body div.comic-categories li.list-inline-item span.badge'
+        ).toArray() as cheerio.TagElement[]
+      ).map((span) => (span.children[0].data || '').trim());
+      const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+
+      let status = MangaStatus.Unknown;
+      if (tags.includes('连载中')) {
+        status = MangaStatus.Serial;
+      }
+      if (tags.includes('已完结')) {
+        status = MangaStatus.End;
+      }
+
+      list.push({
+        href,
+        hash: Base.combineHash(this.id, mangaId),
+        source: this.id,
+        sourceName: this.name,
+        mangaId,
+        title,
+        status,
+        cover,
+        author,
+        tag: tags.filter((tag) => tag !== '连载中' && tag !== '已完结'),
+      });
+    });
+
+    return { discovery: list };
+  };
+
+  handleSearch: Base['handleSearch'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+    const list: IncreaseManga[] = [];
+
+    $('div.comicbook-index')
+      .toArray()
+      .forEach((div) => {
         const $$ = cheerio.load(div);
-        const img = $$('a img.comic-book-cover');
+        const img = $$('a.d-block img');
 
         const href = $$('a.d-block').attr('href') || '';
-        const title = $$('div.media-body h2 a').first().text() || '';
+        const title = $$('a.d-block').attr('title') || '';
         const cover = img.attr('src') || img.attr('data-original') || '';
-        const author = (
-          $$('div.media-body div.comic-creators ul a').toArray() as cheerio.TagElement[]
-        ).map((a) => a.children[0].data || '');
-        const tags = (
-          $$(
-            'div.media-body div.comic-categories li.list-inline-item span.badge'
-          ).toArray() as cheerio.TagElement[]
-        ).map((span) => (span.children[0].data || '').trim());
         const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
-
-        let status = MangaStatus.Unknown;
-        if (tags.includes('连载中')) {
-          status = MangaStatus.Serial;
-        }
-        if (tags.includes('已完结')) {
-          status = MangaStatus.End;
-        }
+        const author = ($$('div.comic-author a').toArray() as cheerio.TagElement[]).map(
+          (a) => a.children[0].data || ''
+        );
 
         list.push({
           href,
@@ -159,136 +193,77 @@ class ManHuaMao extends Base {
           sourceName: this.name,
           mangaId,
           title,
-          status,
+          status: MangaStatus.Unknown,
           cover,
           author,
-          tag: tags.filter((tag) => tag !== '连载中' && tag !== '已完结'),
         });
       });
 
-      return { discovery: list };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
-  };
-
-  handleSearch: Base['handleSearch'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const list: IncreaseManga[] = [];
-
-      $('div.comicbook-index')
-        .toArray()
-        .forEach((div) => {
-          const $$ = cheerio.load(div);
-          const img = $$('a.d-block img');
-
-          const href = $$('a.d-block').attr('href') || '';
-          const title = $$('a.d-block').attr('title') || '';
-          const cover = img.attr('src') || img.attr('data-original') || '';
-          const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
-          const author = ($$('div.comic-author a').toArray() as cheerio.TagElement[]).map(
-            (a) => a.children[0].data || ''
-          );
-
-          list.push({
-            href,
-            hash: Base.combineHash(this.id, mangaId),
-            source: this.id,
-            sourceName: this.name,
-            mangaId,
-            title,
-            status: MangaStatus.Unknown,
-            cover,
-            author,
-          });
-        });
-
-      return { search: list };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
+    return { search: list };
   };
 
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
-      const manga: IncreaseManga = {
-        href: '',
-        hash: '',
-        source: this.id,
-        sourceName: this.name,
-        mangaId: '',
-        cover: '',
-        title: '',
-        latest: '',
-        updateTime: '',
-        author: [],
-        tag: [],
-        status: MangaStatus.Unknown,
-        chapters: [],
-      };
-      const chapters: ChapterItem[] = [];
+    const $ = cheerio.load(text || '');
+    const manga: IncreaseManga = {
+      href: '',
+      hash: '',
+      source: this.id,
+      sourceName: this.name,
+      mangaId: '',
+      cover: '',
+      title: '',
+      latest: '',
+      updateTime: '',
+      author: [],
+      tag: [],
+      status: MangaStatus.Unknown,
+      chapters: [],
+    };
+    const chapters: ChapterItem[] = [];
 
-      const title = $('meta[property=og:novel:book_name]').first().attr('content') || '';
-      const cover = $('meta[property=og:image]').first().attr('content') || '';
-      const author = [$('meta[property=og:novel:author]').first().attr('content') || ''];
-      const statusLabel = $('meta[property=og:novel:status]').first().attr('content') || '';
-      const updateTimeLabel =
-        $('meta[property=og:novel:update_time]').first().attr('content') || '';
-      const href = $('meta[property=og:url]').first().attr('content') || '';
-      const tags = ($('div.comic-info ul.tags li a').toArray() as cheerio.TagElement[])
-        .map((a) => (a.children[0].data || '').trim())
-        .filter((tag) => tag !== '连载中' && tag !== '已完结');
-      const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
-      const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+    const title = $('meta[property=og:novel:book_name]').first().attr('content') || '';
+    const cover = $('meta[property=og:image]').first().attr('content') || '';
+    const author = [$('meta[property=og:novel:author]').first().attr('content') || ''];
+    const statusLabel = $('meta[property=og:novel:status]').first().attr('content') || '';
+    const updateTimeLabel = $('meta[property=og:novel:update_time]').first().attr('content') || '';
+    const href = $('meta[property=og:url]').first().attr('content') || '';
+    const tags = ($('div.comic-info ul.tags li a').toArray() as cheerio.TagElement[])
+      .map((a) => (a.children[0].data || '').trim())
+      .filter((tag) => tag !== '连载中' && tag !== '已完结');
+    const [updateTime = ''] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+    const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
-      ($('ol.links-of-books li a').toArray() as cheerio.TagElement[]).forEach((a) => {
-        const [, , chapterId] = a.attribs.href.match(PATTERN_CHAPTER_ID) || [];
+    ($('ol.links-of-books li a').toArray() as cheerio.TagElement[]).forEach((a) => {
+      const [, , chapterId] = a.attribs.href.match(PATTERN_CHAPTER_ID) || [];
 
-        chapters.push({
-          hash: Base.combineHash(this.id, mangaId, chapterId),
-          mangaId,
-          chapterId,
-          href: a.attribs.href,
-          title: a.attribs.title,
-        });
+      chapters.push({
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        href: a.attribs.href,
+        title: a.attribs.title,
       });
+    });
 
-      if (statusLabel === '连载中') {
-        manga.status = MangaStatus.Serial;
-      }
-      if (statusLabel === '已完结') {
-        manga.status = MangaStatus.End;
-      }
-
-      manga.href = href;
-      manga.mangaId = mangaId;
-      manga.hash = Base.combineHash(this.id, mangaId);
-      manga.title = title;
-      manga.cover = cover;
-      manga.latest = chapters.length > 0 ? chapters[0].title : '';
-      manga.updateTime = updateTime;
-      manga.author = author;
-      manga.tag = tags;
-      manga.chapters = chapters;
-
-      return { manga };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
+    if (statusLabel === '连载中') {
+      manga.status = MangaStatus.Serial;
     }
+    if (statusLabel === '已完结') {
+      manga.status = MangaStatus.End;
+    }
+
+    manga.href = href;
+    manga.mangaId = mangaId;
+    manga.hash = Base.combineHash(this.id, mangaId);
+    manga.title = title;
+    manga.cover = cover;
+    manga.latest = chapters.length > 0 ? chapters[0].title : '';
+    manga.updateTime = updateTime;
+    manga.author = author;
+    manga.tag = tags;
+    manga.chapters = chapters;
+
+    return { manga };
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
@@ -296,48 +271,40 @@ class ManHuaMao extends Base {
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
-    try {
-      const $ = cheerio.load(text || '');
+    const $ = cheerio.load(text || '');
 
-      const name = $('div.comic-detail h1.text-center a').first().text();
-      const title = $('div.comic-detail h2.text-center').first().text();
-      const [, mangaId, chapterId] =
-        ($('link[rel=canonical]').first().attr('href') || '').match(PATTERN_CHAPTER_ID) || [];
-      const scriptContent =
-        ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter((script) =>
-          PATTERN_SCRIPT.test(script.children[0].data || '')
-        )[0].children[0].data || '';
-      const [, base64] = scriptContent.match(PATTERN_SCRIPT) || [];
+    const name = $('div.comic-detail h1.text-center a').first().text();
+    const title = $('div.comic-detail h2.text-center').first().text();
+    const [, mangaId, chapterId] =
+      ($('link[rel=canonical]').first().attr('href') || '').match(PATTERN_CHAPTER_ID) || [];
+    const scriptContent =
+      ($('script:not([src]):not([type])').toArray() as cheerio.TagElement[]).filter((script) =>
+        PATTERN_SCRIPT.test(script.children[0].data || '')
+      )[0].children[0].data || '';
+    const [, base64] = scriptContent.match(PATTERN_SCRIPT) || [];
 
-      const images = (LZString.decompressFromBase64(base64) || '')
-        .split(',')
-        .map((pathname) => encodeURI(decodeURI(`https://mao.mhtupian.com/uploads/${pathname}`)));
+    const images = (LZString.decompressFromBase64(base64) || '')
+      .split(',')
+      .map((pathname) => encodeURI(decodeURI(`https://mao.mhtupian.com/uploads/${pathname}`)));
 
-      return {
-        canLoadMore: false,
-        chapter: {
-          hash: Base.combineHash(this.id, mangaId, chapterId),
-          mangaId,
-          chapterId,
-          name,
-          title,
-          headers: {
-            ...this.defaultHeaders,
-            referer: 'https://www.maofly.com/',
-            accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-            'accept-encoding': 'gzip, deflate, br',
-            'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
-          },
-          images: images.map((uri) => ({ uri })),
+    return {
+      canLoadMore: false,
+      chapter: {
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        name,
+        title,
+        headers: {
+          ...this.defaultHeaders,
+          referer: 'https://www.maofly.com/',
+          accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+          'accept-encoding': 'gzip, deflate, br',
+          'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         },
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        return { error };
-      } else {
-        return { error: new Error(ErrorMessage.Unknown) };
-      }
-    }
+        images: images.map((uri) => ({ uri })),
+      },
+    };
   };
 }
 
