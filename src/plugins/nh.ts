@@ -218,7 +218,7 @@ class NHentai extends Base {
     const href = `https://nhentai.net/g/${mangaId}/`;
 
     const tags = (data.tags as { type: string; name: string }[])
-      .filter((item) => item.type === 'tag')
+      .filter((item) => item.type !== 'artist' && item.type !== 'group')
       .map((item) => item.name);
     const artist = (data.tags as { type: string; name: string }[])
       .filter((item) => item.type === 'artist')
@@ -239,7 +239,7 @@ class NHentai extends Base {
     manga.href = href;
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
-    manga.title = data.title.japanese;
+    manga.title = data.title.japanese || data.title.english || data.title.pretty;
     manga.cover = cover;
     manga.latest = chapters.length > 0 ? chapters[0].title : '';
     manga.updateTime = moment.unix(data.upload_date).format('YYYY-MM-DD');
