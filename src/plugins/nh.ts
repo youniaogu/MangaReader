@@ -35,7 +35,6 @@ class NHentai extends Base {
       href: 'https://nhentai.net/',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Host: 'nhentai.net' },
-      config: { origin: { label: '域名', value: 'https://nhentai.net/' } },
       option: { discovery: [], search: searchOptions },
     });
   }

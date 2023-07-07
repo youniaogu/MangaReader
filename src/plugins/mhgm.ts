@@ -104,7 +104,6 @@ class ManHuaGuiMobile extends Base {
       href: 'https://m.manhuagui.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
-      config: { origin: { label: '域名', value: 'https://m.manhuagui.com' } },
       option: { discovery: discoveryOptions, search: searchOptions },
     });
   }

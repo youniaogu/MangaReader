@@ -100,7 +100,6 @@ class ManHuaGui extends Base {
       href: 'https://www.mhgui.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
-      config: { origin: { label: '域名', value: 'https://www.mhgui.com' } },
       option: { discovery: discoveryOptions, search: [] },
       disabled: true,
     });

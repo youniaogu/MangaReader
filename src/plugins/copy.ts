@@ -176,7 +176,6 @@ class CopyManga extends Base {
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
       },
-      config: { origin: { label: '域名', value: 'https://api.copymanga.net' } },
       option: { discovery: discoveryOptions, search: [] },
     });
   }

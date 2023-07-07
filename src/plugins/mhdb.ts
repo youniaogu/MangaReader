@@ -114,7 +114,6 @@ class ManHuaDB extends Base {
       href: 'https://www.manhuadb.com',
       userAgent,
       defaultHeaders: { Referer: 'https://www.manhuadb.com/', 'User-Agent': userAgent },
-      config: { origin: { label: '域名', value: 'https://www.manhuadb.com' } },
       option: { discovery: discoveryOptions, search: [] },
     });
   }

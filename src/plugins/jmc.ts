@@ -74,7 +74,6 @@ class CopyManga extends Base {
         Host: '18comic.vip',
         Referer: 'https://18comic.vip',
       },
-      config: { origin: { label: '域名', value: 'https://18comic.vip' } },
       option: { discovery: discoveryOptions, search: searchOptions },
     });
   }

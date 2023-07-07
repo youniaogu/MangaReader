@@ -50,7 +50,12 @@ declare global {
     Detail: { mangaHash: string };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
-    Webview: { uri: string; userAgent?: string };
+    Webview: {
+      uri: string;
+      source?: Plugin;
+      userAgent?: string;
+      injectedJavascript?: string;
+    };
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -148,7 +153,9 @@ declare global {
         userAgent?: string;
         description: string;
         disabled: boolean;
+        injectedJavaScript?: string;
       }[];
+      extra: Record<string, any>;
     };
     batch: {
       loadStatus: AsyncStatus;

@@ -38,6 +38,7 @@ export const initialState: RootState = {
   plugin: {
     source: defaultPlugin,
     list: defaultPluginList,
+    extra: {},
   },
   batch: {
     loadStatus: AsyncStatus.Default,
@@ -224,6 +225,9 @@ const pluginSlice = createSlice({
   reducers: {
     setSource(state, action: PayloadAction<Plugin>) {
       state.source = action.payload;
+    },
+    setExtra(state, action: PayloadAction<{ source: Plugin; data: Record<string, any> }>) {
+      state.extra = { ...state.extra, ...action.payload.data };
     },
     disablePlugin(state, action: PayloadAction<Plugin>) {
       const index = state.list.findIndex((item) => item.value === action.payload);

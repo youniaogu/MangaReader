@@ -88,7 +88,6 @@ class ManHuaMao extends Base {
       href: 'https://www.maofly.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
-      config: { origin: { label: '域名', value: 'https://www.maofly.com' } },
       option: { discovery: discoveryOptions, search: [] },
       disabled: true,
     });

@@ -1,6 +1,7 @@
+import { defaultPlugin, defaultPluginList } from '~/plugins';
+import { ErrorMessage, LightSwitch } from './enum';
 import { delay, race, Effect } from 'redux-saga/effects';
 import { Dirs } from 'react-native-file-access';
-import { ErrorMessage, LightSwitch } from './enum';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
 
@@ -103,6 +104,20 @@ export function fixSettingShape(setting: RootState['setting']): RootState['setti
   }
 
   return setting;
+}
+
+export function fixPluginShape(plugin: RootState['plugin']): RootState['plugin'] {
+  if (!nonNullable(plugin.source)) {
+    plugin.source = defaultPlugin;
+  }
+  if (!Array.isArray(plugin.list)) {
+    plugin.list = defaultPluginList;
+  }
+  if (!nonNullable(plugin.extra)) {
+    plugin.extra = {};
+  }
+
+  return plugin;
 }
 
 export function getLatestRelease(
@@ -218,4 +233,8 @@ export function trycatch<T extends (...args: any) => any>(fn: T): ReturnType<T> 
       return { error: new Error(ErrorMessage.Unknown) } as ReturnType<T>;
     }
   }
+}
+
+export function ellipsis(str: string, len: number = 20, suffix = '...') {
+  return str.length > len ? str.substring(0, len) + suffix : str;
 }

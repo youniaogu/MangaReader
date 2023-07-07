@@ -16,6 +16,7 @@ import {
   fetchData,
   haveError,
   fixDictShape,
+  fixPluginShape,
   fixSettingShape,
   getLatestRelease,
   matchRestoreShape,
@@ -38,6 +39,7 @@ const {
   // app
   launch,
   launchCompletion,
+  setExtra,
   toastMessage,
   catchError,
   // datasync
@@ -103,7 +105,6 @@ const {
 function* initSaga() {
   yield put(launch());
 }
-
 function* launchSaga() {
   yield takeLatestSuspense(launch.type, function* () {
     yield put(syncData());
@@ -112,6 +113,26 @@ function* launchSaga() {
 
     yield put(launchCompletion({ error: undefined }));
   });
+}
+
+function* pluginSyncDataSaga() {
+  yield takeLatestSuspense(
+    setExtra.type,
+    function* ({ payload: { source } }: ReturnType<typeof setExtra>) {
+      const extra = ((state: RootState) => state.plugin.extra)(yield select());
+      const plugin = PluginMap.get(source);
+
+      if (!plugin) {
+        yield put(catchError(ErrorMessage.PluginMissing));
+        return;
+      }
+
+      const message = plugin.syncExtraData(extra);
+      if (typeof message === 'string') {
+        yield put(toastMessage(message));
+      }
+    }
+  );
 }
 
 function* syncDataSaga() {
@@ -133,16 +154,16 @@ function* syncDataSaga() {
         );
       }
       if (dictData) {
-        const dict: RootState['dict'] = JSON.parse(dictData);
-        yield put(syncDict(fixDictShape(dict)));
+        const dict: RootState['dict'] = fixDictShape(JSON.parse(dictData));
+        yield put(syncDict(dict));
       }
       if (pluginData) {
-        const pluginCache: RootState['plugin'] = JSON.parse(pluginData);
+        const plugin: RootState['plugin'] = fixPluginShape(JSON.parse(pluginData));
         const list: RootState['plugin']['list'] = [];
 
         PluginMap.forEach((item) => {
-          const finded = pluginCache.list.find((obj) => obj.value === item.id);
-
+          const finded = plugin.list.find((obj) => obj.value === item.id);
+          item.syncExtraData(plugin.extra);
           list.push({
             name: item.name,
             label: item.shortName,
@@ -151,19 +172,15 @@ function* syncDataSaga() {
             href: item.href,
             userAgent: item.userAgent,
             description: item.description,
+            injectedJavaScript: item.injectedJavaScript,
             disabled: finded ? finded.disabled : true,
           });
         });
-        yield put(
-          syncPlugin({
-            source: pluginCache.source,
-            list,
-          })
-        );
+        yield put(syncPlugin({ ...plugin, list }));
       }
       if (settingData) {
-        const setting: RootState['setting'] = JSON.parse(settingData);
-        yield put(syncSetting(fixSettingShape(setting)));
+        const setting: RootState['setting'] = fixSettingShape(JSON.parse(settingData));
+        yield put(syncSetting(setting));
       }
 
       yield put(syncDataCompletion({ error: undefined }));
@@ -215,6 +232,7 @@ function* storageDataSaga() {
       setDirection.type,
       setSequence.type,
       setSource.type,
+      setExtra.type,
       disablePlugin.type,
       viewChapter.type,
       viewPage.type,
@@ -313,7 +331,7 @@ function* batchUpdateSaga() {
           }
 
           yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry <= 3 }));
-          yield delay(timeout || plugin.config.batchDelay);
+          yield delay(timeout || plugin.batchDelay);
         } else {
           const prev = dict.manga[hash]?.chapters;
           const curr = data?.chapters;
@@ -801,6 +819,7 @@ export default function* rootSaga() {
     fork(initSaga),
 
     fork(launchSaga),
+    fork(pluginSyncDataSaga),
     fork(syncDataSaga),
     fork(restoreSaga),
     fork(storageDataSaga),

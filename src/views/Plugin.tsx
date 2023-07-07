@@ -11,9 +11,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
   const list = useAppSelector((state) => state.plugin.list);
 
   const handleToggle = (plugin: PluginType) => {
-    return () => {
-      dispatch(disablePlugin(plugin));
-    };
+    dispatch(disablePlugin(plugin));
   };
 
   return (
@@ -34,7 +32,14 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
                 fontSize="lg"
                 fontWeight="bold"
                 color="purple.500"
-                onPress={() => navigate('Webview', { uri: item.href, userAgent: item.userAgent })}
+                onPress={() =>
+                  navigate('Webview', {
+                    uri: item.href,
+                    source: item.value,
+                    userAgent: item.userAgent,
+                    injectedJavascript: item.injectedJavaScript,
+                  })
+                }
               >
                 {item.label} - {item.name} 🔗
               </Text>
@@ -48,7 +53,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
               size="md"
               onTrackColor="purple.500"
               value={!item.disabled}
-              onToggle={handleToggle(item.value)}
+              onToggle={() => handleToggle(item.value)}
             />
           </HStack>
         ))}

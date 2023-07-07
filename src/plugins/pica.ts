@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { ErrorMessage, MangaStatus } from '~/utils';
+import { ellipsis, ErrorMessage, MangaStatus } from '~/utils';
 import { Buffer } from 'buffer';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
@@ -250,8 +250,8 @@ class PicaComic extends Base {
       id: Plugin.PICA,
       name: 'picacomic',
       shortName: 'PICA',
-      description: '哔咔漫画',
-      href: 'https://manhuabika.com',
+      description: '哔咔漫画：需要代理',
+      href: 'https://manhuabika.com/plogin/',
       userAgent,
       defaultHeaders: {
         Accept: 'application/vnd.picacomic.com.v1+json',
@@ -263,10 +263,21 @@ class PicaComic extends Base {
         'User-Agent': userAgent,
         Authorization: '',
       },
-      config: { origin: { label: '域名', value: 'https://manhuabika.com' } },
+      injectedJavaScript: `(function() {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ picaToken: JSON.parse(window.localStorage.getItem('token')).value }));
+      })();`,
       option: { discovery: discoveryOptions, search: searchOptions },
     });
   }
+
+  syncExtraData = (data: Record<string, any>) => {
+    const { picaToken } = data;
+
+    if (picaToken) {
+      this.defaultHeaders.Authorization = picaToken;
+      return '获取token成功: ' + ellipsis(picaToken);
+    }
+  };
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, sort }) => {
     const query = {

@@ -119,7 +119,6 @@ class DongManZhiJia extends Base {
       href: 'https://m.dmzj.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
-      config: { origin: { label: '域名', value: 'https://m.dmzj.com' } },
       option: { discovery: discoveryOptions, search: [] },
     });
   }

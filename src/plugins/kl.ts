@@ -87,7 +87,6 @@ class KL extends Base {
       href: 'https://klmanga.net',
       userAgent,
       defaultHeaders: { Referer: 'https://klmanga.net/', 'User-Agent': userAgent },
-      config: { origin: { label: '域名', value: 'https://klmanga.net' } },
       option: { discovery: option, search: option },
     });
   }
