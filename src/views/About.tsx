@@ -41,17 +41,26 @@ const About = () => {
   const dispatch = useAppDispatch();
   const release = useAppSelector((state) => state.release);
   const favorites = useAppSelector((state) => state.favorites);
+  const lastWatch = useAppSelector((state) => state.dict.lastWatch);
   const clearStatus = useAppSelector((state) => state.datasync.clearStatus);
   const restoreStatus = useAppSelector((state) => state.datasync.restoreStatus);
   const androidDownloadPath = useAppSelector((state) => state.setting.androidDownloadPath);
 
   const compressed = useMemo(() => {
+    const hashList = favorites.map((item) => item.mangaHash);
+    const savedLastWatch: typeof lastWatch = {};
+    for (let hash in lastWatch) {
+      if (hashList.includes(hash)) {
+        savedLastWatch[hash] = lastWatch[hash];
+      }
+    }
     const uncompressed = JSON.stringify({
       createTime: new Date().getTime(),
-      favorites: favorites.map((item) => item.mangaHash),
+      favorites: hashList,
+      lastWatch: savedLastWatch,
     });
     return LZString.compressToBase64(uncompressed);
-  }, [favorites]);
+  }, [favorites, lastWatch]);
 
   const handleRetry = () => {
     dispatch(loadLatestRelease());

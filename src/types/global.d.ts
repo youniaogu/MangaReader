@@ -35,6 +35,7 @@ declare global {
   type BackupData = {
     createTime: number;
     favorites: string[];
+    lastWatch?: RootState['dict']['lastWatch'];
   };
 
   type InitPluginOptions = {

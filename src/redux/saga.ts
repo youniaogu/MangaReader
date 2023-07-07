@@ -18,8 +18,8 @@ import {
   fixDictShape,
   fixPluginShape,
   fixSettingShape,
+  fixRestoreShape,
   getLatestRelease,
-  matchRestoreShape,
   trycatch,
   nonNullable,
   ErrorMessage,
@@ -193,12 +193,8 @@ function* restoreSaga() {
   yield takeLatestSuspense(restore.type, function* ({ payload }: ReturnType<typeof restore>) {
     try {
       const favorites = ((state: RootState) => state.favorites)(yield select());
-      const data = JSON.parse(LZString.decompressFromBase64(payload) || 'null');
-
-      if (!matchRestoreShape(data)) {
-        throw new Error(ErrorMessage.WrongDataType);
-      }
-
+      const dict = ((state: RootState) => state.dict)(yield select());
+      const data = fixRestoreShape(JSON.parse(LZString.decompressFromBase64(payload) || 'null'));
       const newFavorites = data.favorites.filter(
         (hash) => favorites.findIndex((item) => item.mangaHash === hash) === -1
       );
@@ -210,6 +206,7 @@ function* restoreSaga() {
           ...favorites,
         ])
       );
+      yield put(syncDict({ ...dict, lastWatch: { ...dict.lastWatch, ...data.lastWatch } }));
       yield put(batchUpdate(newFavorites));
       yield take(endBatchUpdate.type);
       yield put(restoreCompletion({ error: undefined }));

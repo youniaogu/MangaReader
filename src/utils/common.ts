@@ -120,6 +120,32 @@ export function fixPluginShape(plugin: RootState['plugin']): RootState['plugin']
   return plugin;
 }
 
+export function fixRestoreShape(data: BackupData): BackupData {
+  if (!nonNullable || typeof data !== 'object') {
+    data = { createTime: 0, favorites: [], lastWatch: {} };
+  }
+  if (typeof data.createTime !== 'number') {
+    data.createTime = 0;
+  }
+  if (!Array.isArray(data.favorites)) {
+    data.favorites = [];
+  }
+  data.favorites = data.favorites.filter((item: any) => typeof item === 'string');
+  if (typeof data.lastWatch !== 'object') {
+    data.lastWatch = {};
+  }
+  for (let key in data.lastWatch) {
+    const item = data.lastWatch[key];
+    data.lastWatch[key] = {
+      page: item && typeof item.page === 'number' ? item.page : undefined,
+      chapter: item && typeof item.chapter === 'string' ? item.chapter : undefined,
+      title: item && typeof item.title === 'string' ? item.title : undefined,
+    };
+  }
+
+  return data;
+}
+
 export function getLatestRelease(
   data: any[]
 ): { error: Error; release?: undefined } | { error?: undefined; release?: LatestRelease } {
@@ -205,18 +231,6 @@ export function AESDecrypt(contentKey: string): string {
   })
     .toString(CryptoJS.enc.Utf8)
     .toString();
-}
-
-export function matchRestoreShape(data: any): data is BackupData {
-  if (
-    typeof data === 'object' &&
-    typeof data.createTime === 'number' &&
-    data.favorites.findIndex((item: any) => typeof item !== 'string') === -1
-  ) {
-    return true;
-  }
-
-  return false;
 }
 
 export function nonNullable<T>(v: T | null | undefined): v is T {

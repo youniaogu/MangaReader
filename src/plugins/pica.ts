@@ -433,6 +433,7 @@ class PicaComic extends Base {
       const { docs, page, total, limit } = pages;
 
       return {
+        canLoadMore: total > page * limit,
         chapter: {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,
@@ -440,7 +441,6 @@ class PicaComic extends Base {
           title: ep.title,
           images: docs.map((item) => ({ uri: this.stringifyImageUrl(item.media) })),
         },
-        canLoadMore: total < limit * page,
       };
     } else if (res.code === 401) {
       return { error: new Error(ErrorMessage.TokenInvalid) };
