@@ -4,6 +4,7 @@ import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { nonNullable, AsyncStatus } from '~/utils';
 import { Plugin, PluginMap } from '~/plugins';
+import { Keyboard } from 'react-native';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
@@ -161,7 +162,10 @@ export const PluginSelect = () => {
         w={12}
         variant="ghost"
         _text={{ color: 'white', textAlign: 'center', fontSize: 'sm', fontWeight: 'bold' }}
-        onPress={handleOpen}
+        onPress={() => {
+          handleOpen();
+          Keyboard.dismiss();
+        }}
       >
         {pluginLabel}
       </Button>

@@ -1,9 +1,9 @@
 import React, { memo, useMemo } from 'react';
 import { useDelayRender, useSplitWidth } from '~/hooks';
 import { Box, Text, Icon, Pressable } from 'native-base';
+import { Keyboard, StyleSheet } from 'react-native';
 import { coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
-import { StyleSheet } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import WhiteCurtain from '~/components/WhiteCurtain';
@@ -78,6 +78,7 @@ const Bookshelf = ({
         paddingLeft: gap / 2 + insets.left,
         paddingRight: gap / 2 + insets.right,
       }}
+      onScroll={Keyboard.dismiss}
       onEndReached={handleEndReached}
       onEndReachedThreshold={1}
       keyExtractor={(item) => item.hash}
