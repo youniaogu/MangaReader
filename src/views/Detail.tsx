@@ -215,8 +215,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           source={data.cover}
           style={{
             ...styles.img,
-            width: Math.min(Math.min(windowWidth, windowHeight) / 3, 200),
-            height: Math.min(Math.min(windowWidth, windowHeight) / 3, 200) / coverAspectRatio,
+            width: Math.min(Math.min(windowWidth, windowHeight) / 3, 180),
+            height: Math.min(Math.min(windowWidth, windowHeight) / 3, 180) / coverAspectRatio,
           }}
           resizeMode="cover"
         />
@@ -330,9 +330,13 @@ export const HeartAndBrowser = () => {
   const handleSwapSequence = () => {
     dispatch(setSequence(sequence === Sequence.Asc ? Sequence.Desc : Sequence.Asc));
   };
-  // 待优化
   const toggleFavorite = () => {
-    dispatch(actived ? removeFavorites(mangaHash) : addFavorites(mangaHash));
+    const status = dict[mangaHash]?.status || '';
+    dispatch(
+      actived
+        ? removeFavorites(mangaHash)
+        : addFavorites({ mangaHash, inQueue: status !== MangaStatus.End })
+    );
   };
   const handleToBrowser = () => {
     const href = dict[mangaHash]?.href || '';

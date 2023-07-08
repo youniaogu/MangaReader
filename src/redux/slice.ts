@@ -375,8 +375,9 @@ const favoritesSlice = createSlice({
   name: 'favorites',
   initialState: initialState.favorites,
   reducers: {
-    addFavorites(state, action: PayloadAction<string>) {
-      state.unshift({ mangaHash: action.payload, isTrend: false, inQueue: true });
+    addFavorites(state, action: PayloadAction<{ mangaHash: string; inQueue?: boolean }>) {
+      const { mangaHash, inQueue = true } = action.payload;
+      state.unshift({ mangaHash, isTrend: false, inQueue });
     },
     removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item.mangaHash !== action.payload);
