@@ -199,7 +199,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   if (loadStatus === AsyncStatus.Rejected) {
     return (
       <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
-        <ErrorWithRetry onRetry={handleReload} />
+        <ErrorWithRetry color={lightOn ? 'black' : 'white'} onRetry={handleReload} />
       </Center>
     );
   }

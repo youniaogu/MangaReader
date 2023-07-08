@@ -1,5 +1,6 @@
-import React, { FC, memo, ReactNode } from 'react';
+import React, { FC, memo, ReactNode, useEffect } from 'react';
 import { Actionsheet, ScrollView } from 'native-base';
+import { Keyboard } from 'react-native';
 import Delay from './Delay';
 
 interface ActionsheetSelectProps {
@@ -17,6 +18,10 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
   onChange,
   headerComponent,
 }) => {
+  useEffect(() => {
+    isOpen && Keyboard.dismiss();
+  }, [isOpen]);
+
   const handleClose = () => {
     onClose && onClose();
   };
