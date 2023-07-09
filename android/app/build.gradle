@@ -78,8 +78,8 @@ android {
         applicationId "com.mangareader"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 31
-        versionName "0.6.0-rc.1"
+        versionCode 32
+        versionName "0.6.0-rc.2"
     }
     signingConfigs {
         debug {
