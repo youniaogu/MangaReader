@@ -81,3 +81,8 @@ export enum LightSwitch {
   Off = 'Off',
   On = 'On',
 }
+
+export enum TaskType {
+  Prefetch,
+  Download,
+}

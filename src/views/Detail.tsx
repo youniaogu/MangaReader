@@ -40,7 +40,8 @@ const {
   popQueue,
   pushQueque,
   viewFavorites,
-  prehandleChapter,
+  prefetchChapter,
+  downloadChapter,
   setPrehandleLogStatus,
   setPrehandleLogVisible,
 } = action;
@@ -121,10 +122,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     setChapter({ hash: chapterHash, title: chapterTitle });
   };
   const handlePrefetch = () => {
-    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
+    chapter && dispatch(prefetchChapter(chapter.hash));
   };
   const handleDownload = () => {
-    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash, save: true }));
+    chapter && dispatch(downloadChapter(chapter.hash));
   };
 
   if (!nonNullable(data)) {
@@ -335,7 +336,7 @@ export const HeartAndBrowser = () => {
     dispatch(
       actived
         ? removeFavorites(mangaHash)
-        : addFavorites({ mangaHash, inQueue: status !== MangaStatus.End })
+        : addFavorites({ mangaHash, enableBatch: status !== MangaStatus.End })
     );
   };
   const handleToBrowser = () => {
@@ -345,9 +346,9 @@ export const HeartAndBrowser = () => {
     });
   };
   const toggleQueue = () => {
-    dispatch(manga?.inQueue ? popQueue(mangaHash) : pushQueque(mangaHash));
+    dispatch(manga?.enableBatch ? popQueue(mangaHash) : pushQueque(mangaHash));
     Toast.show({
-      title: manga?.inQueue ? '已禁用批量更新' : '已启用批量更新',
+      title: manga?.enableBatch ? '已禁用批量更新' : '已启用批量更新',
       placement: 'bottom',
     });
   };
@@ -356,8 +357,8 @@ export const HeartAndBrowser = () => {
     <HStack pr={1}>
       {actived && (
         <VectorIcon
-          name={manga?.inQueue ? 'lock-open' : 'lock-outline'}
-          color={manga?.inQueue ? 'white' : 'purple.200'}
+          name={manga?.enableBatch ? 'lock-open' : 'lock-outline'}
+          color={manga?.enableBatch ? 'white' : 'purple.200'}
           onPress={toggleQueue}
         />
       )}
@@ -374,9 +375,9 @@ export const HeartAndBrowser = () => {
 
 export const PrehandleDrawer = () => {
   const dispatch = useAppDispatch();
+  const list = useAppSelector((state) => state.task.list);
   const openDrawer = useAppSelector((state) => state.chapter.openDrawer);
   const showDrawer = useAppSelector((state) => state.chapter.showDrawer);
-  const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const drawerRef = useRef<DrawerRef>(null);
   const insets = useDebouncedSafeAreaInsets();
 
@@ -389,10 +390,10 @@ export const PrehandleDrawer = () => {
     }, [dispatch, openDrawer])
   );
 
-  const renderItem = ({ item, index }: ListRenderItemInfo<(typeof prehandleLog)[0]>) => {
+  const renderItem = ({ item, index }: ListRenderItemInfo<Task>) => {
     return (
       <Box
-        key={item.id}
+        key={item.taskId}
         flexDirection="row"
         alignItems="center"
         borderColor="gray.200"
@@ -401,7 +402,7 @@ export const PrehandleDrawer = () => {
         p={3}
       >
         <Text flex={1} fontWeight="bold" fontSize="lg" color="purple.900" numberOfLines={1} mr={1}>
-          {item.text}
+          {item.title} {item.success.length}/{item.queue.length}
         </Text>
         {item.status === AsyncStatus.Pending && (
           <Box>
@@ -424,9 +425,9 @@ export const PrehandleDrawer = () => {
   return (
     <Drawer ref={drawerRef}>
       <Box bg="gray.100" h="full">
-        {prehandleLog.length > 0 && (
+        {list.length > 0 && (
           <FlashList
-            data={prehandleLog}
+            data={list}
             renderItem={renderItem}
             estimatedItemSize={50}
             contentContainerStyle={{

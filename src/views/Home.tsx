@@ -25,7 +25,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     [list]
   );
   const negativeList = useMemo(
-    () => list.filter((item) => !item.inQueue).map((item) => item.mangaHash),
+    () => list.filter((item) => !item.enableBatch).map((item) => item.mangaHash),
     [list]
   );
 

@@ -177,14 +177,8 @@ export function getLatestRelease(
         changeLog: latest.body,
         publishTime: `${y}-${m}-${d}`,
         file: {
-          apk: {
-            size: apk.size,
-            downloadUrl: apk.browser_download_url,
-          },
-          ipa: {
-            size: ipa.size,
-            downloadUrl: ipa.browser_download_url,
-          },
+          apk: { size: apk.size, downloadUrl: apk.browser_download_url },
+          ipa: { size: ipa.size, downloadUrl: ipa.browser_download_url },
         },
       },
     };

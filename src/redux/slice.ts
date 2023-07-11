@@ -72,8 +72,8 @@ export const initialState: RootState = {
     loadingChapterHash: '',
     openDrawer: false,
     showDrawer: false,
-    prehandleLog: [],
   },
+  task: { list: [], job: { max: 3, list: [], thread: [] } },
   dict: {
     manga: {},
     chapter: {},
@@ -105,9 +105,6 @@ const appSlice = createSlice({
       state.launchStatus = AsyncStatus.Fulfilled;
     },
     toastMessage(state, action: PayloadAction<string>) {
-      state.message.unshift(action.payload);
-    },
-    catchError(state, action: PayloadAction<string>) {
       state.message.unshift(action.payload);
     },
     throwMessage(state) {
@@ -209,13 +206,9 @@ const settingSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(datasyncAction.clearCache, () => {
-        return initialState.setting;
-      })
-      .addCase(chapterAction.addPrehandleLog, (state) => {
-        state.firstPrehandle = false;
-      });
+    builder.addCase(datasyncAction.clearCache, () => {
+      return initialState.setting;
+    });
   },
 });
 
@@ -375,9 +368,9 @@ const favoritesSlice = createSlice({
   name: 'favorites',
   initialState: initialState.favorites,
   reducers: {
-    addFavorites(state, action: PayloadAction<{ mangaHash: string; inQueue?: boolean }>) {
-      const { mangaHash, inQueue = true } = action.payload;
-      state.unshift({ mangaHash, isTrend: false, inQueue });
+    addFavorites(state, action: PayloadAction<{ mangaHash: string; enableBatch?: boolean }>) {
+      const { mangaHash, enableBatch = true } = action.payload;
+      state.unshift({ mangaHash, isTrend: false, enableBatch });
     },
     removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item.mangaHash !== action.payload);
@@ -387,7 +380,7 @@ const favoritesSlice = createSlice({
         if (item.mangaHash === action.payload) {
           return {
             ...item,
-            inQueue: true,
+            enableBatch: true,
           };
         }
         return item;
@@ -398,7 +391,7 @@ const favoritesSlice = createSlice({
         if (item.mangaHash === action.payload) {
           return {
             ...item,
-            inQueue: false,
+            enableBatch: false,
           };
         }
         return item;
@@ -480,37 +473,84 @@ const chapterSlice = createSlice({
       }
       state.loadStatus = AsyncStatus.Fulfilled;
     },
-    prehandleChapter(_state, _action: PayloadAction<{ chapterHash: string; save?: boolean }>) {},
-    prehandleChapterCompletion(_state, _action: FetchResponseAction) {},
+
+    prefetchChapter: (_state, _action: PayloadAction<string>) => {},
+    downloadChapter: (_state, _action: PayloadAction<string>) => {},
+    downloadImage: (_state, _action: PayloadAction<string>) => {},
+
     setPrehandleLogStatus(state, action: PayloadAction<boolean>) {
       state.openDrawer = action.payload && state.showDrawer;
     },
     setPrehandleLogVisible(state, action: PayloadAction<boolean>) {
       state.showDrawer = action.payload;
     },
-    addPrehandleLog(
-      state,
-      action: PayloadAction<{ id: string; text: string; status: AsyncStatus }[]>
-    ) {
-      state.prehandleLog = action.payload.concat(state.prehandleLog);
-    },
-    updatePrehandleLog(
-      state,
-      action: PayloadAction<{ id: string; text: string; status: AsyncStatus }>
-    ) {
-      state.prehandleLog = state.prehandleLog
-        .map((item) => {
-          if (item.id !== action.payload.id) {
-            return item;
-          }
+  },
+});
 
-          return {
-            ...item,
-            ...action.payload,
-          };
-        })
-        .filter((item) => item.status !== AsyncStatus.Fulfilled);
+const missionSlice = createSlice({
+  name: 'task',
+  initialState: initialState.task,
+  reducers: {
+    addTask(state, action: PayloadAction<Task>) {
+      const task = action.payload;
+      state.list.push(task);
+      state.job.list.push(
+        ...task.queue.map((item) => ({
+          taskId: task.taskId,
+          jobId: item.jobId,
+          chapterHash: task.chapterHash,
+          type: task.type,
+          status: AsyncStatus.Default,
+          source: item.source,
+          album: task.title,
+          index: item.index,
+          headers: task.headers,
+        }))
+      );
     },
+    removeTask(state, action: PayloadAction<string>) {
+      state.list = state.list.filter((item) => item.taskId !== action.payload);
+      state.job.list = state.job.list.filter((item) => item.taskId !== action.payload);
+      state.job.thread = state.job.thread.filter((item) => item.taskId !== action.payload);
+    },
+    finishTask() {},
+    startJob(state, action: PayloadAction<{ taskId: string; jobId: string }>) {
+      const { taskId, jobId } = action.payload;
+      const task = state.list.find((item) => item.taskId === taskId);
+      const job = state.job.list.find((item) => item.taskId === taskId && item.jobId === jobId);
+
+      if (task && job) {
+        task.pending.push(jobId);
+        task.status = AsyncStatus.Pending;
+        job.status = AsyncStatus.Pending;
+        state.job.thread.push({ taskId, jobId });
+      }
+    },
+    endJob(state, action: PayloadAction<{ taskId: string; jobId: string; status: AsyncStatus }>) {
+      const { taskId, jobId, status } = action.payload;
+      const task = state.list.find((item) => item.taskId === taskId);
+      const job = state.job.list.find((item) => item.taskId === taskId && item.jobId === jobId);
+
+      if (task && job) {
+        task.pending = task.pending.filter((item) => item === jobId);
+        job.status = status;
+
+        if (status === AsyncStatus.Fulfilled) {
+          task.success.push(jobId);
+          state.job.list = state.job.list.filter(
+            (item) => item.taskId !== taskId || item.jobId !== jobId
+          );
+        }
+        if (status === AsyncStatus.Rejected) {
+          task.fail.push(jobId);
+        }
+
+        state.job.thread = state.job.thread.filter(
+          (item) => item.taskId !== taskId || item.jobId !== jobId
+        );
+      }
+    },
+    finishJob() {},
   },
 });
 
@@ -638,6 +678,7 @@ const discoveryAction = discoverySlice.actions;
 const favoritesAction = favoritesSlice.actions;
 const mangaAction = mangaSlice.actions;
 const chapterAction = chapterSlice.actions;
+const missionAction = missionSlice.actions;
 const dictAction = dictSlice.actions;
 
 const appReducer = appSlice.reducer;
@@ -651,6 +692,7 @@ const discoveryReducer = discoverySlice.reducer;
 const favoritesReducer = favoritesSlice.reducer;
 const mangaReducer = mangaSlice.reducer;
 const chapterReducer = chapterSlice.reducer;
+const missionReducer = missionSlice.reducer;
 const dictReducer = dictSlice.reducer;
 
 export const action = {
@@ -665,6 +707,7 @@ export const action = {
   ...favoritesAction,
   ...mangaAction,
   ...chapterAction,
+  ...missionAction,
   ...dictAction,
 };
 export const reducer = combineReducers<RootState>({
@@ -679,5 +722,6 @@ export const reducer = combineReducers<RootState>({
   favorites: favoritesReducer,
   manga: mangaReducer,
   chapter: chapterReducer,
+  task: missionReducer,
   dict: dictReducer,
 });
