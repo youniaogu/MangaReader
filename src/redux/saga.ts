@@ -93,7 +93,9 @@ const {
   prefetchChapter,
   downloadChapter,
   // task
-  addTask,
+  syncTask,
+  restartTask,
+  pushTask,
   finishTask,
   startJob,
   endJob,
@@ -316,9 +318,7 @@ function* batchUpdateSaga() {
         const {
           payload: { error: fetchError, data },
         }: ReturnType<typeof loadMangaCompletion> = yield take((takeAction: Action<string>) => {
-          const { type, payload } = takeAction as Action<string> & {
-            payload: ReturnType<typeof loadMangaCompletion>['payload'];
-          };
+          const { type, payload } = takeAction as ReturnType<typeof loadMangaCompletion>;
           return type === loadMangaCompletion.type && payload.taskId === id;
         });
 
@@ -447,9 +447,7 @@ function* loadMangaSaga() {
           payload: { error: loadChapterListError, data: chapterInfo },
         }: ReturnType<typeof loadChapterListCompletion> = yield take(
           (takeAction: Action<string>) => {
-            const { type, payload } = takeAction as Action<string> & {
-              payload: ReturnType<typeof loadChapterListCompletion>['payload'];
-            };
+            const { type, payload } = takeAction as ReturnType<typeof loadChapterListCompletion>;
             return (
               type === loadChapterListCompletion.type &&
               payload.data !== undefined &&
@@ -555,9 +553,7 @@ function* loadChapterListSaga() {
           payload: { error: loadMoreError, data: extraData },
         }: ReturnType<typeof loadChapterListCompletion> = yield take(
           (takeAction: Action<string>) => {
-            const { type, payload } = takeAction as Action<string> & {
-              payload: ReturnType<typeof loadChapterListCompletion>['payload'];
-            };
+            const { type, payload } = takeAction as ReturnType<typeof loadChapterListCompletion>;
             return (
               type === loadChapterListCompletion.type &&
               payload.data !== undefined &&
@@ -652,7 +648,6 @@ function* hasAndroidPermission(permission: Permission) {
   return status === 'granted';
 }
 function* prefetch({ source, headers }: { source: string; headers?: Record<string, string> }) {
-  console.log('prefetch: ' + source);
   yield call(CacheManager.prefetchBlob, source, { headers });
 }
 function* check({ album }: { album: string }) {
@@ -711,9 +706,16 @@ function* thread() {
     }
 
     const { taskId, jobId, chapterHash, type, source, album, headers, index } = job;
+    yield put(startJob({ taskId, jobId }));
     try {
-      yield put(startJob({ taskId, jobId }));
-      yield call(prefetch, { source, headers });
+      const { timeout } = yield race({
+        prefetch: call(prefetch, { source, headers }),
+        timeout: delay(15000),
+      });
+      if (timeout) {
+        throw new Error(ErrorMessage.Timeout);
+      }
+
       yield put(viewImage({ chapterHash, index, isPrefetch: true }));
       if (type === TaskType.Download) {
         yield call(download, { source, album, filename: String(index) });
@@ -740,49 +742,63 @@ function* preloadChapter(chapterHash: string) {
   }
   return currData;
 }
+function* pushChapterTask({ chapterHash, taskType }: { chapterHash: string; taskType: TaskType }) {
+  const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
+
+  if (!nonNullable(chapter)) {
+    yield put(toastMessage(ErrorMessage.WrongDataType));
+    return;
+  }
+
+  const { title, headers, images } = chapter;
+
+  if (taskType === TaskType.Download) {
+    yield call(check, { album: title });
+  }
+
+  yield put(
+    pushTask({
+      taskId: nanoid(),
+      chapterHash,
+      title,
+      type: taskType,
+      status: AsyncStatus.Default,
+      headers,
+      queue: images.map((item, index) => ({ index, jobId: nanoid(), source: item.uri })),
+      pending: [],
+      success: [],
+      fail: [],
+    })
+  );
+}
 function* prefetchAndDownloadChapterSaga() {
   yield takeEverySuspense(
     [prefetchChapter.type, downloadChapter.type],
     function* ({
       type,
-      payload: chapterHash,
+      payload: chapterHashList,
     }: ReturnType<typeof prefetchChapter | typeof downloadChapter>) {
-      const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
+      while (true) {
+        const chapterHash = chapterHashList.pop();
+        if (!chapterHash) {
+          break;
+        }
 
-      if (!nonNullable(chapter)) {
-        yield put(toastMessage(ErrorMessage.WrongDataType));
-        return;
+        const taskType = {
+          [prefetchChapter.type]: TaskType.Prefetch,
+          [downloadChapter.type]: TaskType.Download,
+        }[type];
+        yield fork(pushChapterTask, { chapterHash, taskType });
+        yield take((takeAction: Action<string>) => {
+          const { type: takeActionType, payload } = takeAction as ReturnType<typeof pushTask>;
+          return takeActionType === pushTask.type && payload.chapterHash === chapterHash;
+        });
       }
-
-      const { title, headers, images } = chapter;
-      const taskType = {
-        [prefetchChapter.type]: TaskType.Prefetch,
-        [downloadChapter.type]: TaskType.Download,
-      }[type];
-
-      if (taskType === TaskType.Download) {
-        yield call(check, { album: title });
-      }
-
-      yield put(
-        addTask({
-          taskId: nanoid(),
-          chapterHash,
-          title,
-          type: taskType,
-          status: AsyncStatus.Default,
-          headers,
-          queue: images.map((item, index) => ({ index, jobId: nanoid(), source: item.uri })),
-          pending: [],
-          success: [],
-          fail: [],
-        })
-      );
     }
   );
 }
 function* taskManagerSaga() {
-  yield takeLeadingSuspense([addTask.type], function* () {
+  yield takeLeadingSuspense([syncTask.type, restartTask.type, pushTask.type], function* () {
     while (true) {
       const max = ((state: RootState) => state.task.job.max)(yield select());
       const queue = ((state: RootState) =>

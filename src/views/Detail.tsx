@@ -122,10 +122,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     setChapter({ hash: chapterHash, title: chapterTitle });
   };
   const handlePrefetch = () => {
-    chapter && dispatch(prefetchChapter(chapter.hash));
+    chapter && dispatch(prefetchChapter([chapter.hash]));
   };
   const handleDownload = () => {
-    chapter && dispatch(downloadChapter(chapter.hash));
+    chapter && dispatch(downloadChapter([chapter.hash]));
   };
 
   if (!nonNullable(data)) {
@@ -391,30 +391,53 @@ export const PrehandleDrawer = () => {
   );
 
   const renderItem = ({ item, index }: ListRenderItemInfo<Task>) => {
+    const progress = (item.success.length + item.fail.length) / item.queue.length;
     return (
-      <Box
+      <HStack
+        h="12"
+        pl={3}
+        pr={1}
+        space={1}
         key={item.taskId}
-        flexDirection="row"
         alignItems="center"
         borderColor="gray.200"
         borderBottomWidth={1}
         borderTopWidth={index === 0 ? 1 : 0}
-        p={3}
       >
-        <Text flex={1} fontWeight="bold" fontSize="lg" color="purple.900" numberOfLines={1} mr={1}>
-          {item.title} {item.success.length}/{item.queue.length}
+        <Text
+          flex={1}
+          fontWeight="bold"
+          fontSize="md"
+          color={`purple.${Math.floor(progress * 4) + 5}00`}
+          numberOfLines={1}
+        >
+          {item.title}
         </Text>
         {item.status === AsyncStatus.Pending && (
-          <Box>
+          <Box ml={1}>
             <SpinLoading size="sm" height={1} />
           </Box>
         )}
-        {item.status === AsyncStatus.Rejected && (
-          <Text fontWeight="bold" fontSize="md" color="red.700">
-            Fail
-          </Text>
+        {item.status === AsyncStatus.Fulfilled && (
+          <Pressable p={1} _pressed={{ opacity: 0.5 }}>
+            <Icon
+              p={1}
+              as={MaterialIcons}
+              size="md"
+              fontWeight="semibold"
+              name="check"
+              color="purple.600"
+            />
+          </Pressable>
         )}
-      </Box>
+        {item.status === AsyncStatus.Rejected && (
+          <Pressable p={1} _pressed={{ opacity: 0.5 }}>
+            <Text fontWeight="bold" fontSize="sm" color="red.800">
+              {item.fail.length}
+            </Text>
+          </Pressable>
+        )}
+      </HStack>
     );
   };
 
