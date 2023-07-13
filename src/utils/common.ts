@@ -13,6 +13,7 @@ export const storageKey = {
   dict: '@dict',
   plugin: '@plugin',
   setting: '@setting',
+  task: '@task',
 };
 
 export function aspectFill(
@@ -118,6 +119,26 @@ export function fixPluginShape(plugin: RootState['plugin']): RootState['plugin']
   }
 
   return plugin;
+}
+
+export function fixTaskShape(task: RootState['task']): RootState['task'] {
+  if (!Array.isArray(task.list)) {
+    task.list = [];
+  }
+  if (nonNullable(task.job)) {
+    task.job = { list: [], max: 5, thread: [] };
+  }
+  if (!Array.isArray(task.job.list)) {
+    task.job.list = [];
+  }
+  if (!Array.isArray(task.job.thread)) {
+    task.job.thread = [];
+  }
+  if (typeof task.job.max !== 'number') {
+    task.job.max = 5;
+  }
+
+  return task;
 }
 
 export function fixRestoreShape(data: BackupData): BackupData {

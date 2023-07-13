@@ -18,6 +18,7 @@ import {
   fixDictShape,
   fixPluginShape,
   fixSettingShape,
+  fixTaskShape,
   fixRestoreShape,
   getLatestRelease,
   trycatch,
@@ -53,8 +54,10 @@ const {
   loadLatestReleaseCompletion,
   // setting
   setMode,
+  setLight,
   setDirection,
   setSequence,
+  setAndroidDownloadPath,
   syncSetting,
   // plugin
   setSource,
@@ -79,6 +82,7 @@ const {
   removeFavorites,
   enabledBatch,
   disabledBatch,
+  viewFavorites,
   syncFavorites,
   // manga
   loadManga,
@@ -93,12 +97,14 @@ const {
   prefetchChapter,
   downloadChapter,
   // task
+  restartTask,
   retryTask,
   pushTask,
   finishTask,
   startJob,
   endJob,
   finishJob,
+  syncTask,
   // dict
   viewChapter,
   viewPage,
@@ -113,6 +119,7 @@ function* launchSaga() {
   yield takeLatestSuspense(launch.type, function* () {
     yield put(syncData());
     yield take(syncDataCompletion.type);
+    yield put(restartTask());
     yield put(loadLatestRelease());
 
     yield put(launchCompletion({ error: undefined }));
@@ -146,6 +153,7 @@ function* syncDataSaga() {
       const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
       const pluginData: string | null = yield call(AsyncStorage.getItem, storageKey.plugin);
       const settingData: string | null = yield call(AsyncStorage.getItem, storageKey.setting);
+      const taskData: string | null = yield call(AsyncStorage.getItem, storageKey.task);
 
       if (favoritesData) {
         const favorites: RootState['favorites'] = JSON.parse(favoritesData);
@@ -185,6 +193,10 @@ function* syncDataSaga() {
       if (settingData) {
         const setting: RootState['setting'] = fixSettingShape(JSON.parse(settingData));
         yield put(syncSetting(setting));
+      }
+      if (taskData) {
+        const task: RootState['task'] = fixTaskShape(JSON.parse(taskData));
+        yield put(syncTask(task));
       }
 
       yield put(syncDataCompletion({ error: undefined }));
@@ -230,8 +242,10 @@ function* storageDataSaga() {
   yield takeLatestSuspense(
     [
       setMode.type,
+      setLight.type,
       setDirection.type,
       setSequence.type,
+      setAndroidDownloadPath.type,
       setSource.type,
       setExtra.type,
       disablePlugin.type,
@@ -242,10 +256,14 @@ function* storageDataSaga() {
       removeFavorites.type,
       enabledBatch.type,
       disabledBatch.type,
+      viewFavorites.type,
       loadSearchCompletion.type,
       loadDiscoveryCompletion.type,
       loadMangaCompletion.type,
       loadChapterCompletion.type,
+      startJob.type,
+      endJob.type,
+      finishTask.type,
     ],
     function* () {
       yield delay(3000);
@@ -253,6 +271,7 @@ function* storageDataSaga() {
       const dict = ((state: RootState) => state.dict)(yield select());
       const plugin = ((state: RootState) => state.plugin)(yield select());
       const setting = ((state: RootState) => state.setting)(yield select());
+      const task = ((state: RootState) => state.task)(yield select());
 
       const storeDict: RootState['dict'] = { ...dict, manga: {} };
       for (const hash in dict.manga) {
@@ -265,6 +284,7 @@ function* storageDataSaga() {
       yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(storeDict));
       yield call(AsyncStorage.setItem, storageKey.plugin, JSON.stringify(plugin));
       yield call(AsyncStorage.setItem, storageKey.setting, JSON.stringify(setting));
+      yield call(AsyncStorage.setItem, storageKey.task, JSON.stringify(task));
     }
   );
 }
@@ -798,7 +818,7 @@ function* prefetchAndDownloadChapterSaga() {
   );
 }
 function* taskManagerSaga() {
-  yield takeLeadingSuspense([retryTask.type, pushTask.type], function* () {
+  yield takeLeadingSuspense([restartTask.type, pushTask.type, retryTask.type], function* () {
     while (true) {
       const max = ((state: RootState) => state.task.job.max)(yield select());
       const queue = ((state: RootState) =>

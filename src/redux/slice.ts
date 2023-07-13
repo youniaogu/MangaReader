@@ -491,12 +491,11 @@ const missionSlice = createSlice({
   name: 'task',
   initialState: initialState.task,
   reducers: {
-    syncTask() {},
     restartTask(state) {
       state.list = state.list.map((item) => ({
         ...item,
         status:
-          item.success.length >= item.queue.length ? AsyncStatus.Fulfilled : AsyncStatus.Pending,
+          item.success.length >= item.queue.length ? AsyncStatus.Fulfilled : AsyncStatus.Default,
         pending: [],
         fail: [],
       }));
@@ -610,6 +609,9 @@ const missionSlice = createSlice({
       }
     },
     finishJob() {},
+    syncTask(_state, action: PayloadAction<RootState['task']>) {
+      return action.payload;
+    },
   },
 });
 
