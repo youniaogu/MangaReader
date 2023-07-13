@@ -37,11 +37,13 @@ const {
   setSequence,
   addFavorites,
   removeFavorites,
-  popQueue,
-  pushQueque,
+  disabledBatch,
+  enabledBatch,
   viewFavorites,
   prefetchChapter,
   downloadChapter,
+  removeTask,
+  retryTask,
   setPrehandleLogStatus,
   setPrehandleLogVisible,
 } = action;
@@ -346,7 +348,7 @@ export const HeartAndBrowser = () => {
     });
   };
   const toggleQueue = () => {
-    dispatch(manga?.enableBatch ? popQueue(mangaHash) : pushQueque(mangaHash));
+    dispatch(manga?.enableBatch ? disabledBatch(mangaHash) : enabledBatch(mangaHash));
     Toast.show({
       title: manga?.enableBatch ? '已禁用批量更新' : '已启用批量更新',
       placement: 'bottom',
@@ -390,13 +392,20 @@ export const PrehandleDrawer = () => {
     }, [dispatch, openDrawer])
   );
 
+  const handleRemove = (taskId: string) => {
+    dispatch(removeTask(taskId));
+  };
+  const handleRetry = (taskId: string) => {
+    dispatch(retryTask([taskId]));
+  };
+
   const renderItem = ({ item, index }: ListRenderItemInfo<Task>) => {
     const progress = (item.success.length + item.fail.length) / item.queue.length;
     return (
       <HStack
         h="12"
         pl={3}
-        pr={1}
+        pr={2}
         space={1}
         key={item.taskId}
         alignItems="center"
@@ -415,23 +424,23 @@ export const PrehandleDrawer = () => {
         </Text>
         {item.status === AsyncStatus.Pending && (
           <Box ml={1}>
-            <SpinLoading size="sm" height={1} />
+            <SpinLoading size="sm" height={1} color={`purple.${Math.floor(progress * 4) + 5}00`} />
           </Box>
         )}
         {item.status === AsyncStatus.Fulfilled && (
-          <Pressable p={1} _pressed={{ opacity: 0.5 }}>
+          <Pressable p={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRemove(item.taskId)}>
             <Icon
               p={1}
               as={MaterialIcons}
               size="md"
               fontWeight="semibold"
               name="check"
-              color="purple.600"
+              color="purple.900"
             />
           </Pressable>
         )}
         {item.status === AsyncStatus.Rejected && (
-          <Pressable p={1} _pressed={{ opacity: 0.5 }}>
+          <Pressable p={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRetry(item.taskId)}>
             <Text fontWeight="bold" fontSize="sm" color="red.800">
               {item.fail.length}
             </Text>

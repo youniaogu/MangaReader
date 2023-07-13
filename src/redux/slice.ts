@@ -73,7 +73,7 @@ export const initialState: RootState = {
     openDrawer: false,
     showDrawer: false,
   },
-  task: { list: [], job: { max: 3, list: [], thread: [] } },
+  task: { list: [], job: { max: 5, list: [], thread: [] } },
   dict: {
     manga: {},
     chapter: {},
@@ -375,7 +375,7 @@ const favoritesSlice = createSlice({
     removeFavorites(state, action: PayloadAction<string>) {
       return state.filter((item) => item.mangaHash !== action.payload);
     },
-    pushQueque(state, action: PayloadAction<string>) {
+    enabledBatch(state, action: PayloadAction<string>) {
       return state.map((item) => {
         if (item.mangaHash === action.payload) {
           return {
@@ -386,7 +386,7 @@ const favoritesSlice = createSlice({
         return item;
       });
     },
-    popQueue(state, action: PayloadAction<string>) {
+    disabledBatch(state, action: PayloadAction<string>) {
       return state.map((item) => {
         if (item.mangaHash === action.payload) {
           return {
@@ -536,6 +536,32 @@ const missionSlice = createSlice({
         }))
       );
     },
+    retryTask(state, action: PayloadAction<string[]>) {
+      action.payload.forEach((taskId) => {
+        const task = state.list.find((item) => item.taskId === taskId);
+        if (task && task.fail.length > 0) {
+          state.job.list = state.job.list.filter((item) => item.taskId !== taskId);
+          state.job.thread = state.job.thread.filter((item) => item.taskId !== taskId);
+          state.job.list.push(
+            ...task.queue
+              .filter((item) => task.fail.includes(item.jobId))
+              .map((item) => ({
+                taskId: task.taskId,
+                jobId: item.jobId,
+                chapterHash: task.chapterHash,
+                type: task.type,
+                status: AsyncStatus.Default,
+                source: item.source,
+                album: task.title,
+                index: item.index,
+                headers: task.headers,
+              }))
+          );
+          task.fail = [];
+          task.status = AsyncStatus.Default;
+        }
+      });
+    },
     removeTask(state, action: PayloadAction<string>) {
       state.list = state.list.filter((item) => item.taskId !== action.payload);
       state.job.list = state.job.list.filter((item) => item.taskId !== action.payload);
@@ -557,19 +583,17 @@ const missionSlice = createSlice({
     endJob(state, action: PayloadAction<{ taskId: string; jobId: string; status: AsyncStatus }>) {
       const { taskId, jobId, status } = action.payload;
       const task = state.list.find((item) => item.taskId === taskId);
-      const job = state.job.list.find((item) => item.taskId === taskId && item.jobId === jobId);
 
-      if (task && job) {
-        job.status = status;
+      if (task) {
         task.pending = task.pending.filter((item) => item === jobId);
         state.job.thread = state.job.thread.filter(
           (item) => item.taskId !== taskId || item.jobId !== jobId
         );
+        state.job.list = state.job.list.filter(
+          (item) => item.taskId !== taskId || item.jobId !== jobId
+        );
         if (status === AsyncStatus.Fulfilled) {
           task.success.push(jobId);
-          state.job.list = state.job.list.filter(
-            (item) => item.taskId !== taskId || item.jobId !== jobId
-          );
         }
         if (status === AsyncStatus.Rejected) {
           task.fail.push(jobId);

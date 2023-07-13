@@ -77,8 +77,8 @@ const {
   // favorites
   addFavorites,
   removeFavorites,
-  pushQueque,
-  popQueue,
+  enabledBatch,
+  disabledBatch,
   syncFavorites,
   // manga
   loadManga,
@@ -93,8 +93,7 @@ const {
   prefetchChapter,
   downloadChapter,
   // task
-  syncTask,
-  restartTask,
+  retryTask,
   pushTask,
   finishTask,
   startJob,
@@ -241,8 +240,8 @@ function* storageDataSaga() {
       viewImage.type,
       addFavorites.type,
       removeFavorites.type,
-      pushQueque.type,
-      popQueue.type,
+      enabledBatch.type,
+      disabledBatch.type,
       loadSearchCompletion.type,
       loadDiscoveryCompletion.type,
       loadMangaCompletion.type,
@@ -701,6 +700,7 @@ function* thread() {
     const job = queue.shift();
 
     if (!nonNullable(job)) {
+      yield delay(100);
       yield put(finishJob());
       break;
     }
@@ -798,7 +798,7 @@ function* prefetchAndDownloadChapterSaga() {
   );
 }
 function* taskManagerSaga() {
-  yield takeLeadingSuspense([syncTask.type, restartTask.type, pushTask.type], function* () {
+  yield takeLeadingSuspense([retryTask.type, pushTask.type], function* () {
     while (true) {
       const max = ((state: RootState) => state.task.job.max)(yield select());
       const queue = ((state: RootState) =>
@@ -810,7 +810,9 @@ function* taskManagerSaga() {
 
       for (let i = 0; i < max; i++) {
         yield fork(thread);
-        yield delay(500);
+        if (i < max - 1) {
+          yield delay(0);
+        }
       }
       for (let i = 0; i < max; i++) {
         yield take(finishJob.type);
