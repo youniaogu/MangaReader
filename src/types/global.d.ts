@@ -49,15 +49,10 @@ declare global {
     Home: undefined;
     Discovery: undefined;
     Search: { keyword: string; source: Plugin };
-    Detail: { mangaHash: string };
+    Detail: { mangaHash: string; enabledMultiple?: boolean; selected?: string[] };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
-    Webview: {
-      uri: string;
-      source?: Plugin;
-      userAgent?: string;
-      injectedJavascript?: string;
-    };
+    Webview: { uri: string; source?: Plugin; userAgent?: string; injectedJavascript?: string };
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
