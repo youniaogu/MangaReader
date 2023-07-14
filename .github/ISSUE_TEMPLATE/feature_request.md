@@ -1,6 +1,6 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
+name: 功能优化/建议
+about: 新插件、新功能、使用优化请选这个
 title: ''
 labels: enhancement
 assignees: ''
