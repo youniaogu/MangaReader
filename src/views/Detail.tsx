@@ -252,7 +252,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     <Box w="full" h="full">
       <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={4}>
         <CachedImage
-          source={data.cover}
+          source={data.infoCover || data.bookCover || data.cover || ''}
           style={{
             ...styles.img,
             width: Math.min(Math.min(windowWidth, windowHeight) / 3, 180),

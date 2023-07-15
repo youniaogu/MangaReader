@@ -70,7 +70,11 @@ declare global {
     source: Plugin;
     sourceName: string;
     mangaId: string;
-    cover: string;
+    // redundancy data for init after upgrade
+    // remove it when next version
+    cover?: string;
+    bookCover: string;
+    infoCover: string;
     headers?: Record<string, string>;
     title: string;
     latest: string;
@@ -83,7 +87,7 @@ declare global {
   declare interface IncreaseManga
     extends PartialOption<
       Manga,
-      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters'
+      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters' | 'bookCover' | 'infoCover'
     > {}
   declare interface ChapterItem {
     hash: string;

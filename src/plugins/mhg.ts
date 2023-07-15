@@ -174,7 +174,7 @@ class ManHuaGui extends Base {
           mangaId,
           title,
           status,
-          cover,
+          bookCover: cover,
           latest,
           updateTime,
         });
@@ -231,7 +231,7 @@ class ManHuaGui extends Base {
           mangaId,
           title,
           status,
-          cover,
+          bookCover: cover,
           latest,
           updateTime,
           author,
@@ -250,7 +250,6 @@ class ManHuaGui extends Base {
       source: this.id,
       sourceName: this.name,
       mangaId: '',
-      cover: '',
       title: '',
       latest: '',
       updateTime: '',
@@ -356,7 +355,7 @@ class ManHuaGui extends Base {
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = title;
-    manga.cover = cover;
+    manga.infoCover = cover;
     manga.latest = latest;
     manga.updateTime = updateTime;
     manga.author = author;

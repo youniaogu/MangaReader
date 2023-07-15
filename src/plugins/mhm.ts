@@ -158,7 +158,7 @@ class ManHuaMao extends Base {
         mangaId,
         title,
         status,
-        cover,
+        bookCover: cover,
         author,
         tag: tags.filter((tag) => tag !== '连载中' && tag !== '已完结'),
       });
@@ -193,7 +193,7 @@ class ManHuaMao extends Base {
           mangaId,
           title,
           status: MangaStatus.Unknown,
-          cover,
+          bookCover: cover,
           author,
         });
       });
@@ -209,7 +209,6 @@ class ManHuaMao extends Base {
       source: this.id,
       sourceName: this.name,
       mangaId: '',
-      cover: '',
       title: '',
       latest: '',
       updateTime: '',
@@ -255,7 +254,7 @@ class ManHuaMao extends Base {
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = title;
-    manga.cover = cover;
+    manga.infoCover = cover;
     manga.latest = chapters.length > 0 ? chapters[0].title : '';
     manga.updateTime = updateTime;
     manga.author = author;

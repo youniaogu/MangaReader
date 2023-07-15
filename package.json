@@ -14,7 +14,7 @@
     "preinstall": "npx only-allow yarn",
     "postinstall": "patch-package",
     "prepare": "husky install",
-    "lint": "eslint .",
+    "lint": "eslint \"**/*.{ts,tsx}\"",
     "test": "jest"
   },
   "dependencies": {

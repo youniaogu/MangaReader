@@ -98,7 +98,7 @@ class NHentai extends Base {
         status: MangaStatus.End,
         mangaId,
         title,
-        cover,
+        bookCover: cover,
       });
     });
 
@@ -151,7 +151,7 @@ class NHentai extends Base {
         source: this.id,
         sourceName: this.name,
         mangaId,
-        cover,
+        bookCover: cover,
         title: data.title.japanese,
         status: MangaStatus.End,
         latest: chapters.length > 0 ? chapters[0].title : '',
@@ -180,7 +180,7 @@ class NHentai extends Base {
           status: MangaStatus.End,
           mangaId,
           title,
-          cover,
+          bookCover: cover,
         });
       });
     }
@@ -197,7 +197,6 @@ class NHentai extends Base {
       source: this.id,
       sourceName: this.name,
       mangaId: '',
-      cover: '',
       title: '',
       latest: '',
       updateTime: '',
@@ -240,7 +239,7 @@ class NHentai extends Base {
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = data.title.japanese || data.title.english || data.title.pretty;
-    manga.cover = cover;
+    manga.infoCover = cover;
     manga.latest = chapters.length > 0 ? chapters[0].title : '';
     manga.updateTime = moment.unix(data.upload_date).format('YYYY-MM-DD');
     manga.author = [...artist, ...group];
