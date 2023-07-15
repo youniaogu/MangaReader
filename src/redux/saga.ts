@@ -100,6 +100,7 @@ const {
   restartTask,
   retryTask,
   pushTask,
+  removeTask,
   finishTask,
   startJob,
   endJob,
@@ -261,8 +262,8 @@ function* storageDataSaga() {
       loadDiscoveryCompletion.type,
       loadMangaCompletion.type,
       loadChapterCompletion.type,
-      startJob.type,
-      endJob.type,
+      pushTask.type,
+      removeTask.type,
       finishTask.type,
     ],
     function* () {
