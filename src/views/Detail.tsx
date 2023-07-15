@@ -513,9 +513,8 @@ export const PrehandleDrawer = () => {
           </Box>
         )}
         {item.status === AsyncStatus.Fulfilled && (
-          <Pressable p={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRemove(item.taskId)}>
+          <Pressable px={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRemove(item.taskId)}>
             <Icon
-              p={1}
               as={MaterialIcons}
               size="md"
               fontWeight="semibold"
@@ -525,7 +524,7 @@ export const PrehandleDrawer = () => {
           </Pressable>
         )}
         {item.status === AsyncStatus.Rejected && (
-          <Pressable p={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRetry(item.taskId)}>
+          <Pressable px={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRetry(item.taskId)}>
             <Text fontWeight="bold" fontSize="sm" color="red.800">
               {item.fail.length}
             </Text>
