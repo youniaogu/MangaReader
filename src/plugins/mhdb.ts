@@ -194,7 +194,7 @@ class ManHuaDB extends Base {
           mangaId,
           title,
           status,
-          cover,
+          bookCover: cover,
           author,
           tag,
         });
@@ -230,7 +230,7 @@ class ManHuaDB extends Base {
           mangaId,
           title,
           status: MangaStatus.Unknown,
-          cover,
+          bookCover: cover,
           author,
         });
       });
@@ -246,7 +246,6 @@ class ManHuaDB extends Base {
       source: this.id,
       sourceName: this.name,
       mangaId: '',
-      cover: '',
       title: '',
       latest: '',
       updateTime: '',
@@ -308,7 +307,7 @@ class ManHuaDB extends Base {
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = name;
-    manga.cover = cover;
+    manga.infoCover = cover;
     manga.latest = latest;
     manga.updateTime = updateTime;
     manga.author = creator.map((item) => item.name);

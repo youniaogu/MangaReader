@@ -5,6 +5,7 @@ import {
   LayoutMode,
   LightSwitch,
   ReaderDirection,
+  TaskType,
   customTheme,
 } from '~/utils';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -48,15 +49,10 @@ declare global {
     Home: undefined;
     Discovery: undefined;
     Search: { keyword: string; source: Plugin };
-    Detail: { mangaHash: string };
+    Detail: { mangaHash: string; enabledMultiple?: boolean; selected?: string[] };
     Chapter: { mangaHash: string; chapterHash: string; page: number };
     Plugin: undefined;
-    Webview: {
-      uri: string;
-      source?: Plugin;
-      userAgent?: string;
-      injectedJavascript?: string;
-    };
+    Webview: { uri: string; source?: Plugin; userAgent?: string; injectedJavascript?: string };
     About: undefined;
   };
   type StackHomeProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
@@ -74,7 +70,11 @@ declare global {
     source: Plugin;
     sourceName: string;
     mangaId: string;
-    cover: string;
+    // redundancy data for init after upgrade
+    // remove it when next version
+    cover?: string;
+    bookCover: string;
+    infoCover: string;
     headers?: Record<string, string>;
     title: string;
     latest: string;
@@ -87,7 +87,7 @@ declare global {
   declare interface IncreaseManga
     extends PartialOption<
       Manga,
-      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters'
+      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters' | 'bookCover' | 'infoCover'
     > {}
   declare interface ChapterItem {
     hash: string;
@@ -121,6 +121,29 @@ declare global {
       apk: { size: number; downloadUrl: string };
       ipa: { size: number; downloadUrl: string };
     };
+  }
+  declare interface Task {
+    taskId: string;
+    chapterHash: string;
+    title: string;
+    type: TaskType;
+    status: AsyncStatus;
+    headers?: Record<string, string>;
+    queue: { index: number; source: string; jobId: string }[];
+    pending: string[];
+    success: string[];
+    fail: string[];
+  }
+  declare interface Job {
+    taskId: string;
+    jobId: string;
+    chapterHash: string;
+    type: TaskType;
+    status: AsyncStatus;
+    source: string;
+    album: string;
+    index: number;
+    headers?: Record<string, string>;
   }
 
   declare interface RootState {
@@ -165,7 +188,7 @@ declare global {
       success: string[];
       fail: string[];
     };
-    favorites: { mangaHash: string; isTrend: boolean; inQueue: boolean }[];
+    favorites: { mangaHash: string; isTrend: boolean; enableBatch: boolean }[];
     search: {
       filter: Record<string, string>;
       keyword: string;
@@ -190,7 +213,14 @@ declare global {
       loadingChapterHash: string;
       openDrawer: boolean;
       showDrawer: boolean;
-      prehandleLog: { id: string; text: string; status: AsyncStatus }[];
+    };
+    task: {
+      list: Task[];
+      job: {
+        max: number;
+        list: Job[];
+        thread: { taskId: string; jobId: string }[];
+      };
     };
     dict: {
       manga: Record<string, Manga | undefined>;

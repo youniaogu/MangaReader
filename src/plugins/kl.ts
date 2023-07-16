@@ -209,7 +209,7 @@ class KL extends Base {
           mangaId,
           title,
           status: MangaStatus.Unknown,
-          cover,
+          bookCover: cover,
           latest,
           updateTime,
         });
@@ -248,7 +248,7 @@ class KL extends Base {
           mangaId,
           title,
           status: MangaStatus.Unknown,
-          cover,
+          bookCover: cover,
           latest,
           updateTime,
         });
@@ -321,7 +321,7 @@ class KL extends Base {
         source: this.id,
         sourceName: this.name,
         mangaId: mangaId,
-        cover,
+        infoCover: cover,
         title,
         latest,
         updateTime,

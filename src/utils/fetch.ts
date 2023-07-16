@@ -43,6 +43,10 @@ export const fetchData = ({
     }
   }
 
+  const delay = setTimeout(() => {
+    controller.abort();
+  }, timeout);
+
   return new Promise<{ error: Error; data: undefined } | { error: undefined; data: any }>((res) => {
     try {
       fetch(url, init)
@@ -63,10 +67,6 @@ export const fetchData = ({
         .finally(() => {
           clearTimeout(delay);
         });
-
-      const delay = setTimeout(() => {
-        controller.abort();
-      }, timeout);
     } catch (error) {
       res({ error: error as Error, data: undefined });
     }

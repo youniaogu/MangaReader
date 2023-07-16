@@ -187,7 +187,7 @@ class ManHuaGuiMobile extends Base {
         mangaId,
         title,
         status,
-        cover,
+        bookCover: cover,
         latest,
         updateTime,
         author: author.map((item) => item.split(',')).flat(),
@@ -237,7 +237,7 @@ class ManHuaGuiMobile extends Base {
         mangaId,
         title,
         status,
-        cover,
+        bookCover: cover,
         latest,
         updateTime,
         author: author.map((item) => item.split(',')).flat(),
@@ -256,7 +256,6 @@ class ManHuaGuiMobile extends Base {
       source: this.id,
       sourceName: this.name,
       mangaId: '',
-      cover: '',
       title: '',
       latest: '',
       updateTime: '',
@@ -333,7 +332,7 @@ class ManHuaGuiMobile extends Base {
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = $('div.main-bar > h1').first().text();
-    manga.cover = 'https:' + $('div.thumb img').first().attr('src');
+    manga.infoCover = 'https:' + $('div.thumb img').first().attr('src');
     manga.latest = latest;
     manga.updateTime = updateTime;
     manga.author = author.split(',');

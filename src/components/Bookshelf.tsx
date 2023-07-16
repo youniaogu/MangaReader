@@ -91,7 +91,7 @@ const Bookshelf = ({
             <Box position="relative" shadow={0} bg="white" borderRadius={6}>
               <CachedImage
                 options={{ headers: item.headers }}
-                source={item.cover}
+                source={item.bookCover || item.infoCover || item.cover || ''}
                 style={{ ...styles.img, height: width / coverAspectRatio }}
                 resizeMode="cover"
               />

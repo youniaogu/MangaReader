@@ -157,7 +157,7 @@ class CopyManga extends Base {
           mangaId,
           title,
           status,
-          cover,
+          bookCover: cover,
           author,
           tag,
         });
@@ -208,7 +208,7 @@ class CopyManga extends Base {
           mangaId,
           title,
           status,
-          cover,
+          bookCover: cover,
           author,
           tag,
         });
@@ -282,7 +282,7 @@ class CopyManga extends Base {
         source: this.id,
         sourceName: this.name,
         mangaId: mangaId,
-        cover,
+        infoCover: cover,
         title,
         latest,
         updateTime,

@@ -62,7 +62,8 @@ export enum BackupRestore {
   Picture = 'Picture',
 }
 
-export enum PrefetchDownload {
+export enum ChapterOptions {
+  Multiple = 'multiple',
   Prefetch = 'prefetch',
   Download = 'download',
 }
@@ -80,4 +81,9 @@ export enum Volume {
 export enum LightSwitch {
   Off = 'Off',
   On = 'On',
+}
+
+export enum TaskType {
+  Prefetch,
+  Download,
 }

@@ -14,17 +14,18 @@ import {
   nonNullable,
   coverAspectRatio,
   Sequence,
+  ChapterOptions,
   MangaStatus,
   AsyncStatus,
-  PrefetchDownload,
 } from '~/utils';
 import { useOnce, useDelayRender, useSplitWidth, useDebouncedSafeAreaInsets } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { StyleSheet, RefreshControl, Linking } from 'react-native';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
-import { useRoute } from '@react-navigation/native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
@@ -37,20 +38,24 @@ const {
   setSequence,
   addFavorites,
   removeFavorites,
-  popQueue,
-  pushQueque,
+  disabledBatch,
+  enabledBatch,
   viewFavorites,
-  prehandleChapter,
+  prefetchChapter,
+  downloadChapter,
+  removeTask,
+  retryTask,
   setPrehandleLogStatus,
   setPrehandleLogVisible,
 } = action;
-const PrefetchDownloadOptions = [
-  { label: '预加载', value: PrefetchDownload.Prefetch },
-  { label: '下载', value: PrefetchDownload.Download },
+const ChapterSelectOptions = [
+  { label: '多选', value: ChapterOptions.Multiple },
+  { label: '预加载', value: ChapterOptions.Prefetch },
+  { label: '下载', value: ChapterOptions.Download },
 ];
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
-  const mangaHash = route.params.mangaHash;
+  const { mangaHash, enabledMultiple = false, selected = [] } = route.params;
   const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
     gap: 12,
     minNumColumns: 3,
@@ -71,8 +76,14 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const data = useMemo(() => mangaDict[mangaHash], [mangaDict, mangaHash]);
   const lastWatch = useMemo(() => lastWatchDict[mangaHash] || {}, [lastWatchDict, mangaHash]);
   const extraData = useMemo(
-    () => ({ width: splitWidth, dict: reocrdDict, chapterHash: lastWatch.chapter }),
-    [splitWidth, reocrdDict, lastWatch.chapter]
+    () => ({
+      width: splitWidth,
+      dict: reocrdDict,
+      chapterHash: lastWatch.chapter,
+      multiple: enabledMultiple,
+      checkList: selected,
+    }),
+    [splitWidth, reocrdDict, lastWatch.chapter, enabledMultiple, selected]
   );
   const chapters = useMemo(() => {
     if (!data) {
@@ -116,15 +127,14 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     navigation.navigate('Search', { keyword, source: data.source });
   };
 
-  const handleLongPress = (chapterHash: string, chapterTitle: string) => {
-    onOpen();
-    setChapter({ hash: chapterHash, title: chapterTitle });
+  const handleMultiple = () => {
+    navigation.setParams({ enabledMultiple: true, selected: [] });
   };
   const handlePrefetch = () => {
-    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash }));
+    chapter && dispatch(prefetchChapter([chapter.hash]));
   };
   const handleDownload = () => {
-    chapter && dispatch(prehandleChapter({ chapterHash: chapter.hash, save: true }));
+    chapter && dispatch(downloadChapter([chapter.hash]));
   };
 
   if (!nonNullable(data)) {
@@ -162,16 +172,35 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
   const renderItem = ({
     item,
-    extraData: { width, dict, chapterHash },
+    extraData: { width, dict, chapterHash, multiple, checkList },
   }: ListRenderItemInfo<ChapterItem>) => {
     const isActived = item.hash === chapterHash;
+    const isChecked = checkList.includes(item.hash);
     const record = dict[item.hash];
+
+    const handlePress = () => {
+      if (multiple) {
+        navigation.setParams({
+          selected: isChecked
+            ? selected.filter((hash) => hash !== item.hash)
+            : [...selected, item.hash],
+        });
+      } else {
+        handleChapter(item.hash);
+      }
+    };
+    const handleLongPress = () => {
+      if (!multiple) {
+        onOpen();
+        setChapter({ hash: item.hash, title: item.title });
+      }
+    };
 
     return (
       <Pressable
         _pressed={{ opacity: 0.8 }}
-        onPress={() => handleChapter(item.hash)}
-        onLongPress={() => handleLongPress(item.hash, item.title)}
+        onPress={handlePress}
+        onLongPress={handleLongPress}
         delayLongPress={200}
       >
         <Box w={width + gap} p={`${gap / 2}px`} position="relative">
@@ -191,7 +220,18 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           >
             {item.title}
           </Text>
-          {record && record.progress > 0 && (
+          {multiple && (
+            <Icon
+              as={MaterialCommunityIcons}
+              size="sm"
+              name="check-circle"
+              color={isChecked ? 'purple.600' : undefined}
+              position="absolute"
+              top={`${gap / 4}px`}
+              right={`${gap / 4}px`}
+            />
+          )}
+          {!multiple && record && record.progress > 0 && (
             <Icon
               as={MaterialIcons}
               size="xs"
@@ -212,7 +252,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     <Box w="full" h="full">
       <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={4}>
         <CachedImage
-          source={data.cover}
+          source={data.infoCover || data.bookCover || data.cover || ''}
           style={{
             ...styles.img,
             width: Math.min(Math.min(windowWidth, windowHeight) / 3, 180),
@@ -298,12 +338,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       <ActionsheetSelect
         isOpen={isOpen}
         onClose={onClose}
-        options={PrefetchDownloadOptions}
+        options={ChapterSelectOptions}
         onChange={(value) => {
-          if (value === PrefetchDownload.Prefetch) {
+          if (value === ChapterOptions.Multiple) {
+            handleMultiple();
+          }
+          if (value === ChapterOptions.Prefetch) {
             handlePrefetch();
           }
-          if (value === PrefetchDownload.Download) {
+          if (value === ChapterOptions.Download) {
             handleDownload();
           }
         }}
@@ -319,13 +362,39 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
 
 export const HeartAndBrowser = () => {
   const route = useRoute<StackDetailProps['route']>();
+  const navigation = useNavigation<StackDetailProps['navigation']>();
+  const { mangaHash, enabledMultiple = false, selected = [] } = route.params;
   const dispatch = useAppDispatch();
   const sequence = useAppSelector((state) => state.setting.sequence);
   const favorites = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
-  const mangaHash = route.params.mangaHash;
-  const manga = favorites.find((item) => item.mangaHash === mangaHash);
+
+  const manga = useMemo(() => dict[mangaHash], [dict, mangaHash]);
+  const enableBatch = useMemo(
+    () => favorites.find((item) => item.mangaHash === mangaHash)?.enableBatch || false,
+    [favorites, mangaHash]
+  );
   const actived = Boolean(manga);
+
+  const handleClose = () => {
+    navigation.setParams({ enabledMultiple: false, selected: [] });
+  };
+  const handleCheckAll = () => {
+    if (manga) {
+      navigation.setParams({
+        selected:
+          selected.length < manga.chapters.length ? manga.chapters.map((item) => item.hash) : [],
+      });
+    }
+  };
+  const handlePrefetch = () => {
+    selected.length > 0 && dispatch(prefetchChapter(selected));
+    handleClose();
+  };
+  const handleDownload = () => {
+    selected.length > 0 && dispatch(downloadChapter(selected));
+    handleClose();
+  };
 
   const handleSwapSequence = () => {
     dispatch(setSequence(sequence === Sequence.Asc ? Sequence.Desc : Sequence.Asc));
@@ -335,7 +404,7 @@ export const HeartAndBrowser = () => {
     dispatch(
       actived
         ? removeFavorites(mangaHash)
-        : addFavorites({ mangaHash, inQueue: status !== MangaStatus.End })
+        : addFavorites({ mangaHash, enableBatch: status !== MangaStatus.End })
     );
   };
   const handleToBrowser = () => {
@@ -345,19 +414,38 @@ export const HeartAndBrowser = () => {
     });
   };
   const toggleQueue = () => {
-    dispatch(manga?.inQueue ? popQueue(mangaHash) : pushQueque(mangaHash));
+    dispatch(enableBatch ? disabledBatch(mangaHash) : enabledBatch(mangaHash));
     Toast.show({
-      title: manga?.inQueue ? '已禁用批量更新' : '已启用批量更新',
+      title: enableBatch ? '已禁用批量更新' : '已启用批量更新',
       placement: 'bottom',
     });
   };
+
+  if (enabledMultiple) {
+    return (
+      <HStack pr={1}>
+        <VectorIcon source="materialCommunityIcons" name="window-close" onPress={handleClose} />
+        <VectorIcon source="materialCommunityIcons" name="check-all" onPress={handleCheckAll} />
+        <VectorIcon
+          source="materialCommunityIcons"
+          name="cloud-download"
+          onPress={handlePrefetch}
+        />
+        <VectorIcon
+          source="materialCommunityIcons"
+          name="folder-download"
+          onPress={handleDownload}
+        />
+      </HStack>
+    );
+  }
 
   return (
     <HStack pr={1}>
       {actived && (
         <VectorIcon
-          name={manga?.inQueue ? 'lock-open' : 'lock-outline'}
-          color={manga?.inQueue ? 'white' : 'purple.200'}
+          name={enableBatch ? 'lock-open' : 'lock-outline'}
+          color={enableBatch ? 'white' : 'purple.200'}
           onPress={toggleQueue}
         />
       )}
@@ -374,9 +462,9 @@ export const HeartAndBrowser = () => {
 
 export const PrehandleDrawer = () => {
   const dispatch = useAppDispatch();
+  const list = useAppSelector((state) => state.task.list);
   const openDrawer = useAppSelector((state) => state.chapter.openDrawer);
   const showDrawer = useAppSelector((state) => state.chapter.showDrawer);
-  const prehandleLog = useAppSelector((state) => state.chapter.prehandleLog);
   const drawerRef = useRef<DrawerRef>(null);
   const insets = useDebouncedSafeAreaInsets();
 
@@ -389,31 +477,60 @@ export const PrehandleDrawer = () => {
     }, [dispatch, openDrawer])
   );
 
-  const renderItem = ({ item, index }: ListRenderItemInfo<(typeof prehandleLog)[0]>) => {
+  const handleRemove = (taskId: string) => {
+    dispatch(removeTask(taskId));
+  };
+  const handleRetry = (taskId: string) => {
+    dispatch(retryTask([taskId]));
+  };
+
+  const renderItem = ({ item, index }: ListRenderItemInfo<Task>) => {
+    const progress = (item.success.length + item.fail.length) / item.queue.length;
     return (
-      <Box
-        key={item.id}
-        flexDirection="row"
+      <HStack
+        h="12"
+        pl={3}
+        pr={2}
+        space={1}
+        key={item.taskId}
         alignItems="center"
         borderColor="gray.200"
         borderBottomWidth={1}
         borderTopWidth={index === 0 ? 1 : 0}
-        p={3}
       >
-        <Text flex={1} fontWeight="bold" fontSize="lg" color="purple.900" numberOfLines={1} mr={1}>
-          {item.text}
+        <Text
+          flex={1}
+          fontWeight="bold"
+          fontSize="md"
+          color={`purple.${Math.floor(progress * 4) + 5}00`}
+          numberOfLines={1}
+        >
+          {item.title}
         </Text>
         {item.status === AsyncStatus.Pending && (
-          <Box>
-            <SpinLoading size="sm" height={1} />
+          <Box ml={1}>
+            <SpinLoading size="sm" height={1} color={`purple.${Math.floor(progress * 4) + 5}00`} />
           </Box>
         )}
-        {item.status === AsyncStatus.Rejected && (
-          <Text fontWeight="bold" fontSize="md" color="red.700">
-            Fail
-          </Text>
+        {item.status === AsyncStatus.Fulfilled && (
+          <Pressable px={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRemove(item.taskId)}>
+            <Icon
+              as={MaterialIcons}
+              size="md"
+              fontWeight="semibold"
+              name="check"
+              color="purple.900"
+            />
+          </Pressable>
         )}
-      </Box>
+        {item.status === AsyncStatus.Rejected && (
+          <Pressable px={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRetry(item.taskId)}>
+            <Text fontWeight="bold" fontSize="sm" color="red.800">
+              {item.fail.length}
+            </Text>
+          </Pressable>
+        )}
+      </HStack>
     );
   };
 
@@ -424,9 +541,9 @@ export const PrehandleDrawer = () => {
   return (
     <Drawer ref={drawerRef}>
       <Box bg="gray.100" h="full">
-        {prehandleLog.length > 0 && (
+        {list.length > 0 && (
           <FlashList
-            data={prehandleLog}
+            data={list}
             renderItem={renderItem}
             estimatedItemSize={50}
             contentContainerStyle={{
