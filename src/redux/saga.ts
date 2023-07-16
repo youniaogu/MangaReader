@@ -767,7 +767,7 @@ function* pushChapterTask({ chapterHash, taskType }: { chapterHash: string; task
   const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
 
   if (!nonNullable(chapter)) {
-    yield put(toastMessage(ErrorMessage.WrongDataType));
+    yield put(pushTask({ error: new Error(ErrorMessage.WrongDataType) }));
     return;
   }
 
@@ -779,16 +779,18 @@ function* pushChapterTask({ chapterHash, taskType }: { chapterHash: string; task
 
   yield put(
     pushTask({
-      taskId: nanoid(),
-      chapterHash,
-      title,
-      type: taskType,
-      status: AsyncStatus.Default,
-      headers,
-      queue: images.map((item, index) => ({ index, jobId: nanoid(), source: item.uri })),
-      pending: [],
-      success: [],
-      fail: [],
+      data: {
+        taskId: nanoid(),
+        chapterHash,
+        title,
+        type: taskType,
+        status: AsyncStatus.Default,
+        headers,
+        queue: images.map((item, index) => ({ index, jobId: nanoid(), source: item.uri })),
+        pending: [],
+        success: [],
+        fail: [],
+      },
     })
   );
 }
@@ -812,7 +814,7 @@ function* prefetchAndDownloadChapterSaga() {
         yield fork(pushChapterTask, { chapterHash, taskType });
         yield take((takeAction: Action<string>) => {
           const { type: takeActionType, payload } = takeAction as ReturnType<typeof pushTask>;
-          return takeActionType === pushTask.type && payload.chapterHash === chapterHash;
+          return takeActionType === pushTask.type && payload.data?.chapterHash === chapterHash;
         });
       }
     }

@@ -84,6 +84,8 @@ export const initialState: RootState = {
 const defaultIncreaseManga = {
   latest: '',
   updateTime: '',
+  bookCover: '',
+  infoCover: '',
   author: [],
   tag: [],
   status: MangaStatus.Unknown,
@@ -518,8 +520,12 @@ const missionSlice = createSlice({
         )
         .flat();
     },
-    pushTask(state, action: PayloadAction<Task>) {
-      const task = action.payload;
+    pushTask(state, action: FetchResponseAction<Task>) {
+      const { error, data: task } = action.payload;
+      if (error) {
+        return;
+      }
+
       state.list.push(task);
       state.job.list.push(
         ...task.queue.map((item) => ({
