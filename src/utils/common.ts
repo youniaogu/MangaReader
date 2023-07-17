@@ -97,9 +97,6 @@ export function fixSettingShape(setting: RootState['setting']): RootState['setti
   if (!nonNullable(setting.light)) {
     setting.light = LightSwitch.Off;
   }
-  if (!nonNullable(setting.firstPrehandle)) {
-    setting.firstPrehandle = true;
-  }
   if (!nonNullable(setting.androidDownloadPath)) {
     setting.androidDownloadPath = Dirs.SDCardDir + '/DCIM';
   }

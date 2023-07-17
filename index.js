@@ -1,6 +1,6 @@
 import '~/utils/define';
-import { AppRegistry, LogBox } from 'react-native';
 import { CacheManager } from '@georstat/react-native-image-cache';
+import { AppRegistry } from 'react-native';
 import { Dirs } from 'react-native-file-access';
 import { name } from './app.json';
 import App from '~/App';
@@ -17,5 +17,4 @@ CacheManager.config = {
   thumbnailAnimationDuration: 500,
 };
 
-LogBox.ignoreLogs(['Require cycle:', 'Remote debugger']);
 AppRegistry.registerComponent(name, () => App);

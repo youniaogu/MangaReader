@@ -242,6 +242,8 @@ function* restoreSaga() {
 function* storageDataSaga() {
   yield takeLatestSuspense(
     [
+      clearCacheCompletion.type,
+      restoreCompletion.type,
       setMode.type,
       setLight.type,
       setDirection.type,
@@ -253,11 +255,11 @@ function* storageDataSaga() {
       viewChapter.type,
       viewPage.type,
       viewImage.type,
+      viewFavorites.type,
       addFavorites.type,
       removeFavorites.type,
       enabledBatch.type,
       disabledBatch.type,
-      viewFavorites.type,
       loadSearchCompletion.type,
       loadDiscoveryCompletion.type,
       loadMangaCompletion.type,
@@ -267,12 +269,12 @@ function* storageDataSaga() {
       finishTask.type,
     ],
     function* () {
-      yield delay(3000);
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const dict = ((state: RootState) => state.dict)(yield select());
       const plugin = ((state: RootState) => state.plugin)(yield select());
       const setting = ((state: RootState) => state.setting)(yield select());
       const task = ((state: RootState) => state.task)(yield select());
+      yield delay(3000);
 
       const storeDict: RootState['dict'] = { ...dict, manga: {} };
       for (const hash in dict.manga) {
@@ -333,13 +335,13 @@ function* batchUpdateSaga() {
           outStack({ isSuccess: false, isTrend: false, hash, isRetry: false });
           return;
         }
-        yield put(loadManga({ mangaHash: hash, taskId: id }));
+        yield put(loadManga({ mangaHash: hash, actionId: id }));
 
         const {
           payload: { error: fetchError, data },
         }: ReturnType<typeof loadMangaCompletion> = yield take((takeAction: Action<string>) => {
           const { type, payload } = takeAction as ReturnType<typeof loadMangaCompletion>;
-          return type === loadMangaCompletion.type && payload.taskId === id;
+          return type === loadMangaCompletion.type && payload.actionId === id;
         });
 
         if (fetchError) {
@@ -455,7 +457,7 @@ function* loadSearchSaga() {
 function* loadMangaSaga() {
   yield takeEverySuspense(
     loadManga.type,
-    function* ({ payload: { mangaHash, taskId } }: ReturnType<typeof loadManga>) {
+    function* ({ payload: { mangaHash, actionId } }: ReturnType<typeof loadManga>) {
       function* loadMangaEffect() {
         yield put(loadMangaInfo({ mangaHash }));
         const {
@@ -478,15 +480,17 @@ function* loadMangaSaga() {
         );
 
         if (loadMangaInfoError) {
-          yield put(loadMangaCompletion({ error: loadMangaInfoError, taskId }));
+          yield put(loadMangaCompletion({ error: loadMangaInfoError, actionId }));
           return;
         }
         if (loadChapterListError) {
-          yield put(loadMangaCompletion({ error: loadChapterListError, taskId }));
+          yield put(loadMangaCompletion({ error: loadChapterListError, actionId }));
           return;
         }
         if (!nonNullable(mangaInfo) || !nonNullable(chapterInfo)) {
-          yield put(loadMangaCompletion({ error: new Error(ErrorMessage.WrongDataType), taskId }));
+          yield put(
+            loadMangaCompletion({ error: new Error(ErrorMessage.WrongDataType), actionId })
+          );
           return;
         }
 
@@ -496,7 +500,7 @@ function* loadMangaSaga() {
               ...mangaInfo,
               chapters: (mangaInfo.chapters || []).concat(chapterInfo.list),
             },
-            taskId,
+            actionId,
           })
         );
       }
@@ -645,7 +649,7 @@ function* loadChapterSaga() {
         return;
       }
       if (!chapterList) {
-        yield put(loadChapterCompletion({ error: new Error(ErrorMessage.Unknown) }));
+        yield put(loadChapterCompletion({ error: new Error(ErrorMessage.MissingChapterInfo) }));
         return;
       }
 
@@ -758,27 +762,31 @@ function* preloadChapter(chapterHash: string) {
   const currDict = ((state: RootState) => state.dict.chapter)(yield select());
   const currData = currDict[chapterHash];
 
-  if (!nonNullable(currData)) {
-    return;
-  }
   return currData;
 }
-function* pushChapterTask({ chapterHash, taskType }: { chapterHash: string; taskType: TaskType }) {
+function* pushChapterTask({
+  chapterHash,
+  taskType,
+  actionId,
+}: {
+  chapterHash: string;
+  taskType: TaskType;
+  actionId: string;
+}) {
   const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
-
   if (!nonNullable(chapter)) {
-    yield put(pushTask({ error: new Error(ErrorMessage.WrongDataType) }));
+    yield put(pushTask({ error: new Error(ErrorMessage.PushTaskFail), actionId }));
     return;
   }
 
   const { title, headers, images } = chapter;
-
   if (taskType === TaskType.Download) {
     yield call(check, { album: title });
   }
 
   yield put(
     pushTask({
+      actionId,
       data: {
         taskId: nanoid(),
         chapterHash,
@@ -801,20 +809,23 @@ function* prefetchAndDownloadChapterSaga() {
       type,
       payload: chapterHashList,
     }: ReturnType<typeof prefetchChapter | typeof downloadChapter>) {
+      const { type: taskType, message } = {
+        [prefetchChapter.type]: { type: TaskType.Prefetch, message: '预加载中...' },
+        [downloadChapter.type]: { type: TaskType.Download, message: '下载中...' },
+      }[type];
+      yield put(toastMessage(message));
+
       while (true) {
+        const actionId = nanoid();
         const chapterHash = chapterHashList.pop();
         if (!chapterHash) {
           break;
         }
 
-        const taskType = {
-          [prefetchChapter.type]: TaskType.Prefetch,
-          [downloadChapter.type]: TaskType.Download,
-        }[type];
-        yield fork(pushChapterTask, { chapterHash, taskType });
+        yield fork(pushChapterTask, { chapterHash, taskType, actionId });
         yield take((takeAction: Action<string>) => {
           const { type: takeActionType, payload } = takeAction as ReturnType<typeof pushTask>;
-          return takeActionType === pushTask.type && payload.data?.chapterHash === chapterHash;
+          return takeActionType === pushTask.type && payload.actionId === actionId;
         });
       }
     }

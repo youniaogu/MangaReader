@@ -49,6 +49,7 @@ export enum ErrorMessage {
   WithoutPermission = '授权失败',
   IOSNotSupportWebp = '暂不支持.webp格式下载',
   TokenInvalid = 'Token失效，请重新获取',
+  PushTaskFail = '推送任务失败',
 }
 
 export enum Orientation {

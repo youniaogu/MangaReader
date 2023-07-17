@@ -32,7 +32,6 @@ export const initialState: RootState = {
     light: LightSwitch.Off,
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
-    firstPrehandle: true,
     androidDownloadPath: Dirs.SDCardDir + '/DCIM',
   },
   plugin: {
@@ -107,7 +106,7 @@ const appSlice = createSlice({
       state.launchStatus = AsyncStatus.Fulfilled;
     },
     toastMessage(state, action: PayloadAction<string>) {
-      state.message.unshift(action.payload);
+      state.message.push(action.payload);
     },
     throwMessage(state) {
       state.message = [];
@@ -434,7 +433,7 @@ const mangaSlice = createSlice({
   name: 'manga',
   initialState: initialState.manga,
   reducers: {
-    loadManga(state, action: PayloadAction<{ mangaHash: string; taskId?: string }>) {
+    loadManga(state, action: PayloadAction<{ mangaHash: string; actionId?: string }>) {
       state.loadStatus = AsyncStatus.Pending;
       state.loadingMangaHash = action.payload.mangaHash;
     },

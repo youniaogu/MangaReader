@@ -24,10 +24,10 @@ declare global {
   type POST = 'POST' | 'post';
   type FetchResponseAction<T = undefined> = PayloadAction<
     undefined extends T
-      ? { error?: Error; taskId?: string }
+      ? { error?: Error; actionId?: string }
       :
-          | { error: Error; data?: undefined; taskId?: string }
-          | { error?: undefined; data: T; taskId?: string }
+          | { error: Error; data?: undefined; actionId?: string }
+          | { error?: undefined; data: T; actionId?: string }
   >;
   type PartialOption<T, K extends string | number | symbol> = Omit<T, K> & {
     [A in Extract<keyof T, K>]?: T[A];
@@ -163,7 +163,6 @@ declare global {
       light: LightSwitch;
       direction: ReaderDirection;
       sequence: Sequence;
-      firstPrehandle: boolean;
       androidDownloadPath: string;
     };
     plugin: {
