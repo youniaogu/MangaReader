@@ -380,13 +380,11 @@ export const HeartAndBrowser = () => {
   const sequence = useAppSelector((state) => state.setting.sequence);
   const favorites = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
-
   const manga = useMemo(() => dict[mangaHash], [dict, mangaHash]);
-  const enableBatch = useMemo(
-    () => favorites.find((item) => item.mangaHash === mangaHash)?.enableBatch || false,
-    [favorites, mangaHash]
-  );
-  const actived = Boolean(manga);
+  const { isActived, enableBatch } = useMemo(() => {
+    const favorite = favorites.find((item) => item.mangaHash === mangaHash);
+    return { isActived: Boolean(favorite), enableBatch: favorite?.enableBatch || false };
+  }, [favorites, mangaHash]);
 
   const handleClose = () => {
     navigation.setParams({ enabledMultiple: false, selected: [] });
@@ -414,7 +412,7 @@ export const HeartAndBrowser = () => {
   const toggleFavorite = () => {
     const status = dict[mangaHash]?.status || '';
     dispatch(
-      actived
+      isActived
         ? removeFavorites(mangaHash)
         : addFavorites({ mangaHash, enableBatch: status !== MangaStatus.End })
     );
@@ -466,14 +464,14 @@ export const HeartAndBrowser = () => {
 
   return (
     <HStack pr={1}>
-      {actived && (
+      {isActived && (
         <VectorIcon
           name={enableBatch ? 'lock-open' : 'lock-outline'}
           color={enableBatch ? 'white' : 'purple.200'}
           onPress={toggleQueue}
         />
       )}
-      <RedHeart actived={actived} onPress={toggleFavorite} />
+      <RedHeart actived={isActived} onPress={toggleFavorite} />
       <VectorIcon
         source="octicons"
         name={sequence === Sequence.Asc ? 'sort-asc' : 'sort-desc'}
