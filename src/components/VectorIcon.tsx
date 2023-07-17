@@ -3,11 +3,13 @@ import { Icon, IconButton, IIconButtonProps } from 'native-base';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Octicons from 'react-native-vector-icons/Octicons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const sourceMap = {
+export const sourceMap = {
   materialIcons: MaterialIcons,
   materialCommunityIcons: MaterialCommunityIcons,
   octicons: Octicons,
+  ionicons: Ionicons,
 };
 
 interface VectorIconProps extends IIconButtonProps {

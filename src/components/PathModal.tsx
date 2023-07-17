@@ -23,7 +23,7 @@ const PathModal = ({ isOpen = true, defaultValue = '', onClose }: PathModalProps
     <Modal useRNModal isOpen={isOpen} onClose={handleClose} size="full">
       <Modal.Content w="full" p={2}>
         <Text fontSize="xs" color="gray.500" pb={1}>
-          漫画下载目录：
+          漫画导出目录：
         </Text>
         <InputGroup w="full">
           <Input flex={1} value={path} onChangeText={setPath} />

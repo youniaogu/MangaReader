@@ -65,8 +65,8 @@ export enum BackupRestore {
 
 export enum ChapterOptions {
   Multiple = 'multiple',
-  Prefetch = 'prefetch',
   Download = 'download',
+  Export = 'export',
 }
 
 export enum Sequence {
@@ -85,6 +85,6 @@ export enum LightSwitch {
 }
 
 export enum TaskType {
-  Prefetch,
   Download,
+  Export,
 }

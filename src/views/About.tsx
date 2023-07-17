@@ -230,7 +230,7 @@ const About = () => {
         options={BackupRestoreOptions}
         onChange={handleBackupChange}
         headerComponent={
-          <Text w="full" pl={4} color="gray.500" fontSize={16}>
+          <Text w="full" pl={4} pb={4} color="gray.500" fontSize={16}>
             备份
           </Text>
         }
@@ -241,7 +241,7 @@ const About = () => {
         options={BackupRestoreOptions}
         onChange={handleRestoreChange}
         headerComponent={
-          <Text w="full" pl={4} color="gray.500" fontSize={16}>
+          <Text w="full" pl={4} pb={4} color="gray.500" fontSize={16}>
             恢复
           </Text>
         }

@@ -475,9 +475,9 @@ const chapterSlice = createSlice({
       state.loadStatus = AsyncStatus.Fulfilled;
     },
 
-    prefetchChapter: (_state, _action: PayloadAction<string[]>) => {},
     downloadChapter: (_state, _action: PayloadAction<string[]>) => {},
-    downloadImage: (_state, _action: PayloadAction<string>) => {},
+    exportChapter: (_state, _action: PayloadAction<string[]>) => {},
+    exportImage: (_state, _action: PayloadAction<string>) => {},
 
     setPrehandleLogStatus(state, action: PayloadAction<boolean>) {
       state.openDrawer = action.payload && state.showDrawer;
@@ -647,9 +647,9 @@ const dictSlice = createSlice({
     },
     viewImage(
       state,
-      action: PayloadAction<{ chapterHash: string; index: number; isPrefetch?: boolean }>
+      action: PayloadAction<{ chapterHash: string; index: number; isVisited?: boolean }>
     ) {
-      const { chapterHash, index, isPrefetch = false } = action.payload;
+      const { chapterHash, index, isVisited = true } = action.payload;
       const chapter = state.chapter[chapterHash];
 
       if (chapter) {
@@ -672,7 +672,7 @@ const dictSlice = createSlice({
             Math.floor((imagesLoaded.length * 100) / chapter.images.length)
           ),
           imagesLoaded,
-          isVisited: !isPrefetch ? true : prev.isVisited,
+          isVisited: isVisited ? true : prev.isVisited,
         };
       }
     },

@@ -37,6 +37,7 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MangaReader/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MangaReader/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-MangaReader-MangaReaderTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MangaReader-MangaReaderTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A3073CF2A65257200B0F9BC /* Ionicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ionicons.ttf; sourceTree = "<group>"; };
 		1A5079BE2A4AE564001003B5 /* Octicons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Octicons.ttf; sourceTree = "<group>"; };
 		1A5079C22A4AE564001003B5 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialCommunityIcons.ttf; sourceTree = "<group>"; };
 		1A5079CC2A4AE564001003B5 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
@@ -103,6 +104,7 @@
 		1A5079BC2A4AE564001003B5 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				1A3073CF2A65257200B0F9BC /* Ionicons.ttf */,
 				1A5079BE2A4AE564001003B5 /* Octicons.ttf */,
 				1A5079C22A4AE564001003B5 /* MaterialCommunityIcons.ttf */,
 				1A5079CC2A4AE564001003B5 /* MaterialIcons.ttf */,

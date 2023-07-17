@@ -26,7 +26,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import ActionsheetSelect from '~/components/ActionsheetSelect';
+import ActionsheetSelect, { ActionsheetSelectProps } from '~/components/ActionsheetSelect';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
@@ -41,17 +41,29 @@ const {
   disabledBatch,
   enabledBatch,
   viewFavorites,
-  prefetchChapter,
   downloadChapter,
+  exportChapter,
   removeTask,
   retryTask,
   setPrehandleLogStatus,
   setPrehandleLogVisible,
 } = action;
-const ChapterSelectOptions = [
-  { label: '多选', value: ChapterOptions.Multiple },
-  { label: '预加载', value: ChapterOptions.Prefetch },
-  { label: '下载', value: ChapterOptions.Download },
+const ChapterSelectOptions: ActionsheetSelectProps['options'] = [
+  {
+    label: '多选',
+    value: ChapterOptions.Multiple,
+    icon: { name: 'checkbox-multiple-marked-outline', source: 'materialCommunityIcons' },
+  },
+  {
+    label: '下载',
+    value: ChapterOptions.Download,
+    icon: { name: 'download-box-outline', source: 'materialCommunityIcons' },
+  },
+  {
+    label: '导出',
+    value: ChapterOptions.Export,
+    icon: { name: 'file-export-outline', source: 'materialCommunityIcons' },
+  },
 ];
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
@@ -130,11 +142,11 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const handleMultiple = () => {
     navigation.setParams({ enabledMultiple: true, selected: [] });
   };
-  const handlePrefetch = () => {
-    chapter && dispatch(prefetchChapter([chapter.hash]));
-  };
   const handleDownload = () => {
     chapter && dispatch(downloadChapter([chapter.hash]));
+  };
+  const handleExport = () => {
+    chapter && dispatch(exportChapter([chapter.hash]));
   };
 
   if (!nonNullable(data)) {
@@ -225,10 +237,10 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
               as={MaterialCommunityIcons}
               size="sm"
               name="check-circle"
-              color={isChecked ? 'purple.600' : undefined}
+              color={isChecked ? 'purple.500' : 'gray.400'}
               position="absolute"
-              top={`${gap / 4}px`}
-              right={`${gap / 4}px`}
+              top={`${gap / 3}px`}
+              right={`${gap / 3}px`}
             />
           )}
           {!multiple && record && record.progress > 0 && (
@@ -239,8 +251,8 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
               name={record.isVisited ? 'brightness-1' : 'brightness-2'}
               color={`purple.${Math.min(Math.floor(record.progress / 25) + 1, 5)}00`}
               position="absolute"
-              top={`${gap / 4}px`}
-              right={`${gap / 4}px`}
+              top={`${gap / 3}px`}
+              right={`${gap / 3}px`}
             />
           )}
         </Box>
@@ -343,15 +355,15 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
           if (value === ChapterOptions.Multiple) {
             handleMultiple();
           }
-          if (value === ChapterOptions.Prefetch) {
-            handlePrefetch();
-          }
           if (value === ChapterOptions.Download) {
             handleDownload();
           }
+          if (value === ChapterOptions.Export) {
+            handleExport();
+          }
         }}
         headerComponent={
-          <Text w="full" pl={4} color="gray.500" fontSize={16}>
+          <Text w="full" pl={4} pb={4} color="gray.500" fontSize={16}>
             {chapter?.title}
           </Text>
         }
@@ -387,12 +399,12 @@ export const HeartAndBrowser = () => {
       });
     }
   };
-  const handlePrefetch = () => {
-    selected.length > 0 && dispatch(prefetchChapter(selected));
-    handleClose();
-  };
   const handleDownload = () => {
     selected.length > 0 && dispatch(downloadChapter(selected));
+    handleClose();
+  };
+  const handleExport = () => {
+    selected.length > 0 && dispatch(exportChapter(selected));
     handleClose();
   };
 
@@ -425,16 +437,28 @@ export const HeartAndBrowser = () => {
     return (
       <HStack pr={1}>
         <VectorIcon source="materialCommunityIcons" name="window-close" onPress={handleClose} />
-        <VectorIcon source="materialCommunityIcons" name="check-all" onPress={handleCheckAll} />
+        {manga && (
+          <VectorIcon
+            source="materialCommunityIcons"
+            name={
+              selected.length <= 0
+                ? 'checkbox-blank-outline'
+                : selected.length >= manga.chapters.length - 1
+                ? 'checkbox-marked-outline'
+                : 'checkbox-intermediate'
+            }
+            onPress={handleCheckAll}
+          />
+        )}
         <VectorIcon
           source="materialCommunityIcons"
-          name="cloud-download"
-          onPress={handlePrefetch}
+          name="download-box-outline"
+          onPress={handleDownload}
         />
         <VectorIcon
           source="materialCommunityIcons"
-          name="folder-download"
-          onPress={handleDownload}
+          name="file-export-outline"
+          onPress={handleExport}
         />
       </HStack>
     );

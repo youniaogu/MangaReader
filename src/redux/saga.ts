@@ -94,8 +94,8 @@ const {
   // chapter
   loadChapter,
   loadChapterCompletion,
-  prefetchChapter,
   downloadChapter,
+  exportChapter,
   // task
   restartTask,
   retryTask,
@@ -671,7 +671,7 @@ function* hasAndroidPermission(permission: Permission) {
   );
   return status === 'granted';
 }
-function* prefetch({ source, headers }: { source: string; headers?: Record<string, string> }) {
+function* fileDownload({ source, headers }: { source: string; headers?: Record<string, string> }) {
   yield call(CacheManager.prefetchBlob, source, { headers });
 }
 function* check({ album }: { album: string }) {
@@ -692,7 +692,7 @@ function* check({ album }: { album: string }) {
     }
   }
 }
-function* download({
+function* fileExport({
   source,
   album,
   filename,
@@ -734,16 +734,16 @@ function* thread() {
     yield put(startJob({ taskId, jobId }));
     try {
       const { timeout } = yield race({
-        prefetch: call(prefetch, { source, headers }),
+        download: call(fileDownload, { source, headers }),
         timeout: delay(15000),
       });
       if (timeout) {
         throw new Error(ErrorMessage.Timeout);
       }
 
-      yield put(viewImage({ chapterHash, index, isPrefetch: true }));
-      if (type === TaskType.Download) {
-        yield call(download, { source, album, filename: String(index) });
+      yield put(viewImage({ chapterHash, index, isVisited: false }));
+      if (type === TaskType.Export) {
+        yield call(fileExport, { source, album, filename: String(index) });
       }
       yield put(endJob({ taskId, jobId, status: AsyncStatus.Fulfilled }));
     } catch (e) {
@@ -780,7 +780,7 @@ function* pushChapterTask({
   }
 
   const { title, headers, images } = chapter;
-  if (taskType === TaskType.Download) {
+  if (taskType === TaskType.Export) {
     yield call(check, { album: title });
   }
 
@@ -802,16 +802,16 @@ function* pushChapterTask({
     })
   );
 }
-function* prefetchAndDownloadChapterSaga() {
+function* downloadAndExportChapterSaga() {
   yield takeEverySuspense(
-    [prefetchChapter.type, downloadChapter.type],
+    [downloadChapter.type, exportChapter.type],
     function* ({
       type,
       payload: chapterHashList,
-    }: ReturnType<typeof prefetchChapter | typeof downloadChapter>) {
+    }: ReturnType<typeof downloadChapter | typeof exportChapter>) {
       const { type: taskType, message } = {
-        [prefetchChapter.type]: { type: TaskType.Prefetch, message: '预加载中...' },
         [downloadChapter.type]: { type: TaskType.Download, message: '下载中...' },
+        [exportChapter.type]: { type: TaskType.Export, message: '导出中...' },
       }[type];
       yield put(toastMessage(message));
 
@@ -921,7 +921,7 @@ export default function* rootSaga() {
     fork(loadMangaInfoSaga),
     fork(loadChapterListSaga),
     fork(loadChapterSaga),
-    fork(prefetchAndDownloadChapterSaga),
+    fork(downloadAndExportChapterSaga),
     fork(taskManagerSaga),
 
     fork(catchErrorSaga),
