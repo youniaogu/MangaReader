@@ -408,15 +408,14 @@ class PicaComic extends Base {
       return {
         canLoadMore: total > page * limit,
         chapterList: docs
-          .sort((a, b) => a.order - b.order)
+          .filter((a, index) => index === docs.findIndex((b) => b.order === a.order))
           .map((item) => ({
             hash: Base.combineHash(this.id, mangaId, String(item.order)),
             mangaId,
             chapterId: String(item.order),
             href: `https://manhuabika.com/pchapter/?cid=${mangaId}&chapter=${item.order}`,
             title: item.title,
-          }))
-          .reverse(),
+          })),
       };
     } else if (res.code === 401) {
       return { error: new Error(ErrorMessage.TokenInvalid) };

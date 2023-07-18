@@ -2,7 +2,7 @@ import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
 import { AsyncStatus, Volume, LayoutMode, LightSwitch, ReaderDirection, PositionX } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { usePrevNext, useVolumeUpDown } from '~/hooks';
+import { useOnce, usePrevNext, useVolumeUpDown } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 import Reader, { ReaderRef } from '~/components/Reader';
@@ -10,6 +10,7 @@ import ActionsheetSelect from '~/components/ActionsheetSelect';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
+import Empty from '~/components/Empty';
 
 const {
   loadChapter,
@@ -35,6 +36,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [hashList, setHashList] = useState([initChapterHash]);
 
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
+  const loadingChapterHash = useAppSelector((state) => state.chapter.loadingChapterHash);
   const mode = useAppSelector((state) => state.setting.mode);
   const light = useAppSelector((state) => state.setting.light);
   const direction = useAppSelector((state) => state.setting.direction);
@@ -87,11 +89,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       dispatch(viewChapter({ mangaHash, chapterHash, chapterTitle: title }));
     }, [dispatch, mangaHash, chapterHash, title])
   );
-  useFocusEffect(
-    useCallback(() => {
-      data.length <= 0 && dispatch(loadChapter({ chapterHash }));
-    }, [data, dispatch, chapterHash])
-  );
+  useOnce(() => {
+    if (data.length <= 0) {
+      dispatch(loadChapter({ chapterHash }));
+    }
+  });
   useFocusEffect(
     useCallback(() => {
       dispatch(viewPage({ mangaHash, page: current }));
@@ -214,11 +216,21 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     readerRef.current?.scrollToIndex(newPage, false);
   };
 
-  if (data.length <= 0) {
+  if (loadStatus === AsyncStatus.Pending && chapterHash === loadingChapterHash) {
     return (
       <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
         <SpinLoading color={lightOn ? 'black' : 'white'} />
       </Center>
+    );
+  }
+  if (loadStatus === AsyncStatus.Fulfilled && data.length <= 0) {
+    return (
+      <Empty
+        bg={lightOn ? 'white' : 'black'}
+        color={lightOn ? 'black' : 'white'}
+        text="该章节是空的"
+        onPress={handleReload}
+      />
     );
   }
   if (loadStatus === AsyncStatus.Rejected) {

@@ -589,7 +589,7 @@ function* loadChapterListSaga() {
         );
 
         if (!loadMoreError && extraData) {
-          chapterList.unshift(...extraData.list);
+          chapterList.push(...extraData.list);
         }
       }
 
