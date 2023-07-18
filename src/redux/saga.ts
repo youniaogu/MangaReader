@@ -327,7 +327,7 @@ function* batchUpdateSaga() {
 
       const loadMangaEffect = function* ({ hash = '', retry = 0 }) {
         const [source] = splitHash(hash);
-        const id = nanoid();
+        const actionId = nanoid();
         const plugin = PluginMap.get(source);
         const dict = ((state: RootState) => state.dict)(yield select());
 
@@ -336,13 +336,13 @@ function* batchUpdateSaga() {
           outStack({ isSuccess: false, isTrend: false, hash, isRetry: false });
           return;
         }
-        yield put(loadManga({ mangaHash: hash, actionId: id }));
+        yield put(loadManga({ mangaHash: hash, actionId }));
 
         const {
           payload: { error: fetchError, data },
         }: ReturnType<typeof loadMangaCompletion> = yield take((takeAction: Action<string>) => {
           const { type, payload } = takeAction as ReturnType<typeof loadMangaCompletion>;
-          return type === loadMangaCompletion.type && payload.actionId === id;
+          return type === loadMangaCompletion.type && payload.actionId === actionId;
         });
 
         if (fetchError) {
@@ -460,10 +460,13 @@ function* loadMangaSaga() {
     loadManga.type,
     function* ({ payload: { mangaHash, actionId } }: ReturnType<typeof loadManga>) {
       function* loadMangaEffect() {
-        yield put(loadMangaInfo({ mangaHash }));
+        yield put(loadMangaInfo({ mangaHash, actionId }));
         const {
           payload: { error: loadMangaInfoError, data: mangaInfo },
-        }: ReturnType<typeof loadMangaInfoCompletion> = yield take(loadMangaInfoCompletion.type);
+        }: ReturnType<typeof loadMangaInfoCompletion> = yield take((takeAction: Action<string>) => {
+          const { type, payload } = takeAction as ReturnType<typeof loadMangaInfoCompletion>;
+          return type === loadMangaInfoCompletion.type && payload.actionId === actionId;
+        });
 
         yield put(loadChapterList({ mangaHash, page: 1 }));
         const {
@@ -517,12 +520,14 @@ function* loadMangaSaga() {
 function* loadMangaInfoSaga() {
   yield takeEverySuspense(
     loadMangaInfo.type,
-    function* ({ payload: { mangaHash } }: ReturnType<typeof loadMangaInfo>) {
+    function* ({ payload: { mangaHash, actionId } }: ReturnType<typeof loadMangaInfo>) {
       const [source, mangaId] = splitHash(mangaHash);
       const plugin = PluginMap.get(source);
 
       if (!plugin) {
-        yield put(loadMangaInfoCompletion({ error: new Error(ErrorMessage.PluginMissing) }));
+        yield put(
+          loadMangaInfoCompletion({ error: new Error(ErrorMessage.PluginMissing), actionId })
+        );
         return;
       }
 
@@ -532,7 +537,9 @@ function* loadMangaInfoSaga() {
       );
       const { error: pluginError, manga } = trycatch(() => plugin.handleMangaInfo(data));
 
-      yield put(loadMangaInfoCompletion({ error: fetchError || pluginError, data: manga }));
+      yield put(
+        loadMangaInfoCompletion({ error: fetchError || pluginError, data: manga, actionId })
+      );
     }
   );
 }

@@ -447,7 +447,7 @@ const mangaSlice = createSlice({
       }
       state.loadStatus = AsyncStatus.Fulfilled;
     },
-    loadMangaInfo(_state, _action: PayloadAction<{ mangaHash: string }>) {},
+    loadMangaInfo(_state, _action: PayloadAction<{ mangaHash: string; actionId?: string }>) {},
     loadMangaInfoCompletion(_state, _action: FetchResponseAction<IncreaseManga>) {},
     loadChapterList(_state, _action: PayloadAction<{ mangaHash: string; page: number }>) {},
     loadChapterListCompletion(

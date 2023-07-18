@@ -379,7 +379,7 @@ class PicaComic extends Base {
 
   handleMangaInfo: Base['handleMangaInfo'] = (res: MangaInfoResponse) => {
     if (res.code === 200) {
-      const { _id, tags, title, thumb, author, finished, updated_at } = res.data.comic;
+      const { _id, title, thumb, author, categories, finished, updated_at } = res.data.comic;
       return {
         manga: {
           href: `https://manhuabika.com/pcomicview/?cid=${_id}`,
@@ -391,7 +391,7 @@ class PicaComic extends Base {
           title,
           updateTime: moment(updated_at).format('YYYY-MM-DD'),
           author: author ? author.split(',') : [],
-          tag: tags,
+          tag: categories,
           status: finished ? MangaStatus.End : MangaStatus.Serial,
         },
       };
