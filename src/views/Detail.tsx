@@ -25,13 +25,13 @@ import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import { CachedImage } from '@georstat/react-native-image-cache';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ActionsheetSelect, { ActionsheetSelectProps } from '~/components/ActionsheetSelect';
+import Drawer, { DrawerRef } from '~/components/Drawer';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
 import RedHeart from '~/components/RedHeart';
-import Drawer, { DrawerRef } from '~/components/Drawer';
 
 const {
   loadManga,

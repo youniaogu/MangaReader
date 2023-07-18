@@ -10,6 +10,7 @@ import React, {
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
 import { useWindowDimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { PositionX } from '~/utils';
 import { Box } from 'native-base';
 import ComicImage, { ImageState } from '~/components/ComicImage';
 import Controller from '~/components/Controller';
@@ -25,8 +26,8 @@ export interface ReaderProps {
     current: number;
   }[];
   headers?: Chapter['headers'];
-  onTap?: (position: 'left' | 'mid' | 'right') => void;
-  onLongPress?: (position: 'left' | 'right') => void;
+  onTap?: (position: PositionX) => void;
+  onLongPress?: (position: PositionX, ref?: ImageState[]) => void;
   onImageLoad?: (uri: string, hash: string, index: number) => void;
   onPageChange?: (page: number) => void;
   onLoadMore?: () => void;
@@ -36,6 +37,7 @@ export interface ReaderRef {
   scrollToIndex: (index: number, animated?: boolean) => void;
   scrollToOffset: (offset: number, animated?: boolean) => void;
   clearStateRef: () => void;
+  getSource: (index: number, isHorizontal?: boolean) => string;
 }
 
 const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
@@ -90,6 +92,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       horizontalStateRef.current = [];
       verticalStateRef.current = [];
     },
+    getSource: (index: number, isHorizontal = false) => {
+      return (isHorizontal ? horizontalStateRef : verticalStateRef).current[index].dataUrl;
+    },
   }));
 
   // https://github.com/Shopify/flash-list/issues/637
@@ -115,7 +120,6 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
     const horizontalState = horizontalStateRef.current[index];
-    const verticalState = verticalStateRef.current[index];
     return (
       <Controller
         horizontal
@@ -132,13 +136,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           index={index}
           useJMC={needUnscramble}
           headers={headers}
-          prevState={horizontal ? horizontalState : verticalState}
+          prevState={horizontalState}
           onChange={(state, idx = index) => {
-            if (horizontal) {
-              horizontalStateRef.current[idx] = state;
-            } else {
-              verticalStateRef.current[idx] = state;
-            }
+            horizontalStateRef.current[idx] = state;
             onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
           }}
         />
@@ -147,7 +147,6 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   };
   const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
-    const horizontalState = horizontalStateRef.current[index];
     const verticalState = verticalStateRef.current[index];
     return (
       <ComicImage
@@ -155,13 +154,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         index={index}
         useJMC={needUnscramble}
         headers={headers}
-        prevState={horizontal ? horizontalState : verticalState}
+        prevState={verticalState}
         onChange={(state, idx = index) => {
-          if (horizontal) {
-            horizontalStateRef.current[idx] = state;
-          } else {
-            verticalStateRef.current[idx] = state;
-          }
+          verticalStateRef.current[idx] = state;
           onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
         }}
       />
@@ -190,7 +185,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   }
 
   return (
-    <Controller onTap={onTap} onLongPress={onLongPress}>
+    <Controller onTap={onTap} onLongPress={(position) => onLongPress && onLongPress(position)}>
       <FlashList
         ref={flashListRef}
         data={data}

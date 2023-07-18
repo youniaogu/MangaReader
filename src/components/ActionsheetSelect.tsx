@@ -1,5 +1,5 @@
 import React, { FC, memo, ReactNode, useEffect } from 'react';
-import { Actionsheet, ScrollView, HStack, Icon, Text } from 'native-base';
+import { Actionsheet, ScrollView, Icon } from 'native-base';
 import { sourceMap } from './VectorIcon';
 import { Keyboard } from 'react-native';
 import Delay from './Delay';
@@ -47,15 +47,15 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
             {options.map((item) => (
               <Actionsheet.Item
                 key={item.value}
+                startIcon={
+                  item.icon ? (
+                    <Icon as={sourceMap[item.icon.source]} size="md" name={item.icon.name} />
+                  ) : undefined
+                }
                 disabled={item.disabled}
                 onPress={handleChange(item.value)}
               >
-                <HStack space={2}>
-                  {item.icon && (
-                    <Icon as={sourceMap[item.icon.source]} size="md" name={item.icon.name} />
-                  )}
-                  <Text>{item.label}</Text>
-                </HStack>
+                {item.label}
               </Actionsheet.Item>
             ))}
           </ScrollView>

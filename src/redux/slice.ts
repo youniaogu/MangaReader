@@ -477,7 +477,10 @@ const chapterSlice = createSlice({
 
     downloadChapter: (_state, _action: PayloadAction<string[]>) => {},
     exportChapter: (_state, _action: PayloadAction<string[]>) => {},
-    exportImage: (_state, _action: PayloadAction<string>) => {},
+    saveImage: (
+      _state,
+      _action: PayloadAction<{ source: string; headers?: Record<string, string> }>
+    ) => {},
 
     setPrehandleLogStatus(state, action: PayloadAction<boolean>) {
       state.openDrawer = action.payload && state.showDrawer;

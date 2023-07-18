@@ -88,3 +88,27 @@ export enum TaskType {
   Download,
   Export,
 }
+
+export enum PositionX {
+  Left,
+  Mid,
+  Right,
+}
+
+export enum PositionY {
+  Top,
+  Mid,
+  Bottom,
+}
+
+export enum PositionXY {
+  TopLeft,
+  TopMid,
+  TopRight,
+  MidLeft,
+  Center,
+  MidRight,
+  BottomLeft,
+  BottomMid,
+  BottomRight,
+}

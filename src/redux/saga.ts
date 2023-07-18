@@ -96,6 +96,7 @@ const {
   loadChapterCompletion,
   downloadChapter,
   exportChapter,
+  saveImage,
   // task
   restartTask,
   retryTask,
@@ -674,7 +675,7 @@ function* hasAndroidPermission(permission: Permission) {
 function* fileDownload({ source, headers }: { source: string; headers?: Record<string, string> }) {
   yield call(CacheManager.prefetchBlob, source, { headers });
 }
-function* check({ album }: { album: string }) {
+function* check(album?: string) {
   const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
     yield select()
   );
@@ -686,9 +687,11 @@ function* check({ album }: { album: string }) {
       throw new Error(ErrorMessage.WithoutPermission);
     }
 
-    const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}/${album}`);
-    if (!isExisted) {
-      yield call(FileSystem.mkdir, `${androidDownloadPath}/${album}`);
+    if (album) {
+      const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}/${album}`);
+      if (!isExisted) {
+        yield call(FileSystem.mkdir, `${androidDownloadPath}/${album}`);
+      }
     }
   }
 }
@@ -781,7 +784,7 @@ function* pushChapterTask({
 
   const { title, headers, images } = chapter;
   if (taskType === TaskType.Export) {
-    yield call(check, { album: title });
+    yield call(check, title);
   }
 
   yield put(
@@ -831,6 +834,34 @@ function* downloadAndExportChapterSaga() {
     }
   );
 }
+function* saveImageSaga() {
+  yield takeEverySuspense(
+    saveImage.type,
+    function* ({ payload: { source, headers } }: ReturnType<typeof saveImage>) {
+      yield call(check);
+
+      let path: string;
+      if (/^data:image\/png;base64,.+/.test(source)) {
+        path = CacheManager.config.baseDir + nanoid() + '.png';
+        yield call(
+          FileSystem.writeFile,
+          path,
+          source.replace('data:image/png;base64,', ''),
+          'base64'
+        );
+      } else {
+        yield call(fileDownload, { source, headers });
+        const cacheEntry = CacheManager.get(source, undefined);
+        path = yield call(cacheEntry.getPath.bind(cacheEntry));
+      }
+
+      // https://storage-b.picacomic.com/static/36ec684d-82e8-4c0d-b164-745ce93070e6.png
+      // The operation couldn’t be completed. (PHPhotosErrorDomain error 3302.)
+      yield call(CameraRoll.save, `file://${path}`);
+      yield put(toastMessage('保存成功'));
+    }
+  );
+}
 function* taskManagerSaga() {
   yield takeLeadingSuspense([restartTask.type, pushTask.type, retryTask.type], function* () {
     while (true) {
@@ -871,6 +902,7 @@ function* catchErrorSaga() {
     if (error.message === 'Aborted') {
       yield put(toastMessage(ErrorMessage.RequestTimeout));
     } else {
+      console.log(error.message);
       yield put(toastMessage(error.message));
     }
   });
@@ -921,6 +953,7 @@ export default function* rootSaga() {
     fork(loadMangaInfoSaga),
     fork(loadChapterListSaga),
     fork(loadChapterSaga),
+    fork(saveImageSaga),
     fork(downloadAndExportChapterSaga),
     fork(taskManagerSaga),
 

@@ -7,12 +7,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useWindowDimensions } from 'react-native';
+import { PositionX } from '~/utils';
 
 const doubleTapScaleValue = 2;
 
-interface ControllerProps {
-  onTap?: (position: 'left' | 'mid' | 'right') => void;
-  onLongPress?: (position: 'left' | 'right') => void;
+export interface ControllerProps {
+  onTap?: (position: PositionX) => void;
+  onLongPress?: (position: PositionX) => void;
   children: ReactNode;
   horizontal?: boolean;
 }
@@ -21,7 +22,6 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [enabled, setEnabled] = useState(false);
   const oneThirdWidth = windowWidth / 3;
-  const oneTwoWidth = windowWidth / 2;
 
   const width = useSharedValue(windowWidth);
   const height = useSharedValue(windowHeight);
@@ -57,14 +57,14 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
     .onStart((e) => {
       if (savedScale.value === 1 && horizontal) {
         if (e.x < oneThirdWidth) {
-          onTap && onTap('left');
+          onTap && onTap(PositionX.Left);
         } else if (e.x < oneThirdWidth * 2) {
-          onTap && onTap('mid');
+          onTap && onTap(PositionX.Mid);
         } else {
-          onTap && onTap('right');
+          onTap && onTap(PositionX.Right);
         }
       } else {
-        onTap && onTap('mid');
+        onTap && onTap(PositionX.Mid);
       }
     });
   const doubleTap = Gesture.Tap()
@@ -103,13 +103,15 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
     });
   const longPress = Gesture.LongPress()
     .runOnJS(true)
-    .minDuration(2000)
+    .minDuration(1000)
     .onStart((e) => {
-      if (onLongPress) {
-        if (e.x < oneTwoWidth) {
-          onLongPress('left');
+      if (savedScale.value === 1 && onLongPress) {
+        if (e.x < oneThirdWidth) {
+          onLongPress(PositionX.Left);
+        } else if (e.x < oneThirdWidth * 2) {
+          onLongPress(PositionX.Mid);
         } else {
-          onLongPress('right');
+          onLongPress(PositionX.Right);
         }
       }
     });

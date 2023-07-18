@@ -1,22 +1,34 @@
 import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
-import { AsyncStatus, Volume, LayoutMode, LightSwitch, ReaderDirection } from '~/utils';
-import { Box, Text, Flex, Center, StatusBar, useToast } from 'native-base';
+import { AsyncStatus, Volume, LayoutMode, LightSwitch, ReaderDirection, PositionX } from '~/utils';
+import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { usePrevNext, useVolumeUpDown } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 import Reader, { ReaderRef } from '~/components/Reader';
+import ActionsheetSelect from '~/components/ActionsheetSelect';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
 
-const { loadChapter, viewChapter, viewPage, viewImage, setMode, setDirection, setLight } = action;
+const {
+  loadChapter,
+  viewChapter,
+  viewPage,
+  viewImage,
+  setMode,
+  setDirection,
+  setLight,
+  saveImage,
+} = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
+const ImageSelectOptions = [{ label: '保存图片', value: 'save' }];
 
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash: initChapterHash, page: initPage } = route.params || {};
   const toast = useToast();
   const dispatch = useAppDispatch();
+  const { isOpen, onOpen, onClose } = useDisclose();
   const [page, setPage] = useState(initPage - 1);
   const [showExtra, setShowExtra] = useState(false);
   const [chapterHash, setChapterHash] = useState(initChapterHash);
@@ -115,39 +127,42 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       toast.show({ title: '最后一话' });
     }
   };
-  const handleTap = (position: 'left' | 'mid' | 'right') => {
-    if (position === 'mid') {
+  const handleTap = (position: PositionX) => {
+    if (position === PositionX.Mid) {
       setShowExtra((value) => !value);
     }
     if (inverted) {
-      if (position === 'right') {
+      if (position === PositionX.Right) {
         readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
       }
-      if (position === 'left') {
+      if (position === PositionX.Left) {
         readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
       }
     } else {
-      if (position === 'left') {
+      if (position === PositionX.Left) {
         readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
       }
-      if (position === 'right') {
+      if (position === PositionX.Right) {
         readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
       }
     }
   };
-  const handleLongPress = (position: 'left' | 'right') => {
+  const handleLongPress = (position: PositionX) => {
+    if (position === PositionX.Mid) {
+      onOpen();
+    }
     if (inverted) {
-      if (position === 'right') {
+      if (position === PositionX.Right) {
         handlePrevChapter();
       }
-      if (position === 'left') {
+      if (position === PositionX.Left) {
         handleNextChapter();
       }
     } else {
-      if (position === 'left') {
+      if (position === PositionX.Left) {
         handlePrevChapter();
       }
-      if (position === 'right') {
+      if (position === PositionX.Right) {
         handleNextChapter();
       }
     }
@@ -169,6 +184,16 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     if (next && !hashList.includes(next.hash)) {
       setHashList([...hashList, next.hash]);
       dispatch(loadChapter({ chapterHash: next.hash }));
+    }
+  };
+
+  const handleImageSave = () => {
+    const source = readerRef.current?.getSource(page, horizontal);
+
+    if (source) {
+      dispatch(saveImage({ source, headers }));
+    } else {
+      toast.show({ title: '保存失败' });
     }
   };
 
@@ -231,6 +256,17 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         onImageLoad={handleImageLoad}
         onPageChange={handlePageChange}
         onLoadMore={handleLoadMore}
+      />
+
+      <ActionsheetSelect
+        isOpen={isOpen}
+        onClose={onClose}
+        options={ImageSelectOptions}
+        onChange={(value) => {
+          if (value === 'save') {
+            handleImageSave();
+          }
+        }}
       />
 
       {showExtra && (
