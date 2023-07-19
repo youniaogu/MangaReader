@@ -909,7 +909,6 @@ function* catchErrorSaga() {
     if (error.message === 'Aborted') {
       yield put(toastMessage(ErrorMessage.RequestTimeout));
     } else {
-      console.log(error.message);
       yield put(toastMessage(error.message));
     }
   });

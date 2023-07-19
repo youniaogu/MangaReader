@@ -155,6 +155,8 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
       runOnJS(setEnabled)(scale.value > 1);
     });
   const panGesture = Gesture.Pan()
+    .minPointers(1)
+    .maxPointers(1)
     .enabled(enabled)
     .onChange((e) => {
       'worklet';
