@@ -7,6 +7,7 @@ import { Center, Image } from 'native-base';
 import { nanoid } from '@reduxjs/toolkit';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
+import FastImage from 'react-native-fast-image';
 import md5 from 'blueimp-md5';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
@@ -264,7 +265,7 @@ const JMCImage = ({
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
     CacheManager.prefetchBlob(source, { headers })
       .then((base64) =>
-        base64 ? base64ToUrl('data:image/png;base64,' + base64, source) : handleError()
+        base64 ? base64ToUrl('data:image/jpeg;base64,' + base64, source) : handleError()
       )
       .catch(handleError);
   }, [source, headers, base64ToUrl, handleError]);
@@ -326,15 +327,17 @@ const JMCImage = ({
     );
   }
 
+  // https://github.com/facebook/react-native/issues/21301
+  // https://github.com/facebook/fresco/issues/2397
+  // https://github.com/facebook/react-native/issues/32411
   return (
-    <Image
-      w={horizontal ? windowWidth : windowWidth}
-      h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
+    <FastImage
+      style={{
+        width: windowWidth,
+        height: horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight,
+      }}
       resizeMode={horizontal ? 'contain' : 'cover'}
-      resizeMethod="resize"
-      fadeDuration={0}
       source={{ uri: imageState.dataUrl }}
-      alt="page"
     />
   );
 };
