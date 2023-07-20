@@ -49,7 +49,10 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
   useMessageToast();
 
   return (
-    <Navigator initialRouteName="Home" screenOptions={{ header: DefaultHeader }}>
+    <Navigator
+      initialRouteName="Home"
+      screenOptions={{ header: DefaultHeader, freezeOnBlur: true }}
+    >
       <Screen name="Home" options={{ headerRight: SearchAndAbout }} component={Home} />
       <Screen
         name="Discovery"

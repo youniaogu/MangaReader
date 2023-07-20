@@ -683,10 +683,6 @@ function* fileDownload({ source, headers }: { source: string; headers?: Record<s
   yield call(CacheManager.prefetchBlob, source, { headers });
 }
 function* check(album?: string) {
-  const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
-    yield select()
-  );
-
   if (Platform.OS === 'android') {
     const writePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
     const hasWritePermission: boolean = yield call(hasAndroidPermission, writePermission);
@@ -695,6 +691,9 @@ function* check(album?: string) {
     }
 
     if (album) {
+      const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
+        yield select()
+      );
       const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}/${album}`);
       if (!isExisted) {
         yield call(FileSystem.mkdir, `${androidDownloadPath}/${album}`);

@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
 import { Image as ReactNativeImage, StyleSheet, useWindowDimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
-import { AsyncStatus, aspectFit, mergeQuery } from '~/utils';
+import { AsyncStatus, mergeQuery } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import { nanoid } from '@reduxjs/toolkit';
@@ -10,6 +10,7 @@ import ErrorWithRetry from '~/components/ErrorWithRetry';
 import md5 from 'blueimp-md5';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
+const maxPixelSize = 1024000;
 const defaultState = {
   hash: '',
   dataUrl: '',
@@ -201,54 +202,54 @@ const JMCImage = ({
     updateData({ ...imageState, loadStatus: AsyncStatus.Rejected });
   }, [imageState, updateData]);
   const base64ToUrl = useCallback(
-    (base64: string, width: number, height: number) => {
+    (base64: string, i: string) => {
       if (canvasRef.current) {
         const ctx = canvasRef.current.getContext('2d');
-        const step = unscramble(source, width, height);
-        const image = new CanvasImage(canvasRef.current, height, width);
+        const image = new CanvasImage(canvasRef.current);
+
         image.src = base64;
+        image.addEventListener('load', (event) => {
+          // don't use Image.getSize from react-native
+          // Image.getSize return wrong width and height when image have a huge width or height
+          // https://github.com/facebook/react-native/issues/31130
+          // https://github.com/facebook/react-native/issues/33498
+          const width = event.target.width;
+          const height = event.target.height;
+          const step = unscramble(i, width, height);
 
-        const container = aspectFit(
-          { width, height },
-          { width: windowWidth, height: windowHeight }
-        );
-
-        canvasRef.current.width = container.dWidth;
-        canvasRef.current.height = container.dHeight;
-
-        image.addEventListener('load', () => {
-          let prevDy: number = 0;
-          let prevDh: number = 0;
-          step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }, idx) => {
-            if (idx <= 0) {
-              prevDy = dy * container.scale;
+          if (canvasRef.current) {
+            if (width * height >= maxPixelSize) {
+              const scale = maxPixelSize / width / height;
+              canvasRef.current.width = width * scale;
+              canvasRef.current.height = height * scale;
+              ctx.scale(scale, scale);
             } else {
-              prevDy = prevDh + prevDy;
+              canvasRef.current.width = width;
+              canvasRef.current.height = height;
+              ctx.scale(1, 1);
             }
-            prevDh = dHeight * container.scale;
+          } else {
+            return handleError();
+          }
 
-            ctx.drawImage(
-              image,
-              sx,
-              sy,
-              sWidth,
-              sHeight,
-              dx * container.scale,
-              prevDy,
-              dWidth * container.scale,
-              prevDh
-            );
+          step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }) => {
+            ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
           });
 
           if (canvasRef.current) {
-            canvasRef.current.toDataURL().then((res) => {
-              updateData({
-                ...imageState,
-                dataUrl: res.replace(/^"|"$/g, ''),
-                fillHeight: (height / width) * windowWidth,
-                loadStatus: AsyncStatus.Fulfilled,
+            canvasRef.current
+              .toDataURL()
+              .then((res) => {
+                updateData({
+                  ...imageState,
+                  dataUrl: res.replace(/^"|"$/g, ''),
+                  fillHeight: (height / width) * windowWidth,
+                  loadStatus: AsyncStatus.Fulfilled,
+                });
+              })
+              .catch(() => {
+                handleError();
               });
-            });
           } else {
             handleError();
           }
@@ -257,22 +258,14 @@ const JMCImage = ({
         handleError();
       }
     },
-    [source, imageState, updateData, handleError, windowWidth, windowHeight]
+    [imageState, updateData, handleError, windowWidth]
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
     CacheManager.prefetchBlob(source, { headers })
-      .then((base64) => {
-        if (!base64) {
-          handleError();
-          return;
-        }
-        base64 = 'data:image/png;base64,' + base64;
-
-        ReactNativeImage.getSize(base64, (width, height) => {
-          base64ToUrl(base64 as string, width, height);
-        });
-      })
+      .then((base64) =>
+        base64 ? base64ToUrl('data:image/png;base64,' + base64, source) : handleError()
+      )
       .catch(handleError);
   }, [source, headers, base64ToUrl, handleError]);
   useFocusEffect(

@@ -606,10 +606,11 @@ const missionSlice = createSlice({
           task.fail.push(jobId);
         }
         if (task.success.length + task.fail.length >= task.queue.length) {
-          if (task.fail.length > 0) {
-            task.status = AsyncStatus.Rejected;
-          } else {
+          if (task.fail.length <= 0) {
             task.status = AsyncStatus.Fulfilled;
+            state.list = state.list.filter((item) => item.taskId !== taskId);
+          } else {
+            task.status = AsyncStatus.Rejected;
           }
         } else {
           task.status = AsyncStatus.Pending;

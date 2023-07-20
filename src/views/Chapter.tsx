@@ -223,7 +223,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       </Center>
     );
   }
-  if (loadStatus === AsyncStatus.Fulfilled && data.length <= 0) {
+  if (
+    loadStatus === AsyncStatus.Fulfilled &&
+    data.length <= 0 &&
+    chapterHash === loadingChapterHash
+  ) {
     return (
       <Empty
         bg={lightOn ? 'white' : 'black'}
