@@ -182,7 +182,7 @@ class CopyManga extends Base {
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, region, sort }) => {
     return {
-      url: 'https://api.copymanga.net/api/v3/comics',
+      url: 'https://api.copymanga.tv/api/v3/comics',
       body: {
         free_type: 1,
         limit: 21,
@@ -197,7 +197,7 @@ class CopyManga extends Base {
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
     return {
-      url: 'https://api.copymanga.net/api/v3/search/comic',
+      url: 'https://api.copymanga.tv/api/v3/search/comic',
       body: {
         platform: 1,
         q: keyword,
@@ -211,7 +211,7 @@ class CopyManga extends Base {
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://api.copymanga.net/api/v3/comic2/${mangaId}`,
+      url: `https://api.copymanga.tv/api/v3/comic2/${mangaId}`,
       body: {
         platform: 1,
       },

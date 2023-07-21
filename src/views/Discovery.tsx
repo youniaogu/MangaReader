@@ -160,6 +160,7 @@ export const PluginSelect = () => {
         p={0}
         mr={1}
         w={12}
+        h={12}
         variant="ghost"
         _text={{ color: 'white', textAlign: 'center', fontSize: 'sm', fontWeight: 'bold' }}
         onPress={() => {
