@@ -185,7 +185,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const handleLoadMore = () => {
     if (next && !hashList.includes(next.hash)) {
       setHashList([...hashList, next.hash]);
-      dispatch(loadChapter({ chapterHash: next.hash }));
+      !chapterDict[next.hash] && dispatch(loadChapter({ chapterHash: next.hash }));
     }
   };
 
