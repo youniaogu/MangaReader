@@ -45,6 +45,8 @@ Android：[下载](https://github.com/youniaogu/MangaReader/releases)
 
 Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 
+[使用 Altstore 安装 ipa 文件](https://faq.altstore.io/)
+
 ## NHentai
 
 nhentai 开启了 cloudflare 的 ddos 保护，在使用此插件前，请遵循下面流程在 webview 里通过 cloudflare 校验并获得 cookies
