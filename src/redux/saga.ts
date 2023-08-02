@@ -275,7 +275,7 @@ function* storageDataSaga() {
       const plugin = ((state: RootState) => state.plugin)(yield select());
       const setting = ((state: RootState) => state.setting)(yield select());
       const task = ((state: RootState) => state.task)(yield select());
-      yield delay(3000);
+      yield delay(1000);
 
       const storeDict: RootState['dict'] = { ...dict, manga: {} };
       for (const hash in dict.manga) {
