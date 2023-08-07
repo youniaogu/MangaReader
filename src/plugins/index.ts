@@ -9,11 +9,13 @@ import MHM from './mhm';
 import KL from './kl';
 import NH from './nh';
 import PICA from './pica';
+import MBZ from './mbz';
 
 export * from './base';
 
 export const PluginMap = new Map<Plugin, Base>([
   [COPY.id, COPY],
+  [MBZ.id, MBZ],
   [MHGM.id, MHGM],
   [JMC.id, JMC],
   [NH.id, NH],

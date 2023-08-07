@@ -35,6 +35,7 @@ export enum Plugin {
   KL = 'KL',
   NH = 'NH',
   PICA = 'PICA',
+  MBZ = 'MBZ',
 }
 
 export enum Options {
