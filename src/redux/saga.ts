@@ -623,17 +623,20 @@ function* loadChapterSaga() {
       }
 
       let page = 1;
+      let extra: Record<string, any> = {};
       let error: Error | undefined;
       let chapterList: Chapter | undefined;
       while (true) {
         const { error: fetchError, data } = yield call(
           fetchData,
-          plugin.prepareChapterFetch(mangaId, chapterId, page)
+          plugin.prepareChapterFetch(mangaId, chapterId, page, extra)
         );
         const {
           error: pluginError,
           chapter,
           canLoadMore,
+          nextPage = page + 1,
+          nextExtra = extra,
         } = trycatch(() => plugin.handleChapter(data, mangaId, chapterId, page));
 
         if (fetchError || pluginError) {
@@ -649,7 +652,8 @@ function* loadChapterSaga() {
         if (!canLoadMore) {
           break;
         }
-        page++;
+        extra = nextExtra;
+        page = nextPage;
       }
 
       if (error) {

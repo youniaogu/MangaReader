@@ -239,7 +239,12 @@ abstract class Base {
    * @return {*}  {FetchData}
    * @memberof Base
    */
-  abstract prepareChapterFetch(mangaId: string, chapterId: string, page: number): FetchData;
+  abstract prepareChapterFetch(
+    mangaId: string,
+    chapterId: string,
+    page: number,
+    extra: Record<string, any>
+  ): FetchData;
 
   /**
    * @description crawl data from website or interface
@@ -286,8 +291,13 @@ abstract class Base {
     response: any,
     mangaId: string
   ):
-    | { error: Error; chapterList?: undefined; canLoadMore?: boolean }
-    | { error?: undefined; chapterList: Manga['chapters']; canLoadMore: boolean };
+    | { error: Error; chapterList?: undefined; canLoadMore?: boolean; nextPage?: number }
+    | {
+        error?: undefined;
+        chapterList: Manga['chapters'];
+        canLoadMore: boolean;
+        nextPage?: number;
+      };
 
   /**
    * @description crawl data from website or interface
@@ -302,8 +312,20 @@ abstract class Base {
     chapterId: string,
     page: number
   ):
-    | { error: Error; chapter?: undefined; canLoadMore?: boolean }
-    | { error?: undefined; chapter: Chapter; canLoadMore: boolean };
+    | {
+        error: Error;
+        chapter?: undefined;
+        canLoadMore?: boolean;
+        nextPage?: number;
+        nextExtra?: Record<string, any>;
+      }
+    | {
+        error?: undefined;
+        chapter: Chapter;
+        canLoadMore: boolean;
+        nextPage?: number;
+        nextExtra?: Record<string, any>;
+      };
 }
 
 export default Base;

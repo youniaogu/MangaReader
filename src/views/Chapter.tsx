@@ -225,8 +225,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   }
   if (
     loadStatus === AsyncStatus.Fulfilled &&
-    data.length <= 0 &&
-    chapterHash === loadingChapterHash
+    chapterHash === loadingChapterHash &&
+    data.length <= 0
   ) {
     return (
       <Empty
@@ -243,6 +243,9 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         <ErrorWithRetry color={lightOn ? 'black' : 'white'} onRetry={handleReload} />
       </Center>
     );
+  }
+  if (data.length <= 0) {
+    return null;
   }
 
   return (
