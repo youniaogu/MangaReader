@@ -40,6 +40,9 @@ const discoveryOptions = [
 const PATTERN_MANGA_ID = /\/(.+)\//;
 const PATTERN_SCRIPT_MANGA_ID = /var MANGABZ_COMIC_MID=([0-9]+);/;
 const PATTERN_CHAPTER_ID = /\/(.+)\//;
+const PATTERN_TODAY = /(今天 [0-9]{2}:[0-9]{2})/;
+const PATTERN_YESTERDAY = /(昨天 [0-9]{2}:[0-9]{2})/;
+const PATTERN_BEFORE_YESTERDAY = /(前天 [0-9]{2}:[0-9]{2})/;
 const PATTERN_MMDD = /([0-9]{2}月[0-9]{2}號)/;
 const PATTERN_YYYYMMDD = /([0-9]{4}-[0-9]{2}-[0-9]{2})/;
 const PATTERN_IMAGE_INDEX = /\/([0-9]+)_.*/;
@@ -211,6 +214,9 @@ class MangaBZ extends Base {
     ).map((a) => a.children[0].data || '');
     const latest = $('.detail-list-form-title span.s a').first().text() || '';
     const dateLabel = $('.detail-list-form-title').first().text() || '';
+    const [, today] = dateLabel.match(PATTERN_TODAY) || [];
+    const [, yesterday] = dateLabel.match(PATTERN_YESTERDAY) || [];
+    const [, beforeYesterday] = dateLabel.match(PATTERN_BEFORE_YESTERDAY) || [];
     const [, MMDD] = dateLabel.match(PATTERN_MMDD) || [];
     const [, YYYYMMDD] = dateLabel.match(PATTERN_YYYYMMDD) || [];
 
@@ -231,7 +237,13 @@ class MangaBZ extends Base {
     });
 
     let updateTime;
-    if (MMDD) {
+    if (today) {
+      updateTime = moment(today, '今天 HH:mm').format('YYYY-MM-DD');
+    } else if (yesterday) {
+      updateTime = moment(today, '昨天 HH:mm').subtract(1, 'day').format('YYYY-MM-DD');
+    } else if (beforeYesterday) {
+      updateTime = moment(today, '前天 HH:mm').subtract(2, 'day').format('YYYY-MM-DD');
+    } else if (MMDD) {
       updateTime = moment(MMDD, 'MM月DD號').format('YYYY-MM-DD');
     } else if (YYYYMMDD) {
       updateTime = YYYYMMDD;
