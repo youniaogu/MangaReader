@@ -625,7 +625,7 @@ function* loadChapterSaga() {
       let page = 1;
       let extra: Record<string, any> = {};
       let error: Error | undefined;
-      let chapterList: Chapter | undefined;
+      let chapter: Chapter | undefined;
       while (true) {
         const { error: fetchError, data } = yield call(
           fetchData,
@@ -633,7 +633,7 @@ function* loadChapterSaga() {
         );
         const {
           error: pluginError,
-          chapter,
+          chapter: nextChapter,
           canLoadMore,
           nextPage = page + 1,
           nextExtra = extra,
@@ -643,10 +643,11 @@ function* loadChapterSaga() {
           error = fetchError || pluginError;
           break;
         } else {
-          chapterList = {
-            ...chapterList,
+          chapter = {
             ...chapter,
-            images: [...(chapterList?.images || []), ...chapter.images],
+            ...nextChapter,
+            title: nextChapter.title || chapter?.title || '',
+            images: [...(chapter?.images || []), ...nextChapter.images],
           };
         }
         if (!canLoadMore) {
@@ -660,12 +661,12 @@ function* loadChapterSaga() {
         yield put(loadChapterCompletion({ error }));
         return;
       }
-      if (!chapterList) {
+      if (!chapter) {
         yield put(loadChapterCompletion({ error: new Error(ErrorMessage.MissingChapterInfo) }));
         return;
       }
 
-      yield put(loadChapterCompletion({ error, data: chapterList }));
+      yield put(loadChapterCompletion({ error, data: chapter }));
     }
   );
 }

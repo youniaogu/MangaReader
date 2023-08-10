@@ -204,7 +204,7 @@ class MangaBZ extends Base {
     const [, id] = scriptContent.match(PATTERN_SCRIPT_MANGA_ID) || [];
     const mangaId = id + 'bz';
     const cover = $('.detail-info img.detail-info-cover').first().attr('src');
-    const title = $('.detail-info p.detail-info-title').first().text();
+    const title = $('.detail-info p.detail-info-title').first().text().trim();
     const author = (
       $('.detail-info-tip > span').eq(0).children().toArray() as cheerio.TagElement[]
     ).map((a) => a.children[0].data || '');
@@ -240,9 +240,9 @@ class MangaBZ extends Base {
     if (today) {
       updateTime = moment(today, '今天 HH:mm').format('YYYY-MM-DD');
     } else if (yesterday) {
-      updateTime = moment(today, '昨天 HH:mm').subtract(1, 'day').format('YYYY-MM-DD');
+      updateTime = moment(yesterday, '昨天 HH:mm').subtract(1, 'day').format('YYYY-MM-DD');
     } else if (beforeYesterday) {
-      updateTime = moment(today, '前天 HH:mm').subtract(2, 'day').format('YYYY-MM-DD');
+      updateTime = moment(beforeYesterday, '前天 HH:mm').subtract(2, 'day').format('YYYY-MM-DD');
     } else if (MMDD) {
       updateTime = moment(MMDD, 'MM月DD號').format('YYYY-MM-DD');
     } else if (YYYYMMDD) {

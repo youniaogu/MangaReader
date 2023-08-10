@@ -321,7 +321,7 @@ abstract class Base {
       }
     | {
         error?: undefined;
-        chapter: Chapter;
+        chapter: PartialOption<Chapter, 'title'>;
         canLoadMore: boolean;
         nextPage?: number;
         nextExtra?: Record<string, any>;
