@@ -511,7 +511,7 @@ PODS:
     - React-perflogger (= 0.72.3)
   - RNBootSplash (4.7.5):
     - React-Core
-  - RNCAsyncStorage (1.19.0):
+  - RNCAsyncStorage (1.19.1):
     - React-Core
   - RNCClipboard (1.11.2):
     - React-Core
@@ -521,9 +521,9 @@ PODS:
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNFlashList (1.5.0):
     - React-Core
-  - RNGestureHandler (2.12.0):
+  - RNGestureHandler (2.12.1):
     - React-Core
-  - RNReanimated (3.3.0):
+  - RNReanimated (3.4.2):
     - DoubleConversion
     - FBLazyVector
     - glog
@@ -552,12 +552,12 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.22.1):
+  - RNScreens (3.24.0):
     - React-Core
     - React-RCTImage
   - RNSVG (12.1.1):
     - React
-  - RNVectorIcons (9.2.0):
+  - RNVectorIcons (10.0.0):
     - React-Core
   - SDWebImage (5.11.1):
     - SDWebImage/Core (= 5.11.1)
@@ -847,15 +847,15 @@ SPEC CHECKSUMS:
   React-utils: bcb57da67eec2711f8b353f6e3d33bd8e4b2efa3
   ReactCommon: 3ccb8fb14e6b3277e38c73b0ff5e4a1b8db017a9
   RNBootSplash: 85f6b879c080e958afdb4c62ee04497b05fd7552
-  RNCAsyncStorage: 4b98ac3c64efa4e35c1197cb0c5ca5e9f5d4c666
+  RNCAsyncStorage: f47fe18526970a69c34b548883e1aeceb115e3e1
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFlashList: 25b0e092b4470c84db0386d4f5316dc34123bb6d
-  RNGestureHandler: dec4645026e7401a0899f2846d864403478ff6a5
-  RNReanimated: 9f7068e43b9358a46a688d94a5a3adb258139457
-  RNScreens: 50ffe2fa2342eabb2d0afbe19f7c1af286bc7fb3
+  RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
+  RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
+  RNScreens: b21dc57dfa2b710c30ec600786a3fc223b1b92e7
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
-  RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
+  RNVectorIcons: 8b5bb0fa61d54cd2020af4f24a51841ce365c7e9
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17

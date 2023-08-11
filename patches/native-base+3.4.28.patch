@@ -1,5 +1,5 @@
 diff --git a/node_modules/native-base/src/core/NativeBaseProvider.tsx b/node_modules/native-base/src/core/NativeBaseProvider.tsx
-index 43b4bd1..dd1329c 100644
+index 43b4bd1..77803a3 100644
 --- a/node_modules/native-base/src/core/NativeBaseProvider.tsx
 +++ b/node_modules/native-base/src/core/NativeBaseProvider.tsx
 @@ -4,7 +4,6 @@ import {
@@ -10,11 +10,12 @@ index 43b4bd1..dd1329c 100644
  import { theme as defaultTheme, ITheme } from './../theme';
  import type { IColorModeProviderProps } from './color-mode';
  import HybridProvider from './hybrid-overlay/HybridProvider';
-@@ -94,7 +93,7 @@ const NativeBaseProvider = (props: NativeBaseProviderProps) => {
+@@ -94,7 +93,8 @@ const NativeBaseProvider = (props: NativeBaseProviderProps) => {
              <OverlayProvider isSSR>
                <ToastProvider>
                  <InitializeToastRef />
 -                <SSRProvider>{children}</SSRProvider>
++                {/* https://github.com/GeekyAnts/NativeBase/issues/5758 */}
 +                {children}
                </ToastProvider>
              </OverlayProvider>

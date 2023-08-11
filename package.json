@@ -18,7 +18,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@georstat/react-native-image-cache": "^2.3.0",
+    "@georstat/react-native-image-cache": "^2.9.0",
     "@loadable/component": "^5.15.2",
     "@react-native-async-storage/async-storage": "^1.17.4",
     "@react-native-camera-roll/camera-roll": "^5.2.4",
@@ -48,7 +48,7 @@
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "^3.13.1",
     "react-native-svg": "12.1.1",
-    "react-native-vector-icons": "^9.1.0",
+    "react-native-vector-icons": "^10.0.0",
     "react-native-volume-manager": "^1.5.1",
     "react-native-webview": "^11.23.0",
     "react-redux": "^8.0.1",
