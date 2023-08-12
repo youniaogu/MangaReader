@@ -275,7 +275,7 @@ function* storageDataSaga() {
       const plugin = ((state: RootState) => state.plugin)(yield select());
       const setting = ((state: RootState) => state.setting)(yield select());
       const task = ((state: RootState) => state.task)(yield select());
-      yield delay(3000);
+      yield delay(1000);
 
       const storeDict: RootState['dict'] = { ...dict, manga: {} };
       for (const hash in dict.manga) {
@@ -623,45 +623,50 @@ function* loadChapterSaga() {
       }
 
       let page = 1;
+      let extra: Record<string, any> = {};
       let error: Error | undefined;
-      let chapterList: Chapter | undefined;
+      let chapter: Chapter | undefined;
       while (true) {
         const { error: fetchError, data } = yield call(
           fetchData,
-          plugin.prepareChapterFetch(mangaId, chapterId, page)
+          plugin.prepareChapterFetch(mangaId, chapterId, page, extra)
         );
         const {
           error: pluginError,
-          chapter,
+          chapter: nextChapter,
           canLoadMore,
+          nextPage = page + 1,
+          nextExtra = extra,
         } = trycatch(() => plugin.handleChapter(data, mangaId, chapterId, page));
 
         if (fetchError || pluginError) {
           error = fetchError || pluginError;
           break;
         } else {
-          chapterList = {
-            ...chapterList,
+          chapter = {
             ...chapter,
-            images: [...(chapterList?.images || []), ...chapter.images],
+            ...nextChapter,
+            title: nextChapter.title || chapter?.title || '',
+            images: [...(chapter?.images || []), ...nextChapter.images],
           };
         }
         if (!canLoadMore) {
           break;
         }
-        page++;
+        extra = nextExtra;
+        page = nextPage;
       }
 
       if (error) {
         yield put(loadChapterCompletion({ error }));
         return;
       }
-      if (!chapterList) {
+      if (!chapter) {
         yield put(loadChapterCompletion({ error: new Error(ErrorMessage.MissingChapterInfo) }));
         return;
       }
 
-      yield put(loadChapterCompletion({ error, data: chapterList }));
+      yield put(loadChapterCompletion({ error, data: chapter }));
     }
   );
 }

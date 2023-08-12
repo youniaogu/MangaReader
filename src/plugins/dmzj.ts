@@ -111,11 +111,11 @@ class DongManZhiJia extends Base {
     const userAgent =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
-      score: 4,
+      score: 3,
       id: Plugin.DMZJ,
       name: 'dongmanzhijia',
       shortName: 'DMZJ',
-      description: '动漫之家：访问速度快，但资源不如以前',
+      description: '动漫之家：访问速度快，但资源不如以前，需要登录账号',
       href: 'https://m.dmzj.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
@@ -134,7 +134,7 @@ class DongManZhiJia extends Base {
       status = '0';
     }
     if (sort === Options.Default) {
-      sort = '0';
+      sort = '1';
     }
 
     return {
@@ -330,6 +330,12 @@ class DongManZhiJia extends Base {
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     const $ = cheerio.load(text || '');
+
+    const needLogin = $('script').first().text().includes('请登录后观看');
+    if (needLogin) {
+      throw new Error(ErrorMessage.CookieInvalid);
+    }
+
     const scriptContent =
       ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(
         (item) =>

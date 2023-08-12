@@ -22,12 +22,13 @@
 - [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
 - [x] [copymanga](https://www.copymanga.org/)
 - [x] [manhuadb](https://www.manhuadb.com/)
-- [x] [jmcomic](https://18comic.vip)（屏蔽日本 ip，目前主站到国内站点的自动跳转失效，需要代理）
-- [x] [dongmanzhijia](https://m.dmzj.com/)
+- [x] [jmcomic](https://18comic.vip)（需要代理，日本 ip 无法访问，疑似开启了 cloudflare，如果无法使用，请参考[获取 Cookies](#nhentai)）
+- [x] [mobiledongmanzhijia](https://m.dmzj.com/)（现在需要登录才能看了，使用前请在 webview 里登录）
 - [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
 - [x] [klmanga](https://klmanga.net/)
 - [x] [nhentai](https://nhentai.net/)（需要代理，[获取 Cookies](#nhentai)）
 - [x] [pica](https://manhuabika.com/)（需要代理，[获取 Token](#pica)）
+- [x] [mangabz](https://mangabz.com/)（需要代理）
 
 ## Installation
 

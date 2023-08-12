@@ -1,10 +1,9 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
 import { Image as ReactNativeImage, StyleSheet, useWindowDimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
-import { AsyncStatus, mergeQuery } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
-import { nanoid } from '@reduxjs/toolkit';
+import { AsyncStatus } from '~/utils';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import FastImage from 'react-native-fast-image';
@@ -13,14 +12,12 @@ import md5 from 'blueimp-md5';
 const groundPoundGif = require('~/assets/ground_pound.gif');
 const maxPixelSize = 1024000;
 const defaultState = {
-  hash: '',
   dataUrl: '',
   fillHeight: undefined,
   loadStatus: AsyncStatus.Default,
 };
 
 export interface ImageState {
-  hash: string;
   dataUrl: string;
   fillHeight?: number;
   loadStatus: AsyncStatus;
@@ -47,10 +44,6 @@ const DefaultImage = ({
 }: ImageProps) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [imageState, setImageState] = useState(prevState);
-  const source = useMemo(
-    () => (imageState.hash ? mergeQuery(uri, 'hash', imageState.hash) : uri),
-    [uri, imageState]
-  );
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
   const uriRef = useRef(uri);
 
@@ -71,7 +64,7 @@ const DefaultImage = ({
   }, [imageState, updateData]);
   const loadImage = useCallback(() => {
     setImageState({ ...imageState, loadStatus: AsyncStatus.Pending });
-    CacheManager.prefetchBlob(source, { headers })
+    CacheManager.prefetchBlob(uri, { headers })
       .then((base64) => {
         if (!base64) {
           handleError();
@@ -80,7 +73,7 @@ const DefaultImage = ({
         if (horizontal) {
           updateData({
             ...imageState,
-            dataUrl: source,
+            dataUrl: uri,
             fillHeight: windowHeight,
             loadStatus: AsyncStatus.Fulfilled,
           });
@@ -91,14 +84,14 @@ const DefaultImage = ({
         ReactNativeImage.getSize(base64, (width, height) => {
           updateData({
             ...imageState,
-            dataUrl: source,
+            dataUrl: uri,
             fillHeight: (height / width) * windowWidth,
             loadStatus: AsyncStatus.Fulfilled,
           });
         });
       })
       .catch(handleError);
-  }, [source, headers, imageState, horizontal, updateData, handleError, windowWidth, windowHeight]);
+  }, [uri, headers, imageState, horizontal, updateData, handleError, windowWidth, windowHeight]);
   useFocusEffect(
     useCallback(() => {
       if (imageState.loadStatus === AsyncStatus.Default) {
@@ -116,12 +109,10 @@ const DefaultImage = ({
   );
 
   const handleRetry = () => {
-    CacheManager.removeCacheEntry(source)
+    CacheManager.removeCacheEntry(uri)
       .then(() => {})
       .catch(() => {})
-      .finally(() =>
-        updateData({ ...imageState, hash: nanoid(), loadStatus: AsyncStatus.Default })
-      );
+      .finally(() => updateData({ ...imageState, loadStatus: AsyncStatus.Default }));
   };
 
   if (
@@ -157,7 +148,7 @@ const DefaultImage = ({
 
   return (
     <CachedImage
-      source={source}
+      source={uri}
       options={{ headers }}
       style={{
         width: windowWidth,
@@ -179,10 +170,6 @@ const JMCImage = ({
 }: ImageProps) => {
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const [imageState, setImageState] = useState(prevState);
-  const source = useMemo(
-    () => (imageState.hash ? mergeQuery(uri, 'hash', imageState.hash) : uri),
-    [uri, imageState]
-  );
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
   const canvasRef = useRef<Canvas>(null);
   const uriRef = useRef(uri);
@@ -263,12 +250,12 @@ const JMCImage = ({
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
-    CacheManager.prefetchBlob(source, { headers })
+    CacheManager.prefetchBlob(uri, { headers })
       .then((base64) =>
-        base64 ? base64ToUrl('data:image/jpeg;base64,' + base64, source) : handleError()
+        base64 ? base64ToUrl('data:image/jpeg;base64,' + base64, uri) : handleError()
       )
       .catch(handleError);
-  }, [source, headers, base64ToUrl, handleError]);
+  }, [uri, headers, base64ToUrl, handleError]);
   useFocusEffect(
     useCallback(() => {
       if (imageState.loadStatus === AsyncStatus.Default) {
@@ -286,13 +273,10 @@ const JMCImage = ({
   );
 
   const handleRetry = () => {
-    CacheManager.removeCacheEntry(source)
+    CacheManager.removeCacheEntry(uri)
       .then(() => {})
       .catch(() => {})
-      .finally(() => {
-        const newHash = nanoid();
-        updateData({ ...prevState, hash: newHash, loadStatus: AsyncStatus.Default });
-      });
+      .finally(() => updateData({ ...prevState, loadStatus: AsyncStatus.Default }));
   };
 
   if (imageState.loadStatus === AsyncStatus.Rejected) {

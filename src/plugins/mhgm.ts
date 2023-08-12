@@ -160,11 +160,11 @@ class ManHuaGuiMobile extends Base {
       const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
       const [authorLabel, tagLabel, latestLabel, updateTimeLabel] = $$('dl')
         .toArray()
-        .map((dl) => cheerio.load(dl)('dd').toArray()) as cheerio.TagElement[][];
-      const author = authorLabel.map((item) => item.children[0].data || '');
-      const tag = tagLabel.map((item) => item.children[0].data || '');
-      const latest = latestLabel[0].children[0].data || '';
-      const updateTime = updateTimeLabel[0].children[0].data || '';
+        .map((dl) => cheerio.load(dl)('dd').first().text().trim());
+      const author = authorLabel.split(',');
+      const tag = tagLabel.split(',');
+      const latest = latestLabel !== '' ? latestLabel : undefined;
+      const updateTime = PATTERN_FULL_TIME.test(updateTimeLabel) ? updateTimeLabel : undefined;
       const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
       let status = MangaStatus.Unknown;
@@ -190,8 +190,8 @@ class ManHuaGuiMobile extends Base {
         bookCover: cover,
         latest,
         updateTime,
-        author: author.map((item) => item.split(',')).flat(),
-        tag: tag.map((item) => item.split(',')).flat(),
+        author,
+        tag,
       });
     });
 
@@ -210,11 +210,11 @@ class ManHuaGuiMobile extends Base {
       const cover = 'https:' + $$('div.thumb img').first().attr('data-src');
       const [authorLabel, tagLabel, latestLabel, updateTimeLabel] = $$('dl')
         .toArray()
-        .map((dl) => cheerio.load(dl)('dd').toArray()) as cheerio.TagElement[][];
-      const author = authorLabel.map((item) => item.children[0].data || '');
-      const tag = tagLabel.map((item) => item.children[0].data || '');
-      const latest = latestLabel[0].children[0].data || '';
-      const updateTime = updateTimeLabel[0].children[0].data || '';
+        .map((dl) => cheerio.load(dl)('dd').first().text().trim());
+      const author = authorLabel.split(',');
+      const tag = tagLabel.split(',');
+      const latest = latestLabel !== '' ? latestLabel : undefined;
+      const updateTime = PATTERN_FULL_TIME.test(updateTimeLabel) ? updateTimeLabel : undefined;
       const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
       let status = MangaStatus.Unknown;
@@ -240,8 +240,8 @@ class ManHuaGuiMobile extends Base {
         bookCover: cover,
         latest,
         updateTime,
-        author: author.map((item) => item.split(',')).flat(),
-        tag: tag.map((item) => item.split(',')).flat(),
+        author,
+        tag,
       });
     });
 

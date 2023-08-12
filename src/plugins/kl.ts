@@ -2,6 +2,14 @@ import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
 import * as cheerio from 'cheerio';
 
+interface ChapterItem {
+  chapter: string;
+  id: string;
+  last_update: string;
+  manga: string;
+  views: string;
+}
+
 const splitSymbol = '*';
 const option = [
   {
@@ -70,9 +78,9 @@ const option = [
   },
 ];
 
-const PATTERN_HREF_ID = /([^/]*)\.html$/;
+const PATTERN_HREF_ID = /hwms-([^/]*)\.html/;
 const PATTERN_LATEST_CHAPTER = /Last chapter: (.+)/;
-const PATTERN_CHAPTER_NUMBER = /Chapter (.+)/;
+const PATTERN_IMAGE_ALT = /Page [0-9]*/;
 
 class KL extends Base {
   constructor() {
@@ -104,8 +112,8 @@ class KL extends Base {
       status = '';
     }
     if (sort === Options.Default) {
-      sortType = '';
-      sortOrder = '';
+      sortType = 'last_update';
+      sortOrder = 'DESC';
     } else {
       const [a = '', b = ''] = sort.split(splitSymbol) as [string, string];
       sortType = a;
@@ -166,14 +174,26 @@ class KL extends Base {
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://klmanga.net/${mangaId}.html`,
+      url: `https://klmanga.net/hwms-${mangaId}.html`,
       headers: new Headers(this.defaultHeaders),
     };
   };
-  prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
-  prepareChapterFetch: Base['prepareChapterFetch'] = (_mangaId, chapterId) => {
+  prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId) => {
     return {
-      url: `https://klmanga.net/${chapterId}.html`,
+      url: `https://klmanga.net/app/manga/controllers/cont.listChapters.php?manga=${mangaId}`,
+      headers: new Headers(this.defaultHeaders),
+    };
+  };
+  prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId, _page, extra) => {
+    if (typeof extra.cid === 'string') {
+      return {
+        url: `https://klmanga.net/app/manga/controllers/cont.listImg.php?cid=${extra.cid}`,
+        headers: new Headers(this.defaultHeaders),
+      };
+    }
+
+    return {
+      url: `https://klmanga.net/bsaq-${mangaId}-chapter-${chapterId}.html`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -189,7 +209,7 @@ class KL extends Base {
 
         const href = $$('div.series-title > a').attr('href') || '';
         const bg = $$('div.thumb-wrapper div.content').attr('data-bg') || '';
-        const title = $$('div.series-title .title-thumb').text() || '';
+        const title = $$('div.series-title .title-thumb').text().trim() || '';
         const updateTime = $$('time.timeago').text() || '';
         const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
         const [, latest] =
@@ -229,7 +249,7 @@ class KL extends Base {
 
         const href = $$('div.series-title > a').attr('href') || '';
         const bg = $$('div.thumb-wrapper div.content').attr('data-bg') || '';
-        const title = $$('div.series-title .title-thumb').text() || '';
+        const title = $$('div.series-title .title-thumb').text().trim() || '';
         const updateTime = $$('time.timeago').text() || '';
         const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
         const [, latest] =
@@ -268,7 +288,7 @@ class KL extends Base {
     const href = $('link[rel=alternate]').attr('href') || '';
     const [, mangaId] = href.match(PATTERN_HREF_ID) || [];
     const bg = $('div.info-cover img.thumbnail').attr('src') || '';
-    const title = $('ul.manga-info h3').text();
+    const title = $('.info-manga .breadcrumb li').last().text().trim();
     const updateTime = $('ul.manga-info i > span').text();
     const li = $('ul.manga-info > li').toArray();
     const statusList = li
@@ -284,23 +304,6 @@ class KL extends Base {
           (a) => a.children[0].data || ''
         )
       );
-    const chapters = ($('div#tab-chapper tr a.chapter').toArray() as cheerio.TagElement[]).map(
-      (a) => {
-        const $$ = cheerio.load(a);
-        const chapterHref = a.attribs.href;
-        const [, chapterTitle] = $$('b').text().match(PATTERN_CHAPTER_NUMBER) || [];
-        const [, chapterId] = chapterHref.match(PATTERN_HREF_ID) || [];
-
-        return {
-          hash: Base.combineHash(this.id, mangaId, chapterId),
-          mangaId,
-          chapterId,
-          href: `https://klmanga.net/${chapterHref}`,
-          title: chapterTitle,
-        };
-      }
-    );
-    const latest = chapters[0].title || '';
 
     let cover = bg;
     if (bg !== '' && !bg.includes('http')) {
@@ -323,29 +326,62 @@ class KL extends Base {
         mangaId: mangaId,
         infoCover: cover,
         title,
-        latest,
         updateTime,
         author,
         tag: tag.flat(),
         status,
-        chapters,
       },
     };
   };
 
-  handleChapterList: Base['handleChapterList'] = () => {
-    return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
+  handleChapterList: Base['handleChapterList'] = (list: ChapterItem[], mangaId) => {
+    const chapterList = list.map((item) => {
+      const chapterId = item.chapter;
+      const href = `https://klmanga.net/bsaq-${item.manga}-chapter-${item.chapter}.html`;
+      const title = item.chapter;
+
+      return {
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        href,
+        title,
+      };
+    });
+
+    return {
+      chapterList: chapterList,
+      canLoadMore: false,
+    };
   };
 
   handleChapter: Base['handleChapter'] = (text: string | null, mangaId, chapterId) => {
     const $ = cheerio.load(text || '');
 
-    const [, , name = '', title = ''] = (
-      $('div.chapter-content-top li span[itemprop=name]').toArray() as cheerio.TagElement[]
-    ).map((span) => span.children[0].data);
-    const images = ($('div.chapter-content p img').toArray() as cheerio.TagElement[]).map(
-      (img) => img.attribs['data-aload']
-    );
+    if ($('meta').toArray().length > 0) {
+      const cid = $('input#chapter').val();
+      const [, , name = '', title = ''] = (
+        $('div.chapter-content-top li span[itemprop=name]').toArray() as cheerio.TagElement[]
+      ).map((span) => span.children[0].data);
+
+      return {
+        canLoadMore: true,
+        nextExtra: { cid },
+        chapter: {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          name,
+          title,
+          headers: this.defaultHeaders,
+          images: [],
+        },
+      };
+    }
+
+    const images = ($('p img').toArray() as cheerio.TagElement[])
+      .filter((img) => PATTERN_IMAGE_ALT.test(img.attribs.alt))
+      .map((img) => img.attribs.src);
 
     return {
       canLoadMore: false,
@@ -353,8 +389,6 @@ class KL extends Base {
         hash: Base.combineHash(this.id, mangaId, chapterId),
         mangaId,
         chapterId,
-        name,
-        title,
         headers: this.defaultHeaders,
         images: images.map((uri) => ({ uri: uri.replaceAll('\n', '') })),
       },
