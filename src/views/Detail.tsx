@@ -525,14 +525,14 @@ export const PrehandleDrawer = () => {
           flex={1}
           fontWeight="bold"
           fontSize="md"
-          color={`purple.${Math.floor(progress * 4) + 5}00`}
+          color={`purple.${Math.floor(progress * -5) + 9}00`}
           numberOfLines={1}
         >
           {item.title}
         </Text>
         {item.status === AsyncStatus.Pending && (
           <Box ml={1}>
-            <SpinLoading size="sm" height={1} color={`purple.${Math.floor(progress * 4) + 5}00`} />
+            <SpinLoading size="sm" height={1} color={`purple.${Math.floor(progress * -5) + 9}00`} />
           </Box>
         )}
         {item.status === AsyncStatus.Fulfilled && (

@@ -1,13 +1,14 @@
 {
   "name": "mangareader",
-  "version": "0.6.0",
-  "publishTime": "2023-07-21",
+  "version": "0.6.1",
+  "publishTime": "2023-08-12",
   "private": true,
   "scripts": {
     "start": "react-native start",
     "android": "react-native run-android",
     "android-release": "react-native run-android --mode release",
     "build-android": "cd ./android && ./gradlew assembleRelease",
+    "bundle-android": "npx react-native build-android --mode=release",
     "ios": "react-native run-ios",
     "ios-release": "react-native run-ios --configuration Release",
     "clean": "react-native-clean-project",
