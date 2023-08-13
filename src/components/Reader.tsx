@@ -60,13 +60,6 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const horizontalStateRef = useRef<ImageState[]>([]);
   const verticalStateRef = useRef<ImageState[]>([]);
 
-  const onTapRef = useRef(onTap);
-  const onLongPressRef = useRef(onLongPress);
-  const onPageChangeRef = useRef(onPageChange);
-  onTapRef.current = onTap;
-  onLongPressRef.current = onLongPress;
-  onPageChangeRef.current = onPageChange;
-
   const initialScrollIndex = useMemo(
     () => Math.max(Math.min(initPage - 1, data.length - 1), 0),
     [initPage, data.length]
@@ -114,8 +107,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       return;
     }
 
-    onPageChangeRef.current &&
-      onPageChangeRef.current(viewableItems[viewableItems.length - 1].index || 0);
+    onPageChange && onPageChange(viewableItems[viewableItems.length - 1].index || 0);
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
@@ -123,12 +115,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     return (
       <Controller
         horizontal
-        onTap={(position) => {
-          onTapRef.current && onTapRef.current(position);
-        }}
-        onLongPress={(position) => {
-          onLongPressRef.current && onLongPressRef.current(position);
-        }}
+        onTap={(position) => onTap && onTap(position)}
+        onLongPress={(position) => onLongPress && onLongPress(position)}
       >
         <ComicImage
           horizontal
@@ -171,6 +159,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         inverted={inverted}
         horizontal
         pagingEnabled
+        extraData={{ inverted, onTap, onLongPress, onPageChange, onImageLoad }}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
@@ -190,6 +179,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         ref={flashListRef}
         data={data}
         inverted={inverted}
+        extraData={{ inverted, onPageChange, onImageLoad }}
         estimatedItemSize={(windowHeight * 3) / 5}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
         onEndReached={onLoadMore}
