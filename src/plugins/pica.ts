@@ -348,7 +348,7 @@ class PicaComic extends Base {
         })),
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.TokenInvalid) };
+      return { error: new Error(ErrorMessage.NeedRelogin) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }
@@ -371,7 +371,7 @@ class PicaComic extends Base {
         })),
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.TokenInvalid) };
+      return { error: new Error(ErrorMessage.NeedRelogin) };
     } else {
       return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
@@ -396,7 +396,7 @@ class PicaComic extends Base {
         },
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.TokenInvalid) };
+      return { error: new Error(ErrorMessage.NeedRelogin) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }
@@ -418,7 +418,7 @@ class PicaComic extends Base {
           })),
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.TokenInvalid) };
+      return { error: new Error(ErrorMessage.NeedRelogin) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }
@@ -440,7 +440,7 @@ class PicaComic extends Base {
         },
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.TokenInvalid) };
+      return { error: new Error(ErrorMessage.NeedRelogin) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }

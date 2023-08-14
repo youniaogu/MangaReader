@@ -333,7 +333,7 @@ class DongManZhiJia extends Base {
 
     const needLogin = $('script').first().text().includes('请登录后观看');
     if (needLogin) {
-      throw new Error(ErrorMessage.CookieInvalid);
+      throw new Error(ErrorMessage.NeedRelogin);
     }
 
     const scriptContent =
