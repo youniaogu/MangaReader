@@ -113,11 +113,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     const { uri, needUnscramble } = item;
     const horizontalState = horizontalStateRef.current[index];
     return (
-      <Controller
-        horizontal
-        onTap={(position) => onTap && onTap(position)}
-        onLongPress={(position) => onLongPress && onLongPress(position)}
-      >
+      <Controller horizontal onTap={onTap} onLongPress={onLongPress}>
         <ComicImage
           horizontal
           uri={uri}
@@ -174,7 +170,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   }
 
   return (
-    <Controller onTap={onTap} onLongPress={(position) => onLongPress && onLongPress(position)}>
+    <Controller onTap={onTap} onLongPress={onLongPress}>
       <FlashList
         ref={flashListRef}
         data={data}

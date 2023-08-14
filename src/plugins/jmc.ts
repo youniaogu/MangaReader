@@ -119,6 +119,8 @@ class CopyManga extends Base {
     const $ = cheerio.load(text || '');
     const list: IncreaseManga[] = [];
 
+    this.checkCloudFlare($);
+
     $('div.row div.list-col')
       .has('div.thumb-overlay-albums')
       .toArray()
@@ -170,6 +172,8 @@ class CopyManga extends Base {
     const $ = cheerio.load(text || '');
     const list: IncreaseManga[] = [];
 
+    this.checkCloudFlare($);
+
     $('div.row div.list-col')
       .has('div.thumb-overlay')
       .toArray()
@@ -219,6 +223,8 @@ class CopyManga extends Base {
 
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     const $ = cheerio.load(text || '');
+
+    this.checkCloudFlare($);
 
     const [, mangaId] =
       ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
@@ -300,6 +306,8 @@ class CopyManga extends Base {
 
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     const $ = cheerio.load(text || '');
+
+    this.checkCloudFlare($);
 
     const scriptContent =
       ($('script:not([src])').toArray() as cheerio.TagElement[]).filter(

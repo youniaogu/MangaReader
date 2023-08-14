@@ -1,5 +1,10 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
-import { Image as ReactNativeImage, StyleSheet, useWindowDimensions } from 'react-native';
+import {
+  Image as ReactNativeImage,
+  StyleSheet,
+  Dimensions,
+  useWindowDimensions,
+} from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
@@ -10,7 +15,9 @@ import FastImage from 'react-native-fast-image';
 import md5 from 'blueimp-md5';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
-const maxPixelSize = 1024000;
+const windowScale = Dimensions.get('window').scale;
+const maxPixelSize = 4096 * 4096;
+
 const defaultState = {
   dataUrl: '',
   fillHeight: undefined,
@@ -206,16 +213,13 @@ const JMCImage = ({
           const step = unscramble(i, width, height);
 
           if (canvasRef.current) {
-            if (width * height >= maxPixelSize) {
-              const scale = maxPixelSize / width / height;
-              canvasRef.current.width = width * scale;
-              canvasRef.current.height = height * scale;
-              ctx.scale(scale, scale);
-            } else {
-              canvasRef.current.width = width;
-              canvasRef.current.height = height;
-              ctx.scale(1, 1);
-            }
+            // if image size more than maxPixelSize, scale image to smaller
+            const imageScale = Math.floor(Math.min(maxPixelSize / (width * height), 1) * 100) / 100;
+            const scale = imageScale / windowScale;
+
+            canvasRef.current.width = width * scale;
+            canvasRef.current.height = height * scale;
+            ctx.scale(scale, scale);
           } else {
             return handleError();
           }
@@ -252,7 +256,7 @@ const JMCImage = ({
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
     CacheManager.prefetchBlob(uri, { headers })
       .then((base64) =>
-        base64 ? base64ToUrl('data:image/jpeg;base64,' + base64, uri) : handleError()
+        base64 ? base64ToUrl('data:image/png;base64,' + base64, uri) : handleError()
       )
       .catch(handleError);
   }, [uri, headers, base64ToUrl, handleError]);

@@ -39,15 +39,6 @@ class NHentai extends Base {
     });
   }
 
-  checkCloudFlare = ($: cheerio.Root) => {
-    const title = $('title').first().text();
-    const content = $('h2#challenge-running').toString();
-
-    if (title === 'Just a moment...' || content === 'Checking if the site connection is secure') {
-      throw new Error(ErrorMessage.CookieInvalid);
-    }
-  };
-
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page) => {
     return {
       url: `https://nhentai.net/?page=${page}`,

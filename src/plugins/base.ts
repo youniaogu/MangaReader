@@ -1,4 +1,4 @@
-import { FetchData } from '~/utils';
+import { clearAllCookie, FetchData, ErrorMessage } from '~/utils';
 
 interface InitialData {
   id: Plugin;
@@ -185,7 +185,28 @@ abstract class Base {
     return plugin === this.id;
   }
 
+  /**
+   * @description default and useless function, just for types
+   * @public
+   * @param {Record<string, any>} _data
+   * @memberof Base
+   */
   public syncExtraData(_data: Record<string, any>) {}
+
+  /**
+   * @description check response is hit by cloudflare protect
+   * @public
+   * @param {cheerio.Root} $
+   * @memberof Base
+   */
+  public checkCloudFlare = ($: cheerio.Root) => {
+    const title = $('title').first().text().trim();
+
+    if (title === 'Just a moment...') {
+      clearAllCookie(this.href);
+      throw new Error(ErrorMessage.CookieInvalid);
+    }
+  };
 
   /**
    * @description accept page param, return body for discovery fetch

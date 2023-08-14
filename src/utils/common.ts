@@ -2,6 +2,7 @@ import { defaultPlugin, defaultPluginList } from '~/plugins';
 import { ErrorMessage, LightSwitch } from './enum';
 import { delay, race, Effect } from 'redux-saga/effects';
 import { Dirs } from 'react-native-file-access';
+import CookieManager from '@react-native-cookies/cookies';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
 
@@ -263,4 +264,19 @@ export function trycatch<T extends (...args: any) => any>(fn: T): ReturnType<T> 
 
 export function ellipsis(str: string, len: number = 20, suffix = '...') {
   return str.length > len ? str.substring(0, len) + suffix : str;
+}
+
+export function clearAllCookie(url: string) {
+  return new Promise<boolean>((res, rej) => {
+    if (typeof url !== 'string') {
+      rej(new Error('param url not a string type'));
+      return;
+    }
+
+    CookieManager.get(url).then((cookies) => {
+      Promise.all(Object.keys(cookies).map((key) => CookieManager.clearByName(url, key)))
+        .then(() => res(true))
+        .catch(() => res(false));
+    });
+  });
 }
