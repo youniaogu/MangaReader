@@ -1,8 +1,8 @@
 import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
 import { AsyncStatus, Volume, LayoutMode, LightSwitch, ReaderDirection, PositionX } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
+import { useOnce, usePrevNext, useVolumeUpDown, useDimensions } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { useOnce, usePrevNext, useVolumeUpDown } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
 import Reader, { ReaderRef } from '~/components/Reader';
@@ -35,6 +35,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [chapterHash, setChapterHash] = useState(initChapterHash);
   const [hashList, setHashList] = useState([initChapterHash]);
 
+  const { orientation } = useDimensions();
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const loadingChapterHash = useAppSelector((state) => state.chapter.loadingChapterHash);
   const mode = useAppSelector((state) => state.setting.mode);
@@ -264,10 +265,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       />
 
       <Reader
+        key={orientation}
         ref={readerRef}
         data={data}
         headers={headers}
-        initPage={initPage}
+        initPage={page}
         inverted={inverted}
         horizontal={horizontal}
         onTap={handleTap}

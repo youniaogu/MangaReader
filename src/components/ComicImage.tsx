@@ -1,14 +1,10 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
-import {
-  Image as ReactNativeImage,
-  StyleSheet,
-  Dimensions,
-  useWindowDimensions,
-} from 'react-native';
+import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
+import { AsyncStatus, Orientation } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
-import { AsyncStatus } from '~/utils';
+import { useDimensions } from '~/hooks';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import FastImage from 'react-native-fast-image';
@@ -20,13 +16,15 @@ const maxPixelSize = 4096 * 4096;
 
 const defaultState = {
   dataUrl: '',
-  fillHeight: undefined,
+  landscapeHeight: undefined,
+  portraitHeight: undefined,
   loadStatus: AsyncStatus.Default,
 };
 
 export interface ImageState {
   dataUrl: string;
-  fillHeight?: number;
+  landscapeHeight?: number;
+  portraitHeight?: number;
   loadStatus: AsyncStatus;
 }
 export interface ImageProps {
@@ -49,9 +47,28 @@ const DefaultImage = ({
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
+  const style = useMemo(
+    () => ({
+      width: windowWidth,
+      height: horizontal
+        ? windowHeight
+        : (orientation === Orientation.Landscape
+            ? imageState.landscapeHeight
+            : imageState.portraitHeight) || defaultFillHeight,
+    }),
+    [
+      horizontal,
+      windowWidth,
+      windowHeight,
+      imageState.landscapeHeight,
+      imageState.portraitHeight,
+      orientation,
+      defaultFillHeight,
+    ]
+  );
   const uriRef = useRef(uri);
 
   const updateData = useCallback(
@@ -78,12 +95,7 @@ const DefaultImage = ({
           return;
         }
         if (horizontal) {
-          updateData({
-            ...imageState,
-            dataUrl: uri,
-            fillHeight: windowHeight,
-            loadStatus: AsyncStatus.Fulfilled,
-          });
+          updateData({ ...imageState, dataUrl: uri, loadStatus: AsyncStatus.Fulfilled });
           return;
         }
 
@@ -92,7 +104,8 @@ const DefaultImage = ({
           updateData({
             ...imageState,
             dataUrl: uri,
-            fillHeight: (height / width) * windowWidth,
+            landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
+            portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
             loadStatus: AsyncStatus.Fulfilled,
           });
         });
@@ -127,10 +140,7 @@ const DefaultImage = ({
     imageState.loadStatus === AsyncStatus.Default
   ) {
     return (
-      <Center
-        w={windowWidth}
-        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-      >
+      <Center style={style}>
         <Image
           style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
@@ -144,10 +154,7 @@ const DefaultImage = ({
   }
   if (imageState.loadStatus === AsyncStatus.Rejected) {
     return (
-      <Center
-        w={windowWidth}
-        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-      >
+      <Center style={style}>
         <ErrorWithRetry onRetry={handleRetry} />
       </Center>
     );
@@ -157,10 +164,7 @@ const DefaultImage = ({
     <CachedImage
       source={uri}
       options={{ headers }}
-      style={{
-        width: windowWidth,
-        height: horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight,
-      }}
+      style={style}
       resizeMode={horizontal ? 'contain' : 'cover'}
       onError={handleError}
     />
@@ -175,9 +179,28 @@ const JMCImage = ({
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
+  const style = useMemo(
+    () => ({
+      width: windowWidth,
+      height: horizontal
+        ? windowHeight
+        : (orientation === Orientation.Landscape
+            ? imageState.landscapeHeight
+            : imageState.portraitHeight) || defaultFillHeight,
+    }),
+    [
+      horizontal,
+      windowWidth,
+      windowHeight,
+      imageState.landscapeHeight,
+      imageState.portraitHeight,
+      orientation,
+      defaultFillHeight,
+    ]
+  );
   const canvasRef = useRef<Canvas>(null);
   const uriRef = useRef(uri);
 
@@ -235,7 +258,8 @@ const JMCImage = ({
                 updateData({
                   ...imageState,
                   dataUrl: res.replace(/^"|"$/g, ''),
-                  fillHeight: (height / width) * windowWidth,
+                  landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
+                  portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
                   loadStatus: AsyncStatus.Fulfilled,
                 });
               })
@@ -250,7 +274,7 @@ const JMCImage = ({
         handleError();
       }
     },
-    [imageState, updateData, handleError, windowWidth]
+    [imageState, updateData, handleError, windowWidth, windowHeight]
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
@@ -285,10 +309,7 @@ const JMCImage = ({
 
   if (imageState.loadStatus === AsyncStatus.Rejected) {
     return (
-      <Center
-        w={windowWidth}
-        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-      >
+      <Center style={style}>
         <ErrorWithRetry onRetry={handleRetry} />
       </Center>
     );
@@ -298,10 +319,7 @@ const JMCImage = ({
     imageState.loadStatus === AsyncStatus.Default
   ) {
     return (
-      <Center
-        w={windowWidth}
-        h={horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight}
-      >
+      <Center style={style}>
         <Image
           style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
@@ -320,10 +338,7 @@ const JMCImage = ({
   // https://github.com/facebook/react-native/issues/32411
   return (
     <FastImage
-      style={{
-        width: windowWidth,
-        height: horizontal ? windowHeight : imageState.fillHeight || defaultFillHeight,
-      }}
+      style={style}
       resizeMode={horizontal ? 'contain' : 'cover'}
       source={{ uri: imageState.dataUrl }}
     />

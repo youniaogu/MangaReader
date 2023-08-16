@@ -8,8 +8,8 @@ import React, {
   ForwardRefRenderFunction,
 } from 'react';
 import { FlashList, ListRenderItemInfo } from '@shopify/flash-list';
-import { useWindowDimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useDimensions } from '~/hooks';
 import { PositionX } from '~/utils';
 import { Box } from 'native-base';
 import ComicImage, { ImageState } from '~/components/ComicImage';
@@ -42,7 +42,7 @@ export interface ReaderRef {
 
 const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   {
-    initPage = 1,
+    initPage = 0,
     inverted = false,
     horizontal = false,
     data = [],
@@ -55,13 +55,16 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   },
   ref
 ) => {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useDimensions();
   const flashListRef = useRef<FlashList<(typeof data)[0]>>(null);
   const horizontalStateRef = useRef<ImageState[]>([]);
   const verticalStateRef = useRef<ImageState[]>([]);
 
+  const onPageChangeRef = useRef(onPageChange);
+  onPageChangeRef.current = onPageChange;
+
   const initialScrollIndex = useMemo(
-    () => Math.max(Math.min(initPage - 1, data.length - 1), 0),
+    () => Math.max(Math.min(initPage, data.length - 1), 0),
     [initPage, data.length]
   );
 
@@ -107,7 +110,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       return;
     }
 
-    onPageChange && onPageChange(viewableItems[viewableItems.length - 1].index || 0);
+    onPageChangeRef.current &&
+      onPageChangeRef.current(viewableItems[viewableItems.length - 1].index || 0);
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
@@ -155,7 +159,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         inverted={inverted}
         horizontal
         pagingEnabled
-        extraData={{ inverted, onTap, onLongPress, onPageChange, onImageLoad }}
+        extraData={{ inverted, onTap, onLongPress, onImageLoad }}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
@@ -175,7 +179,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         ref={flashListRef}
         data={data}
         inverted={inverted}
-        extraData={{ inverted, onPageChange, onImageLoad }}
+        extraData={{ inverted, onImageLoad }}
         estimatedItemSize={(windowHeight * 3) / 5}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
         onEndReached={onLoadMore}

@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, memo } from 'react';
+import React, { ReactNode, useState, memo, useCallback } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,6 +7,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useWindowDimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { PositionX } from '~/utils';
 
 const doubleTapScaleValue = 2;
@@ -41,14 +42,21 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
   const savedScale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    width: windowWidth,
-    height: windowHeight,
+    width: width.value,
+    height: height.value,
     transform: [
       { translateX: translationX.value },
       { translateY: translationY.value },
       { scale: scale.value },
     ],
   }));
+
+  useFocusEffect(
+    useCallback(() => {
+      width.value = windowWidth;
+      height.value = windowHeight;
+    }, [width, height, windowWidth, windowHeight])
+  );
 
   const singleTap = Gesture.Tap()
     .runOnJS(true)
