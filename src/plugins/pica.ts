@@ -29,6 +29,20 @@ interface DiscoveryMangaItem {
   totalViews: number;
   _id: string;
 }
+interface RankMangaItem {
+  author: string;
+  categories: string[];
+  epsCount: number;
+  finished: boolean;
+  leaderboardCount: number;
+  pagesCount: number;
+  thumb: Image;
+  title: string;
+  totalLikes: number;
+  totalViews: number;
+  viewsCount: number;
+  _id: string;
+}
 interface SearchMangaItem {
   author: string;
   categories: string[];
@@ -43,6 +57,10 @@ interface SearchMangaItem {
   updated_at: string;
   _id: string;
 }
+interface RankResponse
+  extends Response<{
+    comics: RankMangaItem[];
+  }> {}
 interface DiscoveryResponse
   extends Response<{
     comics: {
@@ -128,12 +146,9 @@ const discoveryOptions = [
     name: 'type',
     options: [
       { label: '选择分类', value: Options.Default },
-
-      // 待实现
-      // { label: '过去24小时', value: '24h' },
-      // { label: '过去7天', value: '7d' },
-      // { label: '过去30天', value: '30d' },
-
+      { label: '过去24小时', value: '24h' },
+      { label: '过去7天', value: '7d' },
+      { label: '过去30天', value: '30d' },
       { label: '大家都在看', value: '大家都在看' },
       { label: '大濕推薦', value: '大濕推薦' },
       { label: '那年今天', value: '那年今天' },
@@ -281,6 +296,25 @@ class PicaComic extends Base {
   };
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, sort }) => {
+    if (type === '24h') {
+      return {
+        url: 'https://api.manhuabika.com/comics/leaderboard?tt=H24&ct=VC',
+        headers: this.getHeaders('comics/leaderboard?tt=H24&ct=VC', 'GET'),
+      };
+    }
+    if (type === '7d') {
+      return {
+        url: 'https://api.manhuabika.com/comics/leaderboard?tt=D7&ct=VC',
+        headers: this.getHeaders('comics/leaderboard?tt=D7&ct=VC', 'GET'),
+      };
+    }
+    if (type === '30d') {
+      return {
+        url: 'https://api.manhuabika.com/comics/leaderboard?tt=D30&ct=VC',
+        headers: this.getHeaders('comics/leaderboard?tt=D30&ct=VC', 'GET'),
+      };
+    }
+
     const query = {
       page,
       s: sort === Options.Default ? 'dd' : sort,
@@ -334,8 +368,25 @@ class PicaComic extends Base {
     };
   };
 
-  handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse) => {
+  handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse | RankResponse) => {
     if (res.code === 200) {
+      if (Array.isArray(res.data.comics)) {
+        return {
+          discovery: res.data.comics.map((item) => ({
+            href: `https://manhuabika.com/pcomicview/?cid=${item._id}`,
+            hash: Base.combineHash(this.id, item._id),
+            source: this.id,
+            sourceName: this.name,
+            mangaId: item._id,
+            bookCover: this.stringifyImageUrl(item.thumb),
+            title: item.title,
+            status: item.finished ? MangaStatus.End : MangaStatus.Serial,
+            author: item.author ? item.author.split(',') : [],
+            tag: item.categories,
+          })),
+        };
+      }
+
       return {
         discovery: res.data.comics.docs.map((item) => ({
           href: `https://manhuabika.com/pcomicview/?cid=${item.id}`,
