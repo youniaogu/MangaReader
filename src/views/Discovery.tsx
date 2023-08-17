@@ -125,7 +125,7 @@ export const PluginSelect = () => {
   const options = useMemo<{ label: string; value: string }[]>(() => {
     return list
       .filter((item) => !item.disabled)
-      .map((item) => ({ label: item.label, value: item.value }));
+      .map((item) => ({ label: `${item.name} - ${item.label}`, value: item.value }));
   }, [list]);
   const plugin = useMemo(() => {
     if (route.name === 'Discovery') {

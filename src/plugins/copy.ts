@@ -165,9 +165,9 @@ class CopyManga extends Base {
     super({
       score: 5,
       id: Plugin.COPY,
-      name: 'copymanga',
+      name: '拷贝漫画',
       shortName: 'COPY',
-      description: '拷贝漫画：资源全，甚至有本子分类',
+      description: '',
       href: 'https://copymanga.tv/',
       userAgent,
       defaultHeaders: {

@@ -98,9 +98,9 @@ class ManHuaGuiMobile extends Base {
     super({
       score: 5,
       id: Plugin.MHGM,
-      name: 'manhuagui(mobile)',
+      name: '漫画柜mobile',
       shortName: 'MHGM',
-      description: '漫画柜移动版：需要代理，频繁访问会封IP',
+      description: '需要代理，频繁访问会封IP',
       href: 'https://m.manhuagui.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },

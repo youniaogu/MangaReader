@@ -18,17 +18,17 @@
 
 ## Plugins
 
-- [x] ~~[manhuagui](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
-- [x] [manhuaguimobile](https://m.manhuagui.com/)（需要代理）
-- [x] [copymanga](https://www.copymanga.org/)
-- [x] [manhuadb](https://www.manhuadb.com/)
-- [x] [jmcomic](https://18comic.vip)（需要代理，日本 ip 无法访问，疑似开启了 cloudflare，如果无法使用，请参考[获取 Cookies](#nhentai)）
-- [x] [mobiledongmanzhijia](https://m.dmzj.com/)（现在需要登录才能看了，使用前请在 webview 里登录）
-- [x] ~~[manhuamao](https://www.maofly.com/)（网站挂了，已失效）~~
-- [x] [klmanga](https://klmanga.net/)
+- [x] ~~[漫画柜](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
+- [x] [漫画柜 mobile](https://m.manhuagui.com/)（需要代理）
+- [x] [拷贝漫画](https://www.copymanga.org/)
+- [x] [漫画 db](https://www.manhuadb.com/)
+- [x] [禁漫天堂](https://18comic.vip)（需要代理，日本 ip 无法访问，疑似开启了 cloudflare，如果无法使用，请参考[获取 Cookies](#nhentai)）
+- [x] [动漫之家 mobile](https://m.dmzj.com/)（现在需要登录才能看了，使用前请在 webview 里登录）
+- [x] ~~[漫画猫](https://www.maofly.com/)（网站挂了，已失效）~~
+- [x] [kl 漫画](https://klmanga.net/)
 - [x] [nhentai](https://nhentai.net/)（需要代理，[获取 Cookies](#nhentai)）
-- [x] [pica](https://manhuabika.com/)（需要代理，[获取 Token](#pica)）
-- [x] [mangabz](https://mangabz.com/)（需要代理）
+- [x] [哔咔漫画](https://manhuabika.com/)（需要代理，[获取 Token](#pica)）
+- [x] [漫画 bz](https://mangabz.com/)（需要代理）
 
 ## Installation
 
@@ -42,7 +42,7 @@
 
 ## Download
 
-Android：[下载](https://github.com/youniaogu/MangaReader/releases)
+Android：<a href='https://play.google.com/store/apps/details?id=com.youniaogu.mangareader&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img width="120" alt='下载应用，请到 Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/zh-cn_badge_web_generic.png'/></a>&emsp;/&emsp;[下载 apk](https://github.com/youniaogu/MangaReader/releases)
 
 Ios：[未签名 ipa](https://github.com/youniaogu/MangaReader/releases)
 

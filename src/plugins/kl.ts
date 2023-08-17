@@ -89,9 +89,9 @@ class KL extends Base {
     super({
       score: 4,
       id: Plugin.KL,
-      name: 'klmanga',
+      name: 'kl漫画',
       shortName: 'KL',
-      description: 'klmanga：生肉漫画网站',
+      description: '生肉',
       href: 'https://klmanga.net',
       userAgent,
       defaultHeaders: { Referer: 'https://klmanga.net/', 'User-Agent': userAgent },

@@ -113,9 +113,9 @@ class DongManZhiJia extends Base {
     super({
       score: 3,
       id: Plugin.DMZJ,
-      name: 'dongmanzhijia',
+      name: '动漫之家mobile',
       shortName: 'DMZJ',
-      description: '动漫之家：访问速度快，但资源不如以前，需要登录账号',
+      description: '需要登录账号',
       href: 'https://m.dmzj.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },

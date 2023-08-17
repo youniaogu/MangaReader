@@ -41,7 +41,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
                   })
                 }
               >
-                {item.label} - {item.name} 🔗
+                {item.name} - {item.label} 🔗
               </Text>
               <Text fontSize="sm">{item.description}</Text>
               <HStack alignItems="center">

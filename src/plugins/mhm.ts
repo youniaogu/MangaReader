@@ -82,9 +82,9 @@ class ManHuaMao extends Base {
     super({
       score: 1,
       id: Plugin.MHM,
-      name: 'manhuamao',
+      name: '漫画猫',
       shortName: 'MHM',
-      description: '漫画猫：网站挂了，已失效',
+      description: '网站挂了，已失效',
       href: 'https://www.maofly.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },

@@ -108,9 +108,9 @@ class ManHuaDB extends Base {
     super({
       score: 3,
       id: Plugin.MHDB,
-      name: 'manhuadb',
+      name: '漫画db',
       shortName: 'MHDB',
-      description: '漫画DB：资源较少，实在找不到可以来这里看下',
+      description: '',
       href: 'https://www.manhuadb.com',
       userAgent,
       defaultHeaders: { Referer: 'https://www.manhuadb.com/', 'User-Agent': userAgent },

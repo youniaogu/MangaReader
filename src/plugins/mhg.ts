@@ -94,9 +94,9 @@ class ManHuaGui extends Base {
     super({
       score: 1,
       id: Plugin.MHG,
-      name: 'manhuagui',
+      name: '漫画柜',
       shortName: 'MHG',
-      description: '漫画柜大陆版：访问403，已失效',
+      description: '访问403，已失效',
       href: 'https://www.mhgui.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },

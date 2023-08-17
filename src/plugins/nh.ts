@@ -31,7 +31,7 @@ class NHentai extends Base {
       id: Plugin.NH,
       name: 'nhentai',
       shortName: 'NH',
-      description: 'nhentai：需要代理',
+      description: '需要代理',
       href: 'https://nhentai.net/',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Host: 'nhentai.net' },

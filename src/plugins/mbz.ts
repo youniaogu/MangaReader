@@ -58,9 +58,9 @@ class MangaBZ extends Base {
     super({
       score: 5,
       id: Plugin.MBZ,
-      name: 'mangabz',
+      name: '漫画bz',
       shortName: 'MBZ',
-      description: 'BZ漫画',
+      description: '需要代理',
       href: 'https://mangabz.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://mangabz.com/' },

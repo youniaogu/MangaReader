@@ -64,9 +64,9 @@ class CopyManga extends Base {
     super({
       score: 5,
       id: Plugin.JMC,
-      name: 'jmcomic',
+      name: '禁漫天堂',
       shortName: 'JMC',
-      description: '禁漫天堂：主打韩漫、本子类，需要代理',
+      description: '需要代理，屏蔽日本ip',
       href: 'https://18comic.vip',
       userAgent,
       defaultHeaders: {

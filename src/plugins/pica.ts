@@ -128,9 +128,12 @@ const discoveryOptions = [
     name: 'type',
     options: [
       { label: '选择分类', value: Options.Default },
+
+      // 待实现
       // { label: '过去24小时', value: '24h' },
       // { label: '过去7天', value: '7d' },
       // { label: '过去30天', value: '30d' },
+
       { label: '大家都在看', value: '大家都在看' },
       { label: '大濕推薦', value: '大濕推薦' },
       { label: '那年今天', value: '那年今天' },
@@ -246,9 +249,9 @@ class PicaComic extends Base {
     super({
       score: 5,
       id: Plugin.PICA,
-      name: 'picacomic',
+      name: '哔咔漫画',
       shortName: 'PICA',
-      description: '哔咔漫画：需要代理',
+      description: '需要代理',
       href: 'https://manhuabika.com/plogin/',
       userAgent,
       defaultHeaders: {
