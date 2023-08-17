@@ -180,6 +180,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         data={data}
         inverted={inverted}
         extraData={{ inverted, onImageLoad }}
+        initialScrollIndex={initialScrollIndex}
         estimatedItemSize={(windowHeight * 3) / 5}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
         onEndReached={onLoadMore}

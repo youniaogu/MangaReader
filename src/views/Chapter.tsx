@@ -383,7 +383,6 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
                 ref={pageSliderRef}
                 max={max}
                 defaultValue={current}
-                disabled={!horizontal}
                 onSliderChangeEnd={handleSliderChangeEnd}
               />
             </Box>
