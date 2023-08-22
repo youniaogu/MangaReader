@@ -10,6 +10,7 @@ import KL from './kl';
 import NH from './nh';
 import PICA from './pica';
 import MBZ from './mbz';
+import BZM from './bzm';
 
 export * from './base';
 
@@ -21,6 +22,7 @@ export const PluginMap = new Map<Plugin, Base>([
   [NH.id, NH],
   [PICA.id, PICA],
   [KL.id, KL],
+  [BZM.id, BZM],
   [DMZJ.id, DMZJ],
   [MHDB.id, MHDB],
   [MHM.id, MHM],

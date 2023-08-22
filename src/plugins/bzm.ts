@@ -1,7 +1,8 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
-import moment from 'moment';
+import queryString from 'query-string';
 import * as cheerio from 'cheerio';
+import moment from 'moment';
 
 interface DiscoveryResponse {
   items: {
@@ -13,7 +14,7 @@ interface DiscoveryResponse {
     /** e.g. yinianshiguang-iciyuandongman.jpg */
     topic_img: string;
     type_names: string[];
-  };
+  }[];
   next: string;
 }
 
@@ -84,12 +85,16 @@ const discoveryOptions = [
   },
 ];
 
+const PATTERN_MANGA_ID = /\/comic\/(.+)/;
+const PATTERN_FULL_TIME = /([0-9]{4}年[0-9]{2}月[0-9]{2}日)/;
+const PATTERN_SLOT = /section_slot=([0-9]*)&chapter_slot=([0-9]*)/;
+
 class BaoziManga extends Base {
   constructor() {
     const userAgent =
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36';
     super({
-      score: 5,
+      score: 4,
       id: Plugin.BZM,
       name: '包子漫画',
       shortName: 'BZM',
@@ -125,6 +130,9 @@ class BaoziManga extends Base {
     if (status === Options.Default) {
       body.state = 'all';
     }
+    if (type === Options.Default) {
+      body.type = 'all';
+    }
 
     return {
       url: 'https://cn.baozimh.com/api/bzmhq/amp_comic_list',
@@ -152,24 +160,167 @@ class BaoziManga extends Base {
     };
   };
 
-  handleDiscovery: Base['handleDiscovery'] = (_res: DiscoveryResponse) => {
-    return { error: new Error(ErrorMessage.NoSupport + 'handleDiscovery') };
+  handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse) => {
+    return {
+      discovery: res.items.map((item) => ({
+        href: `https://cn.baozimh.com/comic/${item.comic_id}`,
+        hash: Base.combineHash(this.id, String(item.comic_id)),
+        source: this.id,
+        sourceName: this.name,
+        mangaId: item.comic_id,
+        bookCover: `https://static-tw.baozimh.com/cover/${item.topic_img}`,
+        title: item.name,
+        author: [item.author],
+        tag: item.type_names,
+        status: MangaStatus.Unknown,
+      })),
+    };
   };
 
-  handleSearch: Base['handleSearch'] = (_text: string | null) => {
-    return { error: new Error(ErrorMessage.NoSupport + 'handleSearch') };
+  handleSearch: Base['handleSearch'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+
+    const list: IncreaseManga[] = (
+      $('.classify-items > div').toArray() as cheerio.TagElement[]
+    ).map((div) => {
+      const $$ = cheerio.load(div);
+
+      const href = $$('.comics-card__poster').first().attr('href') || '';
+      const cover = $$('.comics-card__poster > amp-img').attr('src') || '';
+      const author = $$('.comics-card__info .tags').text().trim();
+      const title = $$('.comics-card__info .comics-card__title').text().trim();
+      const tags = ($$('.comics-card__poster .tabs .tab').toArray() as cheerio.TagElement[]).map(
+        (span) => (span.children[0].data || '').trim()
+      );
+      const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
+
+      return {
+        href: `https://cn.baozimh.com/comic/${mangaId}`,
+        hash: Base.combineHash(this.id, mangaId),
+        source: this.id,
+        sourceName: this.name,
+        mangaId,
+        title,
+        status: MangaStatus.Unknown,
+        bookCover: queryString.parseUrl(cover).url,
+        author: [author],
+        tag: tags,
+      };
+    });
+
+    return { search: list };
   };
 
-  handleMangaInfo: Base['handleMangaInfo'] = (_text: string | null) => {
-    return { error: new Error(ErrorMessage.NoSupport + 'handleMangaInfo') };
+  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
+    const $ = cheerio.load(text || '');
+    const manga: IncreaseManga = {
+      href: '',
+      hash: '',
+      source: this.id,
+      sourceName: this.name,
+      mangaId: '',
+      title: '',
+      latest: '',
+      updateTime: '',
+      author: [],
+      tag: [],
+      status: MangaStatus.Unknown,
+      chapters: [],
+    };
+
+    const [, mangaId] =
+      ($('meta[name=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
+    const cover = $('.comics-detail .l-content amp-img').first().attr('src') || '';
+    const title = $('.comics-detail .l-content .comics-detail__info .comics-detail__title')
+      .first()
+      .text()
+      .trim();
+    const author = $('.comics-detail .l-content .comics-detail__info .comics-detail__author')
+      .first()
+      .text()
+      .trim();
+    const tags = (
+      $(
+        '.comics-detail .l-content .comics-detail__info .tag-list .tag'
+      ).toArray() as cheerio.TagElement[]
+    ).map((span) => (span.children[0].data || '').trim());
+    const latest =
+      $('.comics-detail .l-content .supporting-text > div:not(.tag-list) a').first().text() || '';
+    const updateTimeLabel =
+      $('.comics-detail .l-content .supporting-text > div:not(.tag-list) em').first().text() || '';
+    const [, updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+    const chapters = (
+      [
+        ...$('#chapter-items > div').toArray(),
+        ...$('#chapters_other_list > div').toArray(),
+      ] as cheerio.TagElement[]
+    )
+      .map((div) => {
+        const $$ = cheerio.load(div);
+        const [, sectionSlot, chapterSlot] =
+          ($$('a').first().attr('href') || '').match(PATTERN_SLOT) || [];
+        const chapterId = sectionSlot + '_' + chapterSlot;
+        const chapterTitle = $$('span').first().text();
+
+        return {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          href: `https://cn.czmanga.com/comic/chapter/${mangaId}/${chapterId}.html`,
+          title: chapterTitle,
+        };
+      })
+      .reverse();
+
+    if (tags.includes('连载中')) {
+      manga.status = MangaStatus.Serial;
+    }
+    if (tags.includes('已完结')) {
+      manga.status = MangaStatus.End;
+    }
+
+    manga.href = `https://cn.baozimh.com/comic/${mangaId}`;
+    manga.mangaId = mangaId;
+    manga.hash = Base.combineHash(this.id, mangaId);
+    manga.title = title;
+    manga.infoCover = queryString.parseUrl(cover).url;
+    manga.latest = latest;
+    manga.updateTime = moment(updateTime, 'YYYY年MM月DD日').format('YYYY-MM-DD');
+    manga.author = [author];
+    manga.tag = tags.filter((tag) => tag !== '连载中' && tag !== '已完结');
+    manga.chapters = chapters;
+
+    return { manga };
   };
 
   handleChapterList: Base['handleChapterList'] = () => {
     return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
 
-  handleChapter: Base['handleChapter'] = (_text: string | null) => {
-    return { error: new Error(ErrorMessage.NoSupport + 'handleChapter') };
+  handleChapter: Base['handleChapter'] = (text: string | null, mangaId, chapterId) => {
+    const $ = cheerio.load(text || '');
+
+    const title = $('.comic-chapter .header .l-content .title').first().text();
+    const images = (
+      $('.comic-contain > div:not(#div_top_ads):not(.mobadsq)').toArray() as cheerio.TagElement[]
+    ).map((div) => {
+      const $$ = cheerio.load(div);
+      return {
+        uri: $$('amp-img').first().attr('src') || '',
+      };
+    });
+
+    return {
+      canLoadMore: false,
+      chapter: {
+        hash: Base.combineHash(this.id, mangaId, chapterId),
+        mangaId,
+        chapterId,
+        title,
+        headers: this.defaultHeaders,
+        images,
+      },
+    };
   };
 }
 
