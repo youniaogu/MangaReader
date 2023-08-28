@@ -27,7 +27,7 @@ export interface ReaderProps {
   }[];
   headers?: Chapter['headers'];
   onTap?: (position: PositionX) => void;
-  onLongPress?: (position: PositionX, ref?: ImageState[]) => void;
+  onLongPress?: (position: PositionX, source: string) => void;
   onImageLoad?: (uri: string, hash: string, index: number) => void;
   onPageChange?: (page: number) => void;
   onLoadMore?: () => void;
@@ -117,7 +117,11 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     const { uri, needUnscramble } = item;
     const horizontalState = horizontalStateRef.current[index];
     return (
-      <Controller horizontal onTap={onTap} onLongPress={onLongPress}>
+      <Controller
+        horizontal
+        onTap={onTap}
+        onLongPress={(position) => onLongPress && onLongPress(position, horizontalState.dataUrl)}
+      >
         <ComicImage
           horizontal
           uri={uri}
@@ -137,17 +141,24 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     const { uri, needUnscramble } = item;
     const verticalState = verticalStateRef.current[index];
     return (
-      <ComicImage
-        uri={uri}
-        index={index}
-        useJMC={needUnscramble}
-        headers={headers}
-        prevState={verticalState}
-        onChange={(state, idx = index) => {
-          verticalStateRef.current[idx] = state;
-          onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
-        }}
-      />
+      <Box overflow="hidden">
+        <Controller
+          onTap={onTap}
+          onLongPress={(position) => onLongPress && onLongPress(position, verticalState.dataUrl)}
+        >
+          <ComicImage
+            uri={uri}
+            index={index}
+            useJMC={needUnscramble}
+            headers={headers}
+            prevState={verticalState}
+            onChange={(state, idx = index) => {
+              verticalStateRef.current[idx] = state;
+              onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
+            }}
+          />
+        </Controller>
+      </Box>
     );
   };
 
@@ -174,24 +185,22 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   }
 
   return (
-    <Controller onTap={onTap} onLongPress={onLongPress}>
-      <FlashList
-        ref={flashListRef}
-        data={data}
-        inverted={inverted}
-        extraData={{ inverted, onImageLoad }}
-        initialScrollIndex={initialScrollIndex}
-        estimatedItemSize={(windowHeight * 3) / 5}
-        estimatedListSize={{ width: windowWidth, height: windowHeight }}
-        onEndReached={onLoadMore}
-        onEndReachedThreshold={5}
-        onViewableItemsChanged={HandleViewableItemsChanged}
-        renderItem={renderVerticalItem}
-        keyExtractor={(item) => item.uri}
-        ListHeaderComponent={<Box height={0} safeAreaTop />}
-        ListFooterComponent={<Box height={0} safeAreaBottom />}
-      />
-    </Controller>
+    <FlashList
+      ref={flashListRef}
+      data={data}
+      inverted={inverted}
+      extraData={{ inverted, onImageLoad }}
+      initialScrollIndex={initialScrollIndex}
+      estimatedItemSize={(windowHeight * 3) / 5}
+      estimatedListSize={{ width: windowWidth, height: windowHeight }}
+      onEndReached={onLoadMore}
+      onEndReachedThreshold={5}
+      onViewableItemsChanged={HandleViewableItemsChanged}
+      renderItem={renderVerticalItem}
+      keyExtractor={(item) => item.uri}
+      ListHeaderComponent={<Box height={0} safeAreaTop />}
+      ListFooterComponent={<Box height={0} safeAreaBottom />}
+    />
   );
 };
 

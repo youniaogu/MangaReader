@@ -43,7 +43,7 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
 
   const animatedStyle = useAnimatedStyle(() => ({
     width: width.value,
-    height: height.value,
+    height: horizontal ? height.value : 'auto',
     transform: [
       { translateX: translationX.value },
       { translateY: translationY.value },

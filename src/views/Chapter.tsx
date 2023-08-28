@@ -75,6 +75,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const readerRef = useRef<ReaderRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
   const callbackRef = useRef<(type: Volume) => void>();
+  const sourceRef = useRef('');
 
   callbackRef.current = (type) => {
     if (type === Volume.Down) {
@@ -150,8 +151,9 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       }
     }
   };
-  const handleLongPress = (position: PositionX) => {
+  const handleLongPress = (position: PositionX, source: string) => {
     if (position === PositionX.Mid) {
+      sourceRef.current = source;
       onOpen();
     }
     if (inverted) {
@@ -191,10 +193,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
 
   const handleImageSave = () => {
-    const source = readerRef.current?.getSource(page, horizontal);
-
-    if (source) {
-      dispatch(saveImage({ source, headers }));
+    if (sourceRef.current !== '') {
+      dispatch(saveImage({ source: sourceRef.current, headers }));
     } else {
       toast.show({ title: '保存失败' });
     }
