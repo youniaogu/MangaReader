@@ -21,6 +21,8 @@ import {
   fixTaskShape,
   fixRestoreShape,
   getLatestRelease,
+  dictToPairs,
+  pairsToDict,
   trycatch,
   nonNullable,
   ErrorMessage,
@@ -151,11 +153,67 @@ function* pluginSyncDataSaga() {
 function* syncDataSaga() {
   yield takeLatestSuspense(syncData.type, function* () {
     try {
-      const favoritesData: string | null = yield call(AsyncStorage.getItem, storageKey.favorites);
-      const dictData: string | null = yield call(AsyncStorage.getItem, storageKey.dict);
-      const pluginData: string | null = yield call(AsyncStorage.getItem, storageKey.plugin);
-      const settingData: string | null = yield call(AsyncStorage.getItem, storageKey.setting);
-      const taskData: string | null = yield call(AsyncStorage.getItem, storageKey.task);
+      const [
+        [, mangaIndexData],
+        [, chapterIndexData],
+        [, taskIndexData],
+        [, jobIndexData],
+        [, favoritesData],
+        [, pluginData],
+        [, settingData],
+        [, dictData],
+      ]: KeyValuePair[] = yield call(AsyncStorage.multiGet, [
+        storageKey.mangaIndex,
+        storageKey.chapterIndex,
+        storageKey.taskIndex,
+        storageKey.jobIndex,
+        storageKey.favorites,
+        storageKey.plugin,
+        storageKey.setting,
+        storageKey.dict,
+      ]);
+      const task: RootState['task'] = { list: [], job: { max: 5, list: [], thread: [] } };
+
+      if (!dictData) {
+        const dict: RootState['dict'] = { manga: {}, chapter: {}, lastWatch: {}, record: {} };
+        if (mangaIndexData) {
+          const mangaIndex: string[] = JSON.parse(mangaIndexData);
+          const mangaPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, mangaIndex);
+          const mangaDict = pairsToDict(mangaPairs);
+          for (const key in mangaDict) {
+            dict.manga[key] = mangaDict[key].manga;
+            dict.lastWatch[key] = mangaDict[key].lastWatch;
+          }
+        }
+        if (chapterIndexData) {
+          const chapterIndex: string[] = JSON.parse(chapterIndexData);
+          const chapterPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, chapterIndex);
+          const chapterDict = pairsToDict(chapterPairs);
+          for (const key in chapterDict) {
+            dict.chapter[key] = chapterDict[key].chapter;
+            dict.record[key] = chapterDict[key].record;
+          }
+        }
+        yield put(syncDict(fixDictShape(dict)));
+      } else {
+        const dict: RootState['dict'] = fixDictShape(JSON.parse(dictData));
+        yield put(syncDict(dict));
+        yield call(AsyncStorage.removeItem, storageKey.dict);
+      }
+
+      if (taskIndexData) {
+        const taskIndex: string[] = JSON.parse(taskIndexData);
+        const taskPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, taskIndex);
+        const taskDict = pairsToDict(taskPairs);
+        task.list = taskIndex.map((item) => taskDict[item]);
+      }
+      if (jobIndexData) {
+        const jobIndex: string[] = JSON.parse(jobIndexData);
+        const jobPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, jobIndex);
+        const jobDict = pairsToDict(jobPairs);
+        task.job.list = jobIndex.map((item) => jobDict[item]);
+      }
+      yield put(syncTask(fixTaskShape(task)));
 
       if (favoritesData) {
         const favorites: RootState['favorites'] = JSON.parse(favoritesData);
@@ -167,10 +225,7 @@ function* syncDataSaga() {
           )
         );
       }
-      if (dictData) {
-        const dict: RootState['dict'] = fixDictShape(JSON.parse(dictData));
-        yield put(syncDict(dict));
-      }
+
       if (pluginData) {
         const plugin: RootState['plugin'] = fixPluginShape(JSON.parse(pluginData));
         const list: RootState['plugin']['list'] = [];
@@ -195,10 +250,6 @@ function* syncDataSaga() {
       if (settingData) {
         const setting: RootState['setting'] = fixSettingShape(JSON.parse(settingData));
         yield put(syncSetting(setting));
-      }
-      if (taskData) {
-        const task: RootState['task'] = fixTaskShape(JSON.parse(taskData));
-        yield put(syncTask(task));
       }
 
       yield put(syncDataCompletion({ error: undefined }));
@@ -277,18 +328,63 @@ function* storageDataSaga() {
       const task = ((state: RootState) => state.task)(yield select());
       yield delay(1000);
 
-      const storeDict: RootState['dict'] = { ...dict, manga: {} };
-      for (const hash in dict.manga) {
-        if (favorites.findIndex((item) => item.mangaHash === hash) !== -1) {
-          storeDict.manga[hash] = dict.manga[hash];
-        }
-      }
+      const mangaIndex: string[] = [];
+      const chapterIndex: string[] = [];
+      const taskIndex: string[] = [];
+      const jobIndex: string[] = [];
+      const mangaDict: Record<string, any> = {};
+      const chapterDict: Record<string, any> = {};
+      const taskDict: Record<string, any> = {};
+      const jobDict: Record<string, any> = {};
 
-      yield call(AsyncStorage.setItem, storageKey.favorites, JSON.stringify(favorites));
-      yield call(AsyncStorage.setItem, storageKey.dict, JSON.stringify(storeDict));
-      yield call(AsyncStorage.setItem, storageKey.plugin, JSON.stringify(plugin));
-      yield call(AsyncStorage.setItem, storageKey.setting, JSON.stringify(setting));
-      yield call(AsyncStorage.setItem, storageKey.task, JSON.stringify(task));
+      favorites.forEach(({ mangaHash }) => {
+        const manga = dict.manga[mangaHash];
+        const lastWatch = dict.lastWatch[mangaHash];
+        if (nonNullable(manga) || nonNullable(lastWatch)) {
+          mangaDict[mangaHash] = { manga, lastWatch };
+          mangaIndex.push(mangaHash);
+        }
+        if (nonNullable(manga)) {
+          manga.chapters.forEach(({ hash: chapterHash }) => {
+            const chapter = dict.chapter[chapterHash];
+            const record = dict.record[chapterHash];
+            if (nonNullable(chapter) || nonNullable(record)) {
+              chapterDict[chapterHash] = { chapter, record };
+              chapterIndex.push(chapterHash);
+            }
+          });
+        }
+      });
+      task.list.forEach((item) => {
+        taskDict[item.taskId] = item;
+        taskIndex.push(item.taskId);
+      });
+      task.job.list.forEach((item) => {
+        jobDict[item.jobId] = item;
+        jobIndex.push(item.jobId);
+      });
+
+      const keyValuePairs: [string, string][] = [
+        ...dictToPairs(mangaDict),
+        ...dictToPairs(chapterDict),
+        ...dictToPairs(taskDict),
+        ...dictToPairs(jobDict),
+        [storageKey.mangaIndex, JSON.stringify(mangaIndex)],
+        [storageKey.chapterIndex, JSON.stringify(chapterIndex)],
+        [storageKey.taskIndex, JSON.stringify(taskIndex)],
+        [storageKey.jobIndex, JSON.stringify(jobIndex)],
+        [storageKey.favorites, JSON.stringify(favorites)],
+        [storageKey.plugin, JSON.stringify(plugin)],
+        [storageKey.setting, JSON.stringify(setting)],
+      ];
+      yield call(AsyncStorage.multiSet, keyValuePairs);
+
+      const curr = keyValuePairs.map((item) => item[0]);
+      const prev: string[] = yield call(AsyncStorage.getAllKeys);
+      const useless = prev.filter((key) => !curr.includes(key));
+      if (useless.length > 0) {
+        yield call(AsyncStorage.multiRemove, useless);
+      }
     }
   );
 }

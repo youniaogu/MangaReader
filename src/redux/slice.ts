@@ -72,7 +72,14 @@ export const initialState: RootState = {
     openDrawer: false,
     showDrawer: false,
   },
-  task: { list: [], job: { max: 5, list: [], thread: [] } },
+  task: {
+    list: [],
+    job: {
+      max: 5,
+      list: [],
+      thread: [],
+    },
+  },
   dict: {
     manga: {},
     chapter: {},

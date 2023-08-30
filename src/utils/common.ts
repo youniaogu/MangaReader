@@ -14,7 +14,10 @@ export const storageKey = {
   dict: '@dict',
   plugin: '@plugin',
   setting: '@setting',
-  task: '@task',
+  mangaIndex: '@mangaIndex',
+  chapterIndex: '@chapterIndex',
+  taskIndex: '@taskIndex',
+  jobIndex: '@jobIndex',
 };
 
 export function aspectFill(
@@ -279,4 +282,35 @@ export function clearAllCookie(url: string) {
         .catch(() => res(false));
     });
   });
+}
+
+export function getByteSize(str = '', unit: 'B' | 'KB' | 'MB' | 'GB' | 'TB' = 'MB') {
+  const size = new Blob([str]).size;
+  switch (unit) {
+    case 'TB': {
+      return (size / 1024 / 1024 / 1024 / 1024).toFixed(2) + unit;
+    }
+    case 'GB': {
+      return (size / 1024 / 1024 / 1024).toFixed(2) + unit;
+    }
+    case 'MB': {
+      return (size / 1024 / 1024).toFixed(2) + unit;
+    }
+    case 'KB': {
+      return (size / 1024).toFixed(2) + unit;
+    }
+    case 'B':
+      return size.toFixed(2) + unit;
+  }
+}
+
+export function dictToPairs(obj: Record<string, any>): [string, string][] {
+  return Object.keys(obj).map((key) => [key, JSON.stringify(obj[key])]);
+}
+
+export function pairsToDict(list: KeyValuePair[]) {
+  return list.reduce<Record<string, any>>((dict, [key, value]) => {
+    dict[key] = nonNullable(value) ? JSON.parse(value) : undefined;
+    return dict;
+  }, {});
 }

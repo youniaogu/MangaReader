@@ -32,6 +32,7 @@ declare global {
   type PartialOption<T, K extends string | number | symbol> = Omit<T, K> & {
     [A in Extract<keyof T, K>]?: T[A];
   };
+  type KeyValuePair = [string, string | null];
 
   type BackupData = {
     createTime: number;
