@@ -331,7 +331,7 @@ class DongManZhiJia extends Base {
   handleChapter: Base['handleChapter'] = (text: string | null) => {
     const $ = cheerio.load(text || '');
 
-    const needLogin = $('script').first().text().includes('请登录后观看');
+    const needLogin = text?.includes('请登录后观看！');
     if (needLogin) {
       throw new Error(ErrorMessage.NeedRelogin);
     }

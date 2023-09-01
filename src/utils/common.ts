@@ -1,6 +1,7 @@
 import { defaultPlugin, defaultPluginList } from '~/plugins';
 import { ErrorMessage, LightSwitch } from './enum';
 import { delay, race, Effect } from 'redux-saga/effects';
+import { Platform } from 'react-native';
 import { Dirs } from 'react-native-file-access';
 import CookieManager from '@react-native-cookies/cookies';
 import queryString from 'query-string';
@@ -276,11 +277,15 @@ export function clearAllCookie(url: string) {
       return;
     }
 
-    CookieManager.get(url).then((cookies) => {
-      Promise.all(Object.keys(cookies).map((key) => CookieManager.clearByName(url, key)))
-        .then(() => res(true))
-        .catch(() => res(false));
-    });
+    if (Platform.OS === 'android') {
+      CookieManager.removeSessionCookies().then(res).catch(rej);
+    } else if (Platform.OS === 'ios') {
+      CookieManager.get(url).then((cookies) => {
+        Promise.all(Object.keys(cookies).map((key) => CookieManager.clearByName(url, key)))
+          .then(() => res(true))
+          .catch(() => res(false));
+      });
+    }
   });
 }
 

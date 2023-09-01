@@ -927,7 +927,7 @@ function* downloadAndExportChapterSaga() {
 
       while (true) {
         const actionId = nanoid();
-        const chapterHash = chapterHashList.pop();
+        const chapterHash = chapterHashList.shift();
         if (!chapterHash) {
           break;
         }

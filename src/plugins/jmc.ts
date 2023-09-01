@@ -1,5 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
+import { Platform } from 'react-native';
 import * as cheerio from 'cheerio';
 
 const discoveryOptions = [
@@ -60,19 +61,21 @@ const PATTERN_HTTP_URL = /(https?:\/\/[^\s/$.?#].[^\s]*)/;
 class CopyManga extends Base {
   constructor() {
     const userAgent =
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+      Platform.OS === 'android'
+        ? 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36'
+        : 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
     super({
       score: 5,
       id: Plugin.JMC,
       name: '禁漫天堂',
       shortName: 'JMC',
       description: '需要代理，屏蔽日本ip',
-      href: 'https://18comic.vip',
+      href: 'https://jmcomic.me',
       userAgent,
       defaultHeaders: {
         'User-Agent': userAgent,
-        Host: '18comic.vip',
-        Referer: 'https://18comic.vip',
+        Host: 'jmcomic.me',
+        Referer: 'https://jmcomic.me',
       },
       option: { discovery: discoveryOptions, search: searchOptions },
     });
@@ -80,7 +83,7 @@ class CopyManga extends Base {
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, sort }) => {
     return {
-      url: `https://18comic.vip/albums${type === Options.Default ? '' : `/${type}`}`,
+      url: `https://jmcomic.me/albums${type === Options.Default ? '' : `/${type}`}`,
       body: {
         o: sort === Options.Default ? 'mr' : sort,
         page,
@@ -90,7 +93,7 @@ class CopyManga extends Base {
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { time, sort }) => {
     return {
-      url: 'https://18comic.vip/search/photos',
+      url: 'https://jmcomic.me/search/photos',
       body: {
         main_tag: 0,
         search_query: keyword,
@@ -103,14 +106,14 @@ class CopyManga extends Base {
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://18comic.vip/album/${mangaId}`,
+      url: `https://jmcomic.me/album/${mangaId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (_mangaId, chapterId) => {
     return {
-      url: `https://18comic.vip/photo/${chapterId}`,
+      url: `https://jmcomic.me/photo/${chapterId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -151,7 +154,7 @@ class CopyManga extends Base {
         }
 
         list.push({
-          href: 'https://18comic.vip' + href,
+          href: 'https://jmcomic.me' + href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
@@ -204,7 +207,7 @@ class CopyManga extends Base {
         }
 
         list.push({
-          href: 'https://18comic.vip' + href,
+          href: 'https://jmcomic.me' + href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
@@ -228,7 +231,7 @@ class CopyManga extends Base {
 
     const [, mangaId] =
       ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
-    const href = `https://18comic.vip/album/${mangaId}`;
+    const href = `https://jmcomic.me/album/${mangaId}`;
     const title = $('h1#book-name').text() || '';
     const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
     const img = $('div#album_photo_cover div.thumb-overlay img').first();
@@ -253,7 +256,7 @@ class CopyManga extends Base {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,
           chapterId,
-          href: `https://18comic.vip${chapterHref}`,
+          href: `https://jmcomic.me${chapterHref}`,
           title: chapterTitle.replaceAll(/[\r\n]+/g, '').trim(),
         };
       })
@@ -275,7 +278,7 @@ class CopyManga extends Base {
         hash: Base.combineHash(this.id, mangaId, firstChapterId),
         mangaId,
         chapterId: firstChapterId,
-        href: `https://18comic.vip${firstChapterHref}`,
+        href: `https://jmcomic.me${firstChapterHref}`,
         title: '开始阅读',
       });
     }
@@ -344,7 +347,7 @@ class CopyManga extends Base {
         title,
         headers: {
           ...this.defaultHeaders,
-          referer: 'https://18comic.vip/',
+          referer: 'https://jmcomic.me/',
           accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
           'accept-encoding': 'gzip, deflate, br',
           'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',

@@ -1,5 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
+import { Platform } from 'react-native';
 import queryString from 'query-string';
 import * as cheerio from 'cheerio';
 import moment from 'moment';
@@ -85,14 +86,16 @@ const discoveryOptions = [
   },
 ];
 
-const PATTERN_MANGA_ID = /\/comic\/(.+)/;
+const PATTERN_MANGA_ID = /\/comic\/([^_]+)/;
 const PATTERN_FULL_TIME = /([0-9]{4}年[0-9]{2}月[0-9]{2}日)/;
 const PATTERN_SLOT = /section_slot=([0-9]*)&chapter_slot=([0-9]*)/;
 
 class BaoziManga extends Base {
   constructor() {
     const userAgent =
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36';
+      Platform.OS === 'android'
+        ? 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Mobile Safari/537.36'
+        : 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
     super({
       score: 4,
       id: Plugin.BZM,
@@ -161,6 +164,8 @@ class BaoziManga extends Base {
   };
 
   handleDiscovery: Base['handleDiscovery'] = (res: DiscoveryResponse) => {
+    const $ = cheerio.load((res || '') as unknown as string);
+    this.checkCloudFlare($);
     return {
       discovery: res.items.map((item) => ({
         href: `https://cn.baozimh.com/comic/${item.comic_id}`,
@@ -179,6 +184,7 @@ class BaoziManga extends Base {
 
   handleSearch: Base['handleSearch'] = (text: string | null) => {
     const $ = cheerio.load(text || '');
+    this.checkCloudFlare($);
 
     const list: IncreaseManga[] = (
       $('.classify-items > div').toArray() as cheerio.TagElement[]
@@ -213,6 +219,7 @@ class BaoziManga extends Base {
 
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
     const $ = cheerio.load(text || '');
+    this.checkCloudFlare($);
     const manga: IncreaseManga = {
       href: '',
       hash: '',
@@ -243,12 +250,22 @@ class BaoziManga extends Base {
       $(
         '.comics-detail .l-content .comics-detail__info .tag-list .tag'
       ).toArray() as cheerio.TagElement[]
-    ).map((span) => (span.children[0].data || '').trim());
+    )
+      .map((span) => (span.children[0].data || '').trim())
+      .filter((item) => item !== '');
     const latest =
       $('.comics-detail .l-content .supporting-text > div:not(.tag-list) a').first().text() || '';
     const updateTimeLabel =
       $('.comics-detail .l-content .supporting-text > div:not(.tag-list) em').first().text() || '';
-    const [, updateTime] = updateTimeLabel.match(PATTERN_FULL_TIME) || [];
+
+    let updateTime;
+    if (PATTERN_FULL_TIME.test(updateTimeLabel)) {
+      updateTime = (updateTimeLabel.match(PATTERN_FULL_TIME) || [])[1];
+      updateTime = moment(updateTime, 'YYYY年MM月DD日').format('YYYY-MM-DD');
+    } else if (updateTimeLabel.includes('今天 更新')) {
+      updateTime = moment().format('YYYY-MM-DD');
+    }
+
     const chapters = (
       [
         ...$('#chapter-items > div').toArray(),
@@ -285,7 +302,7 @@ class BaoziManga extends Base {
     manga.title = title;
     manga.infoCover = queryString.parseUrl(cover).url;
     manga.latest = latest;
-    manga.updateTime = moment(updateTime, 'YYYY年MM月DD日').format('YYYY-MM-DD');
+    manga.updateTime = updateTime;
     manga.author = [author];
     manga.tag = tags.filter((tag) => tag !== '连载中' && tag !== '已完结');
     manga.chapters = chapters;
@@ -299,6 +316,7 @@ class BaoziManga extends Base {
 
   handleChapter: Base['handleChapter'] = (text: string | null, mangaId, chapterId) => {
     const $ = cheerio.load(text || '');
+    this.checkCloudFlare($);
 
     const title = $('.comic-chapter .header .l-content .title').first().text();
     const images = (

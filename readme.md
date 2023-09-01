@@ -29,6 +29,7 @@
 - [x] [nhentai](https://nhentai.net/)（需要代理，[获取 Cookies](#nhentai)）
 - [x] [哔咔漫画](https://manhuabika.com/)（需要代理，[获取 Token](#pica)）
 - [x] [漫画 bz](https://mangabz.com/)（需要代理）
+- [x] [包子漫画](https://cn.baozimh.com/)（不需要代理但海外 ip 会走 cloudflare，需要在 webview 里通过校验）
 
 ## Installation
 
