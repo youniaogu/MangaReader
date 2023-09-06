@@ -1,5 +1,13 @@
 import React, { useRef, useMemo, useState, useCallback, Fragment } from 'react';
-import { AsyncStatus, Volume, LayoutMode, LightSwitch, ReaderDirection, PositionX } from '~/utils';
+import {
+  AsyncStatus,
+  Volume,
+  LayoutMode,
+  LightSwitch,
+  ReaderDirection,
+  PositionX,
+  Orientation,
+} from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
 import { useOnce, usePrevNext, useVolumeUpDown, useDimensions } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
@@ -52,25 +60,27 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const horizontal = useMemo(() => mode === LayoutMode.Horizontal, [mode]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useMemo(() => {
-    const preList = [];
+    let len = 0;
     return hashList
       .map((hash) => {
         const chapter = chapterDict[hash];
         const images = chapter?.images || [];
-        preList.push(...images);
+        len += images.length;
         return images.map((item, index) => ({
           ...item,
-          pre: preList.length - images.length,
+          pre: len - images.length,
           max: images.length,
-          title: chapter?.title || '',
-          headers: chapter?.headers,
           current: index + 1,
           chapterHash: hash,
         }));
       })
       .flat();
   }, [hashList, chapterDict]);
-  const { pre, max, title, current, headers } = useMemo(() => data[page] || {}, [page, data]);
+  const { pre, max, current } = useMemo(() => data[page] || {}, [page, data]);
+  const { title, headers } = useMemo(() => {
+    const chapter = chapterDict[chapterHash];
+    return { title: chapter?.title || '', headers: chapter?.headers || {} };
+  }, [chapterDict, chapterHash]);
   const [prev, next] = usePrevNext(chapterList, chapterHash);
   const readerRef = useRef<ReaderRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
@@ -201,13 +211,27 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
 
   const handleGoBack = () => navigation.goBack();
+  const handleLandscape = () => navigation.setOptions({ orientation: 'landscape_right' });
+  const handlePortrait = () => navigation.setOptions({ orientation: 'portrait' });
   const handleReload = () => dispatch(loadChapter({ chapterHash }));
   const handleLightOn = () => dispatch(setLight(LightSwitch.On));
   const handleLightOff = () => dispatch(setLight(LightSwitch.Off));
-  const handleLeft = () => dispatch(setDirection(ReaderDirection.Left));
-  const handleRight = () => dispatch(setDirection(ReaderDirection.Right));
-  const handleVertical = () => dispatch(setMode(LayoutMode.Vertical));
-  const handleHorizontal = () => dispatch(setMode(LayoutMode.Horizontal));
+  const handleLeft = () => {
+    toast.show({ title: '阅读方向: 从右向左' });
+    dispatch(setDirection(ReaderDirection.Left));
+  };
+  const handleRight = () => {
+    toast.show({ title: '阅读方向: 从左向右' });
+    dispatch(setDirection(ReaderDirection.Right));
+  };
+  const handleVertical = () => {
+    toast.show({ title: '条漫模式' });
+    dispatch(setMode(LayoutMode.Vertical));
+  };
+  const handleHorizontal = () => {
+    toast.show({ title: '翻页模式' });
+    dispatch(setMode(LayoutMode.Horizontal));
+  };
   const handleSliderChangeEnd = (newStep: number) => {
     const newPage = pre + Math.floor(newStep - 1);
     if (newStep > max - 5) {
@@ -329,6 +353,17 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
             <Box flexGrow={1} flexShrink={1} />
 
             <VectorIcon
+              name={
+                orientation === Orientation.Portrait
+                  ? 'stay-primary-portrait'
+                  : 'stay-primary-landscape'
+              }
+              size="lg"
+              shadow="icon"
+              color={lightOn ? 'black' : 'white'}
+              onPress={orientation === Orientation.Portrait ? handleLandscape : handlePortrait}
+            />
+            <VectorIcon
               name="lightbulb"
               size="lg"
               shadow="icon"
@@ -348,9 +383,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               {current} / {max}
             </Text>
             <VectorIcon
-              name={horizontal ? 'stay-primary-landscape' : 'stay-primary-portrait'}
+              name={horizontal ? 'book-open-page-variant-outline' : 'filmstrip'}
               size="lg"
               shadow="icon"
+              source="materialCommunityIcons"
               color={lightOn ? 'black' : 'white'}
               onPress={horizontal ? handleVertical : handleHorizontal}
             />

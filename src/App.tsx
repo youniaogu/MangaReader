@@ -51,7 +51,7 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
   return (
     <Navigator
       initialRouteName="Home"
-      screenOptions={{ header: DefaultHeader, freezeOnBlur: true }}
+      screenOptions={{ header: DefaultHeader, freezeOnBlur: true, orientation: 'portrait' }}
     >
       <Screen name="Home" options={{ headerRight: SearchAndAbout }} component={Home} />
       <Screen
