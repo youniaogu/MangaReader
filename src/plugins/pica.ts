@@ -402,7 +402,7 @@ class PicaComic extends Base {
         })),
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.NeedRelogin) };
+      return { error: new Error(ErrorMessage.AuthFailPICA) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }
@@ -425,7 +425,7 @@ class PicaComic extends Base {
         })),
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.NeedRelogin) };
+      return { error: new Error(ErrorMessage.AuthFailPICA) };
     } else {
       return { error: new Error(ErrorMessage.WrongResponse + res.message) };
     }
@@ -450,7 +450,7 @@ class PicaComic extends Base {
         },
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.NeedRelogin) };
+      return { error: new Error(ErrorMessage.AuthFailPICA) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }
@@ -472,7 +472,7 @@ class PicaComic extends Base {
           })),
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.NeedRelogin) };
+      return { error: new Error(ErrorMessage.AuthFailPICA) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }
@@ -494,7 +494,7 @@ class PicaComic extends Base {
         },
       };
     } else if (res.code === 401) {
-      return { error: new Error(ErrorMessage.NeedRelogin) };
+      return { error: new Error(ErrorMessage.AuthFailPICA) };
     } else {
       throw new Error(ErrorMessage.WrongResponse + res.message);
     }

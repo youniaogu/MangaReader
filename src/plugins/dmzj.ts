@@ -333,7 +333,7 @@ class DongManZhiJia extends Base {
 
     const needLogin = text?.includes('请登录后观看！');
     if (needLogin) {
-      throw new Error(ErrorMessage.NeedRelogin);
+      throw new Error(ErrorMessage.AuthFailDMZJ);
     }
 
     const scriptContent =
