@@ -14,7 +14,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useWindowDimensions } from 'react-native';
+import { useDimensions } from '~/hooks';
 
 export interface DrawerRef {
   open: () => void;
@@ -32,7 +32,7 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
   { leakWidth = 12, contentWidth = 300, maskOpacity = 0.5, defaultDuration = 300, children },
   ref
 ) => {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useDimensions();
   const minContentWidth = Math.min(windowWidth * 0.55, contentWidth);
   const translationX = useSharedValue(minContentWidth);
   const savedTranslationX = useSharedValue(minContentWidth);

@@ -68,7 +68,7 @@ const ChapterSelectOptions: ActionsheetSelectProps['options'] = [
 
 const Detail = ({ route, navigation }: StackDetailProps) => {
   const { mangaHash, enabledMultiple = false, selected = [] } = route.params;
-  const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
+  const { gap, insets, itemWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
     gap: 12,
     minNumColumns: 3,
     maxSplitWidth: 100,
@@ -89,13 +89,13 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   const lastWatch = useMemo(() => lastWatchDict[mangaHash] || {}, [lastWatchDict, mangaHash]);
   const extraData = useMemo(
     () => ({
-      width: splitWidth,
+      width: itemWidth,
       dict: reocrdDict,
       chapterHash: lastWatch.chapter,
       multiple: enabledMultiple,
       checkList: selected,
     }),
-    [splitWidth, reocrdDict, lastWatch.chapter, enabledMultiple, selected]
+    [itemWidth, reocrdDict, lastWatch.chapter, enabledMultiple, selected]
   );
   const chapters = useMemo(() => {
     if (!data) {
@@ -329,7 +329,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             paddingRight: gap / 2 + insets.right,
           }}
           numColumns={numColumns}
-          estimatedItemSize={24}
+          estimatedItemSize={50}
           estimatedListSize={{ width: windowWidth, height: windowHeight }}
           refreshControl={
             <RefreshControl

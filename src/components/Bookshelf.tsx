@@ -34,7 +34,7 @@ const Bookshelf = ({
   loading = false,
   emptyText,
 }: BookshelfProps) => {
-  const { gap, insets, splitWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
+  const { gap, insets, itemWidth, numColumns, windowWidth, windowHeight } = useSplitWidth({
     gap: 8,
     minNumColumns: 3,
     maxSplitWidth: 180,
@@ -42,12 +42,12 @@ const Bookshelf = ({
   const render = useDelayRender(loading && list.length === 0);
   const extraData = useMemo(
     () => ({
-      width: splitWidth,
+      width: itemWidth,
       trend: trendList || [],
       active: activeList || [],
       negative: negativeList || [],
     }),
-    [splitWidth, activeList, trendList, negativeList]
+    [itemWidth, activeList, trendList, negativeList]
   );
 
   const handlePress = (hash: string) => {
@@ -71,7 +71,7 @@ const Bookshelf = ({
       data={list}
       extraData={extraData}
       numColumns={numColumns}
-      estimatedItemSize={splitWidth / coverAspectRatio}
+      estimatedItemSize={itemWidth / coverAspectRatio}
       estimatedListSize={{ width: windowWidth, height: windowHeight }}
       contentContainerStyle={{
         padding: gap / 2,

@@ -6,8 +6,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { useWindowDimensions } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useDimensions } from '~/hooks';
 import { PositionX } from '~/utils';
 
 const doubleTapScaleValue = 2;
@@ -20,7 +20,7 @@ export interface ControllerProps {
 }
 
 const Controller = ({ onTap, children, horizontal = false, onLongPress }: ControllerProps) => {
-  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useDimensions();
   const [enabled, setEnabled] = useState(false);
   const oneThirdWidth = windowWidth / 3;
 
