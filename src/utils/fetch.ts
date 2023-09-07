@@ -61,8 +61,8 @@ export const fetchData = ({
         .then((data) => {
           res({ error: undefined, data });
         })
-        .catch((error) => {
-          res({ error, data: undefined });
+        .catch(() => {
+          res({ error: new Error('网络错误，请稍后重试'), data: undefined });
         })
         .finally(() => {
           clearTimeout(delay);

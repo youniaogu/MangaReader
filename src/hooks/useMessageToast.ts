@@ -14,7 +14,7 @@ export const useMessageToast = () => {
       if (message.length > 0) {
         message.forEach((text) => {
           setTimeout(() => {
-            Toast.show({ title: text, placement: 'bottom' });
+            Toast.show({ title: text, duration: 3000, placement: 'bottom' });
           }, 0);
         });
         dispatch(throwMessage());

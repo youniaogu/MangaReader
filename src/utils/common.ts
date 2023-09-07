@@ -254,12 +254,14 @@ export function nonNullable<T>(v: T | null | undefined): v is T {
   return v !== null && v !== undefined;
 }
 
-export function trycatch<T extends (...args: any) => any>(fn: T): ReturnType<T> {
+export function trycatch<T extends (...args: any) => any>(fn: T, prefix?: string): ReturnType<T> {
   try {
     return fn();
   } catch (error) {
     if (error instanceof Error) {
-      return { error } as ReturnType<T>;
+      return {
+        error: new Error(prefix ? `${prefix}${error.message}` : error.message),
+      } as ReturnType<T>;
     } else {
       return { error: new Error(ErrorMessage.Unknown) } as ReturnType<T>;
     }

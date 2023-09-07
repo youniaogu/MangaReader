@@ -509,7 +509,10 @@ function* loadDiscoverySaga() {
         fetchData,
         plugin.prepareDiscoveryFetch(page, filterWithDefault)
       );
-      const { error: pluginError, discovery } = trycatch(() => plugin.handleDiscovery(data));
+      const { error: pluginError, discovery } = trycatch(
+        () => plugin.handleDiscovery(data),
+        '漫画数据解析错误: '
+      );
 
       yield put(loadDiscoveryCompletion({ error: fetchError || pluginError, data: discovery }));
     }
@@ -544,7 +547,10 @@ function* loadSearchSaga() {
         fetchData,
         plugin.prepareSearchFetch(keyword, page, filterWithDefault)
       );
-      const { error: pluginError, search } = trycatch(() => plugin.handleSearch(data));
+      const { error: pluginError, search } = trycatch(
+        () => plugin.handleSearch(data),
+        '漫画数据解析错误: '
+      );
 
       yield put(loadSearchCompletion({ error: fetchError || pluginError, data: search }));
     }
@@ -631,7 +637,10 @@ function* loadMangaInfoSaga() {
         fetchData,
         plugin.prepareMangaInfoFetch(mangaId)
       );
-      const { error: pluginError, manga } = trycatch(() => plugin.handleMangaInfo(data));
+      const { error: pluginError, manga } = trycatch(
+        () => plugin.handleMangaInfo(data),
+        '漫画详情解析错误: '
+      );
 
       yield put(
         loadMangaInfoCompletion({ error: fetchError || pluginError, data: manga, actionId })
@@ -663,7 +672,7 @@ function* loadChapterListSaga() {
         error: pluginError,
         chapterList = [],
         canLoadMore,
-      } = trycatch(() => plugin.handleChapterList(data, mangaId));
+      } = trycatch(() => plugin.handleChapterList(data, mangaId), '章节列表解析错误: ');
 
       if (pluginError || fetchError) {
         yield put(
@@ -733,7 +742,10 @@ function* loadChapterSaga() {
           canLoadMore,
           nextPage = page + 1,
           nextExtra = extra,
-        } = trycatch(() => plugin.handleChapter(data, mangaId, chapterId, page));
+        } = trycatch(
+          () => plugin.handleChapter(data, mangaId, chapterId, page),
+          '章节数据解析错误: '
+        );
 
         if (fetchError || pluginError) {
           error = fetchError || pluginError;
