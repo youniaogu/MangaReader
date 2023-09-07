@@ -1,13 +1,5 @@
 import queryString from 'query-string';
 
-export interface FetchData {
-  url: string;
-  method?: GET | POST;
-  body?: FormData | Record<string, any>;
-  headers?: Headers;
-  timeout?: number;
-}
-
 export const fetchData = ({
   url,
   method = 'GET',

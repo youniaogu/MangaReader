@@ -13,6 +13,7 @@ const { batchUpdate } = action;
 const Home = ({ navigation: { navigate } }: StackHomeProps) => {
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
+  const failList = useAppSelector((state) => state.batch.fail);
   const activeList = useAppSelector((state) => state.batch.stack);
   const loadStatus = useAppSelector((state) => state.app.launchStatus);
 
@@ -37,6 +38,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
     <Bookshelf
       emptyText="还没有收藏~"
       list={favoriteList}
+      failList={failList}
       trendList={trendList}
       activeList={activeList}
       negativeList={negativeList}

@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { useDelayRender, useSplitWidth } from '~/hooks';
-import { Box, Text, Icon, Pressable } from 'native-base';
+import { Box, Text, Icon, HStack, Pressable } from 'native-base';
 import { Keyboard, StyleSheet } from 'react-native';
 import { coverAspectRatio } from '~/utils';
 import { CachedImage } from '@georstat/react-native-image-cache';
@@ -13,6 +13,7 @@ import Empty from '~/components/Empty';
 
 interface BookshelfProps {
   list: Manga[];
+  failList?: string[];
   trendList?: string[];
   activeList?: string[];
   negativeList?: string[];
@@ -25,6 +26,7 @@ interface BookshelfProps {
 
 const Bookshelf = ({
   list,
+  failList,
   trendList,
   activeList,
   negativeList,
@@ -43,11 +45,12 @@ const Bookshelf = ({
   const extraData = useMemo(
     () => ({
       width: itemWidth,
+      fail: failList || [],
       trend: trendList || [],
       active: activeList || [],
       negative: negativeList || [],
     }),
-    [itemWidth, activeList, trendList, negativeList]
+    [itemWidth, failList, trendList, activeList, negativeList]
   );
 
   const handlePress = (hash: string) => {
@@ -85,7 +88,7 @@ const Bookshelf = ({
       ListFooterComponent={
         loading ? <SpinLoading height={24} safeAreaBottom /> : <Box height={0} safeAreaBottom />
       }
-      renderItem={({ item, extraData: { width, active, trend, negative } }) => (
+      renderItem={({ item, extraData: { width, fail, trend, active, negative } }) => (
         <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>
           <Box width={width + gap} flexDirection="column" p={`${gap / 2}px`}>
             <Box position="relative" shadow={0} bg="white" borderRadius={6}>
@@ -111,18 +114,20 @@ const Bookshelf = ({
                   </Text>
                 </Box>
               )}
-              {negative.includes(item.hash) && (
-                <Icon
-                  shadow="icon"
-                  position="absolute"
-                  top={1}
-                  right={1}
-                  as={MaterialIcons}
-                  name="lock"
-                  size="sm"
-                  color="purple.700"
-                />
-              )}
+              <HStack position="absolute" top={1} right={1}>
+                {fail.includes(item.hash) && (
+                  <Icon
+                    shadow="icon"
+                    as={MaterialIcons}
+                    name="report"
+                    size="md"
+                    color="yellow.500"
+                  />
+                )}
+                {negative.includes(item.hash) && (
+                  <Icon shadow="icon" as={MaterialIcons} name="lock" size="md" color="purple.500" />
+                )}
+              </HStack>
               <WhiteCurtain actived={active.includes(item.hash)}>
                 <Box
                   position="absolute"
