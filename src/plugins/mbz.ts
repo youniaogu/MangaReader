@@ -224,7 +224,7 @@ class MangaBZ extends Base {
       $('#chapterlistload a.detail-list-form-item').toArray() as cheerio.TagElement[]
     ).map((a) => {
       const chapterHref = a.attribs.href;
-      const chapterTitle = a.children[0].data || '';
+      const chapterTitle = (a.children[0].data || '').trim();
       const [, chapterId] = chapterHref.match(PATTERN_CHAPTER_ID) || [];
 
       return {

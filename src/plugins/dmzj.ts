@@ -225,6 +225,10 @@ class DongManZhiJia extends Base {
   };
 
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
+    if (text?.includes('因版权、国家法规等原因，此漫画暂不提供观看，敬请谅解。')) {
+      throw new Error('因版权、国家法规等原因，此漫画暂不提供观看，敬请谅解。');
+    }
+
     const $ = cheerio.load(text || '');
     const manga: IncreaseManga = {
       href: '',

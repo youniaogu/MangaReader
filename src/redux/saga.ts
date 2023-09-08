@@ -511,7 +511,7 @@ function* loadDiscoverySaga() {
       );
       const { error: pluginError, discovery } = trycatch(
         () => plugin.handleDiscovery(data),
-        '漫画数据解析错误: '
+        '漫画数据解析错误：'
       );
 
       yield put(loadDiscoveryCompletion({ error: fetchError || pluginError, data: discovery }));
@@ -549,7 +549,7 @@ function* loadSearchSaga() {
       );
       const { error: pluginError, search } = trycatch(
         () => plugin.handleSearch(data),
-        '漫画数据解析错误: '
+        '漫画数据解析错误：'
       );
 
       yield put(loadSearchCompletion({ error: fetchError || pluginError, data: search }));
@@ -639,7 +639,7 @@ function* loadMangaInfoSaga() {
       );
       const { error: pluginError, manga } = trycatch(
         () => plugin.handleMangaInfo(data),
-        '漫画详情解析错误: '
+        '漫画详情解析错误：'
       );
 
       yield put(
@@ -672,7 +672,7 @@ function* loadChapterListSaga() {
         error: pluginError,
         chapterList = [],
         canLoadMore,
-      } = trycatch(() => plugin.handleChapterList(data, mangaId), '章节列表解析错误: ');
+      } = trycatch(() => plugin.handleChapterList(data, mangaId), '章节列表解析错误：');
 
       if (pluginError || fetchError) {
         yield put(
@@ -744,7 +744,7 @@ function* loadChapterSaga() {
           nextExtra = extra,
         } = trycatch(
           () => plugin.handleChapter(data, mangaId, chapterId, page),
-          '章节数据解析错误: '
+          '章节数据解析错误：'
         );
 
         if (fetchError || pluginError) {
