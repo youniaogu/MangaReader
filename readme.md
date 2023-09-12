@@ -31,16 +31,6 @@
 - [x] [漫画 bz](https://mangabz.com/)（需要代理）
 - [x] [包子漫画](https://cn.baozimh.com/)（不需要代理但海外 ip 会走 cloudflare，需要在 webview 里通过校验）
 
-## 安装依赖
-
-```bash
-> git clone https://github.com/youniaogu/MangaReader.git
-> cd MangaReader
-> yarn install
-> cd ios
-> pod install
-```
-
 ## 使用指南
 
 <div>
@@ -68,9 +58,11 @@ nhentai 开启了 cloudflare 的 ddos 保护，在使用此插件前，请遵循
 webview 存在 bug，需要安卓版本 9 及以上
 
 <div>
-  <img src="./static/nh_step1.png" alt="nh_step1" width="250">
-  <img src="./static/nh_step2.png" alt="nh_step2" width="250">
-  <img src="./static/nh_step3.jpg" alt="nh_step3" width="250">
+  <img src="./static/cloudflare_step1.jpeg" alt="cloudflare_step1" width="250">
+  <img src="./static/cloudflare_step2.jpeg" alt="cloudflare_step2" width="250">
+  <img src="./static/cloudflare_step3.jpeg" alt="cloudflare_step3" width="250">
+  <img src="./static/cloudflare_step4.jpeg" alt="cloudflare_step4" width="250">
+  <img src="./static/cloudflare_step5.jpeg" alt="cloudflare_step5" width="250">
 </div>
 
 ## 登录认证相关
@@ -80,8 +72,9 @@ webview 存在 bug，需要安卓版本 9 及以上
 哔咔漫画需要登录后才能访问，所以请按下面图示流程在 webview 里登录并获取 token
 
 <div>
-  <img src="./static/pica_step1.jpg" alt="pica_step1" width="250">
-  <img src="./static/pica_step2.jpg" alt="pica_step2" width="250">
+  <img src="./static/pica_step1.jpeg" alt="pica_step1" width="250">
+  <img src="./static/pica_step2.jpeg" alt="pica_step2" width="250">
+  <img src="./static/pica_step3.jpeg" alt="pica_step3" width="250">
 </div>
 
 ## 关于 App
