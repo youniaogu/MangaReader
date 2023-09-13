@@ -135,17 +135,17 @@ const datasyncSlice = createSlice({
       }
       state.syncStatus = AsyncStatus.Fulfilled;
     },
-    backupToClipboard(state) {
+    backup(state) {
       state.backupStatus = AsyncStatus.Pending;
     },
-    backupToClipboardCompletion(state, action: FetchResponseAction) {
+    backupCompletion(state, action: FetchResponseAction) {
       if (action.payload.error) {
-        state.syncStatus = AsyncStatus.Rejected;
+        state.backupStatus = AsyncStatus.Rejected;
         return;
       }
-      state.syncStatus = AsyncStatus.Fulfilled;
+      state.backupStatus = AsyncStatus.Fulfilled;
     },
-    restore(state, _action: PayloadAction<string>) {
+    restore(state) {
       state.restoreStatus = AsyncStatus.Pending;
     },
     restoreCompletion(state, action: FetchResponseAction) {

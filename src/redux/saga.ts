@@ -34,10 +34,12 @@ import { Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, PluginMap } from '~/plugins';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { FileSystem } from 'react-native-file-access';
+import { Dirs, FileSystem } from 'react-native-file-access';
 import { action } from './slice';
+import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import LZString from 'lz-string';
+import moment from 'moment';
+import Share from 'react-native-share';
 
 const {
   // app
@@ -47,6 +49,8 @@ const {
   // datasync
   syncData,
   syncDataCompletion,
+  backup,
+  backupCompletion,
   restore,
   restoreCompletion,
   clearCache,
@@ -258,12 +262,36 @@ function* syncDataSaga() {
     }
   });
 }
-function* restoreSaga() {
-  yield takeLatestSuspense(restore.type, function* ({ payload }: ReturnType<typeof restore>) {
+function* backupSaga() {
+  yield takeLeadingSuspense(backup.type, function* () {
     try {
+      const data = ((state: RootState) => JSON.stringify(state))(yield select());
+      const filename = 'MangaReader备份数据' + moment().format('YYYY-MM-DD');
+      const path = `${Dirs.CacheDir}/${filename}.txt`;
+
+      yield call(FileSystem.writeFile, path, data);
+      yield call(Share.open, { filename, url: path, type: 'text/plain', showAppsToView: true });
+      yield put(toastMessage('备份完成'));
+      yield put(backupCompletion({ error: undefined }));
+    } catch (error) {
+      yield put(
+        backupCompletion({
+          error: new Error(
+            '备份失败: ' + (error instanceof Error ? error.message : ErrorMessage.Unknown)
+          ),
+        })
+      );
+    }
+  });
+}
+function* restoreSaga() {
+  yield takeLatestSuspense(restore.type, function* () {
+    try {
+      const res: DocumentPickerResponse = yield call(DocumentPicker.pickSingle);
+      const source: string = yield call(FileSystem.readFile, res.uri);
+      const data = fixRestoreShape(JSON.parse(source));
       const favorites = ((state: RootState) => state.favorites)(yield select());
       const dict = ((state: RootState) => state.dict)(yield select());
-      const data = fixRestoreShape(JSON.parse(LZString.decompressFromBase64(payload) || 'null'));
       const newFavorites = data.favorites.filter(
         (hash) => favorites.findIndex((item) => item.mangaHash === hash) === -1
       );
@@ -280,14 +308,15 @@ function* restoreSaga() {
       yield take(endBatchUpdate.type);
       yield put(restoreCompletion({ error: undefined }));
       yield delay(0);
-      yield put(toastMessage('数据恢复成功'));
+      yield put(toastMessage('恢复完成'));
     } catch (error) {
-      yield put(toastMessage('数据恢复失败'));
-      if (error instanceof Error) {
-        yield put(restoreCompletion({ error }));
-      } else {
-        yield put(restoreCompletion({ error: new Error(ErrorMessage.Unknown) }));
-      }
+      yield put(
+        restoreCompletion({
+          error: new Error(
+            '恢复失败: ' + (error instanceof Error ? error.message : ErrorMessage.Unknown)
+          ),
+        })
+      );
     }
   });
 }
@@ -1060,6 +1089,7 @@ export default function* rootSaga() {
     fork(launchSaga),
     fork(pluginSyncDataSaga),
     fork(syncDataSaga),
+    fork(backupSaga),
     fork(restoreSaga),
     fork(storageDataSaga),
     fork(clearCacheSaga),

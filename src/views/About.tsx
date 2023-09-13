@@ -1,4 +1,4 @@
-import React, { useMemo, Fragment } from 'react';
+import React, { Fragment } from 'react';
 import {
   Icon,
   Text,
@@ -8,31 +8,23 @@ import {
   VStack,
   Center,
   ScrollView,
-  useToast,
   useDisclose,
 } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
-import { AsyncStatus, BackupRestore } from '~/utils';
-import { CacheManager } from '@georstat/react-native-image-cache';
 import { Linking, Platform } from 'react-native';
-import ActionsheetSelect from '~/components/ActionsheetSelect';
+import { CacheManager } from '@georstat/react-native-image-cache';
+import { AsyncStatus } from '~/utils';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import PathModal from '~/components/PathModal';
-import Clipboard from '@react-native-clipboard/clipboard';
-import LZString from 'lz-string';
 
-const { restore, clearCache, loadLatestRelease, setAndroidDownloadPath } = action;
+const { backup, restore, clearCache, loadLatestRelease, setAndroidDownloadPath } = action;
 const christmasGif = require('~/assets/christmas.gif');
-const BackupRestoreOptions = [{ label: '剪贴板', value: BackupRestore.Clipboard }];
 
 const About = () => {
-  const toast = useToast();
   const { isOpen: isClearing, onOpen: openClearing, onClose: closeClearing } = useDisclose();
   const { isOpen: isModalOpen, onOpen: onModalOpen, onClose: onModalClose } = useDisclose();
-  const { isOpen: isBackupOpen, onOpen: onBackupOpen, onClose: onBackupClose } = useDisclose();
-  const { isOpen: isRestoreOpen, onOpen: onRestoreOpen, onClose: onRestoreClose } = useDisclose();
   const {
     isOpen: isAlbumPathOpen,
     onOpen: onAlbumPathOpen,
@@ -40,46 +32,20 @@ const About = () => {
   } = useDisclose();
   const dispatch = useAppDispatch();
   const release = useAppSelector((state) => state.release);
-  const favorites = useAppSelector((state) => state.favorites);
-  const lastWatch = useAppSelector((state) => state.dict.lastWatch);
   const clearStatus = useAppSelector((state) => state.datasync.clearStatus);
+  const backupStatus = useAppSelector((state) => state.datasync.backupStatus);
   const restoreStatus = useAppSelector((state) => state.datasync.restoreStatus);
   const androidDownloadPath = useAppSelector((state) => state.setting.androidDownloadPath);
-
-  const compressed = useMemo(() => {
-    const hashList = favorites.map((item) => item.mangaHash);
-    const savedLastWatch: typeof lastWatch = {};
-    for (let hash in lastWatch) {
-      if (hashList.includes(hash)) {
-        savedLastWatch[hash] = lastWatch[hash];
-      }
-    }
-    const uncompressed = JSON.stringify({
-      createTime: new Date().getTime(),
-      favorites: hashList,
-      lastWatch: savedLastWatch,
-    });
-    return LZString.compressToBase64(uncompressed);
-  }, [favorites, lastWatch]);
 
   const handleRetry = () => {
     dispatch(loadLatestRelease());
   };
 
-  const handleBackupChange = (value: string) => {
-    if (value === BackupRestore.Clipboard) {
-      Clipboard.setString(compressed);
-      toast.show({ title: '复制成功' });
-    }
+  const handleBackup = () => {
+    dispatch(backup());
   };
-  const handleRestoreChange = (value: string) => {
-    if (value === BackupRestore.Clipboard) {
-      Clipboard.hasString().then((hasContent: boolean) => {
-        if (hasContent) {
-          Clipboard.getString().then((data) => dispatch(restore(data)));
-        }
-      });
-    }
+  const handleRestore = () => {
+    dispatch(restore());
   };
 
   const handleApkDownload = () => {
@@ -176,8 +142,9 @@ const About = () => {
         <Button
           shadow={2}
           _text={{ fontWeight: 'bold' }}
+          isLoading={backupStatus === AsyncStatus.Pending}
           leftIcon={<Icon as={MaterialIcons} name="backup" size="lg" />}
-          onPress={onBackupOpen}
+          onPress={handleBackup}
         >
           备份
         </Button>
@@ -186,7 +153,7 @@ const About = () => {
           isLoading={restoreStatus === AsyncStatus.Pending}
           _text={{ fontWeight: 'bold' }}
           leftIcon={<Icon as={MaterialIcons} name="restore" size="lg" />}
-          onPress={onRestoreOpen}
+          onPress={handleRestore}
         >
           恢复
         </Button>
@@ -224,28 +191,6 @@ const About = () => {
         )}
       </VStack>
 
-      <ActionsheetSelect
-        isOpen={isBackupOpen}
-        onClose={onBackupClose}
-        options={BackupRestoreOptions}
-        onChange={handleBackupChange}
-        headerComponent={
-          <Text w="full" pl={4} pb={4} color="gray.500" fontSize={16}>
-            备份
-          </Text>
-        }
-      />
-      <ActionsheetSelect
-        isOpen={isRestoreOpen}
-        onClose={onRestoreClose}
-        options={BackupRestoreOptions}
-        onChange={handleRestoreChange}
-        headerComponent={
-          <Text w="full" pl={4} pb={4} color="gray.500" fontSize={16}>
-            恢复
-          </Text>
-        }
-      />
       <Modal useRNModal size="xl" isOpen={isModalOpen} onClose={onModalClose}>
         <Modal.Content>
           <Modal.Header>警告</Modal.Header>
