@@ -15,6 +15,7 @@
     "preinstall": "npx only-allow yarn",
     "postinstall": "patch-package",
     "prepare": "husky install",
+    "jsonschema": "typescript-json-schema ./tsconfig.json RootStateType -o ./src/types/schema.json --required",
     "lint": "eslint \"**/*.{ts,tsx}\"",
     "test": "jest"
   },
@@ -34,6 +35,7 @@
     "buffer": "^6.0.3",
     "cheerio": "1.0.0-rc.10",
     "crypto-js": "^4.1.1",
+    "json-schema-library": "^9.0.3",
     "lz-string": "^1.4.4",
     "moment": "^2.29.4",
     "native-base": "^3.4.4",

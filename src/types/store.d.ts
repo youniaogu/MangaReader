@@ -10,12 +10,6 @@ import {
 import { Plugin } from '~/plugins';
 
 declare global {
-  interface BackupData {
-    createTime: number;
-    favorites: string[];
-    lastWatch?: RootState['dict']['lastWatch'];
-  }
-
   interface Manga {
     href: string;
     hash: string;
@@ -186,3 +180,5 @@ declare global {
     };
   }
 }
+
+export type ExportRootState = { A: string };

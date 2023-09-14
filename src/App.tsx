@@ -90,4 +90,7 @@ const App = () => {
   );
 };
 
+/** for the json schema generate */
+/** https://github.com/YousefED/typescript-json-schema/issues/307 */
+export type RootStateType = RootState;
 export default App;

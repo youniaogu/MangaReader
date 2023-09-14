@@ -1,4 +1,5 @@
 import { defaultPlugin, defaultPluginList } from '~/plugins';
+import { Draft, Draft07, JsonError } from 'json-schema-library';
 import { ErrorMessage, LightSwitch } from './enum';
 import { delay, race, Effect } from 'redux-saga/effects';
 import { Platform } from 'react-native';
@@ -6,6 +7,7 @@ import { Dirs } from 'react-native-file-access';
 import CookieManager from '@react-native-cookies/cookies';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
+import schema from '~/types/schema.json';
 
 export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)/;
 export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
@@ -143,30 +145,14 @@ export function fixTaskShape(task: RootState['task']): RootState['task'] {
   return task;
 }
 
-export function fixRestoreShape(data: BackupData): BackupData {
-  if (!nonNullable || typeof data !== 'object') {
-    data = { createTime: 0, favorites: [], lastWatch: {} };
-  }
-  if (typeof data.createTime !== 'number') {
-    data.createTime = 0;
-  }
-  if (!Array.isArray(data.favorites)) {
-    data.favorites = [];
-  }
-  data.favorites = data.favorites.filter((item: any) => typeof item === 'string');
-  if (typeof data.lastWatch !== 'object') {
-    data.lastWatch = {};
-  }
-  for (let key in data.lastWatch) {
-    const item = data.lastWatch[key];
-    data.lastWatch[key] = {
-      page: item && typeof item.page === 'number' ? item.page : undefined,
-      chapter: item && typeof item.chapter === 'string' ? item.chapter : undefined,
-      title: item && typeof item.title === 'string' ? item.title : undefined,
-    };
-  }
+export function validateRootState(data: any): data is RootState {
+  const jsonSchema: Draft = new Draft07(schema);
+  const errors: JsonError[] = jsonSchema.validate(data);
 
-  return data;
+  if (errors.length > 0) {
+    return false;
+  }
+  return true;
 }
 
 export function getLatestRelease(

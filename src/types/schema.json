@@ -1,0 +1,678 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "AsyncStatus": {
+            "description": "enum of any async status",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "type": "number"
+        },
+        "Job": {
+            "properties": {
+                "album": {
+                    "type": "string"
+                },
+                "chapterHash": {
+                    "type": "string"
+                },
+                "headers": {
+                    "$ref": "#/definitions/Record<string,string>"
+                },
+                "index": {
+                    "type": "number"
+                },
+                "jobId": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "taskId": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/TaskType"
+                }
+            },
+            "required": [
+                "album",
+                "chapterHash",
+                "index",
+                "jobId",
+                "source",
+                "status",
+                "taskId",
+                "type"
+            ],
+            "type": "object"
+        },
+        "LatestRelease": {
+            "properties": {
+                "changeLog": {
+                    "type": "string"
+                },
+                "file": {
+                    "properties": {
+                        "apk": {
+                            "properties": {
+                                "downloadUrl": {
+                                    "type": "string"
+                                },
+                                "size": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "downloadUrl",
+                                "size"
+                            ],
+                            "type": "object"
+                        },
+                        "ipa": {
+                            "properties": {
+                                "downloadUrl": {
+                                    "type": "string"
+                                },
+                                "size": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "downloadUrl",
+                                "size"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "apk",
+                        "ipa"
+                    ],
+                    "type": "object"
+                },
+                "publishTime": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "changeLog",
+                "publishTime",
+                "url",
+                "version"
+            ],
+            "type": "object"
+        },
+        "LayoutMode": {
+            "description": "enum layoutmode of Reader component",
+            "enum": [
+                "horizontal",
+                "vertical"
+            ],
+            "type": "string"
+        },
+        "LightSwitch": {
+            "enum": [
+                "Off",
+                "On"
+            ],
+            "type": "string"
+        },
+        "Plugin": {
+            "enum": [
+                "BZM",
+                "COPY",
+                "DMZJ",
+                "JMC",
+                "KL",
+                "MBZ",
+                "MHDB",
+                "MHG",
+                "MHGM",
+                "MHM",
+                "NH",
+                "PICA"
+            ],
+            "type": "string"
+        },
+        "ReaderDirection": {
+            "enum": [
+                "left",
+                "right"
+            ],
+            "type": "string"
+        },
+        "Record<string,Chapter|undefined>": {
+            "type": "object"
+        },
+        "Record<string,Manga|undefined>": {
+            "type": "object"
+        },
+        "Record<string,any>": {
+            "type": "object"
+        },
+        "Record<string,string>": {
+            "type": "object"
+        },
+        "Record<string,{page?:number|undefined;chapter?:string|undefined;title?:string|undefined;}>": {
+            "type": "object"
+        },
+        "Record<string,{total:number;progress:number;imagesLoaded:number[];isVisited:boolean;}>": {
+            "type": "object"
+        },
+        "Release": {
+            "properties": {
+                "latest": {
+                    "$ref": "#/definitions/LatestRelease"
+                },
+                "loadStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "publishTime": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "loadStatus",
+                "name",
+                "publishTime",
+                "version"
+            ],
+            "type": "object"
+        },
+        "Sequence": {
+            "enum": [
+                "Asc",
+                "Desc"
+            ],
+            "type": "string"
+        },
+        "Task": {
+            "properties": {
+                "chapterHash": {
+                    "type": "string"
+                },
+                "fail": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "headers": {
+                    "$ref": "#/definitions/Record<string,string>"
+                },
+                "pending": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "queue": {
+                    "items": {
+                        "properties": {
+                            "index": {
+                                "type": "number"
+                            },
+                            "jobId": {
+                                "type": "string"
+                            },
+                            "source": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "index",
+                            "jobId",
+                            "source"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "status": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "success": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "taskId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/TaskType"
+                }
+            },
+            "required": [
+                "chapterHash",
+                "fail",
+                "pending",
+                "queue",
+                "status",
+                "success",
+                "taskId",
+                "title",
+                "type"
+            ],
+            "type": "object"
+        },
+        "TaskType": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        }
+    },
+    "properties": {
+        "app": {
+            "properties": {
+                "launchStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "message": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "launchStatus",
+                "message"
+            ],
+            "type": "object"
+        },
+        "batch": {
+            "properties": {
+                "fail": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "loadStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "queue": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "stack": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "success": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "fail",
+                "loadStatus",
+                "queue",
+                "stack",
+                "success"
+            ],
+            "type": "object"
+        },
+        "chapter": {
+            "properties": {
+                "loadStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "loadingChapterHash": {
+                    "type": "string"
+                },
+                "openDrawer": {
+                    "type": "boolean"
+                },
+                "showDrawer": {
+                    "type": "boolean"
+                }
+            },
+            "required": [
+                "loadStatus",
+                "loadingChapterHash",
+                "openDrawer",
+                "showDrawer"
+            ],
+            "type": "object"
+        },
+        "datasync": {
+            "properties": {
+                "backupStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "clearStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "restoreStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "syncStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                }
+            },
+            "required": [
+                "backupStatus",
+                "clearStatus",
+                "restoreStatus",
+                "syncStatus"
+            ],
+            "type": "object"
+        },
+        "dict": {
+            "properties": {
+                "chapter": {
+                    "$ref": "#/definitions/Record<string,Chapter|undefined>"
+                },
+                "lastWatch": {
+                    "$ref": "#/definitions/Record<string,{page?:number|undefined;chapter?:string|undefined;title?:string|undefined;}>"
+                },
+                "manga": {
+                    "$ref": "#/definitions/Record<string,Manga|undefined>"
+                },
+                "record": {
+                    "$ref": "#/definitions/Record<string,{total:number;progress:number;imagesLoaded:number[];isVisited:boolean;}>"
+                }
+            },
+            "required": [
+                "chapter",
+                "lastWatch",
+                "manga",
+                "record"
+            ],
+            "type": "object"
+        },
+        "discovery": {
+            "properties": {
+                "filter": {
+                    "$ref": "#/definitions/Record<string,string>"
+                },
+                "isEnd": {
+                    "type": "boolean"
+                },
+                "list": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "loadStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "page": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "filter",
+                "isEnd",
+                "list",
+                "loadStatus",
+                "page"
+            ],
+            "type": "object"
+        },
+        "favorites": {
+            "items": {
+                "properties": {
+                    "enableBatch": {
+                        "type": "boolean"
+                    },
+                    "isTrend": {
+                        "type": "boolean"
+                    },
+                    "mangaHash": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "enableBatch",
+                    "isTrend",
+                    "mangaHash"
+                ],
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "manga": {
+            "properties": {
+                "loadStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "loadingMangaHash": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "loadStatus",
+                "loadingMangaHash"
+            ],
+            "type": "object"
+        },
+        "plugin": {
+            "properties": {
+                "extra": {
+                    "$ref": "#/definitions/Record<string,any>"
+                },
+                "list": {
+                    "items": {
+                        "properties": {
+                            "description": {
+                                "type": "string"
+                            },
+                            "disabled": {
+                                "type": "boolean"
+                            },
+                            "href": {
+                                "type": "string"
+                            },
+                            "injectedJavaScript": {
+                                "type": "string"
+                            },
+                            "label": {
+                                "type": "string"
+                            },
+                            "name": {
+                                "type": "string"
+                            },
+                            "score": {
+                                "type": "number"
+                            },
+                            "userAgent": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "$ref": "#/definitions/Plugin"
+                            }
+                        },
+                        "required": [
+                            "description",
+                            "disabled",
+                            "href",
+                            "label",
+                            "name",
+                            "score",
+                            "value"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "source": {
+                    "$ref": "#/definitions/Plugin"
+                }
+            },
+            "required": [
+                "extra",
+                "list",
+                "source"
+            ],
+            "type": "object"
+        },
+        "release": {
+            "$ref": "#/definitions/Release"
+        },
+        "search": {
+            "properties": {
+                "filter": {
+                    "$ref": "#/definitions/Record<string,string>"
+                },
+                "isEnd": {
+                    "type": "boolean"
+                },
+                "keyword": {
+                    "type": "string"
+                },
+                "list": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "loadStatus": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "page": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "filter",
+                "isEnd",
+                "keyword",
+                "list",
+                "loadStatus",
+                "page"
+            ],
+            "type": "object"
+        },
+        "setting": {
+            "properties": {
+                "androidDownloadPath": {
+                    "type": "string"
+                },
+                "direction": {
+                    "$ref": "#/definitions/ReaderDirection"
+                },
+                "light": {
+                    "$ref": "#/definitions/LightSwitch"
+                },
+                "mode": {
+                    "$ref": "#/definitions/LayoutMode"
+                },
+                "sequence": {
+                    "$ref": "#/definitions/Sequence"
+                }
+            },
+            "required": [
+                "androidDownloadPath",
+                "direction",
+                "light",
+                "mode",
+                "sequence"
+            ],
+            "type": "object"
+        },
+        "task": {
+            "properties": {
+                "job": {
+                    "properties": {
+                        "list": {
+                            "items": {
+                                "$ref": "#/definitions/Job"
+                            },
+                            "type": "array"
+                        },
+                        "max": {
+                            "type": "number"
+                        },
+                        "thread": {
+                            "items": {
+                                "properties": {
+                                    "jobId": {
+                                        "type": "string"
+                                    },
+                                    "taskId": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "jobId",
+                                    "taskId"
+                                ],
+                                "type": "object"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "required": [
+                        "list",
+                        "max",
+                        "thread"
+                    ],
+                    "type": "object"
+                },
+                "list": {
+                    "items": {
+                        "$ref": "#/definitions/Task"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "job",
+                "list"
+            ],
+            "type": "object"
+        }
+    },
+    "required": [
+        "app",
+        "batch",
+        "chapter",
+        "datasync",
+        "dict",
+        "discovery",
+        "favorites",
+        "manga",
+        "plugin",
+        "release",
+        "search",
+        "setting",
+        "task"
+    ],
+    "type": "object"
+}
+

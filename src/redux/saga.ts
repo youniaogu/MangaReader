@@ -19,7 +19,7 @@ import {
   fixPluginShape,
   fixSettingShape,
   fixTaskShape,
-  fixRestoreShape,
+  validateRootState,
   getLatestRelease,
   dictToPairs,
   pairsToDict,
@@ -269,7 +269,7 @@ function* backupSaga() {
       const filename = 'MangaReader备份数据' + moment().format('YYYY-MM-DD');
       const path = `${Dirs.CacheDir}/${filename}.txt`;
 
-      yield call(FileSystem.writeFile, path, data);
+      yield call(FileSystem.writeFile, path, data, 'utf8');
       yield call(Share.open, { filename, url: path, type: 'text/plain', showAppsToView: true });
       yield put(toastMessage('备份完成'));
       yield put(backupCompletion({ error: undefined }));
@@ -289,25 +289,18 @@ function* restoreSaga() {
     try {
       const res: DocumentPickerResponse = yield call(DocumentPicker.pickSingle);
       const source: string = yield call(FileSystem.readFile, res.uri);
-      const data = fixRestoreShape(JSON.parse(source));
-      const favorites = ((state: RootState) => state.favorites)(yield select());
-      const dict = ((state: RootState) => state.dict)(yield select());
-      const newFavorites = data.favorites.filter(
-        (hash) => favorites.findIndex((item) => item.mangaHash === hash) === -1
-      );
+      const data = JSON.parse(source);
 
-      yield put(toastMessage('正在进行数据恢复'));
-      yield put(
-        syncFavorites([
-          ...newFavorites.map((mangaHash) => ({ mangaHash, isTrend: false, enableBatch: true })),
-          ...favorites,
-        ])
-      );
-      yield put(syncDict({ ...dict, lastWatch: { ...dict.lastWatch, ...data.lastWatch } }));
-      yield put(batchUpdate(newFavorites));
-      yield take(endBatchUpdate.type);
+      if (!validateRootState(data)) {
+        throw new Error('数据格式错误');
+      }
+
+      yield put(syncFavorites(data.favorites));
+      yield put(syncPlugin(data.plugin));
+      yield put(syncSetting(data.setting));
+      yield put(syncTask(data.task));
+      yield put(syncDict(data.dict));
       yield put(restoreCompletion({ error: undefined }));
-      yield delay(0);
       yield put(toastMessage('恢复完成'));
     } catch (error) {
       yield put(
@@ -474,11 +467,11 @@ function* batchUpdateSaga() {
           const [, seconds] = fetchError.message.match(/([0-9]+) ?s/) || [];
           const timeout = Math.min(Number(seconds), 60) * 1000;
 
-          if (retry <= 3) {
+          if (retry < 3) {
             queue.push({ hash, retry: retry + 1 });
           }
 
-          yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry <= 3 }));
+          yield put(outStack({ isSuccess: false, isTrend: false, hash, isRetry: retry < 3 }));
           yield delay(timeout || plugin.batchDelay);
         } else {
           const prev = dict.manga[hash]?.chapters;
