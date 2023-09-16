@@ -38,6 +38,7 @@ import { Dirs, FileSystem } from 'react-native-file-access';
 import { action } from './slice';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import base64 from 'base-64';
 import moment from 'moment';
 import Share from 'react-native-share';
 
@@ -265,12 +266,19 @@ function* syncDataSaga() {
 function* backupSaga() {
   yield takeLeadingSuspense(backup.type, function* () {
     try {
-      const data = ((state: RootState) => JSON.stringify(state))(yield select());
+      const data = ((state: RootState) => base64.encode(encodeURIComponent(JSON.stringify(state))))(
+        yield select()
+      );
       const filename = 'MangaReader备份数据' + moment().format('YYYY-MM-DD');
       const path = `${Dirs.CacheDir}/${filename}.txt`;
 
-      yield call(FileSystem.writeFile, path, data, 'utf8');
-      yield call(Share.open, { filename, url: path, type: 'text/plain', showAppsToView: true });
+      yield call(FileSystem.writeFile, path, data, 'base64');
+      yield call(Share.open, {
+        filename,
+        type: 'text/plain',
+        url: Platform.OS === 'ios' ? path : 'data:text/plain;base64,' + data,
+        showAppsToView: true,
+      });
       yield put(toastMessage('备份完成'));
       yield put(backupCompletion({ error: undefined }));
     } catch (error) {
@@ -288,8 +296,10 @@ function* restoreSaga() {
   yield takeLatestSuspense(restore.type, function* () {
     try {
       const res: DocumentPickerResponse = yield call(DocumentPicker.pickSingle);
-      const source: string = yield call(FileSystem.readFile, res.uri);
-      const data = JSON.parse(source);
+      const source: string = yield call(FileSystem.readFile, res.uri, 'base64');
+      const data = JSON.parse(
+        decodeURIComponent(base64.decode(source.replace('datatext/plainbase64', '')))
+      );
 
       if (!validateRootState(data)) {
         throw new Error('数据格式错误');
