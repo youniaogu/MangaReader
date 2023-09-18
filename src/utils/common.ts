@@ -1,13 +1,10 @@
-import { defaultPlugin, defaultPluginList } from '~/plugins';
-import { Draft, Draft07, JsonError } from 'json-schema-library';
-import { ErrorMessage, LightSwitch } from './enum';
+import { Draft, Draft07, JsonError, JsonSchema } from 'json-schema-library';
 import { delay, race, Effect } from 'redux-saga/effects';
+import { ErrorMessage } from './enum';
 import { Platform } from 'react-native';
-import { Dirs } from 'react-native-file-access';
 import CookieManager from '@react-native-cookies/cookies';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
-import schema from '~/types/schema.json';
 
 export const PATTERN_VERSION = /v?([0-9]+)\.([0-9]+)\.([0-9]+)/;
 export const PATTERN_PUBLISH_TIME = /([0-9]+)-([0-9]+)-([0-9]+)/;
@@ -74,78 +71,7 @@ export function haveError(payload: any): payload is { error: Error } {
   return payload && payload.error instanceof Error;
 }
 
-export function fixDictShape(dict: RootState['dict']): RootState['dict'] {
-  const mangaDict = dict.manga;
-  for (let key in mangaDict) {
-    const manga = mangaDict[key];
-    if (!manga) {
-      continue;
-    }
-
-    if (!Array.isArray(manga.author)) {
-      manga.author = [];
-    }
-    if (!Array.isArray(manga.tag)) {
-      manga.tag = [];
-    }
-  }
-
-  if (!nonNullable(dict.record)) {
-    dict.record = {};
-  }
-  if (!nonNullable(dict.lastWatch)) {
-    dict.lastWatch = {};
-  }
-
-  return dict;
-}
-
-export function fixSettingShape(setting: RootState['setting']): RootState['setting'] {
-  if (!nonNullable(setting.light)) {
-    setting.light = LightSwitch.Off;
-  }
-  if (!nonNullable(setting.androidDownloadPath)) {
-    setting.androidDownloadPath = Dirs.SDCardDir + '/DCIM';
-  }
-
-  return setting;
-}
-
-export function fixPluginShape(plugin: RootState['plugin']): RootState['plugin'] {
-  if (!nonNullable(plugin.source)) {
-    plugin.source = defaultPlugin;
-  }
-  if (!Array.isArray(plugin.list)) {
-    plugin.list = defaultPluginList;
-  }
-  if (!nonNullable(plugin.extra)) {
-    plugin.extra = {};
-  }
-
-  return plugin;
-}
-
-export function fixTaskShape(task: RootState['task']): RootState['task'] {
-  if (!Array.isArray(task.list)) {
-    task.list = [];
-  }
-  if (nonNullable(task.job)) {
-    task.job = { list: [], max: 5, thread: [] };
-  }
-  if (!Array.isArray(task.job.list)) {
-    task.job.list = [];
-  }
-  if (!Array.isArray(task.job.thread)) {
-    task.job.thread = [];
-  }
-  if (typeof task.job.max !== 'number') {
-    task.job.max = 5;
-  }
-
-  return task;
-}
-
-export function validateRootState(data: any): data is RootState {
+export function validate<T = any>(data: T, schema?: JsonSchema): data is T {
   const jsonSchema: Draft = new Draft07(schema);
   const errors: JsonError[] = jsonSchema.validate(data);
 

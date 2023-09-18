@@ -243,7 +243,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
               right={`${gap / 3}px`}
             />
           )}
-          {!multiple && record && record.progress > 0 && (
+          {!multiple && record && record.progress >= 0 && (
             <Icon
               as={MaterialIcons}
               size="xs"

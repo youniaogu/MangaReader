@@ -15,11 +15,7 @@ import {
   storageKey,
   fetchData,
   haveError,
-  fixDictShape,
-  fixPluginShape,
-  fixSettingShape,
-  fixTaskShape,
-  validateRootState,
+  validate,
   getLatestRelease,
   dictToPairs,
   pairsToDict,
@@ -38,6 +34,7 @@ import { Dirs, FileSystem } from 'react-native-file-access';
 import { action } from './slice';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import schema from '~/types/schema.json';
 import base64 from 'base-64';
 import moment from 'moment';
 import Share from 'react-native-share';
@@ -199,10 +196,19 @@ function* syncDataSaga() {
             dict.record[key] = chapterDict[key].record;
           }
         }
-        yield put(syncDict(fixDictShape(dict)));
+
+        if (validate(dict, schema.properties.dict)) {
+          yield put(syncDict(dict));
+        } else {
+          yield put(toastMessage('同步字典数据失败：格式错误'));
+        }
       } else {
-        const dict: RootState['dict'] = fixDictShape(JSON.parse(dictData));
-        yield put(syncDict(dict));
+        const dict: RootState['dict'] = JSON.parse(dictData);
+        if (validate(dict, schema.properties.dict)) {
+          yield put(syncDict(dict));
+        } else {
+          yield put(toastMessage('同步字典数据失败：格式错误'));
+        }
         yield call(AsyncStorage.removeItem, storageKey.dict);
       }
 
@@ -218,21 +224,23 @@ function* syncDataSaga() {
         const jobDict = pairsToDict(jobPairs);
         task.job.list = jobIndex.map((item) => jobDict[item]);
       }
-      yield put(syncTask(fixTaskShape(task)));
+      if (validate(task, schema.properties.task)) {
+        yield put(syncTask(task));
+      } else {
+        yield put(toastMessage('同步任务数据失败：格式错误'));
+      }
 
       if (favoritesData) {
         const favorites: RootState['favorites'] = JSON.parse(favoritesData);
-        yield put(
-          syncFavorites(
-            favorites.map((item) =>
-              item.enableBatch === undefined ? { ...item, enableBatch: true } : item
-            )
-          )
-        );
+        if (validate(favorites, schema.properties.favorites)) {
+          yield put(syncFavorites(favorites));
+        } else {
+          yield put(toastMessage('同步收藏数据失败：格式错误'));
+        }
       }
 
       if (pluginData) {
-        const plugin: RootState['plugin'] = fixPluginShape(JSON.parse(pluginData));
+        const plugin: RootState['plugin'] = JSON.parse(pluginData);
         const list: RootState['plugin']['list'] = [];
 
         PluginMap.forEach((item) => {
@@ -250,11 +258,19 @@ function* syncDataSaga() {
             disabled: finded ? finded.disabled : true,
           });
         });
-        yield put(syncPlugin({ ...plugin, list }));
+        if (validate({ ...plugin, list }, schema.properties.plugin)) {
+          yield put(syncPlugin({ ...plugin, list }));
+        } else {
+          yield put(toastMessage('同步插件数据失败：格式错误'));
+        }
       }
       if (settingData) {
-        const setting: RootState['setting'] = fixSettingShape(JSON.parse(settingData));
-        yield put(syncSetting(setting));
+        const setting: RootState['setting'] = JSON.parse(settingData);
+        if (validate(setting, schema.properties.setting)) {
+          yield put(syncSetting(setting));
+        } else {
+          yield put(toastMessage('同步设置失败：格式错误'));
+        }
       }
 
       yield put(syncDataCompletion({ error: undefined }));
@@ -266,8 +282,15 @@ function* syncDataSaga() {
 function* backupSaga() {
   yield takeLeadingSuspense(backup.type, function* () {
     try {
-      const data = ((state: RootState) => base64.encode(encodeURIComponent(JSON.stringify(state))))(
-        yield select()
+      const rootState = ((state: RootState) => state)(yield select());
+      const record: RootState['dict']['record'] = {};
+
+      for (const key in rootState.dict.record) {
+        record[key] = { ...rootState.dict.record[key], progress: 0, imagesLoaded: [] };
+      }
+
+      const data = base64.encode(
+        encodeURIComponent(JSON.stringify({ ...rootState, dict: { ...rootState.dict, record } }))
       );
       const filename = 'MangaReader备份数据' + moment().format('YYYY-MM-DD');
       const path = `${Dirs.CacheDir}/${filename}.txt`;
@@ -301,7 +324,7 @@ function* restoreSaga() {
         decodeURIComponent(base64.decode(source.replace('datatext/plainbase64', '')))
       );
 
-      if (!validateRootState(data)) {
+      if (!validate(data, schema)) {
         throw new Error('数据格式错误');
       }
 
