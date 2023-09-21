@@ -32,6 +32,11 @@ const {
 } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 const ImageSelectOptions = [{ label: '保存图片', value: 'save' }];
+const layoutIconDict = {
+  [LayoutMode.Horizontal]: 'book-open-page-variant-outline',
+  [LayoutMode.Vertical]: 'filmstrip',
+  [LayoutMode.Multiple]: 'book-open-outline',
+};
 
 const useChapterFlat = (hashList: string[], dict: RootState['dict']['chapter']) => {
   return useMemo(() => {
@@ -76,11 +81,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const chapterDict = useAppSelector((state) => state.dict.chapter);
 
   const inverted = useMemo(
-    () => mode === LayoutMode.Horizontal && direction === ReaderDirection.Left,
+    () => mode !== LayoutMode.Vertical && direction === ReaderDirection.Left,
     [mode, direction]
   );
   const lightOn = useMemo(() => light === LightSwitch.On, [light]);
-  const horizontal = useMemo(() => mode === LayoutMode.Horizontal, [mode]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useChapterFlat(hashList, chapterDict);
   const { pre, current } = useMemo(() => data[page] || {}, [page, data]);
@@ -236,6 +240,23 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     toast.show({ title: '阅读方向: 从左向右' });
     dispatch(setDirection(ReaderDirection.Right));
   };
+  const handleModeSwitch = () => {
+    switch (mode) {
+      case LayoutMode.Horizontal: {
+        handleVertical();
+        break;
+      }
+      case LayoutMode.Vertical: {
+        handleMultiple();
+        break;
+      }
+      case LayoutMode.Multiple:
+      default: {
+        handleHorizontal();
+        break;
+      }
+    }
+  };
   const handleVertical = () => {
     toast.show({ title: '条漫模式' });
     dispatch(setMode(LayoutMode.Vertical));
@@ -243,6 +264,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const handleHorizontal = () => {
     toast.show({ title: '翻页模式' });
     dispatch(setMode(LayoutMode.Horizontal));
+  };
+  const handleMultiple = () => {
+    toast.show({ title: '双页模式' });
+    dispatch(setMode(LayoutMode.Multiple));
   };
   const handleSliderChangeEnd = (newStep: number) => {
     const newPage = pre + Math.floor(newStep - 1);
@@ -307,7 +332,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         headers={headers}
         initPage={page}
         inverted={inverted}
-        horizontal={horizontal}
+        layoutMode={mode}
         onTap={handleTap}
         onLongPress={handleLongPress}
         onImageLoad={handleImageLoad}
@@ -382,7 +407,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               color={lightOn ? 'black' : 'white'}
               onPress={lightOn ? handleLightOff : handleLightOn}
             />
-            {horizontal && (
+            {mode !== LayoutMode.Vertical && (
               <VectorIcon
                 name={inverted ? 'west' : 'east'}
                 size="lg"
@@ -395,12 +420,12 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               {current} / {max}
             </Text>
             <VectorIcon
-              name={horizontal ? 'book-open-page-variant-outline' : 'filmstrip'}
+              name={layoutIconDict[mode]}
               size="lg"
               shadow="icon"
               source="materialCommunityIcons"
               color={lightOn ? 'black' : 'white'}
-              onPress={horizontal ? handleVertical : handleHorizontal}
+              onPress={handleModeSwitch}
             />
           </Flex>
 

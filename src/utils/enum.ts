@@ -26,6 +26,7 @@ export enum MangaStatus {
 export enum LayoutMode {
   Horizontal = 'horizontal',
   Vertical = 'vertical',
+  Multiple = 'multiple',
 }
 
 export enum ReaderDirection {

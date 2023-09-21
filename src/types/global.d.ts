@@ -13,6 +13,8 @@ declare global {
   type GET = 'GET' | 'get';
   type POST = 'POST' | 'post';
 
+  type ArrayFirst<T> = T extends [infer U, ...any[]] ? U : any;
+
   type FetchResponseAction<T = undefined> = PayloadAction<
     undefined extends T
       ? { error?: Error; actionId?: string }

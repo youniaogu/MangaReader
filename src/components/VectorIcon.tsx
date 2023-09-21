@@ -12,7 +12,7 @@ export const sourceMap = {
   ionicons: Ionicons,
 };
 
-interface VectorIconProps extends IIconButtonProps {
+export interface VectorIconProps extends IIconButtonProps {
   source?: keyof typeof sourceMap;
 }
 

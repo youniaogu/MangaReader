@@ -1,18 +1,29 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
-import { Image as ReactNativeImage, StyleSheet, Dimensions } from 'react-native';
+import {
+  Image as ReactNativeImage,
+  StyleSheet,
+  Dimensions,
+  StyleProp,
+  ImageStyle,
+} from 'react-native';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
-import { AsyncStatus, Orientation } from '~/utils';
+import { aspectFit, AsyncStatus, LayoutMode, Orientation } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import { useDimensions } from '~/hooks';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
-import FastImage from 'react-native-fast-image';
+import FastImage, { ImageStyle as FastImageStyle, ResizeMode } from 'react-native-fast-image';
 import md5 from 'blueimp-md5';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
 const windowScale = Dimensions.get('window').scale;
 const maxPixelSize = 4096 * 4096;
+const resizeModeDict: Record<LayoutMode, ResizeMode> = {
+  [LayoutMode.Horizontal]: 'contain',
+  [LayoutMode.Vertical]: 'cover',
+  [LayoutMode.Multiple]: 'contain',
+};
 
 const defaultState = {
   dataUrl: '',
@@ -25,13 +36,15 @@ export interface ImageState {
   dataUrl: string;
   landscapeHeight?: number;
   portraitHeight?: number;
+  multipleFitWidth?: number;
+  multipleFitHeight?: number;
   loadStatus: AsyncStatus;
 }
 export interface ImageProps {
   uri: string;
   index: number;
   headers?: { [name: string]: string };
-  horizontal?: boolean;
+  layoutMode?: LayoutMode;
   prevState?: ImageState;
   onChange?: (state: ImageState, idx?: number) => void;
 }
@@ -43,32 +56,34 @@ const DefaultImage = ({
   uri,
   index,
   headers = {},
-  horizontal = false,
+  layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
   const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
-  const style = useMemo(
-    () => ({
-      width: windowWidth,
-      height: horizontal
-        ? windowHeight
-        : (orientation === Orientation.Landscape
+  const style = useMemo<StyleProp<ImageStyle>>(() => {
+    if (layoutMode === LayoutMode.Horizontal) {
+      return {
+        width: '100%',
+        height: '100%',
+      };
+    } else if (layoutMode === LayoutMode.Vertical) {
+      return {
+        width: '100%',
+        height:
+          (orientation === Orientation.Landscape
             ? imageState.landscapeHeight
             : imageState.portraitHeight) || defaultFillHeight,
-    }),
-    [
-      horizontal,
-      windowWidth,
-      windowHeight,
-      imageState.landscapeHeight,
-      imageState.portraitHeight,
-      orientation,
-      defaultFillHeight,
-    ]
-  );
+      };
+    }
+    // LayoutMode.Multiple
+    return {
+      width: imageState.multipleFitWidth || '100%',
+      height: imageState.multipleFitHeight || '100%',
+    };
+  }, [layoutMode, imageState, orientation, defaultFillHeight]);
   const uriRef = useRef(uri);
 
   const updateData = useCallback(
@@ -94,16 +109,22 @@ const DefaultImage = ({
           handleError();
           return;
         }
-        if (horizontal) {
+        if (layoutMode === LayoutMode.Horizontal) {
           updateData({ ...imageState, dataUrl: uri, loadStatus: AsyncStatus.Fulfilled });
           return;
         }
 
         base64 = 'data:image/png;base64,' + base64;
         ReactNativeImage.getSize(base64, (width, height) => {
+          const { dWidth, dHeight } = aspectFit(
+            { width, height },
+            { width: windowWidth / 2, height: windowHeight }
+          );
           updateData({
             ...imageState,
             dataUrl: uri,
+            multipleFitWidth: dWidth,
+            multipleFitHeight: dHeight,
             landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
             portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
             loadStatus: AsyncStatus.Fulfilled,
@@ -111,7 +132,7 @@ const DefaultImage = ({
         });
       })
       .catch(handleError);
-  }, [uri, headers, imageState, horizontal, updateData, handleError, windowWidth, windowHeight]);
+  }, [uri, headers, imageState, layoutMode, updateData, handleError, windowWidth, windowHeight]);
   useFocusEffect(
     useCallback(() => {
       if (imageState.loadStatus === AsyncStatus.Default) {
@@ -165,7 +186,7 @@ const DefaultImage = ({
       source={uri}
       options={{ headers }}
       style={style}
-      resizeMode={horizontal ? 'contain' : 'cover'}
+      resizeMode={resizeModeDict[layoutMode]}
       onError={handleError}
     />
   );
@@ -175,32 +196,34 @@ const JMCImage = ({
   uri,
   index,
   headers = {},
-  horizontal = false,
+  layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
   const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
-  const style = useMemo(
-    () => ({
-      width: windowWidth,
-      height: horizontal
-        ? windowHeight
-        : (orientation === Orientation.Landscape
+  const style = useMemo<StyleProp<FastImageStyle>>(() => {
+    if (layoutMode === LayoutMode.Horizontal) {
+      return {
+        width: '100%',
+        height: '100%',
+      };
+    } else if (layoutMode === LayoutMode.Vertical) {
+      return {
+        width: '100%',
+        height:
+          (orientation === Orientation.Landscape
             ? imageState.landscapeHeight
             : imageState.portraitHeight) || defaultFillHeight,
-    }),
-    [
-      horizontal,
-      windowWidth,
-      windowHeight,
-      imageState.landscapeHeight,
-      imageState.portraitHeight,
-      orientation,
-      defaultFillHeight,
-    ]
-  );
+      };
+    }
+    // LayoutMode.Multiple
+    return {
+      width: imageState.multipleFitWidth || '100%',
+      height: imageState.multipleFitHeight || '100%',
+    };
+  }, [layoutMode, imageState, orientation, defaultFillHeight]);
   const canvasRef = useRef<Canvas>(null);
   const uriRef = useRef(uri);
 
@@ -255,9 +278,15 @@ const JMCImage = ({
             canvasRef.current
               .toDataURL()
               .then((res) => {
+                const { dWidth, dHeight } = aspectFit(
+                  { width, height },
+                  { width: windowWidth / 2, height: windowHeight }
+                );
                 updateData({
                   ...imageState,
                   dataUrl: res.replace(/^"|"$/g, ''),
+                  multipleFitWidth: dWidth,
+                  multipleFitHeight: dHeight,
                   landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
                   portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
                   loadStatus: AsyncStatus.Fulfilled,
@@ -339,7 +368,7 @@ const JMCImage = ({
   return (
     <FastImage
       style={style}
-      resizeMode={horizontal ? 'contain' : 'cover'}
+      resizeMode={resizeModeDict[layoutMode]}
       source={{ uri: imageState.dataUrl }}
     />
   );

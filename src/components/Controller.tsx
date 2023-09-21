@@ -19,6 +19,11 @@ export interface ControllerProps {
   horizontal?: boolean;
 }
 
+export interface LongPressControllerProps {
+  onLongPress?: (position: PositionX) => void;
+  children: ReactNode;
+}
+
 const Controller = ({ onTap, children, horizontal = false, onLongPress }: ControllerProps) => {
   const { width: windowWidth, height: windowHeight } = useDimensions();
   const [enabled, setEnabled] = useState(false);
@@ -197,7 +202,13 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
     });
 
   return (
-    <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap, longPress)}>
+    <GestureDetector
+      gesture={
+        onLongPress
+          ? Gesture.Exclusive(doubleTap, singleTap, longPress)
+          : Gesture.Exclusive(doubleTap, singleTap)
+      }
+    >
       <GestureDetector gesture={pinchGesture}>
         <GestureDetector gesture={panGesture}>
           <Animated.View style={animatedStyle}>{children}</Animated.View>
@@ -205,6 +216,29 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
       </GestureDetector>
     </GestureDetector>
   );
+};
+
+export const LongPressController = ({ children, onLongPress }: LongPressControllerProps) => {
+  const { width: windowWidth } = useDimensions();
+  const oneThirdWidth = windowWidth / 3;
+
+  const longPress = Gesture.LongPress()
+    .enabled(onLongPress !== undefined)
+    .runOnJS(true)
+    .minDuration(1000)
+    .onStart((e) => {
+      if (onLongPress) {
+        if (e.x < oneThirdWidth) {
+          onLongPress(PositionX.Left);
+        } else if (e.x < oneThirdWidth * 2) {
+          onLongPress(PositionX.Mid);
+        } else {
+          onLongPress(PositionX.Right);
+        }
+      }
+    });
+
+  return <GestureDetector gesture={longPress}>{children}</GestureDetector>;
 };
 
 export default memo(Controller);
