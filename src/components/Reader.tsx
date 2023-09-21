@@ -22,8 +22,9 @@ export interface ReaderProps {
   data?: {
     uri: string;
     needUnscramble?: boolean | undefined;
-    chapterHash: string;
+    pre: number;
     current: number;
+    chapterHash: string;
   }[];
   headers?: Chapter['headers'];
   onTap?: (position: PositionX) => void;

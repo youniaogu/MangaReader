@@ -33,6 +33,29 @@ const {
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
 const ImageSelectOptions = [{ label: '保存图片', value: 'save' }];
 
+const useChapterFlat = (hashList: string[], dict: RootState['dict']['chapter']) => {
+  return useMemo(() => {
+    const list: {
+      uri: string;
+      needUnscramble?: boolean | undefined;
+      pre: number;
+      current: number;
+      chapterHash: string;
+    }[] = [];
+
+    hashList.forEach((hash) => {
+      const chapter = dict[hash];
+      const images = chapter?.images || [];
+      const pre = list.length;
+      images.forEach((item, index) =>
+        list.push({ ...item, pre, current: index + 1, chapterHash: hash })
+      );
+    });
+
+    return list;
+  }, [hashList, dict]);
+};
+
 const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { mangaHash, chapterHash: initChapterHash, page: initPage } = route.params || {};
   const toast = useToast();
@@ -59,29 +82,18 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const lightOn = useMemo(() => light === LightSwitch.On, [light]);
   const horizontal = useMemo(() => mode === LayoutMode.Horizontal, [mode]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
-  const data = useMemo(() => {
-    let len = 0;
-    return hashList
-      .map((hash) => {
-        const chapter = chapterDict[hash];
-        const images = chapter?.images || [];
-        len += images.length;
-        return images.map((item, index) => ({
-          ...item,
-          pre: len - images.length,
-          max: images.length,
-          current: index + 1,
-          chapterHash: hash,
-        }));
-      })
-      .flat();
-  }, [hashList, chapterDict]);
-  const { pre, max, current } = useMemo(() => data[page] || {}, [page, data]);
-  const { title, headers } = useMemo(() => {
+  const data = useChapterFlat(hashList, chapterDict);
+  const { pre, current } = useMemo(() => data[page] || {}, [page, data]);
+  const { title, headers, max } = useMemo(() => {
     const chapter = chapterDict[chapterHash];
-    return { title: chapter?.title || '', headers: chapter?.headers || {} };
+    return {
+      title: chapter?.title || '',
+      headers: chapter?.headers || {},
+      max: (chapter?.images || []).length,
+    };
   }, [chapterDict, chapterHash]);
   const [prev, next] = usePrevNext(chapterList, chapterHash);
+  const [, more] = usePrevNext(chapterList, hashList[hashList.length - 1]);
   const readerRef = useRef<ReaderRef>(null);
   const pageSliderRef = useRef<PageSliderRef>(null);
   const callbackRef = useRef<(type: Volume) => void>();
@@ -196,9 +208,9 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     pageSliderRef.current?.changePage(image.current);
   };
   const handleLoadMore = () => {
-    if (next && !hashList.includes(next.hash)) {
-      setHashList([...hashList, next.hash]);
-      !chapterDict[next.hash] && dispatch(loadChapter({ chapterHash: next.hash }));
+    if (more && !hashList.includes(more.hash)) {
+      setHashList([...hashList, more.hash]);
+      !chapterDict[more.hash] && dispatch(loadChapter({ chapterHash: more.hash }));
     }
   };
 
