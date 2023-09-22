@@ -44,6 +44,7 @@ const useChapterFlat = (hashList: string[], dict: RootState['dict']['chapter']) 
       uri: string;
       needUnscramble?: boolean | undefined;
       pre: number;
+      multiplePre: number;
       current: number;
       chapterHash: string;
     }[] = [];
@@ -52,8 +53,12 @@ const useChapterFlat = (hashList: string[], dict: RootState['dict']['chapter']) 
       const chapter = dict[hash];
       const images = chapter?.images || [];
       const pre = list.length;
+      const multiplePre =
+        list.length > 0
+          ? list[list.length - 1].multiplePre + Math.ceil(list[list.length - 1].current / 2)
+          : 0;
       images.forEach((item, index) =>
-        list.push({ ...item, pre, current: index + 1, chapterHash: hash })
+        list.push({ ...item, pre, multiplePre, current: index + 1, chapterHash: hash })
       );
     });
 
@@ -87,7 +92,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const lightOn = useMemo(() => light === LightSwitch.On, [light]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useChapterFlat(hashList, chapterDict);
-  const { pre, current } = useMemo(() => data[page] || {}, [page, data]);
+  const { pre, current, multiplePre } = useMemo(() => data[page] || {}, [page, data]);
   const { title, headers, max } = useMemo(() => {
     const chapter = chapterDict[chapterHash];
     return {
@@ -105,10 +110,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   callbackRef.current = (type) => {
     if (type === Volume.Down) {
-      readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)), false);
+      handleNextPage();
     }
     if (type === Volume.Up) {
-      readerRef.current?.scrollToIndex(Math.max(page - 1, 0), false);
+      handlePrevPage();
     }
   };
 
@@ -133,6 +138,23 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     }, [])
   );
 
+  const handlePrevPage = () => {
+    if (mode !== LayoutMode.Multiple) {
+      readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
+    } else {
+      readerRef.current?.scrollToIndex(Math.max(multiplePre + Math.floor(current / 2) - 1, 0));
+    }
+  };
+  const handleNextPage = () => {
+    if (mode !== LayoutMode.Multiple) {
+      readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
+    } else {
+      const multipleMax = data[data.length - 1].multiplePre + data[data.length - 1].current;
+      readerRef.current?.scrollToIndex(
+        Math.min(multiplePre + Math.floor(current / 2) + 1, Math.max(multipleMax - 1, 0))
+      );
+    }
+  };
   const handlePrevChapter = () => {
     if (prev) {
       setChapterHash(prev.hash);
@@ -163,17 +185,17 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     }
     if (inverted) {
       if (position === PositionX.Right) {
-        readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
+        handlePrevPage();
       }
       if (position === PositionX.Left) {
-        readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
+        handleNextPage();
       }
     } else {
       if (position === PositionX.Left) {
-        readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
+        handlePrevPage();
       }
       if (position === PositionX.Right) {
-        readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
+        handleNextPage();
       }
     }
   };
@@ -271,11 +293,12 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
   const handleSliderChangeEnd = (newStep: number) => {
     const newPage = pre + Math.floor(newStep - 1);
+    const multiplePage = multiplePre + Math.floor((newStep - 1) / 2);
     if (newStep > max - 5) {
       handleLoadMore();
     }
     setPage(newPage);
-    readerRef.current?.scrollToIndex(newPage, false);
+    readerRef.current?.scrollToIndex(mode !== LayoutMode.Multiple ? newPage : multiplePage, false);
   };
 
   if (loadStatus === AsyncStatus.Pending && chapterHash === loadingChapterHash) {

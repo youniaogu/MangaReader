@@ -44,8 +44,18 @@ const useTakeTwo = (data: Required<ReaderProps>['data'], size = 2) => {
   return useMemo(() => {
     const list: Required<ReaderProps>['data']['0'][][] = [];
 
-    for (let i = 0; i < data.length - 1; i = i + size) {
-      list.push(data.slice(i, i + size));
+    for (let i = 0; i < data.length - 1; ) {
+      const batch = data.slice(i, i + size).reduce<typeof data>((dict, item) => {
+        if (dict.length <= 0) {
+          dict.push(item);
+        } else if (dict[0].chapterHash === item.chapterHash) {
+          dict.push(item);
+        }
+        return dict;
+      }, []);
+
+      list.push(batch);
+      i += batch.length;
     }
 
     return list;
@@ -77,10 +87,13 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const onPageChangeRef = useRef(onPageChange);
   onPageChangeRef.current = onPageChange;
 
-  const initialScrollIndex = useMemo(
-    () => Math.max(Math.min(initPage, data.length - 1), 0),
-    [initPage, data.length]
-  );
+  const initialScrollIndex = useMemo(() => {
+    if (layoutMode !== LayoutMode.Multiple) {
+      return Math.max(Math.min(initPage, data.length - 1), 0);
+    } else {
+      return Math.max(Math.min(Math.ceil((initPage + 1) / 2) - 1, multipleData.length - 1), 0);
+    }
+  }, [initPage, data.length, multipleData, layoutMode]);
 
   useFocusEffect(
     useCallback(() => {
@@ -118,13 +131,26 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       return;
     }
 
-    if (layoutMode === LayoutMode.Multiple) {
-      onPageChangeRef.current &&
-        onPageChangeRef.current(viewableItems[viewableItems.length - 1].item[0].current - 1);
+    const last = viewableItems[viewableItems.length - 1];
+    if (layoutMode !== LayoutMode.Multiple) {
+      onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
     } else {
       onPageChangeRef.current &&
-        onPageChangeRef.current(viewableItems[viewableItems.length - 1].index || 0);
+        onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
     }
+  };
+  const HandleMultipleViewableItemsChanged = ({
+    viewableItems,
+  }: {
+    viewableItems: ViewToken[];
+    changed: ViewToken[];
+  }) => {
+    if (!viewableItems || viewableItems.length <= 0) {
+      return;
+    }
+
+    const last = viewableItems[viewableItems.length - 1];
+    onPageChangeRef.current && onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, needUnscramble } = item;
@@ -232,8 +258,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         estimatedItemSize={windowWidth}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
         onEndReached={onLoadMore}
-        onEndReachedThreshold={5}
-        onViewableItemsChanged={HandleViewableItemsChanged}
+        onEndReachedThreshold={3}
+        onViewableItemsChanged={HandleMultipleViewableItemsChanged}
         renderItem={renderMultipleItem}
         keyExtractor={(item) => item.map((i) => i.uri).join('#')}
       />
