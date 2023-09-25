@@ -29,9 +29,15 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
     VolumeManager.showNativeVolumeUI({ enabled: false });
     const volumeListener = VolumeManager.addVolumeListener((result) => {
       if (result.volume - initVolume > 0.0001) {
-        VolumeManager.setVolume(initVolume).finally(() => callback(Volume.Up));
+        setTimeout(
+          () => VolumeManager.setVolume(initVolume).finally(() => callback(Volume.Up)),
+          200
+        );
       } else if (initVolume - result.volume > 0.0001) {
-        VolumeManager.setVolume(initVolume).finally(() => callback(Volume.Down));
+        setTimeout(
+          () => VolumeManager.setVolume(initVolume).finally(() => callback(Volume.Down)),
+          200
+        );
       }
     });
 

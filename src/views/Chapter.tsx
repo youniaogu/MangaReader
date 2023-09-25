@@ -142,7 +142,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     if (mode !== LayoutMode.Multiple) {
       readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
     } else {
-      readerRef.current?.scrollToIndex(Math.max(multiplePre + Math.floor(current / 2) - 1, 0));
+      readerRef.current?.scrollToIndex(Math.max(multiplePre + Math.ceil(current / 2) - 2, 0));
     }
   };
   const handleNextPage = () => {
@@ -151,7 +151,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     } else {
       const multipleMax = data[data.length - 1].multiplePre + data[data.length - 1].current;
       readerRef.current?.scrollToIndex(
-        Math.min(multiplePre + Math.floor(current / 2) + 1, Math.max(multipleMax - 1, 0))
+        Math.min(multiplePre + Math.ceil(current / 2), Math.max(multipleMax - 1, 0))
       );
     }
   };
@@ -281,6 +281,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
   const handleVertical = () => {
     toast.show({ title: '条漫模式' });
+    readerRef.current?.scrollToIndex(page, false);
     dispatch(setMode(LayoutMode.Vertical));
   };
   const handleHorizontal = () => {
@@ -289,6 +290,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
   const handleMultiple = () => {
     toast.show({ title: '双页模式' });
+    readerRef.current?.scrollToIndex(multiplePre + Math.ceil(current / 2) - 1, false);
     dispatch(setMode(LayoutMode.Multiple));
   };
   const handleSliderChangeEnd = (newStep: number) => {

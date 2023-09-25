@@ -44,7 +44,7 @@ const useTakeTwo = (data: Required<ReaderProps>['data'], size = 2) => {
   return useMemo(() => {
     const list: Required<ReaderProps>['data']['0'][][] = [];
 
-    for (let i = 0; i < data.length - 1; ) {
+    for (let i = 0; i < data.length; ) {
       const batch = data.slice(i, i + size).reduce<typeof data>((dict, item) => {
         if (dict.length <= 0) {
           dict.push(item);
@@ -132,12 +132,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     }
 
     const last = viewableItems[viewableItems.length - 1];
-    if (layoutMode !== LayoutMode.Multiple) {
-      onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
-    } else {
-      onPageChangeRef.current &&
-        onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
-    }
+    onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
   };
   const HandleMultipleViewableItemsChanged = ({
     viewableItems,
@@ -247,6 +242,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   if (layoutMode === LayoutMode.Multiple) {
     return (
       <FlashList
+        key="multiple"
         ref={flashListRef}
         data={multipleData}
         inverted={inverted}
@@ -269,6 +265,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   if (layoutMode === LayoutMode.Horizontal) {
     return (
       <FlashList
+        key="horizontal"
         ref={flashListRef}
         data={data}
         inverted={inverted}
@@ -290,10 +287,11 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
 
   return (
     <FlashList
+      key="vertical"
       ref={flashListRef}
       data={data}
       inverted={inverted}
-      extraData={{ inverted, onImageLoad }}
+      extraData={{ inverted, onTap, onLongPress, onImageLoad }}
       initialScrollIndex={initialScrollIndex}
       estimatedItemSize={(windowHeight * 3) / 5}
       estimatedListSize={{ width: windowWidth, height: windowHeight }}
