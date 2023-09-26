@@ -28,6 +28,8 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
 
     VolumeManager.showNativeVolumeUI({ enabled: false });
     const volumeListener = VolumeManager.addVolumeListener((result) => {
+      // On iOS, events could get swallowed if fired too rapidly.
+      // https://github.com/hirbod/react-native-volume-manager/issues/3
       if (result.volume - initVolume > 0.0001) {
         setTimeout(
           () => VolumeManager.setVolume(initVolume).finally(() => callback(Volume.Up)),
