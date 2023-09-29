@@ -1,13 +1,17 @@
 import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { AppStateStatus } from 'react-native';
 import { VolumeManager } from 'react-native-volume-manager';
+import { useAppState } from './useAppState';
 import { Volume } from '~/utils';
 
 export const useVolumeUpDown = (callback: (type: Volume) => void) => {
   const volumeRef = useRef<number>();
+  const audioSessionIsInactiveRef = useRef<boolean>(false);
   const [initVolume, setInitVolume] = useState<number>();
 
   const init = useCallback(() => {
+    VolumeManager.enable(true);
     VolumeManager.getVolume().then((volume) => {
       let prev = typeof volume === 'number' ? volume : volume.volume;
 
@@ -52,7 +56,23 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
       }
     };
   }, [initVolume, callback]);
+  const enabledAudioSession = useCallback(
+    (status: AppStateStatus) => {
+      if (status === 'active') {
+        if (audioSessionIsInactiveRef.current) {
+          VolumeManager.setActive(true);
+          audioSessionIsInactiveRef.current = false;
+          init();
+        }
+      } else {
+        VolumeManager.setActive(false);
+        audioSessionIsInactiveRef.current = true;
+      }
+    },
+    [init]
+  );
 
   useFocusEffect(init);
   useFocusEffect(listener);
+  useAppState(enabledAudioSession);
 };
