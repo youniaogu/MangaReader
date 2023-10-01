@@ -275,7 +275,13 @@ function* syncDataSaga() {
 
       yield put(syncDataCompletion({ error: undefined }));
     } catch (error) {
-      yield put(syncDataCompletion({ error: new Error(ErrorMessage.SyncFail) }));
+      yield put(
+        syncDataCompletion({
+          error: new Error(
+            `同步本地数据失败：${error instanceof Error ? error.message : ErrorMessage.Unknown}`
+          ),
+        })
+      );
     }
   });
 }

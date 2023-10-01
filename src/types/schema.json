@@ -119,6 +119,7 @@
             "description": "enum layoutmode of Reader component",
             "enum": [
                 "horizontal",
+                "multiple",
                 "vertical"
             ],
             "type": "string"

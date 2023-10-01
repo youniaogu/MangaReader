@@ -229,7 +229,7 @@ export function dictToPairs(obj: Record<string, any>): [string, string][] {
 
 export function pairsToDict(list: KeyValuePair[]) {
   return list.reduce<Record<string, any>>((dict, [key, value]) => {
-    dict[key] = nonNullable(value) ? JSON.parse(value) : undefined;
+    dict[key] = nonNullable(value) && value !== '' ? JSON.parse(value) : undefined;
     return dict;
   }, {});
 }
