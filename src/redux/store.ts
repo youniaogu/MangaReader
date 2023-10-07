@@ -7,8 +7,8 @@ const sagaMiddleware = createSagaMiddleware();
 const middleware = [sagaMiddleware];
 
 if (__DEV__) {
-  // const { logger } = require('redux-logger');
-  // middleware.push(logger);
+  const { logger } = require('redux-logger');
+  middleware.push(logger);
 }
 
 const store = configureStore({
