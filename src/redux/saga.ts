@@ -31,6 +31,7 @@ import { splitHash, PluginMap } from '~/plugins';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import { Dirs, FileSystem } from 'react-native-file-access';
+import { Draft07 } from 'json-schema-library';
 import { action } from './slice';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -118,6 +119,13 @@ const {
   syncDict,
 } = action;
 
+const jsonSchema = new Draft07();
+const dictSchema = jsonSchema.getChildSchemaSelection('dict', schema);
+const taskSchema = jsonSchema.getChildSchemaSelection('task', schema);
+const pluginSchema = jsonSchema.getChildSchemaSelection('plugin', schema);
+const settingSchema = jsonSchema.getChildSchemaSelection('setting', schema);
+const favoritesSchema = jsonSchema.getChildSchemaSelection('favorites', schema);
+
 function* initSaga() {
   yield put(launch());
 }
@@ -197,14 +205,14 @@ function* syncDataSaga() {
           }
         }
 
-        if (validate(dict, schema.properties.dict)) {
+        if (validate(dict, dictSchema)) {
           yield put(syncDict(dict));
         } else {
           yield put(toastMessage('同步字典数据失败：格式错误'));
         }
       } else {
         const dict: RootState['dict'] = JSON.parse(dictData);
-        if (validate(dict, schema.properties.dict)) {
+        if (validate(dict, dictSchema)) {
           yield put(syncDict(dict));
         } else {
           yield put(toastMessage('同步字典数据失败：格式错误'));
@@ -224,7 +232,7 @@ function* syncDataSaga() {
         const jobDict = pairsToDict(jobPairs);
         task.job.list = jobIndex.map((item) => jobDict[item]);
       }
-      if (validate(task, schema.properties.task)) {
+      if (validate(task, taskSchema)) {
         yield put(syncTask(task));
       } else {
         yield put(toastMessage('同步任务数据失败：格式错误'));
@@ -232,7 +240,7 @@ function* syncDataSaga() {
 
       if (favoritesData) {
         const favorites: RootState['favorites'] = JSON.parse(favoritesData);
-        if (validate(favorites, schema.properties.favorites)) {
+        if (validate(favorites, favoritesSchema)) {
           yield put(syncFavorites(favorites));
         } else {
           yield put(toastMessage('同步收藏数据失败：格式错误'));
@@ -258,7 +266,7 @@ function* syncDataSaga() {
             disabled: finded ? finded.disabled : true,
           });
         });
-        if (validate({ ...plugin, list }, schema.properties.plugin)) {
+        if (validate({ ...plugin, list }, pluginSchema)) {
           yield put(syncPlugin({ ...plugin, list }));
         } else {
           yield put(toastMessage('同步插件数据失败：格式错误'));
@@ -266,7 +274,7 @@ function* syncDataSaga() {
       }
       if (settingData) {
         const setting: RootState['setting'] = JSON.parse(settingData);
-        if (validate(setting, schema.properties.setting)) {
+        if (validate(setting, settingSchema)) {
           yield put(syncSetting(setting));
         } else {
           yield put(toastMessage('同步设置失败：格式错误'));
@@ -275,7 +283,13 @@ function* syncDataSaga() {
 
       yield put(syncDataCompletion({ error: undefined }));
     } catch (error) {
-      yield put(syncDataCompletion({ error: new Error(ErrorMessage.SyncFail) }));
+      yield put(
+        syncDataCompletion({
+          error: new Error(
+            `同步本地数据失败：${error instanceof Error ? error.message : ErrorMessage.Unknown}`
+          ),
+        })
+      );
     }
   });
 }

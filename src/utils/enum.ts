@@ -42,7 +42,6 @@ export enum ErrorMessage {
   RequestTimeout = '请求超时~',
   NoSupport = '插件不支持',
   MissingChapterInfo = '缺少章节信息~',
-  SyncFail = '同步数据失败～',
   WrongResponse = '响应失败: ',
   WrongDataType = '错误的数据格式',
   DDoSRetry = 'KL漫画网站DDoS保护，请重试',
