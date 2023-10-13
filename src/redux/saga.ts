@@ -862,7 +862,10 @@ function* hasAndroidPermission(permission: Permission) {
   return status === 'granted';
 }
 function* fileDownload({ source, headers }: { source: string; headers?: Record<string, string> }) {
-  yield call(CacheManager.prefetchBlob, source, { headers });
+  const blob: string | undefined = yield call(CacheManager.prefetchBlob, source, { headers });
+  if (blob === undefined) {
+    throw new Error('图片加载失败');
+  }
 }
 function* check(album?: string) {
   if (Platform.OS === 'android') {

@@ -156,7 +156,7 @@ class CopyManga extends Base {
   };
   readonly imageHeaders = {
     ...this.defaultHeaders,
-    accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+    Accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
   };
 
   constructor() {
@@ -222,7 +222,7 @@ class CopyManga extends Base {
     return {
       url: `https://www.copymanga.tv/comicdetail/${mangaId}/chapters`,
       headers: new Headers({
-        'user-agent':
+        'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
       }),
     };
@@ -231,8 +231,9 @@ class CopyManga extends Base {
     return {
       url: `https://www.copymanga.tv/comic/${mangaId}/chapter/${chapterId}`,
       headers: new Headers({
-        'user-agent':
+        'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
+        Cookie: 'webp=1',
       }),
     };
   };
