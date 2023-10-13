@@ -1,4 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+# eslint校验
+yarn lint
+# 更新schema文件
+yarn jsonschema
+# 检测IOS的PRODUCT_BUNDLE_IDENTIFIER
 node ./precommit.js

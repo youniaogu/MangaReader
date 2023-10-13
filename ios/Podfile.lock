@@ -388,7 +388,7 @@ PODS:
   - React-jsinspector (0.72.5)
   - React-logger (0.72.5):
     - glog
-  - react-native-cameraroll (5.7.2):
+  - react-native-cameraroll (5.10.0):
     - React-Core
   - react-native-cookies (6.2.1):
     - React-Core
@@ -516,17 +516,17 @@ PODS:
     - React-perflogger (= 0.72.5)
   - RNBootSplash (4.7.5):
     - React-Core
-  - RNCAsyncStorage (1.19.1):
+  - RNCAsyncStorage (1.19.3):
     - React-Core
   - RNFastImage (8.6.3):
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
-  - RNFlashList (1.5.0):
+  - RNFlashList (1.6.1):
     - React-Core
-  - RNGestureHandler (2.12.1):
+  - RNGestureHandler (2.13.1):
     - React-Core
-  - RNReanimated (3.4.2):
+  - RNReanimated (3.5.4):
     - DoubleConversion
     - FBLazyVector
     - glog
@@ -555,7 +555,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.24.0):
+  - RNScreens (3.25.0):
     - React-Core
     - React-RCTImage
   - RNShare (9.4.1):
@@ -831,7 +831,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: ff70a72027dea5cc7d71cfcc6fad7f599f63987a
   React-jsinspector: aef73cbd43b70675f572214d10fa438c89bf11ba
   React-logger: 2e4aee3e11b3ec4fa6cfd8004610bbb3b8d6cca4
-  react-native-cameraroll: 134805127580aed23403b8c2cb1548920dd77b3a
+  react-native-cameraroll: 4701ae7c3dbcd3f5e9e150ca17f250a276154b35
   react-native-cookies: f54fcded06bb0cda05c11d86788020b43528a26c
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-file-access: a4398950e02999b5ab97f3055feb7ee28e6615a3
@@ -856,12 +856,12 @@ SPEC CHECKSUMS:
   React-utils: 7a9918a1ffdd39aba67835d42386f592ea3f8e76
   ReactCommon: 91ece8350ebb3dd2be9cef662abd78b6948233c0
   RNBootSplash: 85f6b879c080e958afdb4c62ee04497b05fd7552
-  RNCAsyncStorage: f47fe18526970a69c34b548883e1aeceb115e3e1
+  RNCAsyncStorage: c913ede1fa163a71cea118ed4670bbaaa4b511bb
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
-  RNFlashList: 25b0e092b4470c84db0386d4f5316dc34123bb6d
-  RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
-  RNReanimated: 726395a2fa2f04cea340274ba57a4e659bc0d9c1
-  RNScreens: b21dc57dfa2b710c30ec600786a3fc223b1b92e7
+  RNFlashList: 236646d48f224a034f35baa0242e1b77db063b1e
+  RNGestureHandler: 38aa38413896620338948fbb5c90579a7b1c3fde
+  RNReanimated: ab2e96c6d5591c3dfbb38a464f54c8d17fb34a87
+  RNScreens: 85d3880b52d34db7b8eeebe2f1a0e807c05e69fa
   RNShare: 32e97adc8d8c97d4a26bcdd3c45516882184f8b6
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 8b5bb0fa61d54cd2020af4f24a51841ce365c7e9
