@@ -13,6 +13,8 @@ const Webview = ({ navigation, route }: StackWebviewProps) => {
       source={{ uri }}
       userAgent={userAgent}
       originWhitelist={['*']}
+      sharedCookiesEnabled
+      thirdPartyCookiesEnabled
       injectedJavaScript={injectedJavascript}
       onMessage={(event) => {
         if (source && injectedJavascript) {

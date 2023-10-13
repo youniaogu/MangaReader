@@ -194,8 +194,8 @@ export function clearAllCookie(url: string) {
     if (Platform.OS === 'android') {
       CookieManager.removeSessionCookies().then(res).catch(rej);
     } else if (Platform.OS === 'ios') {
-      CookieManager.get(url).then((cookies) => {
-        Promise.all(Object.keys(cookies).map((key) => CookieManager.clearByName(url, key)))
+      CookieManager.get(url, true).then((cookies) => {
+        Promise.all(Object.keys(cookies).map((key) => CookieManager.clearByName(url, key, true)))
           .then(() => res(true))
           .catch(() => res(false));
       });

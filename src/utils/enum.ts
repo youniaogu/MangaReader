@@ -45,7 +45,7 @@ export enum ErrorMessage {
   WrongResponse = '响应失败: ',
   WrongDataType = '错误的数据格式',
   DDoSRetry = 'KL漫画网站DDoS保护，请重试',
-  AuthFailDMZJ = '动漫之家Cookies失败，请在Webview里重新登录',
+  NotFoundDMZJ = '未找到漫画，请在Webview里登录获取UID后再试',
   AuthFailPICA = '哔咔漫画Token失效，请在Webview里重新获取',
   WithoutPermission = '授权失败',
   PushTaskFail = '推送任务失败',
