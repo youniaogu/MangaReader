@@ -37,6 +37,7 @@ export enum Plugin {
   PICA = 'PICA',
   MBZ = 'MBZ',
   BZM = 'BZM',
+  RM5 = 'RM5',
 }
 
 export enum Options {

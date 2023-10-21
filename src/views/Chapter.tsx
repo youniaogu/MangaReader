@@ -7,6 +7,7 @@ import {
   ReaderDirection,
   PositionX,
   Orientation,
+  ScrambleType,
 } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
 import { useOnce, usePrevNext, useVolumeUpDown, useDimensions } from '~/hooks';
@@ -42,6 +43,7 @@ const useChapterFlat = (hashList: string[], dict: RootState['dict']['chapter']) 
   return useMemo(() => {
     const list: {
       uri: string;
+      scrambleType?: ScrambleType;
       needUnscramble?: boolean | undefined;
       pre: number;
       multiplePre: number;

@@ -112,3 +112,8 @@ export enum PositionXY {
   BottomMid,
   BottomRight,
 }
+
+export enum ScrambleType {
+  JMC,
+  RM5,
+}

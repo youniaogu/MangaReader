@@ -6,15 +6,14 @@ import {
   StyleProp,
   ImageStyle,
 } from 'react-native';
+import { aspectFit, AsyncStatus, LayoutMode, Orientation, ScrambleType, unscramble } from '~/utils';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
-import { aspectFit, AsyncStatus, LayoutMode, Orientation } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import { useDimensions } from '~/hooks';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import FastImage, { ImageStyle as FastImageStyle, ResizeMode } from 'react-native-fast-image';
-import md5 from 'blueimp-md5';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
 const windowScale = Dimensions.get('window').scale;
@@ -49,7 +48,8 @@ export interface ImageProps {
   onChange?: (state: ImageState, idx?: number) => void;
 }
 export interface ComicImageProps extends ImageProps {
-  useJMC?: boolean;
+  needUnscramble?: boolean;
+  scrambleType?: ScrambleType;
 }
 
 const DefaultImage = ({
@@ -192,14 +192,15 @@ const DefaultImage = ({
   );
 };
 
-const JMCImage = ({
+const ScrambleImage = ({
   uri,
   index,
   headers = {},
   layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
   onChange,
-}: ImageProps) => {
+  scrambleType,
+}: ImageProps & { scrambleType?: ScrambleType }) => {
   const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
@@ -256,7 +257,7 @@ const JMCImage = ({
           // https://github.com/facebook/react-native/issues/33498
           const width = event.target.width;
           const height = event.target.height;
-          const step = unscramble(i, width, height);
+          const step = unscramble(i, width, height, scrambleType);
 
           if (canvasRef.current) {
             // if image size more than maxPixelSize, scale image to smaller
@@ -303,7 +304,7 @@ const JMCImage = ({
         handleError();
       }
     },
-    [imageState, updateData, handleError, windowWidth, windowHeight]
+    [imageState, updateData, handleError, windowWidth, windowHeight, scrambleType]
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));
@@ -382,90 +383,9 @@ const styles = StyleSheet.create({
   },
 });
 
-function getChapterId(uri: string) {
-  const [, id] = uri.match(/\/([0-9]+)\//) || [];
-  return Number(id);
-}
-function getPicIndex(uri: string) {
-  const [, index] = uri.match(/\/([0-9]+)\./) || [];
-  return index;
-}
-function getSplitNum(id: number, index: string) {
-  var a = 10;
-  if (id >= 268850) {
-    const str = md5(id + index);
-    const nub = str.substring(str.length - 1).charCodeAt(0) % (id >= 421926 ? 8 : 10);
-
-    switch (nub) {
-      case 0:
-        a = 2;
-        break;
-      case 1:
-        a = 4;
-        break;
-      case 2:
-        a = 6;
-        break;
-      case 3:
-        a = 8;
-        break;
-      case 4:
-        a = 10;
-        break;
-      case 5:
-        a = 12;
-        break;
-      case 6:
-        a = 14;
-        break;
-      case 7:
-        a = 16;
-        break;
-      case 8:
-        a = 18;
-        break;
-      case 9:
-        a = 20;
-    }
-  }
-  return a;
-}
-function unscramble(uri: string, width: number, height: number) {
-  const step = [];
-  const id = getChapterId(uri);
-  const index = getPicIndex(uri);
-  const numSplit = getSplitNum(id, index);
-  const perheight = height % numSplit;
-
-  for (let i = 0; i < numSplit; i++) {
-    let sHeight = Math.floor(height / numSplit);
-    let dy = sHeight * i;
-    const sy = height - sHeight * (i + 1) - perheight;
-
-    if (i === 0) {
-      sHeight += perheight;
-    } else {
-      dy += perheight;
-    }
-
-    step.push({
-      sx: 0,
-      sy,
-      sWidth: width,
-      sHeight,
-      dx: 0,
-      dy,
-      dWidth: width,
-      dHeight: sHeight,
-    });
-  }
-
-  return step;
-}
-
-const ComicImage = ({ useJMC, ...props }: ComicImageProps) => {
-  if (useJMC) {
-    return <JMCImage {...props} />;
+const ComicImage = ({ scrambleType, needUnscramble, ...props }: ComicImageProps) => {
+  if (needUnscramble) {
+    return <ScrambleImage scrambleType={scrambleType} {...props} />;
   }
 
   return <DefaultImage {...props} />;

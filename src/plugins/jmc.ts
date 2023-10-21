@@ -1,5 +1,5 @@
 import Base, { Plugin, Options } from './base';
-import { MangaStatus, ErrorMessage } from '~/utils';
+import { MangaStatus, ErrorMessage, ScrambleType } from '~/utils';
 import { Platform } from 'react-native';
 import * as cheerio from 'cheerio';
 
@@ -354,6 +354,7 @@ class CopyManga extends Base {
         },
         images: images.map((uri) => ({
           uri,
+          type: ScrambleType.JMC,
           needUnscramble: !uri.includes('.gif') && Number(chapterId) >= Number(scrambleId),
         })),
       },

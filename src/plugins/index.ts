@@ -11,6 +11,7 @@ import NH from './nh';
 import PICA from './pica';
 import MBZ from './mbz';
 import BZM from './bzm';
+import RM5 from './rm5';
 
 export * from './base';
 
@@ -21,6 +22,7 @@ export const PluginMap = new Map<Plugin, Base>([
   [JMC.id, JMC],
   [NH.id, NH],
   [PICA.id, PICA],
+  [RM5.id, RM5],
   [KL.id, KL],
   [BZM.id, BZM],
   [DMZJ.id, DMZJ],

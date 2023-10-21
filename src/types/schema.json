@@ -144,7 +144,8 @@
                 "MHGM",
                 "MHM",
                 "NH",
-                "PICA"
+                "PICA",
+                "RM5"
             ],
             "type": "string"
         },

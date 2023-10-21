@@ -8,7 +8,7 @@ import React, {
   ForwardRefRenderFunction,
 } from 'react';
 import { FlashList, ListRenderItemInfo, ViewToken } from '@shopify/flash-list';
-import { LayoutMode, PositionX } from '~/utils';
+import { LayoutMode, PositionX, ScrambleType } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDimensions } from '~/hooks';
 import { Box, Flex } from 'native-base';
@@ -21,6 +21,7 @@ export interface ReaderProps {
   layoutMode?: LayoutMode;
   data?: {
     uri: string;
+    scrambleType?: ScrambleType;
     needUnscramble?: boolean | undefined;
     pre: number;
     current: number;
@@ -148,7 +149,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     onPageChangeRef.current && onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
-    const { uri, needUnscramble } = item;
+    const { uri, scrambleType, needUnscramble } = item;
     const horizontalState = horizontalStateRef.current[index];
     return (
       <Controller
@@ -159,7 +160,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         <ComicImage
           uri={uri}
           index={index}
-          useJMC={needUnscramble}
+          scrambleType={scrambleType}
+          needUnscramble={needUnscramble}
           headers={headers}
           prevState={horizontalState}
           layoutMode={LayoutMode.Horizontal}
@@ -172,7 +174,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     );
   };
   const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
-    const { uri, needUnscramble } = item;
+    const { uri, scrambleType, needUnscramble } = item;
     const verticalState = verticalStateRef.current[index];
     return (
       <Box overflow="hidden">
@@ -183,7 +185,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           <ComicImage
             uri={uri}
             index={index}
-            useJMC={needUnscramble}
+            scrambleType={scrambleType}
+            needUnscramble={needUnscramble}
             headers={headers}
             prevState={verticalState}
             layoutMode={LayoutMode.Vertical}
@@ -206,7 +209,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           alignItems="center"
           justifyContent="center"
         >
-          {item.map(({ uri, needUnscramble, chapterHash, current }, i) => {
+          {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }, i) => {
             const multipleState = (multipleStateRef.current[index] || [])[i];
             return (
               <Box key={uri}>
@@ -218,7 +221,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
                   <ComicImage
                     uri={uri}
                     index={index}
-                    useJMC={needUnscramble}
+                    scrambleType={scrambleType}
+                    needUnscramble={needUnscramble}
                     headers={headers}
                     prevState={multipleState}
                     layoutMode={LayoutMode.Multiple}

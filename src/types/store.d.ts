@@ -51,7 +51,7 @@ declare global {
     /** 章节名 */
     title: string;
     headers?: Record<string, string>;
-    images: { uri: string; needUnscramble?: boolean }[];
+    images: { uri: string; needUnscramble?: boolean; scrambleType?: ScrambleType }[];
   }
   interface Release {
     loadStatus: AsyncStatus;
