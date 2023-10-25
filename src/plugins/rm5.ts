@@ -100,12 +100,21 @@ interface ChapterData
     alias: string[];
     chapterName: string;
     description: string;
-    images: { src: string; scramble: boolean }[];
+    images?: { src: string; scramble: boolean }[];
+    chapterAPIPath?: string;
     totalChapter: number;
     tags: string[];
     session: string | null;
     adBookBottom: boolean;
   }> {}
+
+interface ChapterImageData {
+  chapter: {
+    name: string;
+    images: { src: string; scramble: boolean }[];
+  };
+  description: string;
+}
 
 const discoveryOptions = [
   {
@@ -154,9 +163,9 @@ class RouMan5 extends Base {
     super({
       score: 5,
       id: Plugin.RM5,
-      name: '肉满屋',
+      name: '肉漫屋',
       shortName: 'RM5',
-      description: '需要代理，都是韩漫',
+      description: '需要代理，只有韩漫',
       href: 'https://rouman5.com/',
       userAgent,
       defaultHeaders: { Referer: 'https://rouman5.com/', 'User-Agent': userAgent },
@@ -193,9 +202,12 @@ class RouMan5 extends Base {
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
-  prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
+  prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId, _page, extra) => {
     return {
-      url: `https://rouman5.com/books/${mangaId}/${chapterId}`,
+      url:
+        typeof extra.path === 'string'
+          ? `https://rouman5.com${extra.path}`
+          : `https://rouman5.com/books/${mangaId}/${chapterId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -282,37 +294,58 @@ class RouMan5 extends Base {
       },
     };
   };
-
   handleChapterList: Base['handleChapterList'] = () => {
     return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
+
   handleChapter: Base['handleChapter'] = (
-    text: string | null,
+    res: string | ChapterImageData,
     mangaId: string,
     chapterId: string
   ) => {
-    const $ = cheerio.load(text || '');
-    const scriptLabel =
-      ($('script[id=__NEXT_DATA__]')[0] as cheerio.TagElement).children[0].data || '';
-    const data: ChapterData = JSON.parse(scriptLabel);
-    const { bookName, chapterName, images } = data.props.pageProps;
+    if (typeof res === 'string') {
+      const $ = cheerio.load(res || '');
+      const scriptLabel =
+        ($('script[id=__NEXT_DATA__]')[0] as cheerio.TagElement).children[0].data || '';
+      const data: ChapterData = JSON.parse(scriptLabel);
+      const { bookName, chapterName, images = [], chapterAPIPath } = data.props.pageProps;
 
-    return {
-      canLoadMore: false,
-      chapter: {
-        hash: Base.combineHash(this.id, mangaId, chapterId),
-        mangaId,
-        chapterId,
-        name: bookName,
-        title: chapterName,
-        headers: this.defaultHeaders,
-        images: images.map((item) => ({
-          uri: item.src,
-          scrambleType: ScrambleType.RM5,
-          needUnscramble: !item.src.includes('.gif') && item.scramble,
-        })),
-      },
-    };
+      return {
+        canLoadMore: typeof chapterAPIPath === 'string' ? true : false,
+        chapter: {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          name: bookName,
+          title: chapterName,
+          headers: this.defaultHeaders,
+          images: images.map((item) => ({
+            uri: item.src,
+            scrambleType: ScrambleType.RM5,
+            needUnscramble: !item.src.includes('.gif') && item.scramble,
+          })),
+        },
+        nextExtra: { path: chapterAPIPath },
+      };
+    } else {
+      const { name, images } = res.chapter;
+
+      return {
+        canLoadMore: false,
+        chapter: {
+          hash: Base.combineHash(this.id, mangaId, chapterId),
+          mangaId,
+          chapterId,
+          title: name,
+          headers: this.defaultHeaders,
+          images: images.map((item) => ({
+            uri: item.src,
+            scrambleType: ScrambleType.RM5,
+            needUnscramble: !item.src.includes('.gif') && item.scramble,
+          })),
+        },
+      };
+    }
   };
 }
 
