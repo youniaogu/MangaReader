@@ -1,6 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import * as cheerio from 'cheerio';
 
 const discoveryOptions = [
@@ -238,13 +238,13 @@ class MangaBZ extends Base {
 
     let updateTime;
     if (today) {
-      updateTime = moment(today, '今天 HH:mm').format('YYYY-MM-DD');
+      updateTime = dayjs(today, '今天 HH:mm').format('YYYY-MM-DD');
     } else if (yesterday) {
-      updateTime = moment(yesterday, '昨天 HH:mm').subtract(1, 'day').format('YYYY-MM-DD');
+      updateTime = dayjs(yesterday, '昨天 HH:mm').subtract(1, 'day').format('YYYY-MM-DD');
     } else if (beforeYesterday) {
-      updateTime = moment(beforeYesterday, '前天 HH:mm').subtract(2, 'day').format('YYYY-MM-DD');
+      updateTime = dayjs(beforeYesterday, '前天 HH:mm').subtract(2, 'day').format('YYYY-MM-DD');
     } else if (MMDD) {
-      updateTime = moment(MMDD, 'MM月DD號').format('YYYY-MM-DD');
+      updateTime = dayjs(MMDD, 'MM月DD號').format('YYYY-MM-DD');
     } else if (YYYYMMDD) {
       updateTime = YYYYMMDD;
     }
@@ -310,7 +310,7 @@ class MangaBZ extends Base {
         },
         nextExtra: {
           sign,
-          date: moment(date, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD+HH:mm:ss'),
+          date: dayjs(date, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD+HH:mm:ss'),
         },
         nextPage: 1,
       };

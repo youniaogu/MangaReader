@@ -1,7 +1,7 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
 import { Platform } from 'react-native';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import * as cheerio from 'cheerio';
 
 const searchOptions = [
@@ -146,7 +146,7 @@ class NHentai extends Base {
         title: data.title.japanese,
         status: MangaStatus.End,
         latest: chapters.length > 0 ? chapters[0].title : '',
-        updateTime: moment.unix(data.upload_date).format('YYYY-MM-DD'),
+        updateTime: dayjs.unix(data.upload_date).format('YYYY-MM-DD'),
         author: [...artist, ...group],
         tag: tags,
         chapters: chapters,
@@ -232,7 +232,7 @@ class NHentai extends Base {
     manga.title = data.title.japanese || data.title.english || data.title.pretty;
     manga.infoCover = cover;
     manga.latest = chapters.length > 0 ? chapters[0].title : '';
-    manga.updateTime = moment.unix(data.upload_date).format('YYYY-MM-DD');
+    manga.updateTime = dayjs.unix(data.upload_date).format('YYYY-MM-DD');
     manga.author = [...artist, ...group];
     manga.tag = tags;
     manga.chapters = chapters;

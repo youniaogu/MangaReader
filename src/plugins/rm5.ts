@@ -1,7 +1,7 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage, ScrambleType } from '~/utils';
 import * as cheerio from 'cheerio';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 interface ScriptData<T> {
   props: {
@@ -226,7 +226,7 @@ class RouMan5 extends Base {
         mangaId: item.id,
         bookCover: item.coverUrl,
         title: item.name,
-        updateTime: moment(item.updatedAt).format('YYYY-MM-DD'),
+        updateTime: dayjs(item.updatedAt).format('YYYY-MM-DD'),
         headers: this.defaultHeaders,
         status: item.continued ? MangaStatus.Serial : MangaStatus.End,
         author: [item.author],
@@ -249,7 +249,7 @@ class RouMan5 extends Base {
         mangaId: item.id,
         bookCover: item.coverUrl,
         title: item.name,
-        updateTime: moment(item.updatedAt).format('YYYY-MM-DD'),
+        updateTime: dayjs(item.updatedAt).format('YYYY-MM-DD'),
         headers: this.defaultHeaders,
         status: item.continued ? MangaStatus.Serial : MangaStatus.End,
         author: [item.author],
@@ -278,7 +278,7 @@ class RouMan5 extends Base {
           activeResource.chapters.length > 0
             ? activeResource.chapters[activeResource.chapters.length - 1]
             : undefined,
-        updateTime: moment(updatedAt).format('YYYY-MM-DD'),
+        updateTime: dayjs(updatedAt).format('YYYY-MM-DD'),
         author: [author],
         tag: tags,
         status: continued ? MangaStatus.Serial : MangaStatus.End,

@@ -37,7 +37,7 @@ import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-pi
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import schema from '~/types/schema.json';
 import base64 from 'base-64';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Share from 'react-native-share';
 
 const {
@@ -306,7 +306,7 @@ function* backupSaga() {
       const data = base64.encode(
         encodeURIComponent(JSON.stringify({ ...rootState, dict: { ...rootState.dict, record } }))
       );
-      const filename = 'MangaReader备份数据' + moment().format('YYYY-MM-DD');
+      const filename = 'MangaReader备份数据' + dayjs().format('YYYY-MM-DD');
       const path = `${Dirs.CacheDir}/${filename}.txt`;
 
       yield call(FileSystem.writeFile, path, data, 'base64');

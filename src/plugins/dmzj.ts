@@ -1,6 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import * as cheerio from 'cheerio';
 
 interface DiscoveryItem {
@@ -198,7 +198,7 @@ class DongManZhiJia extends Base {
         channel: 'pc',
         app_name: 'dmzj',
         version: '1.0.0',
-        timestamp: moment().unix(),
+        timestamp: dayjs().unix(),
         uid: this.uid,
         comic_id: mangaId,
         chapter_id: chapterId,
@@ -220,7 +220,7 @@ class DongManZhiJia extends Base {
         bookCover: `https://images.idmzj.com/${item.cover}`,
         title: item.name,
         latest: item.last_update_chapter_name,
-        updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
+        updateTime: dayjs.unix(item.last_updatetime).format('YYYY-MM-DD'),
         author: item.authors.split('/'),
         tag: item.types.split('/'),
         status:
@@ -260,7 +260,7 @@ class DongManZhiJia extends Base {
             : MangaStatus.Unknown,
         bookCover: `https://images.idmzj.com/${item.cover}`,
         latest: item.last_update_chapter_name,
-        updateTime: moment.unix(item.last_updatetime).format('YYYY-MM-DD'),
+        updateTime: dayjs.unix(item.last_updatetime).format('YYYY-MM-DD'),
         author: item.authors.split('/'),
         tag: item.types.split('/'),
       };

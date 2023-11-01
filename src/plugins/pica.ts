@@ -3,7 +3,7 @@ import { ellipsis, ErrorMessage, MangaStatus } from '~/utils';
 import { Buffer } from 'buffer';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 interface Response<T> {
   code: number;
@@ -443,7 +443,7 @@ class PicaComic extends Base {
           mangaId: _id,
           infoCover: this.stringifyImageUrl(thumb),
           title,
-          updateTime: moment(updated_at).format('YYYY-MM-DD'),
+          updateTime: dayjs(updated_at).format('YYYY-MM-DD'),
           author: author ? author.split(',') : [],
           tag: categories,
           status: finished ? MangaStatus.End : MangaStatus.Serial,

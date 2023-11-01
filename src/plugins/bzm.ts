@@ -3,7 +3,7 @@ import { MangaStatus, ErrorMessage } from '~/utils';
 import { Platform } from 'react-native';
 import queryString from 'query-string';
 import * as cheerio from 'cheerio';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 interface DiscoveryResponse {
   items: {
@@ -261,9 +261,9 @@ class BaoziManga extends Base {
     let updateTime;
     if (PATTERN_FULL_TIME.test(updateTimeLabel)) {
       updateTime = (updateTimeLabel.match(PATTERN_FULL_TIME) || [])[1];
-      updateTime = moment(updateTime, 'YYYY年MM月DD日').format('YYYY-MM-DD');
+      updateTime = dayjs(updateTime, 'YYYY年MM月DD日').format('YYYY-MM-DD');
     } else if (updateTimeLabel.includes('今天 更新')) {
-      updateTime = moment().format('YYYY-MM-DD');
+      updateTime = dayjs().format('YYYY-MM-DD');
     }
 
     const chapters = (
