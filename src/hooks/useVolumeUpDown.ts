@@ -18,7 +18,9 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
     VolumeManager.getVolume().then((volume) => {
       let prev = typeof volume === 'number' ? volume : volume.volume;
 
-      volumeRef.current = prev;
+      if (typeof volumeRef.current !== 'number') {
+        volumeRef.current = prev;
+      }
       if (prev <= 0) {
         prev = 0.025;
       } else if (prev >= 1) {
@@ -54,6 +56,7 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
       volumeListener && volumeListener.remove();
       if (typeof volumeRef.current === 'number') {
         VolumeManager.setVolume(volumeRef.current).finally(() => {
+          volumeRef.current = undefined;
           VolumeManager.showNativeVolumeUI({ enabled: true });
         });
       }
