@@ -18,9 +18,7 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
     VolumeManager.getVolume().then((volume) => {
       let prev = typeof volume === 'number' ? volume : volume.volume;
 
-      if (typeof volumeRef.current !== 'number') {
-        volumeRef.current = prev;
-      }
+      volumeRef.current = prev;
       if (prev <= 0) {
         prev = 0.025;
       } else if (prev >= 1) {
@@ -30,6 +28,14 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
       setInitVolume(prev);
     });
   }, []);
+  const reboot = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      VolumeManager.enable(true);
+    }
+    if (initVolume !== undefined) {
+      VolumeManager.setVolume(initVolume);
+    }
+  }, [initVolume]);
   const listener = useCallback(() => {
     if (typeof initVolume !== 'number') {
       return;
@@ -56,7 +62,6 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
       volumeListener && volumeListener.remove();
       if (typeof volumeRef.current === 'number') {
         VolumeManager.setVolume(volumeRef.current).finally(() => {
-          volumeRef.current = undefined;
           VolumeManager.showNativeVolumeUI({ enabled: true });
         });
       }
@@ -69,7 +74,7 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
           if (audioSessionIsInactiveRef.current) {
             VolumeManager.setActive(true);
             audioSessionIsInactiveRef.current = false;
-            init();
+            reboot();
           }
         } else {
           VolumeManager.setActive(false);
@@ -77,7 +82,7 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
         }
       }
     },
-    [init]
+    [reboot]
   );
 
   useFocusEffect(init);
