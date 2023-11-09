@@ -28,11 +28,11 @@ import {
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, PluginMap } from '~/plugins';
+import { action, initialState } from './slice';
+import { Dirs, FileSystem } from 'react-native-file-access';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { Dirs, FileSystem } from 'react-native-file-access';
 import { Draft07 } from 'json-schema-library';
-import { action } from './slice';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import schema from '~/types/schema.json';
@@ -338,7 +338,7 @@ function* restoreSaga() {
         decodeURIComponent(base64.decode(source.replace('datatext/plainbase64', '')))
       );
 
-      if (!validate(data, schema)) {
+      if (!validate(data, schema, initialState)) {
         throw new Error('数据格式错误');
       }
 

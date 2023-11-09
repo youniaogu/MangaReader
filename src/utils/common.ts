@@ -74,9 +74,29 @@ export function haveError(payload: any): payload is { error: Error } {
   return payload && payload.error instanceof Error;
 }
 
-export function validate<T = any>(data: T, schema?: JsonSchema): data is T {
+export function validate<T = any>(
+  data: T,
+  schema?: JsonSchema,
+  initData?: Record<string, any>
+): data is T {
   const jsonSchema: Draft = new Draft07(schema);
   const errors: JsonError[] = jsonSchema.validate(data);
+
+  if (nonNullable(initData) && errors.length > 0) {
+    errors.forEach((error) => {
+      if (error.code !== 'required-property-error') {
+        return;
+      }
+
+      const { value, key, pointer } = error.data as Record<string, any>;
+      const keys: string[] = pointer.split('/').slice(1);
+
+      keys.forEach((jsonKey) => (initData = nonNullable(initData) ? initData[jsonKey] : undefined));
+      value[key] = nonNullable(initData) ? initData[key] : undefined;
+    });
+
+    return validate(data, schema);
+  }
 
   if (errors.length > 0) {
     return false;
