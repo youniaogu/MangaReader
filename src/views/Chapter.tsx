@@ -8,6 +8,7 @@ import {
   PositionX,
   Orientation,
   ScrambleType,
+  MultipleSeat,
 } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
 import { useOnce, usePrevNext, useVolumeUpDown, useDimensions } from '~/hooks';
@@ -29,6 +30,7 @@ const {
   setMode,
   setDirection,
   setLight,
+  setSeat,
   saveImage,
 } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -81,6 +83,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const { orientation } = useDimensions();
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const loadingChapterHash = useAppSelector((state) => state.chapter.loadingChapterHash);
+  const seat = useAppSelector((state) => state.setting.seat);
   const mode = useAppSelector((state) => state.setting.mode);
   const light = useAppSelector((state) => state.setting.light);
   const direction = useAppSelector((state) => state.setting.direction);
@@ -91,7 +94,6 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     () => mode !== LayoutMode.Vertical && direction === ReaderDirection.Left,
     [mode, direction]
   );
-  const lightOn = useMemo(() => light === LightSwitch.On, [light]);
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useChapterFlat(hashList, chapterDict);
   const { pre, current, multiplePre } = useMemo(() => data[page] || {}, [page, data]);
@@ -103,6 +105,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       max: (chapter?.images || []).length,
     };
   }, [chapterDict, chapterHash]);
+  const { lightOn, color, bg } = useMemo(
+    () => ({
+      lightOn: light === LightSwitch.On,
+      color: light === LightSwitch.On ? 'black' : 'white',
+      bg: light === LightSwitch.On ? 'white' : 'black',
+    }),
+    [light]
+  );
   const [prev, next] = usePrevNext(chapterList, chapterHash);
   const [, more] = usePrevNext(chapterList, hashList[hashList.length - 1]);
   const readerRef = useRef<ReaderRef>(null);
@@ -251,20 +261,31 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
 
   const handleGoBack = () => navigation.goBack();
-  const handleLandscape = () => navigation.setOptions({ orientation: 'landscape_right' });
-  const handlePortrait = () => navigation.setOptions({ orientation: 'portrait' });
+  const handleSeatToggle = () => {
+    if (seat === MultipleSeat.AToB) {
+      toast.show({ title: '双页漫画顺序: 从右向左' });
+      dispatch(setSeat(MultipleSeat.BToA));
+    } else {
+      toast.show({ title: '双页漫画顺序: 从左向右' });
+      dispatch(setSeat(MultipleSeat.AToB));
+    }
+  };
+  const handleOrientationToggle = () =>
+    navigation.setOptions({
+      orientation: orientation === Orientation.Portrait ? 'landscape_right' : 'portrait',
+    });
   const handleReload = () => dispatch(loadChapter({ chapterHash }));
-  const handleLightOn = () => dispatch(setLight(LightSwitch.On));
-  const handleLightOff = () => dispatch(setLight(LightSwitch.Off));
-  const handleLeft = () => {
-    toast.show({ title: '阅读方向: 从右向左' });
-    dispatch(setDirection(ReaderDirection.Left));
+  const handleLightToggle = () => dispatch(setLight(lightOn ? LightSwitch.Off : LightSwitch.On));
+  const handleDirectionToggle = () => {
+    if (inverted) {
+      toast.show({ title: '阅读方向: 从左向右' });
+      dispatch(setDirection(ReaderDirection.Right));
+    } else {
+      toast.show({ title: '阅读方向: 从右向左' });
+      dispatch(setDirection(ReaderDirection.Left));
+    }
   };
-  const handleRight = () => {
-    toast.show({ title: '阅读方向: 从左向右' });
-    dispatch(setDirection(ReaderDirection.Right));
-  };
-  const handleModeSwitch = () => {
+  const handleModeToggle = () => {
     switch (mode) {
       case LayoutMode.Horizontal: {
         handleVertical();
@@ -307,8 +328,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   if (loadStatus === AsyncStatus.Pending && chapterHash === loadingChapterHash) {
     return (
-      <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
-        <SpinLoading color={lightOn ? 'black' : 'white'} />
+      <Center w="full" h="full" bg={bg}>
+        <SpinLoading color={color} />
       </Center>
     );
   }
@@ -317,19 +338,12 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     chapterHash === loadingChapterHash &&
     data.length <= 0
   ) {
-    return (
-      <Empty
-        bg={lightOn ? 'white' : 'black'}
-        color={lightOn ? 'black' : 'white'}
-        text="该章节是空的"
-        onPress={handleReload}
-      />
-    );
+    return <Empty bg={bg} color={color} text="该章节是空的" onPress={handleReload} />;
   }
   if (loadStatus === AsyncStatus.Rejected) {
     return (
-      <Center w="full" h="full" bg={lightOn ? 'white' : 'black'}>
-        <ErrorWithRetry color={lightOn ? 'black' : 'white'} onRetry={handleReload} />
+      <Center w="full" h="full" bg={bg}>
+        <ErrorWithRetry color={color} onRetry={handleReload} />
       </Center>
     );
   }
@@ -338,9 +352,9 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   }
 
   return (
-    <Box w="full" h="full" bg={lightOn ? 'white' : 'black'}>
+    <Box w="full" h="full" bg={bg}>
       <StatusBar
-        backgroundColor={lightOn ? 'white' : 'black'}
+        backgroundColor={bg}
         barStyle={
           showExtra
             ? lightOn
@@ -359,6 +373,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         headers={headers}
         initPage={page}
         inverted={inverted}
+        seat={seat}
         layoutMode={mode}
         onTap={handleTap}
         onLongPress={handleLongPress}
@@ -393,7 +408,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               name="arrow-back"
               size="2xl"
               shadow="icon"
-              color={lightOn ? 'black' : 'white'}
+              color={color}
               onPress={handleGoBack}
             />
             <Text
@@ -402,7 +417,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               fontSize="md"
               fontWeight="bold"
               numberOfLines={1}
-              color={lightOn ? 'black' : 'white'}
+              color={color}
             >
               {title}
             </Text>
@@ -410,12 +425,26 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               name="replay"
               size="md"
               shadow="icon"
-              color={lightOn ? 'black' : 'white'}
+              color={color}
               onPress={handleReload}
             />
 
             <Box flexGrow={1} flexShrink={1} />
 
+            {mode === LayoutMode.Multiple && (
+              <VectorIcon
+                name={
+                  seat === MultipleSeat.AToB
+                    ? 'format-letter-starts-with'
+                    : 'format-letter-ends-with'
+                }
+                size="lg"
+                source="materialCommunityIcons"
+                shadow="icon"
+                color={color}
+                onPress={handleSeatToggle}
+              />
+            )}
             <VectorIcon
               name={
                 orientation === Orientation.Portrait
@@ -424,26 +453,26 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               }
               size="lg"
               shadow="icon"
-              color={lightOn ? 'black' : 'white'}
-              onPress={orientation === Orientation.Portrait ? handleLandscape : handlePortrait}
+              color={color}
+              onPress={handleOrientationToggle}
             />
             <VectorIcon
               name="lightbulb"
               size="lg"
               shadow="icon"
-              color={lightOn ? 'black' : 'white'}
-              onPress={lightOn ? handleLightOff : handleLightOn}
+              color={color}
+              onPress={handleLightToggle}
             />
             {mode !== LayoutMode.Vertical && (
               <VectorIcon
                 name={inverted ? 'west' : 'east'}
                 size="lg"
                 shadow="icon"
-                color={lightOn ? 'black' : 'white'}
-                onPress={inverted ? handleRight : handleLeft}
+                color={color}
+                onPress={handleDirectionToggle}
               />
             )}
-            <Text shadow="icon" color={lightOn ? 'black' : 'white'} fontWeight="bold">
+            <Text shadow="icon" color={color} fontWeight="bold">
               {current} / {max}
             </Text>
             <VectorIcon
@@ -451,8 +480,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
               size="lg"
               shadow="icon"
               source="materialCommunityIcons"
-              color={lightOn ? 'black' : 'white'}
-              onPress={handleModeSwitch}
+              color={color}
+              onPress={handleModeToggle}
             />
           </Flex>
 
@@ -472,7 +501,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
                 name="skip-previous"
                 size="lg"
                 shadow="icon"
-                color={lightOn ? 'black' : 'white'}
+                color={color}
                 onPress={handlePrevChapter}
               />
             ) : (
@@ -491,7 +520,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
                 name="skip-next"
                 size="lg"
                 shadow="icon"
-                color={lightOn ? 'black' : 'white'}
+                color={color}
                 onPress={handleNextChapter}
               />
             ) : (

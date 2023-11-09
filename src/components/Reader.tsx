@@ -7,8 +7,8 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
 } from 'react';
+import { LayoutMode, PositionX, ScrambleType, MultipleSeat } from '~/utils';
 import { FlashList, ListRenderItemInfo, ViewToken } from '@shopify/flash-list';
-import { LayoutMode, PositionX, ScrambleType } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDimensions } from '~/hooks';
 import { Box, Flex } from 'native-base';
@@ -18,6 +18,7 @@ import ComicImage, { ImageState } from '~/components/ComicImage';
 export interface ReaderProps {
   initPage?: number;
   inverted?: boolean;
+  seat?: MultipleSeat;
   layoutMode?: LayoutMode;
   data?: {
     uri: string;
@@ -41,7 +42,7 @@ export interface ReaderRef {
   clearStateRef: () => void;
 }
 
-const useTakeTwo = (data: Required<ReaderProps>['data'], size = 2) => {
+const useTakeTwo = (data: Required<ReaderProps>['data'], size = 2, seat: MultipleSeat) => {
   return useMemo(() => {
     const list: Required<ReaderProps>['data']['0'][][] = [];
 
@@ -55,18 +56,19 @@ const useTakeTwo = (data: Required<ReaderProps>['data'], size = 2) => {
         return dict;
       }, []);
 
-      list.push(batch);
+      list.push(seat === MultipleSeat.AToB ? batch : batch.reverse());
       i += batch.length;
     }
 
     return list;
-  }, [data, size]);
+  }, [data, size, seat]);
 };
 
 const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   {
     initPage = 0,
     inverted = false,
+    seat = MultipleSeat.AToB,
     layoutMode = LayoutMode.Horizontal,
     data = [],
     headers = {},
@@ -79,11 +81,11 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   ref
 ) => {
   const { width: windowWidth, height: windowHeight } = useDimensions();
-  const multipleData = useTakeTwo(data);
+  const multipleData = useTakeTwo(data, 2, seat);
   const flashListRef = useRef<FlashList<any>>(null);
   const horizontalStateRef = useRef<ImageState[]>([]);
   const verticalStateRef = useRef<ImageState[]>([]);
-  const multipleStateRef = useRef<ImageState[][]>([]);
+  const multipleStateRef = useRef<Record<string, ImageState>[]>([]);
 
   const onPageChangeRef = useRef(onPageChange);
   onPageChangeRef.current = onPageChange;
@@ -209,8 +211,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           alignItems="center"
           justifyContent="center"
         >
-          {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }, i) => {
-            const multipleState = (multipleStateRef.current[index] || [])[i];
+          {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }) => {
+            const multipleState = (multipleStateRef.current[index] || [])[uri];
             return (
               <Box key={uri}>
                 <LongPressController
@@ -227,10 +229,10 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
                     prevState={multipleState}
                     layoutMode={LayoutMode.Multiple}
                     onChange={(state, idx = index) => {
-                      if (!Array.isArray(multipleStateRef.current[idx])) {
-                        multipleStateRef.current[idx] = [];
+                      if (typeof multipleStateRef.current[idx] !== 'object') {
+                        multipleStateRef.current[idx] = {};
                       }
-                      multipleStateRef.current[idx][i] = state;
+                      multipleStateRef.current[idx][uri] = state;
                       onImageLoad && onImageLoad(uri, chapterHash, current);
                     }}
                   />

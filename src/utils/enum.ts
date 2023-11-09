@@ -24,13 +24,18 @@ export enum MangaStatus {
  * @enum {number}
  */
 export enum LayoutMode {
+  /** 翻页模式 */
   Horizontal = 'horizontal',
+  /** 条漫模式 */
   Vertical = 'vertical',
+  /** 双页模式 */
   Multiple = 'multiple',
 }
 
 export enum ReaderDirection {
+  /** 从右向左 */
   Left = 'left',
+  /** 从左向右 */
   Right = 'right',
 }
 
@@ -70,7 +75,9 @@ export enum ChapterOptions {
 }
 
 export enum Sequence {
+  /** 从小到大 */
   Asc = 'Asc',
+  /** 从大到小 */
   Desc = 'Desc',
 }
 
@@ -80,10 +87,13 @@ export enum Volume {
 }
 
 export enum LightSwitch {
+  /** 关灯 */
   Off = 'Off',
+  /** 开灯 */
   On = 'On',
 }
 
+/** 任务类型 */
 export enum TaskType {
   Download,
   Export,
@@ -113,7 +123,15 @@ export enum PositionXY {
   BottomRight,
 }
 
+/** 图片加密类型 */
 export enum ScrambleType {
   JMC,
   RM5,
+}
+
+export enum MultipleSeat {
+  /** 第一张 | 第二张 */
+  AToB,
+  /** 第二张 | 第一张 */
+  BToA,
 }

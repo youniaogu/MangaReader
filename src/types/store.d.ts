@@ -5,6 +5,7 @@ import {
   LayoutMode,
   LightSwitch,
   ReaderDirection,
+  MultipleSeat,
   TaskType,
 } from '~/utils';
 import { Plugin } from '~/plugins';
@@ -107,9 +108,15 @@ declare global {
     };
     release: Release;
     setting: {
+      /** 布局模式 */
       mode: LayoutMode;
+      /** 开关灯 */
       light: LightSwitch;
+      /** 漫画阅读方向 */
       direction: ReaderDirection;
+      /** 双页模式的图片位置 */
+      seat: MultipleSeat;
+      /** 章节排列顺序 */
       sequence: Sequence;
       androidDownloadPath: string;
     };

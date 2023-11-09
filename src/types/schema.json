@@ -131,6 +131,13 @@
             ],
             "type": "string"
         },
+        "MultipleSeat": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        },
         "Plugin": {
             "enum": [
                 "BZM",
@@ -282,6 +289,7 @@
             "type": "object"
         },
         "TaskType": {
+            "description": "任务类型",
             "enum": [
                 0,
                 1
@@ -586,16 +594,24 @@
                     "type": "string"
                 },
                 "direction": {
-                    "$ref": "#/definitions/ReaderDirection"
+                    "$ref": "#/definitions/ReaderDirection",
+                    "description": "漫画阅读方向"
                 },
                 "light": {
-                    "$ref": "#/definitions/LightSwitch"
+                    "$ref": "#/definitions/LightSwitch",
+                    "description": "开关灯"
                 },
                 "mode": {
-                    "$ref": "#/definitions/LayoutMode"
+                    "$ref": "#/definitions/LayoutMode",
+                    "description": "布局模式"
+                },
+                "seat": {
+                    "$ref": "#/definitions/MultipleSeat",
+                    "description": "双页模式的图片位置"
                 },
                 "sequence": {
-                    "$ref": "#/definitions/Sequence"
+                    "$ref": "#/definitions/Sequence",
+                    "description": "章节排列顺序"
                 }
             },
             "required": [
@@ -603,6 +619,7 @@
                 "direction",
                 "light",
                 "mode",
+                "seat",
                 "sequence"
             ],
             "type": "object"

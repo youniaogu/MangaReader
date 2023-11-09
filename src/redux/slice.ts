@@ -5,6 +5,7 @@ import {
   LayoutMode,
   LightSwitch,
   ReaderDirection,
+  MultipleSeat,
 } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
@@ -32,6 +33,7 @@ export const initialState: RootState = {
     light: LightSwitch.Off,
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
+    seat: MultipleSeat.AToB,
     androidDownloadPath: Dirs.SDCardDir + '/DCIM',
   },
   plugin: {
@@ -205,6 +207,9 @@ const settingSlice = createSlice({
     },
     setSequence(state, action: PayloadAction<Sequence>) {
       state.sequence = action.payload;
+    },
+    setSeat(state, action: PayloadAction<MultipleSeat>) {
+      state.seat = action.payload;
     },
     setAndroidDownloadPath(state, action: PayloadAction<string>) {
       state.androidDownloadPath = action.payload;
