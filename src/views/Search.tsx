@@ -37,7 +37,7 @@ const Search = ({ route, navigation }: StackSearchProps) => {
   }, [dispatch, keyword, source]);
   const handleDetail = useCallback(
     (mangaHash: string) => {
-      navigation.navigate('Detail', { mangaHash });
+      navigation.push('Detail', { mangaHash });
     },
     [navigation]
   );

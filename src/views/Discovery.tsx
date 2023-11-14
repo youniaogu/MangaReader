@@ -12,7 +12,7 @@ import * as RootNavigation from '~/utils/navigation';
 
 const { loadDiscovery, setSource, setDiscoveryFilter, resetSearchFilter } = action;
 
-const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
+const Discovery = ({ navigation }: StackDiscoveryProps) => {
   const dispatch = useAppDispatch();
   const dict = useAppSelector((state) => state.dict.manga);
   const list = useAppSelector((state) => state.discovery.list);
@@ -37,9 +37,9 @@ const Discovery = ({ navigation: { navigate } }: StackDiscoveryProps) => {
   }, [dispatch, source]);
   const handleDetail = useCallback(
     (mangaHash: string) => {
-      navigate('Detail', { mangaHash });
+      navigation.push('Detail', { mangaHash });
     },
-    [navigate]
+    [navigation]
   );
 
   return (
