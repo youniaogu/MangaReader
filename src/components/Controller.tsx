@@ -54,6 +54,9 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
       { translateY: translationY.value },
       { scale: scale.value },
     ],
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   }));
 
   useFocusEffect(
