@@ -62,6 +62,7 @@ const {
   setLight,
   setDirection,
   setSequence,
+  setSeat,
   setAndroidDownloadPath,
   syncSetting,
   // plugin
@@ -360,8 +361,92 @@ function* restoreSaga() {
     }
   });
 }
-function* storageDataSaga() {
-  yield takeLatestSuspense(
+
+function* saveData() {
+  const favorites = ((state: RootState) => state.favorites)(yield select());
+  const dict = ((state: RootState) => state.dict)(yield select());
+  const plugin = ((state: RootState) => state.plugin)(yield select());
+  const setting = ((state: RootState) => state.setting)(yield select());
+  const task = ((state: RootState) => state.task)(yield select());
+
+  const mangaIndex: string[] = [];
+  const chapterIndex: string[] = [];
+  const taskIndex: string[] = [];
+  const jobIndex: string[] = [];
+  const mangaDict: Record<string, any> = {};
+  const chapterDict: Record<string, any> = {};
+  const taskDict: Record<string, any> = {};
+  const jobDict: Record<string, any> = {};
+
+  favorites.forEach(({ mangaHash }) => {
+    const manga = dict.manga[mangaHash];
+    const lastWatch = dict.lastWatch[mangaHash];
+    if (nonNullable(manga) || nonNullable(lastWatch)) {
+      mangaDict[mangaHash] = { manga, lastWatch };
+      mangaIndex.push(mangaHash);
+    }
+    if (nonNullable(manga)) {
+      manga.chapters.forEach(({ hash: chapterHash }) => {
+        const chapter = dict.chapter[chapterHash];
+        const record = dict.record[chapterHash];
+        if (nonNullable(chapter) || nonNullable(record)) {
+          chapterDict[chapterHash] = { chapter, record };
+          chapterIndex.push(chapterHash);
+        }
+      });
+    }
+  });
+  task.list.forEach((item) => {
+    taskDict[item.taskId] = item;
+    taskIndex.push(item.taskId);
+  });
+  task.job.list.forEach((item) => {
+    jobDict[item.jobId] = item;
+    jobIndex.push(item.jobId);
+  });
+
+  const keyValuePairs: [string, string][] = [
+    ...dictToPairs(mangaDict),
+    ...dictToPairs(chapterDict),
+    ...dictToPairs(taskDict),
+    ...dictToPairs(jobDict),
+    [storageKey.mangaIndex, JSON.stringify(mangaIndex)],
+    [storageKey.chapterIndex, JSON.stringify(chapterIndex)],
+    [storageKey.taskIndex, JSON.stringify(taskIndex)],
+    [storageKey.jobIndex, JSON.stringify(jobIndex)],
+    [storageKey.favorites, JSON.stringify(favorites)],
+    [storageKey.plugin, JSON.stringify(plugin)],
+    [storageKey.setting, JSON.stringify(setting)],
+  ];
+  yield call(AsyncStorage.multiSet, keyValuePairs);
+
+  const curr = keyValuePairs.map((item) => item[0]);
+  const prev: string[] = yield call(AsyncStorage.getAllKeys);
+  const useless = prev.filter((key) => !curr.includes(key));
+  if (useless.length > 0) {
+    yield call(AsyncStorage.multiRemove, useless);
+  }
+}
+const saveDataWorker = (function () {
+  let count = 0;
+  let isPending = false;
+  return function* () {
+    count++;
+    if (isPending) {
+      return;
+    }
+
+    isPending = true;
+    while (count > 0) {
+      count = 0;
+      yield call(saveData);
+      yield delay(1000);
+    }
+    isPending = false;
+  };
+})();
+function* saveDataSaga() {
+  yield takeEverySuspense(
     [
       clearCacheCompletion.type,
       restoreCompletion.type,
@@ -369,6 +454,7 @@ function* storageDataSaga() {
       setLight.type,
       setDirection.type,
       setSequence.type,
+      setSeat.type,
       setAndroidDownloadPath.type,
       setSource.type,
       setExtra.type,
@@ -389,72 +475,7 @@ function* storageDataSaga() {
       removeTask.type,
       finishTask.type,
     ],
-    function* () {
-      const favorites = ((state: RootState) => state.favorites)(yield select());
-      const dict = ((state: RootState) => state.dict)(yield select());
-      const plugin = ((state: RootState) => state.plugin)(yield select());
-      const setting = ((state: RootState) => state.setting)(yield select());
-      const task = ((state: RootState) => state.task)(yield select());
-      yield delay(1000);
-
-      const mangaIndex: string[] = [];
-      const chapterIndex: string[] = [];
-      const taskIndex: string[] = [];
-      const jobIndex: string[] = [];
-      const mangaDict: Record<string, any> = {};
-      const chapterDict: Record<string, any> = {};
-      const taskDict: Record<string, any> = {};
-      const jobDict: Record<string, any> = {};
-
-      favorites.forEach(({ mangaHash }) => {
-        const manga = dict.manga[mangaHash];
-        const lastWatch = dict.lastWatch[mangaHash];
-        if (nonNullable(manga) || nonNullable(lastWatch)) {
-          mangaDict[mangaHash] = { manga, lastWatch };
-          mangaIndex.push(mangaHash);
-        }
-        if (nonNullable(manga)) {
-          manga.chapters.forEach(({ hash: chapterHash }) => {
-            const chapter = dict.chapter[chapterHash];
-            const record = dict.record[chapterHash];
-            if (nonNullable(chapter) || nonNullable(record)) {
-              chapterDict[chapterHash] = { chapter, record };
-              chapterIndex.push(chapterHash);
-            }
-          });
-        }
-      });
-      task.list.forEach((item) => {
-        taskDict[item.taskId] = item;
-        taskIndex.push(item.taskId);
-      });
-      task.job.list.forEach((item) => {
-        jobDict[item.jobId] = item;
-        jobIndex.push(item.jobId);
-      });
-
-      const keyValuePairs: [string, string][] = [
-        ...dictToPairs(mangaDict),
-        ...dictToPairs(chapterDict),
-        ...dictToPairs(taskDict),
-        ...dictToPairs(jobDict),
-        [storageKey.mangaIndex, JSON.stringify(mangaIndex)],
-        [storageKey.chapterIndex, JSON.stringify(chapterIndex)],
-        [storageKey.taskIndex, JSON.stringify(taskIndex)],
-        [storageKey.jobIndex, JSON.stringify(jobIndex)],
-        [storageKey.favorites, JSON.stringify(favorites)],
-        [storageKey.plugin, JSON.stringify(plugin)],
-        [storageKey.setting, JSON.stringify(setting)],
-      ];
-      yield call(AsyncStorage.multiSet, keyValuePairs);
-
-      const curr = keyValuePairs.map((item) => item[0]);
-      const prev: string[] = yield call(AsyncStorage.getAllKeys);
-      const useless = prev.filter((key) => !curr.includes(key));
-      if (useless.length > 0) {
-        yield call(AsyncStorage.multiRemove, useless);
-      }
-    }
+    saveDataWorker
   );
 }
 function* clearCacheSaga() {
@@ -1134,7 +1155,7 @@ export default function* rootSaga() {
     fork(syncDataSaga),
     fork(backupSaga),
     fork(restoreSaga),
-    fork(storageDataSaga),
+    fork(saveDataSaga),
     fork(clearCacheSaga),
     fork(loadLatestReleaseSaga),
     fork(batchUpdateSaga),

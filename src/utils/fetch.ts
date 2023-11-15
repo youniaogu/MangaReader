@@ -60,6 +60,7 @@ export const fetchData = ({
           clearTimeout(delay);
         });
     } catch (error) {
+      clearTimeout(delay);
       res({ error: error as Error, data: undefined });
     }
   });
