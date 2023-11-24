@@ -135,3 +135,8 @@ export enum MultipleSeat {
   /** 第二张 | 第一张 */
   BToA,
 }
+
+export enum Hearing {
+  Enable,
+  Disabled,
+}

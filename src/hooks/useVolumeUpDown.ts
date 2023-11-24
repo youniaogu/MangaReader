@@ -5,12 +5,16 @@ import { VolumeManager } from 'react-native-volume-manager';
 import { useAppState } from './useAppState';
 import { Volume } from '~/utils';
 
-export const useVolumeUpDown = (callback: (type: Volume) => void) => {
+export const useVolumeUpDown = (callback: (type: Volume) => void, enable = true) => {
   const volumeRef = useRef<number>();
   const audioSessionIsInactiveRef = useRef<boolean>(false);
   const [initVolume, setInitVolume] = useState<number>();
 
   const init = useCallback(() => {
+    if (!enable) {
+      return;
+    }
+
     if (Platform.OS === 'ios') {
       VolumeManager.enable(true);
     }
@@ -27,17 +31,9 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
       VolumeManager.setVolume(prev);
       setInitVolume(prev);
     });
-  }, []);
-  const reboot = useCallback(() => {
-    if (Platform.OS === 'ios') {
-      VolumeManager.enable(true);
-    }
-    if (initVolume !== undefined) {
-      VolumeManager.setVolume(initVolume);
-    }
-  }, [initVolume]);
+  }, [enable]);
   const listener = useCallback(() => {
-    if (typeof initVolume !== 'number') {
+    if (!enable || typeof initVolume !== 'number') {
       return;
     }
 
@@ -66,9 +62,21 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
         });
       }
     };
-  }, [initVolume, callback]);
+  }, [enable, initVolume, callback]);
+  const reboot = useCallback(() => {
+    if (Platform.OS === 'ios') {
+      VolumeManager.enable(true);
+    }
+    if (initVolume !== undefined) {
+      VolumeManager.setVolume(initVolume);
+    }
+  }, [initVolume]);
   const enabledAudioSession = useCallback(
     (status: AppStateStatus) => {
+      if (!enable) {
+        return;
+      }
+
       if (Platform.OS === 'ios') {
         if (status === 'active') {
           if (audioSessionIsInactiveRef.current) {
@@ -82,7 +90,7 @@ export const useVolumeUpDown = (callback: (type: Volume) => void) => {
         }
       }
     },
-    [reboot]
+    [enable, reboot]
   );
 
   useFocusEffect(init);

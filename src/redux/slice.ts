@@ -6,6 +6,7 @@ import {
   LightSwitch,
   ReaderDirection,
   MultipleSeat,
+  Hearing,
 } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
@@ -34,6 +35,7 @@ export const initialState: RootState = {
     direction: ReaderDirection.Right,
     sequence: Sequence.Desc,
     seat: MultipleSeat.AToB,
+    hearing: Hearing.Enable,
     androidDownloadPath: Dirs.SDCardDir + '/DCIM',
   },
   plugin: {
@@ -210,6 +212,9 @@ const settingSlice = createSlice({
     },
     setSeat(state, action: PayloadAction<MultipleSeat>) {
       state.seat = action.payload;
+    },
+    setHearing(state, action: PayloadAction<Hearing>) {
+      state.hearing = action.payload;
     },
     setAndroidDownloadPath(state, action: PayloadAction<string>) {
       state.androidDownloadPath = action.payload;

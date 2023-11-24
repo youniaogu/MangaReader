@@ -9,8 +9,9 @@ import {
   Orientation,
   ScrambleType,
   MultipleSeat,
+  Hearing,
 } from '~/utils';
-import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose } from 'native-base';
+import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose, Stagger } from 'native-base';
 import { useOnce, usePrevNext, useVolumeUpDown, useDimensions } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
@@ -31,6 +32,7 @@ const {
   setDirection,
   setLight,
   setSeat,
+  setHearing,
   saveImage,
 } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -75,6 +77,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const toast = useToast();
   const dispatch = useAppDispatch();
   const { isOpen, onOpen, onClose } = useDisclose();
+  const { isOpen: isStaggerOpen, onOpen: onStaggerOpen, onClose: onStaggerClose } = useDisclose();
   const [page, setPage] = useState(initPage - 1);
   const [showExtra, setShowExtra] = useState(false);
   const [chapterHash, setChapterHash] = useState(initChapterHash);
@@ -86,6 +89,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const seat = useAppSelector((state) => state.setting.seat);
   const mode = useAppSelector((state) => state.setting.mode);
   const light = useAppSelector((state) => state.setting.light);
+  const hearing = useAppSelector((state) => state.setting.hearing);
   const direction = useAppSelector((state) => state.setting.direction);
   const mangaDict = useAppSelector((state) => state.dict.manga);
   const chapterDict = useAppSelector((state) => state.dict.chapter);
@@ -145,9 +149,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     }, [current, dispatch, mangaHash])
   );
   useVolumeUpDown(
-    useCallback((type) => {
-      callbackRef.current && callbackRef.current(type);
-    }, [])
+    useCallback((type) => callbackRef.current && callbackRef.current(type), []),
+    hearing === Hearing.Enable
   );
 
   const handlePrevPage = () => {
@@ -193,7 +196,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
   const handleTap = (position: PositionX) => {
     if (position === PositionX.Mid) {
-      setShowExtra((value) => !value);
+      setShowExtra(!showExtra);
+      showExtra && onStaggerClose();
     }
     if (inverted) {
       if (position === PositionX.Right) {
@@ -268,6 +272,15 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     } else {
       toast.show({ title: '双页漫画顺序: 从左向右' });
       dispatch(setSeat(MultipleSeat.AToB));
+    }
+  };
+  const handleHearingToggle = () => {
+    if (hearing === Hearing.Enable) {
+      toast.show({ title: '已关闭音量上下翻页' });
+      dispatch(setHearing(Hearing.Disabled));
+    } else {
+      toast.show({ title: '已开启音量上下翻页' });
+      dispatch(setHearing(Hearing.Enable));
     }
   };
   const handleOrientationToggle = () =>
@@ -395,95 +408,122 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
       {showExtra && (
         <Fragment>
-          <Flex
+          <Box
             position="absolute"
             top={0}
-            flexDirection="row"
-            alignItems="center"
+            left={0}
+            right={0}
             safeAreaTop
             safeAreaLeft
             safeAreaRight
           >
-            <VectorIcon
-              name="arrow-back"
-              size="2xl"
-              shadow="icon"
-              color={color}
-              onPress={handleGoBack}
-            />
-            <Text
-              flexShrink={1}
-              shadow="icon"
-              fontSize="md"
-              fontWeight="bold"
-              numberOfLines={1}
-              color={color}
-            >
-              {title}
-            </Text>
-            <VectorIcon
-              name="replay"
-              size="md"
-              shadow="icon"
-              color={color}
-              onPress={handleReload}
-            />
+            <Flex position="relative" flexDirection="row" alignItems="center">
+              <VectorIcon
+                name="arrow-back"
+                size="2xl"
+                shadow="icon"
+                color={color}
+                onPress={handleGoBack}
+              />
+              <Text
+                flexShrink={1}
+                shadow="icon"
+                fontSize="md"
+                fontWeight="bold"
+                numberOfLines={1}
+                color={color}
+              >
+                {title}
+              </Text>
+              <VectorIcon
+                name="replay"
+                size="md"
+                shadow="icon"
+                color={color}
+                onPress={handleReload}
+              />
 
-            <Box flexGrow={1} flexShrink={1} />
+              <Box w={0} flexGrow={1} />
 
-            {mode === LayoutMode.Multiple && (
               <VectorIcon
                 name={
-                  seat === MultipleSeat.AToB
-                    ? 'format-letter-starts-with'
-                    : 'format-letter-ends-with'
+                  orientation === Orientation.Portrait
+                    ? 'stay-primary-portrait'
+                    : 'stay-primary-landscape'
                 }
                 size="lg"
-                source="materialCommunityIcons"
                 shadow="icon"
                 color={color}
-                onPress={handleSeatToggle}
+                onPress={handleOrientationToggle}
               />
-            )}
-            <VectorIcon
-              name={
-                orientation === Orientation.Portrait
-                  ? 'stay-primary-portrait'
-                  : 'stay-primary-landscape'
-              }
-              size="lg"
-              shadow="icon"
-              color={color}
-              onPress={handleOrientationToggle}
-            />
-            <VectorIcon
-              name="lightbulb"
-              size="lg"
-              shadow="icon"
-              color={color}
-              onPress={handleLightToggle}
-            />
-            {mode !== LayoutMode.Vertical && (
               <VectorIcon
-                name={inverted ? 'west' : 'east'}
+                name="lightbulb"
                 size="lg"
                 shadow="icon"
                 color={color}
-                onPress={handleDirectionToggle}
+                onPress={handleLightToggle}
               />
-            )}
-            <Text shadow="icon" color={color} fontWeight="bold">
-              {current} / {max}
-            </Text>
-            <VectorIcon
-              name={layoutIconDict[mode]}
-              size="lg"
-              shadow="icon"
-              source="materialCommunityIcons"
-              color={color}
-              onPress={handleModeToggle}
-            />
-          </Flex>
+              <Text shadow="icon" px={1} color={color} fontWeight="bold">
+                {current} / {max}
+              </Text>
+              <VectorIcon
+                name="dots-horizontal"
+                size="lg"
+                shadow="icon"
+                source="materialCommunityIcons"
+                color={color}
+                onPress={isStaggerOpen ? onStaggerClose : onStaggerOpen}
+              />
+
+              <Box position="absolute" right={0} top="100%">
+                <Stagger visible={isStaggerOpen} initial={{ opacity: 0, scale: 0 }}>
+                  <VectorIcon
+                    name={layoutIconDict[mode]}
+                    size="lg"
+                    shadow="icon"
+                    source="materialCommunityIcons"
+                    color={color}
+                    onPress={handleModeToggle}
+                  />
+                  {mode !== LayoutMode.Vertical ? (
+                    <VectorIcon
+                      name={inverted ? 'west' : 'east'}
+                      size="lg"
+                      shadow="icon"
+                      color={color}
+                      onPress={handleDirectionToggle}
+                    />
+                  ) : (
+                    <Box />
+                  )}
+                  {mode === LayoutMode.Multiple ? (
+                    <VectorIcon
+                      name={
+                        seat === MultipleSeat.AToB
+                          ? 'format-letter-starts-with'
+                          : 'format-letter-ends-with'
+                      }
+                      size="lg"
+                      source="materialCommunityIcons"
+                      shadow="icon"
+                      color={color}
+                      onPress={handleSeatToggle}
+                    />
+                  ) : (
+                    <Box />
+                  )}
+                  <VectorIcon
+                    name={hearing === Hearing.Enable ? 'earbuds' : 'earbuds-off'}
+                    size="lg"
+                    shadow="icon"
+                    source="materialCommunityIcons"
+                    color={color}
+                    onPress={handleHearingToggle}
+                  />
+                </Stagger>
+              </Box>
+            </Flex>
+          </Box>
 
           <Flex
             w="full"

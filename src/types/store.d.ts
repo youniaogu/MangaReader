@@ -6,6 +6,7 @@ import {
   LightSwitch,
   ReaderDirection,
   MultipleSeat,
+  Hearing,
   TaskType,
 } from '~/utils';
 import { Plugin } from '~/plugins';
@@ -118,6 +119,8 @@ declare global {
       seat: MultipleSeat;
       /** 章节排列顺序 */
       sequence: Sequence;
+      /** 是否监听音量并进行反页 */
+      hearing: Hearing;
       androidDownloadPath: string;
     };
     plugin: {

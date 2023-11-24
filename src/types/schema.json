@@ -597,6 +597,9 @@
                     "$ref": "#/definitions/ReaderDirection",
                     "description": "漫画阅读方向"
                 },
+                "hearing": {
+                    "description": "是否监听音量并进行反页"
+                },
                 "light": {
                     "$ref": "#/definitions/LightSwitch",
                     "description": "开关灯"
@@ -617,6 +620,7 @@
             "required": [
                 "androidDownloadPath",
                 "direction",
+                "hearing",
                 "light",
                 "mode",
                 "seat",
