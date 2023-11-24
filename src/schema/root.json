@@ -11,6 +11,13 @@
             ],
             "type": "number"
         },
+        "Hearing": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        },
         "Job": {
             "properties": {
                 "album": {
@@ -119,8 +126,8 @@
             "description": "enum layoutmode of Reader component",
             "enum": [
                 "horizontal",
-                "multiple",
-                "vertical"
+                "vertical",
+                "multiple"
             ],
             "type": "string"
         },
@@ -140,18 +147,18 @@
         },
         "Plugin": {
             "enum": [
-                "BZM",
-                "COPY",
-                "DMZJ",
-                "JMC",
-                "KL",
-                "MBZ",
-                "MHDB",
                 "MHG",
                 "MHGM",
+                "COPY",
+                "MHDB",
+                "DMZJ",
+                "JMC",
                 "MHM",
+                "KL",
                 "NH",
                 "PICA",
+                "MBZ",
+                "BZM",
                 "RM5"
             ],
             "type": "string"
@@ -290,6 +297,13 @@
         },
         "TaskType": {
             "description": "任务类型",
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        },
+        "Timer": {
             "enum": [
                 0,
                 1
@@ -598,6 +612,7 @@
                     "description": "漫画阅读方向"
                 },
                 "hearing": {
+                    "$ref": "#/definitions/Hearing",
                     "description": "是否监听音量并进行反页"
                 },
                 "light": {
@@ -615,6 +630,13 @@
                 "sequence": {
                     "$ref": "#/definitions/Sequence",
                     "description": "章节排列顺序"
+                },
+                "timer": {
+                    "$ref": "#/definitions/Timer",
+                    "description": "定时翻页"
+                },
+                "timerGap": {
+                    "type": "number"
                 }
             },
             "required": [
@@ -624,7 +646,9 @@
                 "light",
                 "mode",
                 "seat",
-                "sequence"
+                "sequence",
+                "timer",
+                "timerGap"
             ],
             "type": "object"
         },

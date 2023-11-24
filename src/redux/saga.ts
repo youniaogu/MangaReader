@@ -32,13 +32,18 @@ import { action, initialState } from './slice';
 import { Dirs, FileSystem } from 'react-native-file-access';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
-import { Draft07 } from 'json-schema-library';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import schema from '~/types/schema.json';
 import base64 from 'base-64';
 import dayjs from 'dayjs';
 import Share from 'react-native-share';
+
+import rootSchema from '~/schema/root.json';
+import dictSchema from '~/schema/dict.json';
+import taskSchema from '~/schema/task.json';
+import pluginSchema from '~/schema/plugin.json';
+import settingSchema from '~/schema/setting.json';
+import favoritesSchema from '~/schema/favorites.json';
 
 const {
   // app
@@ -119,13 +124,6 @@ const {
   viewImage,
   syncDict,
 } = action;
-
-const jsonSchema = new Draft07();
-const dictSchema = jsonSchema.getChildSchemaSelection('dict', schema);
-const taskSchema = jsonSchema.getChildSchemaSelection('task', schema);
-const pluginSchema = jsonSchema.getChildSchemaSelection('plugin', schema);
-const settingSchema = jsonSchema.getChildSchemaSelection('setting', schema);
-const favoritesSchema = jsonSchema.getChildSchemaSelection('favorites', schema);
 
 function* initSaga() {
   yield put(launch());
@@ -275,7 +273,7 @@ function* syncDataSaga() {
       }
       if (settingData) {
         const setting: RootState['setting'] = JSON.parse(settingData);
-        if (validate(setting, settingSchema)) {
+        if (validate(setting, settingSchema, initialState.setting)) {
           yield put(syncSetting(setting));
         } else {
           yield put(toastMessage('同步设置失败：格式错误'));
@@ -339,7 +337,7 @@ function* restoreSaga() {
         decodeURIComponent(base64.decode(source.replace('datatext/plainbase64', '')))
       );
 
-      if (!validate(data, schema, initialState)) {
+      if (!validate(data, rootSchema, initialState)) {
         throw new Error('数据格式错误');
       }
 

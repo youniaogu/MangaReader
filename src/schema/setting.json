@@ -1,0 +1,105 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "Hearing": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        },
+        "LayoutMode": {
+            "description": "enum layoutmode of Reader component",
+            "enum": [
+                "horizontal",
+                "vertical",
+                "multiple"
+            ],
+            "type": "string"
+        },
+        "LightSwitch": {
+            "enum": [
+                "Off",
+                "On"
+            ],
+            "type": "string"
+        },
+        "MultipleSeat": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        },
+        "ReaderDirection": {
+            "enum": [
+                "left",
+                "right"
+            ],
+            "type": "string"
+        },
+        "Sequence": {
+            "enum": [
+                "Asc",
+                "Desc"
+            ],
+            "type": "string"
+        },
+        "Timer": {
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        }
+    },
+    "properties": {
+        "androidDownloadPath": {
+            "type": "string"
+        },
+        "direction": {
+            "$ref": "#/definitions/ReaderDirection",
+            "description": "漫画阅读方向"
+        },
+        "hearing": {
+            "$ref": "#/definitions/Hearing",
+            "description": "是否监听音量并进行反页"
+        },
+        "light": {
+            "$ref": "#/definitions/LightSwitch",
+            "description": "开关灯"
+        },
+        "mode": {
+            "$ref": "#/definitions/LayoutMode",
+            "description": "布局模式"
+        },
+        "seat": {
+            "$ref": "#/definitions/MultipleSeat",
+            "description": "双页模式的图片位置"
+        },
+        "sequence": {
+            "$ref": "#/definitions/Sequence",
+            "description": "章节排列顺序"
+        },
+        "timer": {
+            "$ref": "#/definitions/Timer",
+            "description": "定时翻页"
+        },
+        "timerGap": {
+            "type": "number"
+        }
+    },
+    "required": [
+        "androidDownloadPath",
+        "direction",
+        "hearing",
+        "light",
+        "mode",
+        "seat",
+        "sequence",
+        "timer",
+        "timerGap"
+    ],
+    "type": "object"
+}
+

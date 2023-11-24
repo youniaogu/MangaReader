@@ -1,0 +1,85 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "Plugin": {
+            "enum": [
+                "MHG",
+                "MHGM",
+                "COPY",
+                "MHDB",
+                "DMZJ",
+                "JMC",
+                "MHM",
+                "KL",
+                "NH",
+                "PICA",
+                "MBZ",
+                "BZM",
+                "RM5"
+            ],
+            "type": "string"
+        },
+        "Record<string,any>": {
+            "type": "object"
+        }
+    },
+    "properties": {
+        "extra": {
+            "$ref": "#/definitions/Record<string,any>"
+        },
+        "list": {
+            "items": {
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    },
+                    "disabled": {
+                        "type": "boolean"
+                    },
+                    "href": {
+                        "type": "string"
+                    },
+                    "injectedJavaScript": {
+                        "type": "string"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "score": {
+                        "type": "number"
+                    },
+                    "userAgent": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "$ref": "#/definitions/Plugin"
+                    }
+                },
+                "required": [
+                    "description",
+                    "disabled",
+                    "href",
+                    "label",
+                    "name",
+                    "score",
+                    "value"
+                ],
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "source": {
+            "$ref": "#/definitions/Plugin"
+        }
+    },
+    "required": [
+        "extra",
+        "list",
+        "source"
+    ],
+    "type": "object"
+}
+

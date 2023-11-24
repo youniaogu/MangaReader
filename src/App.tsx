@@ -93,4 +93,9 @@ const App = () => {
 /** for the json schema generate */
 /** https://github.com/YousefED/typescript-json-schema/issues/307 */
 export type RootStateType = RootState;
+export type DictStateType = RootState['dict'];
+export type TaskStateType = RootState['task'];
+export type PluginStateType = RootState['plugin'];
+export type SettingStateType = RootState['setting'];
+export type FavoritesStateType = RootState['favorites'];
 export default App;

@@ -1,0 +1,193 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "definitions": {
+        "AsyncStatus": {
+            "description": "enum of any async status",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "type": "number"
+        },
+        "Job": {
+            "properties": {
+                "album": {
+                    "type": "string"
+                },
+                "chapterHash": {
+                    "type": "string"
+                },
+                "headers": {
+                    "$ref": "#/definitions/Record<string,string>"
+                },
+                "index": {
+                    "type": "number"
+                },
+                "jobId": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "taskId": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/TaskType"
+                }
+            },
+            "required": [
+                "album",
+                "chapterHash",
+                "index",
+                "jobId",
+                "source",
+                "status",
+                "taskId",
+                "type"
+            ],
+            "type": "object"
+        },
+        "Record<string,string>": {
+            "type": "object"
+        },
+        "Task": {
+            "properties": {
+                "chapterHash": {
+                    "type": "string"
+                },
+                "fail": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "headers": {
+                    "$ref": "#/definitions/Record<string,string>"
+                },
+                "pending": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "queue": {
+                    "items": {
+                        "properties": {
+                            "index": {
+                                "type": "number"
+                            },
+                            "jobId": {
+                                "type": "string"
+                            },
+                            "source": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "index",
+                            "jobId",
+                            "source"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "status": {
+                    "$ref": "#/definitions/AsyncStatus"
+                },
+                "success": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "taskId": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/TaskType"
+                }
+            },
+            "required": [
+                "chapterHash",
+                "fail",
+                "pending",
+                "queue",
+                "status",
+                "success",
+                "taskId",
+                "title",
+                "type"
+            ],
+            "type": "object"
+        },
+        "TaskType": {
+            "description": "任务类型",
+            "enum": [
+                0,
+                1
+            ],
+            "type": "number"
+        }
+    },
+    "properties": {
+        "job": {
+            "properties": {
+                "list": {
+                    "items": {
+                        "$ref": "#/definitions/Job"
+                    },
+                    "type": "array"
+                },
+                "max": {
+                    "type": "number"
+                },
+                "thread": {
+                    "items": {
+                        "properties": {
+                            "jobId": {
+                                "type": "string"
+                            },
+                            "taskId": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "jobId",
+                            "taskId"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "list",
+                "max",
+                "thread"
+            ],
+            "type": "object"
+        },
+        "list": {
+            "items": {
+                "$ref": "#/definitions/Task"
+            },
+            "type": "array"
+        }
+    },
+    "required": [
+        "job",
+        "list"
+    ],
+    "type": "object"
+}
+

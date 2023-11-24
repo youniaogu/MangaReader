@@ -397,7 +397,7 @@ PODS:
   - react-native-file-access (2.6.0):
     - React-Core
     - ZIPFoundation (= 0.9.11)
-  - react-native-safe-area-context (3.3.2):
+  - react-native-safe-area-context (4.7.4):
     - React-Core
   - react-native-volume-manager (1.10.0):
     - Mute
@@ -835,7 +835,7 @@ SPEC CHECKSUMS:
   react-native-cookies: f54fcded06bb0cda05c11d86788020b43528a26c
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-file-access: a4398950e02999b5ab97f3055feb7ee28e6615a3
-  react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
+  react-native-safe-area-context: 2cd91d532de12acdb0a9cbc8d43ac72a8e4c897c
   react-native-volume-manager: 3c7d8047841b6831730dea7bf25250522388b4f4
   react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
   React-NativeModulesApple: 797bc6078d566eef3fb3f74127e6e1d2e945a15f
