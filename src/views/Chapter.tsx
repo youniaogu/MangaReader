@@ -10,9 +10,10 @@ import {
   ScrambleType,
   MultipleSeat,
   Hearing,
+  Timer,
 } from '~/utils';
 import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose, Stagger } from 'native-base';
-import { useOnce, usePrevNext, useVolumeUpDown, useDimensions } from '~/hooks';
+import { usePrevNext, useVolumeUpDown, useDimensions, useInterval } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
@@ -33,6 +34,7 @@ const {
   setLight,
   setSeat,
   setHearing,
+  setTimer,
   saveImage,
 } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -85,10 +87,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   const { orientation } = useDimensions();
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
-  const loadingChapterHash = useAppSelector((state) => state.chapter.loadingChapterHash);
   const seat = useAppSelector((state) => state.setting.seat);
   const mode = useAppSelector((state) => state.setting.mode);
   const light = useAppSelector((state) => state.setting.light);
+  const timer = useAppSelector((state) => state.setting.timer);
+  const timerGap = useAppSelector((state) => state.setting.timerGap);
   const hearing = useAppSelector((state) => state.setting.hearing);
   const direction = useAppSelector((state) => state.setting.direction);
   const mangaDict = useAppSelector((state) => state.dict.manga);
@@ -100,7 +103,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   );
   const chapterList = useMemo(() => mangaDict[mangaHash]?.chapters || [], [mangaDict, mangaHash]);
   const data = useChapterFlat(hashList, chapterDict);
-  const { pre, current, multiplePre } = useMemo(() => data[page] || {}, [page, data]);
+  const { pre, current, multiplePre } = useMemo(
+    () => data[page] || { pre: 0, current: 0, multiplePre: 0 },
+    [page, data]
+  );
   const { title, headers, max } = useMemo(() => {
     const chapter = chapterDict[chapterHash];
     return {
@@ -138,11 +144,13 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       dispatch(viewChapter({ mangaHash, chapterHash, chapterTitle: title }));
     }, [dispatch, mangaHash, chapterHash, title])
   );
-  useOnce(() => {
-    if (data.length <= 0) {
-      dispatch(loadChapter({ chapterHash }));
-    }
-  });
+  useFocusEffect(
+    useCallback(() => {
+      if (data.length <= 0) {
+        dispatch(loadChapter({ chapterHash }));
+      }
+    }, [dispatch, chapterHash, data.length])
+  );
   useFocusEffect(
     useCallback(() => {
       dispatch(viewPage({ mangaHash, page: current }));
@@ -151,6 +159,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   useVolumeUpDown(
     useCallback((type) => callbackRef.current && callbackRef.current(type), []),
     hearing === Hearing.Enable
+  );
+  useInterval(
+    useCallback(() => callbackRef.current && callbackRef.current(Volume.Down), []),
+    timer === Timer.Enable,
+    timerGap
   );
 
   const handlePrevPage = () => {
@@ -276,11 +289,20 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   };
   const handleHearingToggle = () => {
     if (hearing === Hearing.Enable) {
-      toast.show({ title: '已关闭音量上下翻页' });
+      toast.show({ title: '已关闭音量翻页' });
       dispatch(setHearing(Hearing.Disabled));
     } else {
-      toast.show({ title: '已开启音量上下翻页' });
+      toast.show({ title: '已开启音量翻页' });
       dispatch(setHearing(Hearing.Enable));
+    }
+  };
+  const handleTimerToggle = () => {
+    if (timer === Timer.Enable) {
+      toast.show({ title: '已关闭定时翻页' });
+      dispatch(setTimer(Timer.Disabled));
+    } else {
+      toast.show({ title: `已开启定时翻页，间隔${(timerGap / 1000).toFixed(1)}s` });
+      dispatch(setTimer(Timer.Enable));
     }
   };
   const handleOrientationToggle = () =>
@@ -339,29 +361,24 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     readerRef.current?.scrollToIndex(mode !== LayoutMode.Multiple ? newPage : multiplePage, false);
   };
 
-  if (loadStatus === AsyncStatus.Pending && chapterHash === loadingChapterHash) {
-    return (
-      <Center w="full" h="full" bg={bg}>
-        <SpinLoading color={color} />
-      </Center>
-    );
-  }
-  if (
-    loadStatus === AsyncStatus.Fulfilled &&
-    chapterHash === loadingChapterHash &&
-    data.length <= 0
-  ) {
-    return <Empty bg={bg} color={color} text="该章节是空的" onPress={handleReload} />;
-  }
-  if (loadStatus === AsyncStatus.Rejected) {
-    return (
-      <Center w="full" h="full" bg={bg}>
-        <ErrorWithRetry color={color} onRetry={handleReload} />
-      </Center>
-    );
-  }
   if (data.length <= 0) {
-    return null;
+    if (loadStatus === AsyncStatus.Pending) {
+      return (
+        <Center w="full" h="full" bg={bg}>
+          <SpinLoading color={color} />
+        </Center>
+      );
+    }
+    if (loadStatus === AsyncStatus.Fulfilled) {
+      return <Empty bg={bg} color={color} text="该章节是空的" onPress={handleReload} />;
+    }
+    if (loadStatus === AsyncStatus.Rejected) {
+      return (
+        <Center w="full" h="full" bg={bg}>
+          <ErrorWithRetry color={color} onRetry={handleReload} />
+        </Center>
+      );
+    }
   }
 
   return (
@@ -513,12 +530,21 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
                     <Box />
                   )}
                   <VectorIcon
-                    name={hearing === Hearing.Enable ? 'earbuds' : 'earbuds-off'}
+                    name={hearing === Hearing.Enable ? 'earbuds-outline' : 'earbuds-off-outline'}
                     size="lg"
                     shadow="icon"
                     source="materialCommunityIcons"
                     color={color}
                     onPress={handleHearingToggle}
+                  />
+                  <VectorIcon
+                    name={timer === Timer.Enable ? 'timer-outline' : 'timer-off-outline'}
+                    size="lg"
+                    shadow="icon"
+                    source="materialCommunityIcons"
+                    color={color}
+                    onPress={handleTimerToggle}
+                    // onLongPress={handleTimerGap}
                   />
                 </Stagger>
               </Box>

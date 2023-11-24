@@ -7,6 +7,7 @@ import {
   ReaderDirection,
   MultipleSeat,
   Hearing,
+  Timer,
   TaskType,
 } from '~/utils';
 import { Plugin } from '~/plugins';
@@ -121,6 +122,9 @@ declare global {
       sequence: Sequence;
       /** 是否监听音量并进行反页 */
       hearing: Hearing;
+      /** 定时翻页 */
+      timer: Timer;
+      timerGap: number;
       androidDownloadPath: string;
     };
     plugin: {

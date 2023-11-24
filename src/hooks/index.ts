@@ -7,3 +7,4 @@ export * from './useDebouncedSafeAreaInsets';
 export * from './useVolumeUpDown';
 export * from './useDimensions';
 export * from './useAppState';
+export * from './useInterval';

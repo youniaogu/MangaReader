@@ -140,3 +140,8 @@ export enum Hearing {
   Enable,
   Disabled,
 }
+
+export enum Timer {
+  Enable,
+  Disabled,
+}
