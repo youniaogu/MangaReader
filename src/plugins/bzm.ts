@@ -87,6 +87,7 @@ const discoveryOptions = [
 ];
 
 const PATTERN_MANGA_ID = /\/comic\/([^_]+)/;
+const PATTERN_HOUR_TIME = /([0-9]+)小时前 更新/;
 const PATTERN_FULL_TIME = /([0-9]{4}年[0-9]{2}月[0-9]{2}日)/;
 const PATTERN_SLOT = /section_slot=([0-9]*)&chapter_slot=([0-9]*)/;
 
@@ -262,6 +263,11 @@ class BaoziManga extends Base {
     if (PATTERN_FULL_TIME.test(updateTimeLabel)) {
       updateTime = (updateTimeLabel.match(PATTERN_FULL_TIME) || [])[1];
       updateTime = dayjs(updateTime, 'YYYY年MM月DD日').format('YYYY-MM-DD');
+    } else if (PATTERN_HOUR_TIME.test(updateTimeLabel)) {
+      updateTime = (updateTimeLabel.match(PATTERN_HOUR_TIME) || [])[1];
+      updateTime = dayjs()
+        .subtract(Number(updateTime) || 0, 'h')
+        .format('YYYY-MM-DD');
     } else if (updateTimeLabel.includes('今天 更新')) {
       updateTime = dayjs().format('YYYY-MM-DD');
     }
