@@ -12,7 +12,17 @@ import {
   Hearing,
   Timer,
 } from '~/utils';
-import { Box, Text, Flex, Center, StatusBar, useToast, useDisclose, Stagger } from 'native-base';
+import {
+  Box,
+  Text,
+  Flex,
+  Center,
+  HStack,
+  Stagger,
+  StatusBar,
+  useToast,
+  useDisclose,
+} from 'native-base';
 import { usePrevNext, useVolumeUpDown, useDimensions, useInterval } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
@@ -21,6 +31,7 @@ import Reader, { ReaderRef } from '~/components/Reader';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import SpinLoading from '~/components/SpinLoading';
+import InputModal from '~/components/InputModal';
 import VectorIcon from '~/components/VectorIcon';
 import Empty from '~/components/Empty';
 
@@ -35,6 +46,7 @@ const {
   setSeat,
   setHearing,
   setTimer,
+  setTimerGap,
   saveImage,
 } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -80,6 +92,11 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const dispatch = useAppDispatch();
   const { isOpen, onOpen, onClose } = useDisclose();
   const { isOpen: isStaggerOpen, onOpen: onStaggerOpen, onClose: onStaggerClose } = useDisclose();
+  const {
+    isOpen: isTimerGapOpen,
+    onOpen: onTimerGapOpen,
+    onClose: onTimerGapClose,
+  } = useDisclose();
   const [page, setPage] = useState(initPage - 1);
   const [showExtra, setShowExtra] = useState(false);
   const [chapterHash, setChapterHash] = useState(initChapterHash);
@@ -351,6 +368,20 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     readerRef.current?.scrollToIndex(multiplePre + Math.ceil(current / 2) - 1, false);
     dispatch(setMode(LayoutMode.Multiple));
   };
+  const handleTimerGapOpen = () => {
+    dispatch(setTimer(Timer.Disabled));
+    onTimerGapOpen();
+  };
+  const handleTimerGapClose = (value: string) => {
+    const gap = Number(value);
+
+    if (gap >= 500) {
+      dispatch(setTimerGap(gap));
+      onTimerGapClose();
+    } else {
+      toast.show({ title: '间隔不能低于500ms' });
+    }
+  };
   const handleSliderChangeEnd = (newStep: number) => {
     const newPage = pre + Math.floor(newStep - 1);
     const multiplePage = multiplePre + Math.floor((newStep - 1) / 2);
@@ -411,7 +442,6 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         onPageChange={handlePageChange}
         onLoadMore={handleLoadMore}
       />
-
       <ActionsheetSelect
         isOpen={isOpen}
         onClose={onClose}
@@ -421,6 +451,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
             handleImageSave();
           }
         }}
+      />
+      <InputModal
+        title="自动翻页间隔："
+        rightAddon="ms"
+        isOpen={isTimerGapOpen}
+        keyboardType="number-pad"
+        defaultValue={timerGap.toString()}
+        onClose={handleTimerGapClose}
       />
 
       {showExtra && (
@@ -494,58 +532,60 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
               <Box position="absolute" right={0} top="100%">
                 <Stagger visible={isStaggerOpen} initial={{ opacity: 0, scale: 0 }}>
-                  <VectorIcon
-                    name={layoutIconDict[mode]}
-                    size="lg"
-                    shadow="icon"
-                    source="materialCommunityIcons"
-                    color={color}
-                    onPress={handleModeToggle}
-                  />
-                  {mode !== LayoutMode.Vertical ? (
+                  <HStack>
                     <VectorIcon
-                      name={inverted ? 'west' : 'east'}
+                      name={layoutIconDict[mode]}
                       size="lg"
                       shadow="icon"
-                      color={color}
-                      onPress={handleDirectionToggle}
-                    />
-                  ) : (
-                    <Box />
-                  )}
-                  {mode === LayoutMode.Multiple ? (
-                    <VectorIcon
-                      name={
-                        seat === MultipleSeat.AToB
-                          ? 'format-letter-starts-with'
-                          : 'format-letter-ends-with'
-                      }
-                      size="lg"
                       source="materialCommunityIcons"
-                      shadow="icon"
                       color={color}
-                      onPress={handleSeatToggle}
+                      onPress={handleModeToggle}
                     />
-                  ) : (
-                    <Box />
-                  )}
-                  <VectorIcon
-                    name={hearing === Hearing.Enable ? 'earbuds-outline' : 'earbuds-off-outline'}
-                    size="lg"
-                    shadow="icon"
-                    source="materialCommunityIcons"
-                    color={color}
-                    onPress={handleHearingToggle}
-                  />
-                  <VectorIcon
-                    name={timer === Timer.Enable ? 'timer-outline' : 'timer-off-outline'}
-                    size="lg"
-                    shadow="icon"
-                    source="materialCommunityIcons"
-                    color={color}
-                    onPress={handleTimerToggle}
-                    // onLongPress={handleTimerGap}
-                  />
+                    {mode !== LayoutMode.Vertical ? (
+                      <VectorIcon
+                        name={inverted ? 'west' : 'east'}
+                        size="lg"
+                        shadow="icon"
+                        color={color}
+                        onPress={handleDirectionToggle}
+                      />
+                    ) : (
+                      <Box />
+                    )}
+                    {mode === LayoutMode.Multiple ? (
+                      <VectorIcon
+                        name={
+                          seat === MultipleSeat.AToB
+                            ? 'format-letter-starts-with'
+                            : 'format-letter-ends-with'
+                        }
+                        size="lg"
+                        source="materialCommunityIcons"
+                        shadow="icon"
+                        color={color}
+                        onPress={handleSeatToggle}
+                      />
+                    ) : (
+                      <Box />
+                    )}
+                    <VectorIcon
+                      name={hearing === Hearing.Enable ? 'earbuds-outline' : 'earbuds-off-outline'}
+                      size="lg"
+                      shadow="icon"
+                      source="materialCommunityIcons"
+                      color={color}
+                      onPress={handleHearingToggle}
+                    />
+                    <VectorIcon
+                      name={timer === Timer.Enable ? 'timer-outline' : 'timer-off-outline'}
+                      size="lg"
+                      shadow="icon"
+                      source="materialCommunityIcons"
+                      color={color}
+                      onPress={handleTimerToggle}
+                      onLongPress={handleTimerGapOpen}
+                    />
+                  </HStack>
                 </Stagger>
               </Box>
             </Flex>
