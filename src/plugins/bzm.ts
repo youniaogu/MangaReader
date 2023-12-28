@@ -90,6 +90,7 @@ const PATTERN_MANGA_ID = /\/comic\/([^_]+)/;
 const PATTERN_HOUR_TIME = /([0-9]+)小时前 更新/;
 const PATTERN_FULL_TIME = /([0-9]{4}年[0-9]{2}月[0-9]{2}日)/;
 const PATTERN_SLOT = /section_slot=([0-9]*)&chapter_slot=([0-9]*)/;
+const PATTERN_SLOT_HTML = /\/[^_\/]+_([^\/]+)\/([0-9]*)_([0-9]*)_?([0-9]*)\.html/;
 
 class BaoziManga extends Base {
   constructor() {
@@ -157,9 +158,12 @@ class BaoziManga extends Base {
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
-  prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
+  prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId, page, extra) => {
     return {
-      url: `https://cn.czmanga.com/comic/chapter/${mangaId}/${chapterId}.html`,
+      url:
+        typeof extra.hash === 'string'
+          ? `https://cn.czmanga.com/comic/chapter/${mangaId}_${extra.hash}/${chapterId}_${page}.html`
+          : `https://cn.czmanga.com/comic/chapter/${mangaId}/${chapterId}_${page}.html`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -320,10 +324,15 @@ class BaoziManga extends Base {
     return { error: new Error(ErrorMessage.NoSupport + 'handleChapterList') };
   };
 
-  handleChapter: Base['handleChapter'] = (text: string | null, mangaId, chapterId) => {
+  handleChapter: Base['handleChapter'] = (text: string | null, mangaId, chapterId, page) => {
     const $ = cheerio.load(text || '');
     this.checkCloudFlare($);
 
+    const next = ($('div.next_chapter a').toArray() as cheerio.TagElement[]).find((a) =>
+      (a.children[0].data || '').includes('下一页')
+    );
+    const href = next ? next.attribs.href : '';
+    const [, hash, _sectionSlot, _chapterSlot, pageSlot] = href.match(PATTERN_SLOT_HTML) || [];
     const title = $('.comic-chapter .header .l-content .title').first().text();
     const images = (
       $('.comic-contain > div:not(#div_top_ads):not(.mobadsq)').toArray() as cheerio.TagElement[]
@@ -335,7 +344,7 @@ class BaoziManga extends Base {
     });
 
     return {
-      canLoadMore: false,
+      canLoadMore: Number(pageSlot) > page,
       chapter: {
         hash: Base.combineHash(this.id, mangaId, chapterId),
         mangaId,
@@ -344,6 +353,7 @@ class BaoziManga extends Base {
         headers: this.defaultHeaders,
         images,
       },
+      nextExtra: { hash },
     };
   };
 }
