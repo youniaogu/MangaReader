@@ -233,7 +233,6 @@ class CopyManga extends Base {
       headers: new Headers({
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-        Cookie: 'webp=1',
       }),
     };
   };
