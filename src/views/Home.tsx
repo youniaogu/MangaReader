@@ -62,6 +62,9 @@ export const SearchAndAbout = () => {
   const handleSearch = () => {
     RootNavigation.navigate('Discovery');
   };
+  const handlePlugin = () => {
+    RootNavigation.navigate('Plugin');
+  };
   const handleUpdate = () => {
     dispatch(batchUpdate());
   };
@@ -69,6 +72,7 @@ export const SearchAndAbout = () => {
   return (
     <HStack flexShrink={0}>
       <VectorIcon name="search" onPress={handleSearch} />
+      <VectorIcon name="settings" onPress={handlePlugin} />
       <View position="relative">
         <Rotate enable={enableRotate}>
           <VectorIcon isDisabled={enableRotate} name="autorenew" onPress={handleUpdate} />
