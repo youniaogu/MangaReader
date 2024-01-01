@@ -88,11 +88,14 @@ export function validate<T = any>(
         return;
       }
 
+      let initDataRef = initData;
       const { value, key, pointer } = error.data as Record<string, any>;
       const keys: string[] = pointer.split('/').slice(1);
 
-      keys.forEach((jsonKey) => (initData = nonNullable(initData) ? initData[jsonKey] : undefined));
-      value[key] = nonNullable(initData) ? initData[key] : undefined;
+      keys.forEach(
+        (jsonKey) => (initDataRef = nonNullable(initDataRef) ? initDataRef[jsonKey] : undefined)
+      );
+      value[key] = nonNullable(initDataRef) ? initDataRef[key] : undefined;
     });
 
     return validate(data, schema);
