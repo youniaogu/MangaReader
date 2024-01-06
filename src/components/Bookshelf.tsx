@@ -86,7 +86,7 @@ const Bookshelf = ({
       onEndReachedThreshold={1}
       keyExtractor={(item) => item.hash}
       ListFooterComponent={
-        loading ? <SpinLoading height={24} safeAreaBottom /> : <Box height={0} safeAreaBottom />
+        loading ? <SpinLoading height={48} safeAreaBottom /> : <Box safeAreaBottom />
       }
       renderItem={({ item, extraData: { width, fail, trend, active, negative } }) => (
         <Pressable _pressed={{ opacity: 0.8 }} onPress={handlePress(item.hash)}>

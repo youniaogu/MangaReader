@@ -592,14 +592,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
           </Box>
 
           <Flex
-            w="full"
             position="absolute"
-            bottom={8}
+            left={0}
+            right={0}
+            bottom={6}
             flexDirection="row"
             alignItems="center"
             justifyContent="center"
-            safeAreaLeft
-            safeAreaRight
+            safeAreaX
             safeAreaBottom
           >
             {prev ? (
@@ -613,14 +613,14 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
             ) : (
               <Box w={45} />
             )}
-            <Box w={0} flexGrow={1} px={1}>
-              <PageSlider
-                ref={pageSliderRef}
-                max={max}
-                defaultValue={current}
-                onSliderChangeEnd={handleSliderChangeEnd}
-              />
-            </Box>
+            <PageSlider
+              mx={1}
+              flex={1}
+              ref={pageSliderRef}
+              max={max}
+              defaultValue={current}
+              onSliderChangeEnd={handleSliderChangeEnd}
+            />
             {next ? (
               <VectorIcon
                 name="skip-next"

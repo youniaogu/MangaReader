@@ -41,7 +41,7 @@ const ActionsheetSelect: FC<ActionsheetSelectProps> = ({
   return (
     <Delay>
       <Actionsheet isOpen={isOpen} onClose={handleClose}>
-        <Actionsheet.Content>
+        <Actionsheet.Content safeAreaX>
           {headerComponent}
           <ScrollView w="full">
             {options.map((item) => (

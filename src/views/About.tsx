@@ -81,7 +81,7 @@ const About = () => {
 
   return (
     <ScrollView>
-      <VStack space={6} px={6} py={8} safeAreaBottom>
+      <VStack space={6} px={8} py={8} safeAreaX safeAreaBottom>
         <VStack alignItems="center">
           <Text fontSize="3xl" fontWeight="bold" color="purple.900">
             {release.name}

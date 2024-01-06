@@ -1,5 +1,5 @@
 import React from 'react';
-import { Center, Heading, Image, Pressable } from 'native-base';
+import { Center, Text, Image, Pressable } from 'native-base';
 import { ColorType } from 'native-base/lib/typescript/components/types';
 
 const taptapGif = require('~/assets/tap_tap.gif');
@@ -18,20 +18,19 @@ const Empty = ({
   onPress,
 }: EmptyProps) => {
   return (
-    <Center w="full" h="full" pb={32} bg={bg}>
+    <Center w="full" h="full" safeAreaX safeAreaBottom bg={bg}>
       <Pressable onPress={onPress}>
         <Image
           w={32}
-          h={48}
           resizeMode="contain"
           resizeMethod="resize"
           fadeDuration={0}
           source={taptapGif}
           alt="taptap"
         />
-        <Heading color={color} fontWeight="bold" fontSize="md">
+        <Text color={color} textAlign="center" fontWeight="bold" fontSize="md">
           {text}
-        </Heading>
+        </Text>
       </Pressable>
     </Center>
   );

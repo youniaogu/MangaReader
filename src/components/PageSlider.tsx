@@ -5,12 +5,12 @@ import React, {
   useImperativeHandle,
   ForwardRefRenderFunction,
 } from 'react';
-import { Slider } from 'native-base';
+import { ISliderProps, Slider } from 'native-base';
 
 export interface PageSliderRef {
   changePage: (newPage: number) => void;
 }
-interface PageSliderProps {
+interface PageSliderProps extends ISliderProps {
   defaultValue: number;
   onSliderChangeEnd?: (page: number) => void;
   min?: number;
@@ -19,7 +19,7 @@ interface PageSliderProps {
 }
 
 const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
-  { defaultValue, min = 1, max, onSliderChangeEnd, disabled = false },
+  { defaultValue, min = 1, max, onSliderChangeEnd, disabled = false, ...props },
   ref
 ) => {
   const [page, setPage] = useState(defaultValue);
@@ -39,7 +39,6 @@ const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
     <Slider
       shadow="icon"
       bg="transparent"
-      w="full"
       size="sm"
       defaultValue={page}
       value={page}
@@ -49,6 +48,7 @@ const PageSlider: ForwardRefRenderFunction<PageSliderRef, PageSliderProps> = (
       colorScheme={disabled ? 'gray' : 'purple'}
       onChange={handleSliderChange}
       onChangeEnd={handleSliderChangeEnd}
+      {...props}
     >
       <Slider.Track shadow={1}>
         <Slider.FilledTrack />

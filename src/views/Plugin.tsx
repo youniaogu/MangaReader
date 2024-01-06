@@ -16,7 +16,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
 
   return (
     <ScrollView>
-      <VStack safeAreaBottom>
+      <VStack safeAreaX safeAreaBottom>
         {list.map((item) => (
           <HStack
             space={6}
