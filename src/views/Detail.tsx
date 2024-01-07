@@ -571,7 +571,6 @@ export const PrehandleDrawer = () => {
             estimatedItemSize={50}
             contentContainerStyle={{
               paddingTop: insets.top,
-              paddingLeft: insets.left,
               paddingRight: insets.right,
               paddingBottom: insets.bottom,
             }}

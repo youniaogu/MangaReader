@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   ForwardRefRenderFunction,
   Fragment,
+  useMemo,
 } from 'react';
 import Animated, {
   useSharedValue,
@@ -13,26 +14,29 @@ import Animated, {
   withDelay,
   Easing,
 } from 'react-native-reanimated';
+import { useDebouncedSafeAreaFrame, useDebouncedSafeAreaInsets } from '~/hooks';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import { useDimensions } from '~/hooks';
 
 export interface DrawerRef {
   open: () => void;
   close: () => void;
 }
 interface DrawerProps {
-  leakWidth?: number;
-  contentWidth?: number;
+  leak?: number;
+  content?: number;
   maskOpacity?: number;
   defaultDuration?: number;
   children?: ReactNode;
 }
 
 const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
-  { leakWidth = 12, contentWidth = 300, maskOpacity = 0.5, defaultDuration = 300, children },
+  { leak = 12, content = 300, maskOpacity = 0.5, defaultDuration = 300, children },
   ref
 ) => {
-  const { width: windowWidth, height: windowHeight } = useDimensions();
+  const { width: windowWidth, height: windowHeight } = useDebouncedSafeAreaFrame();
+  const { right } = useDebouncedSafeAreaInsets();
+  const leakWidth = useMemo(() => leak + right, [leak, right]);
+  const contentWidth = useMemo(() => content + right, [content, right]);
   const minContentWidth = Math.min(windowWidth * 0.55, contentWidth);
   const translationX = useSharedValue(minContentWidth);
   const savedTranslationX = useSharedValue(minContentWidth);
@@ -51,7 +55,8 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
       opacity: opacity.value,
       width: width.value,
       height: windowHeight,
-      backgroundColor: backgroungColor.value,
+      // backgroundColor: backgroungColor.value,
+      backgroundColor: 'red',
     };
   });
   const contentStyles = useAnimatedStyle(() => {
@@ -64,6 +69,15 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
     };
   });
 
+  useEffect(() => {
+    if (translationX.value > 0) {
+      width.value = leakWidth;
+      savedWidth.value = leakWidth;
+    } else {
+      width.value = windowWidth;
+      savedWidth.value = windowWidth;
+    }
+  }, [leakWidth, windowWidth, translationX, width, savedWidth]);
   useEffect(() => {
     if (translationX.value > 0) {
       translationX.value = minContentWidth;
