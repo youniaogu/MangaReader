@@ -7,10 +7,10 @@ import {
   ImageStyle,
 } from 'react-native';
 import { aspectFit, AsyncStatus, LayoutMode, Orientation, ScrambleType, unscramble } from '~/utils';
+import { useDebouncedSafeAreaFrame, useDebouncedSafeAreaInsets } from '~/hooks';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
-import { useDimensions } from '~/hooks';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import FastImage, { ImageStyle as FastImageStyle, ResizeMode } from 'react-native-fast-image';
@@ -60,7 +60,8 @@ const DefaultImage = ({
   prevState = defaultState,
   onChange,
 }: ImageProps) => {
-  const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
+  const { top, left, right, bottom } = useDebouncedSafeAreaInsets();
+  const { width: windowWidth, height: windowHeight, orientation } = useDebouncedSafeAreaFrame();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
   const style = useMemo<StyleProp<ImageStyle>>(() => {
@@ -118,7 +119,10 @@ const DefaultImage = ({
         ReactNativeImage.getSize(base64, (width, height) => {
           const { dWidth, dHeight } = aspectFit(
             { width, height },
-            { width: windowWidth / 2, height: windowHeight }
+            {
+              width: (windowWidth - left - right) / 2,
+              height: windowHeight - top - bottom,
+            }
           );
           updateData({
             ...imageState,
@@ -132,7 +136,20 @@ const DefaultImage = ({
         });
       })
       .catch(handleError);
-  }, [uri, headers, imageState, layoutMode, updateData, handleError, windowWidth, windowHeight]);
+  }, [
+    uri,
+    headers,
+    imageState,
+    layoutMode,
+    updateData,
+    handleError,
+    windowWidth,
+    windowHeight,
+    top,
+    left,
+    right,
+    bottom,
+  ]);
   useFocusEffect(
     useCallback(() => {
       if (imageState.loadStatus === AsyncStatus.Default) {
@@ -201,7 +218,8 @@ const ScrambleImage = ({
   onChange,
   scrambleType,
 }: ImageProps & { scrambleType?: ScrambleType }) => {
-  const { width: windowWidth, height: windowHeight, orientation } = useDimensions();
+  const { top, left, right, bottom } = useDebouncedSafeAreaInsets();
+  const { width: windowWidth, height: windowHeight, orientation } = useDebouncedSafeAreaFrame();
   const [imageState, setImageState] = useState(prevState);
   const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
   const style = useMemo<StyleProp<FastImageStyle>>(() => {
@@ -281,7 +299,10 @@ const ScrambleImage = ({
               .then((res) => {
                 const { dWidth, dHeight } = aspectFit(
                   { width, height },
-                  { width: windowWidth / 2, height: windowHeight }
+                  {
+                    width: (windowWidth - left - right) / 2,
+                    height: windowHeight - top - bottom,
+                  }
                 );
                 updateData({
                   ...imageState,
@@ -304,7 +325,18 @@ const ScrambleImage = ({
         handleError();
       }
     },
-    [imageState, updateData, handleError, windowWidth, windowHeight, scrambleType]
+    [
+      imageState,
+      updateData,
+      handleError,
+      windowWidth,
+      windowHeight,
+      scrambleType,
+      top,
+      left,
+      right,
+      bottom,
+    ]
   );
   const loadImage = useCallback(() => {
     setImageState((state) => ({ ...state, loadStatus: AsyncStatus.Pending }));

@@ -5,7 +5,7 @@ import Animated, {
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import { useDebouncedSafeAreaInsets, useDimensions } from '~/hooks';
+import { useDebouncedSafeAreaInsets, useDebouncedSafeAreaFrame } from '~/hooks';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { PositionX, SafeArea } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
@@ -33,7 +33,7 @@ const Controller = ({
   onLongPress,
 }: ControllerProps) => {
   const insets = useDebouncedSafeAreaInsets();
-  const { width: windowWidth, height: windowHeight } = useDimensions();
+  const { width: windowWidth, height: windowHeight } = useDebouncedSafeAreaFrame();
   const [enabled, setEnabled] = useState(false);
   const oneThirdWidth = windowWidth / 3;
 
@@ -57,18 +57,18 @@ const Controller = ({
   const safeAreaStyle = useMemo(() => {
     return {
       [SafeArea.All]: {
-        marginTop: insets.top,
-        marginLeft: insets.left,
-        marginRight: insets.right,
-        marginBottom: insets.bottom,
+        paddingTop: insets.top,
+        paddingLeft: insets.left,
+        paddingRight: insets.right,
+        paddingBottom: insets.bottom,
       },
       [SafeArea.X]: {
-        marginLeft: insets.left,
-        marginRight: insets.right,
+        paddingLeft: insets.left,
+        paddingRight: insets.right,
       },
       [SafeArea.Y]: {
-        marginTop: insets.top,
-        marginBottom: insets.bottom,
+        paddingTop: insets.top,
+        paddingBottom: insets.bottom,
       },
       [SafeArea.None]: {},
     }[safeAreaType];
@@ -249,7 +249,7 @@ const Controller = ({
 };
 
 export const LongPressController = ({ children, onLongPress }: LongPressControllerProps) => {
-  const { width: windowWidth } = useDimensions();
+  const { width: windowWidth } = useDebouncedSafeAreaFrame();
   const oneThirdWidth = windowWidth / 3;
 
   const longPress = Gesture.LongPress()

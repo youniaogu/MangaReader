@@ -9,8 +9,8 @@ import React, {
 } from 'react';
 import { LayoutMode, PositionX, ScrambleType, MultipleSeat, SafeArea } from '~/utils';
 import { FlashList, ListRenderItemInfo, ViewToken } from '@shopify/flash-list';
+import { useDebouncedSafeAreaFrame } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
-import { useDimensions } from '~/hooks';
 import { Box, Flex } from 'native-base';
 import Controller, { LongPressController } from '~/components/Controller';
 import ComicImage, { ImageState } from '~/components/ComicImage';
@@ -80,7 +80,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   },
   ref
 ) => {
-  const { width: windowWidth, height: windowHeight } = useDimensions();
+  const { width: windowWidth, height: windowHeight } = useDebouncedSafeAreaFrame();
   const multipleData = useTakeTwo(data, 2, seat);
   const flashListRef = useRef<FlashList<any>>(null);
   const horizontalStateRef = useRef<ImageState[]>([]);

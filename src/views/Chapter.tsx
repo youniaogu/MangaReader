@@ -23,7 +23,7 @@ import {
   useToast,
   useDisclose,
 } from 'native-base';
-import { usePrevNext, useVolumeUpDown, useDimensions, useInterval } from '~/hooks';
+import { usePrevNext, useVolumeUpDown, useDebouncedSafeAreaFrame, useInterval } from '~/hooks';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useFocusEffect } from '@react-navigation/native';
 import PageSlider, { PageSliderRef } from '~/components/PageSlider';
@@ -102,7 +102,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const [chapterHash, setChapterHash] = useState(initChapterHash);
   const [hashList, setHashList] = useState([initChapterHash]);
 
-  const { orientation } = useDimensions();
+  const { orientation } = useDebouncedSafeAreaFrame();
   const loadStatus = useAppSelector((state) => state.chapter.loadStatus);
   const seat = useAppSelector((state) => state.setting.seat);
   const mode = useAppSelector((state) => state.setting.mode);

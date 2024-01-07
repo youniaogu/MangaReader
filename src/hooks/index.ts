@@ -5,6 +5,6 @@ export * from './useDelayRender';
 export * from './useSplitWidth';
 export * from './useDebouncedSafeAreaInsets';
 export * from './useVolumeUpDown';
-export * from './useDimensions';
+export * from './useDebouncedSafeAreaFrame';
 export * from './useAppState';
 export * from './useInterval';
