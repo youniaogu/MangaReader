@@ -1,14 +1,14 @@
-import React, { ReactNode, useState, memo, useCallback } from 'react';
+import React, { ReactNode, useState, memo, useCallback, useMemo } from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
+import { useDebouncedSafeAreaInsets, useDimensions } from '~/hooks';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { PositionX, SafeArea } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
-import { useDimensions } from '~/hooks';
-import { PositionX } from '~/utils';
 
 const doubleTapScaleValue = 2;
 
@@ -17,6 +17,7 @@ export interface ControllerProps {
   onLongPress?: (position: PositionX) => void;
   children: ReactNode;
   horizontal?: boolean;
+  safeAreaType?: SafeArea;
 }
 
 export interface LongPressControllerProps {
@@ -24,7 +25,14 @@ export interface LongPressControllerProps {
   children: ReactNode;
 }
 
-const Controller = ({ onTap, children, horizontal = false, onLongPress }: ControllerProps) => {
+const Controller = ({
+  children,
+  horizontal = false,
+  safeAreaType = SafeArea.None,
+  onTap,
+  onLongPress,
+}: ControllerProps) => {
+  const insets = useDebouncedSafeAreaInsets();
   const { width: windowWidth, height: windowHeight } = useDimensions();
   const [enabled, setEnabled] = useState(false);
   const oneThirdWidth = windowWidth / 3;
@@ -46,6 +54,25 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
   const savedTranslationY = useSharedValue(0);
   const savedScale = useSharedValue(1);
 
+  const safeAreaStyle = useMemo(() => {
+    return {
+      [SafeArea.All]: {
+        marginTop: insets.top,
+        marginLeft: insets.left,
+        marginRight: insets.right,
+        marginBottom: insets.bottom,
+      },
+      [SafeArea.X]: {
+        marginLeft: insets.left,
+        marginRight: insets.right,
+      },
+      [SafeArea.Y]: {
+        marginTop: insets.top,
+        marginBottom: insets.bottom,
+      },
+      [SafeArea.None]: {},
+    }[safeAreaType];
+  }, [insets, safeAreaType]);
   const animatedStyle = useAnimatedStyle(() => ({
     width: width.value,
     height: horizontal ? height.value : 'auto',
@@ -54,9 +81,9 @@ const Controller = ({ onTap, children, horizontal = false, onLongPress }: Contro
       { translateY: translationY.value },
       { scale: scale.value },
     ],
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    ...safeAreaStyle,
   }));
 
   useFocusEffect(

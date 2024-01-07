@@ -145,3 +145,10 @@ export enum Timer {
   Enable,
   Disabled,
 }
+
+export enum SafeArea {
+  All,
+  None,
+  X,
+  Y,
+}

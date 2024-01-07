@@ -7,7 +7,7 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
 } from 'react';
-import { LayoutMode, PositionX, ScrambleType, MultipleSeat } from '~/utils';
+import { LayoutMode, PositionX, ScrambleType, MultipleSeat, SafeArea } from '~/utils';
 import { FlashList, ListRenderItemInfo, ViewToken } from '@shopify/flash-list';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDimensions } from '~/hooks';
@@ -158,6 +158,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         horizontal
         onTap={onTap}
         onLongPress={(position) => onLongPress && onLongPress(position, horizontalState.dataUrl)}
+        safeAreaType={SafeArea.All}
       >
         <ComicImage
           uri={uri}
@@ -183,6 +184,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         <Controller
           onTap={onTap}
           onLongPress={(position) => onLongPress && onLongPress(position, verticalState.dataUrl)}
+          safeAreaType={SafeArea.X}
         >
           <ComicImage
             uri={uri}
@@ -203,14 +205,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   };
   const renderMultipleItem = ({ item, index }: ListRenderItemInfo<(typeof multipleData)[0]>) => {
     return (
-      <Controller horizontal onTap={onTap}>
-        <Flex
-          w={windowWidth}
-          h={windowHeight}
-          flexDirection="row"
-          alignItems="center"
-          justifyContent="center"
-        >
+      <Controller horizontal safeAreaType={SafeArea.All} onTap={onTap}>
+        <Flex w="full" h="full" flexDirection="row" alignItems="center" justifyContent="center">
           {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }) => {
             const multipleState = (multipleStateRef.current[index] || [])[uri];
             return (
