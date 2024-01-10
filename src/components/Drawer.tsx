@@ -55,8 +55,7 @@ const Drawer: ForwardRefRenderFunction<DrawerRef, DrawerProps> = (
       opacity: opacity.value,
       width: width.value,
       height: windowHeight,
-      // backgroundColor: backgroungColor.value,
-      backgroundColor: 'red',
+      backgroundColor: backgroungColor.value,
     };
   });
   const contentStyles = useAnimatedStyle(() => {
