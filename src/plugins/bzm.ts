@@ -90,7 +90,7 @@ const PATTERN_MANGA_ID = /\/comic\/([^_]+)/;
 const PATTERN_HOUR_TIME = /([0-9]+)小时前 更新/;
 const PATTERN_FULL_TIME = /([0-9]{4}年[0-9]{2}月[0-9]{2}日)/;
 const PATTERN_SLOT = /section_slot=([0-9]*)&chapter_slot=([0-9]*)/;
-const PATTERN_SLOT_HTML = /\/[^_\/]+_([^\/]+)\/([0-9]*)_([0-9]*)_?([0-9]*)\.html/;
+const PATTERN_SLOT_HTML = /\/[^_/]+_?([^/]*)\/([0-9]*)_([0-9]*)_?([0-9]*)\.html/;
 
 class BaoziManga extends Base {
   constructor() {
