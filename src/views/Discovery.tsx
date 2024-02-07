@@ -46,6 +46,7 @@ const Discovery = ({ navigation }: StackDiscoveryProps) => {
     <Fragment>
       <SearchOption />
       <Bookshelf
+        emptyText="没找到相关漫画~"
         list={updateList}
         reload={handleReload}
         loadMore={handleLoadMore}

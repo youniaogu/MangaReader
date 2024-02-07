@@ -11,26 +11,24 @@ interface EmptyProps {
   onPress?: () => void;
 }
 
-const Empty = ({
-  bg = 'white',
-  color = 'gray.500',
-  text = 'Nothing Here',
-  onPress,
-}: EmptyProps) => {
+const Empty = ({ bg = 'white', color = 'gray.500', text = '', onPress }: EmptyProps) => {
   return (
     <Center w="full" h="full" safeAreaX safeAreaBottom bg={bg}>
       <Pressable onPress={onPress}>
         <Image
           w={32}
+          h={32}
           resizeMode="contain"
           resizeMethod="resize"
           fadeDuration={0}
           source={taptapGif}
           alt="taptap"
         />
-        <Text color={color} textAlign="center" fontWeight="bold" fontSize="md">
-          {text}
-        </Text>
+        {text && (
+          <Text color={color} textAlign="center" fontWeight="bold" fontSize="md">
+            {text}
+          </Text>
+        )}
       </Pressable>
     </Center>
   );

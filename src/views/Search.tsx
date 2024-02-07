@@ -46,6 +46,7 @@ const Search = ({ route, navigation }: StackSearchProps) => {
     <Fragment>
       <SearchOption />
       <Bookshelf
+        emptyText="没找到相关漫画~"
         list={searchList}
         reload={handleReload}
         loadMore={handleLoadMore}

@@ -8,6 +8,7 @@ const Loading = () => {
     <Center w="full" h="full" safeAreaX safeAreaBottom>
       <Image
         w={32}
+        h={32}
         resizeMode="contain"
         resizeMethod="resize"
         fadeDuration={0}
