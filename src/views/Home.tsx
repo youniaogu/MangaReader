@@ -36,7 +36,7 @@ const Home = ({ navigation: { navigate } }: StackHomeProps) => {
 
   return (
     <Bookshelf
-      emptyText="还没有收藏~"
+      emptyText="漫画收藏为空~"
       list={favoriteList}
       failList={failList}
       trendList={trendList}
