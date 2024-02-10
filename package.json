@@ -98,7 +98,7 @@
     "typescript-json-schema": "^0.62.0"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "repository": "https://github.com/youniaogu/MangaReader",
   "author": "youniaogu (https://github.com/youniaogu)",
