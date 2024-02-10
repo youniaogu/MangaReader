@@ -168,7 +168,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       <Controller
         horizontal
         onTap={onTap}
-        onLongPress={(position) => onLongPress && onLongPress(position, horizontalState.dataUrl)}
+        onLongPress={(position) => onLongPress && onLongPress(position, horizontalState?.dataUrl)}
         onZoomStart={onZoomStart}
         onZoomEnd={onZoomEnd}
         safeAreaType={SafeArea.All}
@@ -196,7 +196,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       <Box overflow="hidden">
         <Controller
           onTap={onTap}
-          onLongPress={(position) => onLongPress && onLongPress(position, verticalState.dataUrl)}
+          onLongPress={(position) => onLongPress && onLongPress(position, verticalState?.dataUrl)}
           onZoomStart={onZoomStart}
           onZoomEnd={onZoomEnd}
           safeAreaType={SafeArea.X}
@@ -234,7 +234,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
               <Box key={uri}>
                 <LongPressController
                   onLongPress={() =>
-                    onLongPress && onLongPress(PositionX.Mid, multipleState.dataUrl)
+                    onLongPress && onLongPress(PositionX.Mid, multipleState?.dataUrl)
                   }
                 >
                   <ComicImage

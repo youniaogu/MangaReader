@@ -246,9 +246,9 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
       }
     }
   };
-  const handleLongPress = (position: PositionX, source: string) => {
+  const handleLongPress = (position: PositionX, source?: string) => {
     if (position === PositionX.Mid) {
-      sourceRef.current = source;
+      sourceRef.current = source || '';
       onOpen();
     }
     if (inverted) {
