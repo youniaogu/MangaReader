@@ -15,7 +15,8 @@
                 "PICA",
                 "MBZ",
                 "BZM",
-                "RM5"
+                "RM5",
+                "HAPPY"
             ],
             "type": "string"
         },

@@ -12,12 +12,14 @@ import PICA from './pica';
 import MBZ from './mbz';
 import BZM from './bzm';
 import RM5 from './rm5';
+import HAPPY from './happy';
 
 export * from './base';
 
 export const PluginMap = new Map<Plugin, Base>([
   [COPY.id, COPY],
   [MBZ.id, MBZ],
+  [HAPPY.id, HAPPY],
   [MHGM.id, MHGM],
   [JMC.id, JMC],
   [NH.id, NH],

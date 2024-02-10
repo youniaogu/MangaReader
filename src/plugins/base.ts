@@ -38,6 +38,7 @@ export enum Plugin {
   MBZ = 'MBZ',
   BZM = 'BZM',
   RM5 = 'RM5',
+  HAPPY = 'HAPPY',
 }
 
 export enum Options {

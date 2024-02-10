@@ -55,6 +55,7 @@ export enum ErrorMessage {
   WithoutPermission = '授权失败',
   PushTaskFail = '推送任务失败',
   CloudflareFail = 'cloudflare认证失败，请在Webview里重新校验',
+  AccessSourceFail = '访问资源失败',
 }
 
 export enum Orientation {
