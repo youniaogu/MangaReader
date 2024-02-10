@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { LayoutMode, PositionX, ScrambleType, MultipleSeat, SafeArea } from '~/utils';
 import { FlashList, ListRenderItemInfo, ViewToken } from '@shopify/flash-list';
+import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useDebouncedSafeAreaFrame } from '~/hooks';
 import { useFocusEffect } from '@react-navigation/native';
 import { Box, Flex } from 'native-base';
@@ -34,6 +35,11 @@ export interface ReaderProps {
   onImageLoad?: (uri: string, hash: string, index: number) => void;
   onPageChange?: (page: number) => void;
   onLoadMore?: () => void;
+  onZoomStart?: (scale: number) => void;
+  onZoomEnd?: (scale: number) => void;
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
 
 export interface ReaderRef {
@@ -77,6 +83,11 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     onImageLoad,
     onPageChange,
     onLoadMore,
+    onZoomStart,
+    onZoomEnd,
+    onScroll,
+    onScrollBeginDrag,
+    onScrollEndDrag,
   },
   ref
 ) => {
@@ -158,6 +169,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         horizontal
         onTap={onTap}
         onLongPress={(position) => onLongPress && onLongPress(position, horizontalState.dataUrl)}
+        onZoomStart={onZoomStart}
+        onZoomEnd={onZoomEnd}
         safeAreaType={SafeArea.All}
       >
         <ComicImage
@@ -184,6 +197,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         <Controller
           onTap={onTap}
           onLongPress={(position) => onLongPress && onLongPress(position, verticalState.dataUrl)}
+          onZoomStart={onZoomStart}
+          onZoomEnd={onZoomEnd}
           safeAreaType={SafeArea.X}
         >
           <ComicImage
@@ -205,7 +220,13 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   };
   const renderMultipleItem = ({ item, index }: ListRenderItemInfo<(typeof multipleData)[0]>) => {
     return (
-      <Controller horizontal safeAreaType={SafeArea.All} onTap={onTap}>
+      <Controller
+        horizontal
+        safeAreaType={SafeArea.All}
+        onTap={onTap}
+        onZoomStart={onZoomStart}
+        onZoomEnd={onZoomEnd}
+      >
         <Flex w="full" h="full" flexDirection="row" alignItems="center" justifyContent="center">
           {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }) => {
             const multipleState = (multipleStateRef.current[index] || [])[uri];
@@ -255,6 +276,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
         onEndReached={onLoadMore}
         onEndReachedThreshold={3}
         onViewableItemsChanged={HandleMultipleViewableItemsChanged}
@@ -278,6 +302,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
+        onScroll={onScroll}
+        onScrollBeginDrag={onScrollBeginDrag}
+        onScrollEndDrag={onScrollEndDrag}
         onEndReached={onLoadMore}
         onEndReachedThreshold={5}
         onViewableItemsChanged={HandleViewableItemsChanged}
@@ -297,6 +324,9 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       initialScrollIndex={initialScrollIndex}
       estimatedItemSize={(windowHeight * 3) / 5}
       estimatedListSize={{ width: windowWidth, height: windowHeight }}
+      onScroll={onScroll}
+      onScrollBeginDrag={onScrollBeginDrag}
+      onScrollEndDrag={onScrollEndDrag}
       onEndReached={onLoadMore}
       onEndReachedThreshold={5}
       onViewableItemsChanged={HandleViewableItemsChanged}

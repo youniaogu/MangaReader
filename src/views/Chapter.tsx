@@ -99,6 +99,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   } = useDisclose();
   const [page, setPage] = useState(initPage - 1);
   const [showExtra, setShowExtra] = useState(false);
+  const [timerSwitch, setTimerSwitch] = useState(true);
   const [chapterHash, setChapterHash] = useState(initChapterHash);
   const [hashList, setHashList] = useState([initChapterHash]);
 
@@ -179,7 +180,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   );
   useInterval(
     useCallback(() => callbackRef.current && callbackRef.current(Volume.Down), []),
-    timer === Timer.Enable,
+    timer === Timer.Enable && timerSwitch,
     timerGap
   );
 
@@ -441,6 +442,10 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
         onImageLoad={handleImageLoad}
         onPageChange={handlePageChange}
         onLoadMore={handleLoadMore}
+        onScrollBeginDrag={() => setTimerSwitch(false)}
+        onScrollEndDrag={() => setTimerSwitch(true)}
+        onZoomStart={(scale) => setTimerSwitch(scale <= 1)}
+        onZoomEnd={(scale) => setTimerSwitch(scale <= 1)}
       />
       <ActionsheetSelect
         isOpen={isOpen}

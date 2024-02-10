@@ -388,3 +388,5 @@ export function unscramble(uri: string, width: number, height: number, type = Sc
     }
   }
 }
+
+export function emptyFn() {}

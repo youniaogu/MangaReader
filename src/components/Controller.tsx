@@ -6,8 +6,8 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { useDebouncedSafeAreaInsets, useDebouncedSafeAreaFrame } from '~/hooks';
+import { emptyFn, PositionX, SafeArea } from '~/utils';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
-import { PositionX, SafeArea } from '~/utils';
 import { useFocusEffect } from '@react-navigation/native';
 
 const doubleTapScaleValue = 2;
@@ -15,6 +15,8 @@ const doubleTapScaleValue = 2;
 export interface ControllerProps {
   onTap?: (position: PositionX) => void;
   onLongPress?: (position: PositionX) => void;
+  onZoomStart?: (scale: number) => void;
+  onZoomEnd?: (scale: number) => void;
   children: ReactNode;
   horizontal?: boolean;
   safeAreaType?: SafeArea;
@@ -31,6 +33,8 @@ const Controller = ({
   safeAreaType = SafeArea.None,
   onTap,
   onLongPress,
+  onZoomStart = emptyFn,
+  onZoomEnd = emptyFn,
 }: ControllerProps) => {
   const insets = useDebouncedSafeAreaInsets();
   const { width: windowWidth, height: windowHeight } = useDebouncedSafeAreaFrame();
@@ -116,6 +120,7 @@ const Controller = ({
     .numberOfTaps(2)
     .onStart((e) => {
       'worklet';
+      runOnJS(onZoomStart)(scale.value);
       if (savedScale.value > 1) {
         scale.value = withTiming(1, { duration: 300 });
         translationX.value = withTiming(0, { duration: 300 });
@@ -143,6 +148,10 @@ const Controller = ({
         savedTranslationY.value = currentY;
         runOnJS(setEnabled)(doubleTapScaleValue > 1);
       }
+    })
+    .onEnd(() => {
+      'worklet';
+      runOnJS(onZoomEnd)(scale.value > 1 ? 1 : doubleTapScaleValue);
     });
   const longPress = Gesture.LongPress()
     .runOnJS(true)
@@ -163,6 +172,7 @@ const Controller = ({
       'worklet';
       focalX.value = e.focalX;
       focalY.value = e.focalY;
+      runOnJS(onZoomStart)(scale.value);
     })
     .onChange((e) => {
       'worklet';
@@ -196,6 +206,7 @@ const Controller = ({
       savedTranslationX.value = translationX.value;
       savedTranslationY.value = translationY.value;
       runOnJS(setEnabled)(scale.value > 1);
+      runOnJS(onZoomEnd)(scale.value);
     });
   const panGesture = Gesture.Pan()
     .minPointers(1)
