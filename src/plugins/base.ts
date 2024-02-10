@@ -207,7 +207,7 @@ abstract class Base {
 
     if (title === 'Just a moment...') {
       clearAllCookie(this.href);
-      throw new Error(`${this.name}: ${ErrorMessage.CloudflareFail}`);
+      throw new Error(`${ErrorMessage.CloudflareFail} - ${this.name}`);
     }
   };
 

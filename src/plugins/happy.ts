@@ -72,6 +72,7 @@ const discoveryOptions = [
     name: 'type',
     options: [
       { label: '选择分类', value: Options.Default },
+      /** 网站上有些 key 重复了，我也不知道为什么... */
       { label: '热血', value: 'rexue' },
       { label: '格斗', value: 'gedou' },
       { label: '武侠', value: 'wuxia' },
@@ -166,7 +167,7 @@ const discoveryOptions = [
       { label: '机甲', value: 'jijia' },
       { label: '高甜', value: 'gaotian' },
       { label: '僵尸', value: 'jiangshi' },
-      { label: '致郁', value: 'zhiyu' },
+      // { label: '致郁', value: 'zhiyu' },
       { label: '电竞', value: 'dianjing' },
       { label: '神魔', value: 'shenmo' },
       { label: '异能', value: 'yineng' },
@@ -190,7 +191,7 @@ const discoveryOptions = [
       { label: '生存', value: 'shengcun' },
       { label: '萌宠', value: 'mengchong' },
       { label: '异世界', value: 'yishijie' },
-      { label: '其它', value: 'qita' },
+      // { label: '其它', value: 'qita' },
       { label: 'C99', value: 'C99' },
       { label: '节操', value: 'jiecao' },
       { label: 'AA', value: 'AA' },
@@ -247,7 +248,7 @@ const PATTERN_MM_DD = /[0-9]{2}-[0-9]{2}/;
 class HappyManga extends Base {
   constructor() {
     const userAgent =
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
     super({
       score: 5,
       id: Plugin.HAPPY,
@@ -256,7 +257,7 @@ class HappyManga extends Base {
       description: '需要代理',
       href: 'https://m.happymh.com/',
       userAgent,
-      defaultHeaders: { 'User-Agent': userAgent },
+      defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://m.happymh.com/' },
       option: { discovery: discoveryOptions, search: [] },
     });
   }
@@ -264,6 +265,7 @@ class HappyManga extends Base {
   private v = 'v2.13';
   private checkProxy<T = any>(res: T | string): res is T {
     if (typeof res === 'string') {
+      this.checkCloudFlare(cheerio.load(res || ''));
       return false;
     }
     return true;
@@ -283,6 +285,7 @@ class HappyManga extends Base {
         series_status: status === Options.Default ? '-1' : status,
         order: 'last_date',
       },
+      headers: new Headers({ ...this.defaultHeaders, Referer: 'https://m.happymh.com/latest' }),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword) => {
@@ -293,10 +296,18 @@ class HappyManga extends Base {
         searchkey: keyword,
         v: this.v,
       },
+      headers: new Headers({
+        ...this.defaultHeaders,
+        Origin: 'https://m.happymh.com',
+        Referer: 'https://m.happymh.com/sssearch',
+      }),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
-    return { url: `https://m.happymh.com/manga/${mangaId}` };
+    return {
+      url: `https://m.happymh.com/manga/${mangaId}`,
+      headers: new Headers(this.defaultHeaders),
+    };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
@@ -307,6 +318,12 @@ class HappyManga extends Base {
         cid: chapterId,
         v: this.v,
       },
+      headers: new Headers({
+        ...this.defaultHeaders,
+        Referer: `https://m.happymh.com/reads/${mangaId}/${chapterId}`,
+        /** 不是 XML 请求会返回 403 */
+        'X-Requested-With': 'XMLHttpRequest',
+      }),
     };
   };
 
@@ -315,7 +332,7 @@ class HappyManga extends Base {
       throw new Error(ErrorMessage.AccessSourceFail);
     }
 
-    if (res.status !== 0) {
+    if (res.status === 0) {
       return {
         discovery: res.data.items.map((item) => {
           const mangaId = item.manga_code;
@@ -341,7 +358,7 @@ class HappyManga extends Base {
       throw new Error(ErrorMessage.AccessSourceFail);
     }
 
-    if (res.status !== 0) {
+    if (res.status === 0) {
       return {
         search: res.data.items.map((item) => {
           const mangaId = item.manga_code;
@@ -404,6 +421,13 @@ class HappyManga extends Base {
         source: this.id,
         sourceName: this.name,
         mangaId: mangaId,
+        chapters: data.chapterList.map((item) => ({
+          hash: Base.combineHash(this.id, mangaId, item.id),
+          mangaId: mangaId,
+          chapterId: item.id,
+          href: `https://m.happymh.com/reads/${mangaId}/${item.id}`,
+          title: item.chapterName,
+        })),
         infoCover: data.serie_cover,
         title: data.serie_name,
         updateTime,
@@ -423,7 +447,7 @@ class HappyManga extends Base {
       throw new Error(ErrorMessage.AccessSourceFail);
     }
 
-    if (res.status !== 0) {
+    if (res.status === 0) {
       const mangaId = res.data.manga_code;
       const chapterId = String(res.data.id);
       return {
@@ -434,7 +458,7 @@ class HappyManga extends Base {
           chapterId,
           name: res.data.manga_name,
           title: res.data.chapter_name,
-          headers: this.defaultHeaders,
+          headers: { ...this.defaultHeaders, Referer: 'https://m.happymh.com/' },
           images: res.data.scans.map((item) => ({ uri: item.url })),
         },
       };
