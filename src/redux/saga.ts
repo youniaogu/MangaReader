@@ -874,7 +874,7 @@ function* replaceDownloadPath(path: string, chapterHash?: string) {
     const mangaHash = combineHash(source, mangaId);
     const dict = ((state: RootState) => state.dict)(yield select());
     const manga = dict.manga[mangaHash];
-    const chapter = dict.chapter[chapterId];
+    const chapter = dict.chapter[chapterHash];
 
     if (!nonNullable(manga) || !nonNullable(chapter)) {
       return path;
@@ -957,11 +957,11 @@ function* fileExport({
   const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
 
   if (Platform.OS === 'ios') {
-    const [pluginId, mangaId, chapterId] = splitHash(chapterHash);
+    const [pluginId, mangaId] = splitHash(chapterHash);
     const mangaHash = combineHash(pluginId, mangaId);
     const dict = ((state: RootState) => state.dict)(yield select());
     const manga = dict.manga[mangaHash];
-    const chapter = dict.chapter[chapterId];
+    const chapter = dict.chapter[chapterHash];
 
     yield call(CameraRoll.save, `file://${path}`, {
       album: `${manga?.title}-${chapter?.title}`,
