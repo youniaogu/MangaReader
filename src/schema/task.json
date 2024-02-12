@@ -13,9 +13,6 @@
         },
         "Job": {
             "properties": {
-                "album": {
-                    "type": "string"
-                },
                 "chapterHash": {
                     "type": "string"
                 },
@@ -42,7 +39,6 @@
                 }
             },
             "required": [
-                "album",
                 "chapterHash",
                 "index",
                 "jobId",
