@@ -172,7 +172,7 @@ abstract class Base {
    * @memberof Base
    */
   static splitHash(hash: string): [Plugin, string, string] {
-    const [plugin, mangaId, chapterId] = hash.split('&');
+    const [plugin, mangaId = '', chapterId = ''] = hash.split('&');
     return [plugin as Plugin, mangaId, chapterId];
   }
 

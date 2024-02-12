@@ -312,7 +312,7 @@ class HappyManga extends Base {
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
-      url: `https://m.happymh.com/v2.0/apis/manga/read`,
+      url: 'https://m.happymh.com/v2.0/apis/manga/read',
       body: {
         code: mangaId,
         cid: chapterId,

@@ -39,7 +39,7 @@ export const initialState: RootState = {
     hearing: Hearing.Enable,
     timer: Timer.Disabled,
     timerGap: 5000,
-    androidDownloadPath: Dirs.SDCardDir + '/DCIM',
+    androidDownloadPath: Dirs.SDCardDir + '/DCIM/{{CHAPTER_NAME}}',
   },
   plugin: {
     source: defaultPlugin,

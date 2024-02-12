@@ -92,7 +92,6 @@ declare global {
     type: TaskType;
     status: AsyncStatus;
     source: string;
-    album: string;
     index: number;
     headers?: Record<string, string>;
   }

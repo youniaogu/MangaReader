@@ -1,5 +1,5 @@
+import { ErrorMessage, MangaStatus, ScrambleType } from './enum';
 import { Draft, Draft07, JsonError, JsonSchema } from 'json-schema-library';
-import { ErrorMessage, ScrambleType } from './enum';
 import { delay, race, Effect } from 'redux-saga/effects';
 import { Platform } from 'react-native';
 import { Buffer } from 'buffer';
@@ -390,3 +390,16 @@ export function unscramble(uri: string, width: number, height: number, type = Sc
 }
 
 export function emptyFn() {}
+
+export function statusToLabel(status: MangaStatus) {
+  switch (status) {
+    case MangaStatus.Serial: {
+      return '连载中';
+    }
+    case MangaStatus.End: {
+      return '已完结';
+    }
+    default:
+      return '未知';
+  }
+}

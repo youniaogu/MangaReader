@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, Modal, Input, InputGroup, InputRightAddon } from 'native-base';
+import { Text, Modal, Input, InputGroup } from 'native-base';
 import { initialState } from '~/redux/slice';
 import VectorIcon from '~/components/VectorIcon';
 
@@ -26,13 +26,7 @@ const PathModal = ({ isOpen = true, defaultValue = '', onClose }: PathModalProps
           漫画导出目录：
         </Text>
         <InputGroup w="full">
-          <Input fontSize="sm" flex={1} value={path} onChangeText={setPath} />
-          <InputRightAddon
-            px={2}
-            children="/{chapter}"
-            background="gray.100"
-            borderRightWidth={0}
-          />
+          <Input fontSize="sm" flex={1} borderRightWidth={0} value={path} onChangeText={setPath} />
           <VectorIcon
             size="md"
             name="restore"

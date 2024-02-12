@@ -21,13 +21,14 @@ import {
   pairsToDict,
   trycatch,
   nonNullable,
+  statusToLabel,
   ErrorMessage,
   AsyncStatus,
   TaskType,
 } from '~/utils';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { Permission, PermissionsAndroid, Platform } from 'react-native';
-import { splitHash, PluginMap } from '~/plugins';
+import { splitHash, combineHash, PluginMap } from '~/plugins';
 import { action, initialState } from './slice';
 import { Dirs, FileSystem } from 'react-native-file-access';
 import { CacheManager } from '@georstat/react-native-image-cache';
@@ -867,6 +868,41 @@ function* loadChapterSaga() {
   );
 }
 
+function* replaceDownloadPath(path: string, chapterHash?: string) {
+  if (chapterHash) {
+    const [source, mangaId, chapterId] = splitHash(chapterHash);
+    const mangaHash = combineHash(source, mangaId);
+    const dict = ((state: RootState) => state.dict)(yield select());
+    const manga = dict.manga[mangaHash];
+    const chapter = dict.chapter[chapterId];
+
+    if (!nonNullable(manga) || !nonNullable(chapter)) {
+      return path;
+    }
+
+    const PATTERN_TEMPLATE = /{{([^{}|]+)\|?([^{}|]*)}}/g;
+    const { sourceName, title: mangaTitle, author, tag, status } = manga;
+    const { title: chapterTitle } = chapter;
+    const templateMap: Record<string, string | string[]> = {
+      MANGA_ID: mangaId,
+      MANGA_NAME: mangaTitle,
+      CHAPTER_ID: chapterId,
+      CHAPTER_NAME: chapterTitle,
+      AUTHOR: author,
+      SOURCE_ID: source,
+      SOURCE_NAME: sourceName,
+      TAG: tag,
+      STATUS: statusToLabel(status),
+    };
+
+    return path.replace(PATTERN_TEMPLATE, (_match, p1 = '') => {
+      const [template, separator = '、'] = p1.split('|');
+      const data = templateMap[template] || template;
+      return typeof data === 'string' ? data : data.join(separator);
+    });
+  }
+  return path;
+}
 function* hasAndroidPermission(permission: Permission) {
   const hasPermission: boolean = yield call(PermissionsAndroid.check, permission);
 
@@ -886,48 +922,61 @@ function* fileDownload({ source, headers }: { source: string; headers?: Record<s
     throw new Error('图片加载失败');
   }
 }
-function* check(album?: string) {
+function* checkAndroidPermission() {
   if (Platform.OS === 'android') {
     const writePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
     const hasWritePermission: boolean = yield call(hasAndroidPermission, writePermission);
     if (!hasWritePermission) {
       throw new Error(ErrorMessage.WithoutPermission);
     }
-
-    if (album) {
-      const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
-        yield select()
-      );
-      const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}/${album}`);
-      if (!isExisted) {
-        yield call(FileSystem.mkdir, `${androidDownloadPath}/${album}`);
-      }
+  }
+}
+function* checkAndroidDownloadPath(chapterHash?: string) {
+  if (Platform.OS === 'android') {
+    const androidDownloadPath: string = yield call(
+      replaceDownloadPath,
+      ((state: RootState) => state.setting.androidDownloadPath)(yield select()),
+      chapterHash
+    );
+    const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}`);
+    if (!isExisted) {
+      yield call(FileSystem.mkdir, `${androidDownloadPath}`);
     }
   }
 }
 function* fileExport({
   source,
-  album,
+  chapterHash,
   filename,
 }: {
   source: string;
-  album: string;
+  chapterHash: string;
   filename?: string;
 }) {
-  const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
-    yield select()
-  );
   const cacheEntry = CacheManager.get(source, undefined);
   const path: string = yield call(cacheEntry.getPath.bind(cacheEntry));
 
   if (Platform.OS === 'ios') {
-    yield call(CameraRoll.save, `file://${path}`, { album });
+    const [pluginId, mangaId, chapterId] = splitHash(chapterHash);
+    const mangaHash = combineHash(pluginId, mangaId);
+    const dict = ((state: RootState) => state.dict)(yield select());
+    const manga = dict.manga[mangaHash];
+    const chapter = dict.chapter[chapterId];
+
+    yield call(CameraRoll.save, `file://${path}`, {
+      album: `${manga?.title}-${chapter?.title}`,
+    });
   } else {
+    const androidDownloadPath: string = yield call(
+      replaceDownloadPath,
+      ((state: RootState) => state.setting.androidDownloadPath)(yield select()),
+      chapterHash
+    );
     const [, name, suffix] = path.match(/.*\/(.*)\.(.*)$/) || [];
     yield call(
       FileSystem.cp,
       `file://${path}`,
-      `${androidDownloadPath}/${album}/${filename || name}.${suffix}`
+      `${androidDownloadPath}/${filename || name}.${suffix}`
     );
   }
 }
@@ -943,7 +992,7 @@ function* thread() {
       break;
     }
 
-    const { taskId, jobId, chapterHash, type, source, album, headers, index } = job;
+    const { taskId, jobId, chapterHash, type, source, headers, index } = job;
     yield put(startJob({ taskId, jobId }));
     try {
       const { timeout } = yield race({
@@ -956,7 +1005,7 @@ function* thread() {
 
       yield put(viewImage({ chapterHash, index, isVisited: false }));
       if (type === TaskType.Export) {
-        yield call(fileExport, { source, album, filename: String(index) });
+        yield call(fileExport, { source, filename: String(index), chapterHash });
       }
       yield put(endJob({ taskId, jobId, status: AsyncStatus.Fulfilled }));
     } catch (e) {
@@ -992,9 +1041,10 @@ function* pushChapterTask({
     return;
   }
 
-  const { title, headers, images } = chapter;
+  const { title, headers, images, hash } = chapter;
   if (taskType === TaskType.Export) {
-    yield call(check, title);
+    yield call(checkAndroidPermission);
+    yield call(checkAndroidDownloadPath, hash);
   }
 
   yield put(
@@ -1048,7 +1098,7 @@ function* saveImageSaga() {
   yield takeEverySuspense(
     saveImage.type,
     function* ({ payload: { source, headers } }: ReturnType<typeof saveImage>) {
-      yield call(check);
+      yield call(checkAndroidPermission);
 
       let path: string;
       if (/^data:image\/png;base64,.+/.test(source)) {

@@ -164,7 +164,7 @@ const About = () => {
             leftIcon={<Icon as={MaterialIcons} name="drive-file-move" size="lg" />}
             onPress={onAlbumPathOpen}
           >
-            {`${androidDownloadPath}`}
+            漫画导出目录
           </Button>
         )}
         <Button

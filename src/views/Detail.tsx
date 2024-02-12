@@ -13,6 +13,7 @@ import {
 import {
   nonNullable,
   coverAspectRatio,
+  statusToLabel,
   Sequence,
   ChapterOptions,
   MangaStatus,
@@ -157,19 +158,6 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
     );
   }
 
-  const StatusToLabel = (status: MangaStatus) => {
-    switch (status) {
-      case MangaStatus.Serial: {
-        return '连载中';
-      }
-      case MangaStatus.End: {
-        return '已完结';
-      }
-      default:
-        return '未知';
-    }
-  };
-
   const handleChapter = (chapterHash: string) => {
     if (favorites.find((item) => item.mangaHash === mangaHash)) {
       dispatch(viewFavorites(mangaHash));
@@ -311,7 +299,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             来源：{data.sourceName}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
-            状态：{StatusToLabel(data.status)}
+            状态：{statusToLabel(data.status)}
           </Text>
           <Text color="white" fontSize={14} fontWeight="bold" numberOfLines={1}>
             最近更新：{data.updateTime || '未知'}
