@@ -202,10 +202,10 @@ abstract class Base {
    * @param {cheerio.Root} $
    * @memberof Base
    */
-  public checkCloudFlare = ($: cheerio.Root) => {
+  public checkCloudFlare = ($: cheerio.Root, cfTitle?: string) => {
     const title = $('title').first().text().trim();
 
-    if (title === 'Just a moment...') {
+    if (title === 'Just a moment...' || (typeof cfTitle === 'string' && title === cfTitle)) {
       clearAllCookie(this.href);
       throw new Error(`${ErrorMessage.CloudflareFail} - ${this.name}`);
     }
