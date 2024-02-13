@@ -363,7 +363,9 @@ class CopyManga extends Base {
         name,
         title,
         headers: this.imageHeaders,
-        images: images.map((item: { url: string }) => ({ uri: item.url })),
+        images: images.map((item: { url: string }) => ({
+          uri: item.url.replace(/\.c[0-9]+x\./, '.c1500x.'),
+        })),
       },
     };
   };
