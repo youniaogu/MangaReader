@@ -1,6 +1,7 @@
 import { ErrorMessage, MangaStatus, ScrambleType } from './enum';
 import { Draft, Draft07, JsonError, JsonSchema } from 'json-schema-library';
 import { delay, race, Effect } from 'redux-saga/effects';
+import { ImageState } from '~/components/ComicImage';
 import { Platform } from 'react-native';
 import { Buffer } from 'buffer';
 import CookieManager from '@react-native-cookies/cookies';
@@ -402,4 +403,33 @@ export function statusToLabel(status: MangaStatus) {
     default:
       return '未知';
   }
+}
+
+export function getDefaultFillAverageHeight(
+  list: ImageState[],
+  defaultHeight: { landscape: number; portrait: number }
+) {
+  const height = list.reduce(
+    (prev, curr) => ({
+      landscapeHeight: prev.landscapeHeight + (curr.landscapeHeight || defaultHeight.landscape),
+      portraitHeight: prev.portraitHeight + (curr.portraitHeight || defaultHeight.portrait),
+    }),
+    { portraitHeight: 0, landscapeHeight: 0 }
+  );
+
+  return {
+    portrait: height.portraitHeight / list.length,
+    landscape: height.landscapeHeight / list.length,
+  };
+}
+
+export function getDefaultFillMedianHeight(
+  list: ImageState[],
+  defaultHeight: { landscape: number; portrait: number }
+) {
+  const mid = Math.min(Math.max(Math.ceil(list.length / 2), 0), list.length);
+  return {
+    portrait: list[mid].portraitHeight || defaultHeight.portrait,
+    landscape: list[mid].landscapeHeight || defaultHeight.landscape,
+  };
 }

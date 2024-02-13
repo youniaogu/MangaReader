@@ -7,7 +7,15 @@ import React, {
   forwardRef,
   ForwardRefRenderFunction,
 } from 'react';
-import { LayoutMode, PositionX, ScrambleType, MultipleSeat, SafeArea } from '~/utils';
+import {
+  getDefaultFillMedianHeight,
+  LayoutMode,
+  PositionX,
+  ScrambleType,
+  MultipleSeat,
+  SafeArea,
+  Orientation,
+} from '~/utils';
 import { FlashList, ListRenderItemInfo, ViewToken } from '@shopify/flash-list';
 import { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useDebouncedSafeAreaFrame } from '~/hooks';
@@ -31,7 +39,7 @@ export interface ReaderProps {
   }[];
   headers?: Chapter['headers'];
   onTap?: (position: PositionX) => void;
-  onLongPress?: (position: PositionX, source: string) => void;
+  onLongPress?: (position: PositionX, source?: string) => void;
   onImageLoad?: (uri: string, hash: string, index: number) => void;
   onPageChange?: (page: number) => void;
   onLoadMore?: () => void;
@@ -91,12 +99,17 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   },
   ref
 ) => {
-  const { width: windowWidth, height: windowHeight } = useDebouncedSafeAreaFrame();
+  const { width: windowWidth, height: windowHeight, orientation } = useDebouncedSafeAreaFrame();
   const multipleData = useTakeTwo(data, 2, seat);
   const flashListRef = useRef<FlashList<any>>(null);
-  const horizontalStateRef = useRef<ImageState[]>([]);
-  const verticalStateRef = useRef<ImageState[]>([]);
-  const multipleStateRef = useRef<Record<string, ImageState>[]>([]);
+  const horizontalStateRef = useRef<(ImageState | null)[]>([]);
+  const verticalStateRef = useRef<(ImageState | null)[]>([]);
+  const multipleStateRef = useRef<Record<string, ImageState | null>[]>([]);
+
+  const portraitHeight = (Math.max(windowWidth, windowHeight) * 3) / 5;
+  const landscapeHeight = (Math.min(windowWidth, windowHeight) * 3) / 5;
+  const defaultPortraitHeightRef = useRef(portraitHeight);
+  const defaultLandscapeHeightRef = useRef(landscapeHeight);
 
   const onPageChangeRef = useRef(onPageChange);
   onPageChangeRef.current = onPageChange;
@@ -163,7 +176,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, scrambleType, needUnscramble } = item;
-    const horizontalState = horizontalStateRef.current[index];
+    const horizontalState = horizontalStateRef.current[index] || undefined;
     return (
       <Controller
         horizontal
@@ -180,6 +193,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           needUnscramble={needUnscramble}
           headers={headers}
           prevState={horizontalState}
+          defaultPortraitHeight={defaultPortraitHeightRef.current}
+          defaultLandscapeHeight={defaultLandscapeHeightRef.current}
           layoutMode={LayoutMode.Horizontal}
           onChange={(state, idx = index) => {
             horizontalStateRef.current[idx] = state;
@@ -191,9 +206,17 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   };
   const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, scrambleType, needUnscramble } = item;
-    const verticalState = verticalStateRef.current[index];
+    const verticalState = verticalStateRef.current[index] || undefined;
     return (
-      <Box overflow="hidden">
+      <Box
+        overflow="hidden"
+        style={{
+          height:
+            orientation === Orientation.Portrait
+              ? verticalState?.portraitHeight || defaultPortraitHeightRef.current
+              : verticalState?.landscapeHeight || defaultLandscapeHeightRef.current,
+        }}
+      >
         <Controller
           onTap={onTap}
           onLongPress={(position) => onLongPress && onLongPress(position, verticalState?.dataUrl)}
@@ -208,10 +231,21 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
             needUnscramble={needUnscramble}
             headers={headers}
             prevState={verticalState}
+            defaultPortraitHeight={defaultPortraitHeightRef.current}
+            defaultLandscapeHeight={defaultLandscapeHeightRef.current}
             layoutMode={LayoutMode.Vertical}
             onChange={(state, idx = index) => {
               verticalStateRef.current[idx] = state;
               onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
+
+              const defaultHeight = getDefaultFillMedianHeight(
+                verticalStateRef.current.filter(
+                  (imageState): imageState is ImageState => imageState !== null
+                ),
+                { portrait: portraitHeight, landscape: landscapeHeight }
+              );
+              defaultPortraitHeightRef.current = defaultHeight.portrait;
+              defaultLandscapeHeightRef.current = defaultHeight.landscape;
             }}
           />
         </Controller>
@@ -229,7 +263,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       >
         <Flex w="full" h="full" flexDirection="row" alignItems="center" justifyContent="center">
           {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }) => {
-            const multipleState = (multipleStateRef.current[index] || [])[uri];
+            const multipleState = (multipleStateRef.current[index] || [])[uri] || undefined;
             return (
               <Box key={uri}>
                 <LongPressController
@@ -244,6 +278,8 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
                     needUnscramble={needUnscramble}
                     headers={headers}
                     prevState={multipleState}
+                    defaultPortraitHeight={defaultPortraitHeightRef.current}
+                    defaultLandscapeHeight={defaultLandscapeHeightRef.current}
                     layoutMode={LayoutMode.Multiple}
                     onChange={(state, idx = index) => {
                       if (typeof multipleStateRef.current[idx] !== 'object') {

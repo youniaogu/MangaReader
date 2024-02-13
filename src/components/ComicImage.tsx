@@ -1,19 +1,13 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
-import {
-  Image as ReactNativeImage,
-  StyleSheet,
-  Dimensions,
-  StyleProp,
-  ImageStyle,
-} from 'react-native';
 import { aspectFit, AsyncStatus, LayoutMode, Orientation, ScrambleType, unscramble } from '~/utils';
+import { Image as ReactNativeImage, StyleSheet, Dimensions, DimensionValue } from 'react-native';
 import { useDebouncedSafeAreaFrame, useDebouncedSafeAreaInsets } from '~/hooks';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
-import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
-import FastImage, { ImageStyle as FastImageStyle, ResizeMode } from 'react-native-fast-image';
+import FastImage, { ResizeMode } from 'react-native-fast-image';
+import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
 const windowScale = Dimensions.get('window').scale;
@@ -45,6 +39,9 @@ export interface ImageProps {
   headers?: { [name: string]: string };
   layoutMode?: LayoutMode;
   prevState?: ImageState;
+  /** 这两个高度只用于竖屏模式，动态修改高度避免抖动过度 */
+  defaultPortraitHeight: number;
+  defaultLandscapeHeight: number;
   onChange?: (state: ImageState, idx?: number) => void;
 }
 export interface ComicImageProps extends ImageProps {
@@ -58,13 +55,14 @@ const DefaultImage = ({
   headers = {},
   layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
+  defaultPortraitHeight,
+  defaultLandscapeHeight,
   onChange,
 }: ImageProps) => {
   const { top, left, right, bottom } = useDebouncedSafeAreaInsets();
   const { width: windowWidth, height: windowHeight, orientation } = useDebouncedSafeAreaFrame();
   const [imageState, setImageState] = useState(prevState);
-  const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
-  const style = useMemo<StyleProp<ImageStyle>>(() => {
+  const style = useMemo<{ width: DimensionValue; height: DimensionValue }>(() => {
     if (layoutMode === LayoutMode.Horizontal) {
       return {
         width: '100%',
@@ -74,9 +72,9 @@ const DefaultImage = ({
       return {
         width: '100%',
         height:
-          (orientation === Orientation.Landscape
-            ? imageState.landscapeHeight
-            : imageState.portraitHeight) || defaultFillHeight,
+          orientation === Orientation.Landscape
+            ? imageState.landscapeHeight || defaultLandscapeHeight
+            : imageState.portraitHeight || defaultPortraitHeight,
       };
     }
     // LayoutMode.Multiple
@@ -84,7 +82,7 @@ const DefaultImage = ({
       width: imageState.multipleFitWidth || '100%',
       height: imageState.multipleFitHeight || '100%',
     };
-  }, [layoutMode, imageState, orientation, defaultFillHeight]);
+  }, [layoutMode, imageState, orientation, defaultPortraitHeight, defaultLandscapeHeight]);
   const uriRef = useRef(uri);
 
   const updateData = useCallback(
@@ -215,14 +213,15 @@ const ScrambleImage = ({
   headers = {},
   layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
+  defaultPortraitHeight,
+  defaultLandscapeHeight,
   onChange,
   scrambleType,
 }: ImageProps & { scrambleType?: ScrambleType }) => {
   const { top, left, right, bottom } = useDebouncedSafeAreaInsets();
   const { width: windowWidth, height: windowHeight, orientation } = useDebouncedSafeAreaFrame();
   const [imageState, setImageState] = useState(prevState);
-  const defaultFillHeight = useMemo(() => (windowHeight * 3) / 5, [windowHeight]);
-  const style = useMemo<StyleProp<FastImageStyle>>(() => {
+  const style = useMemo<{ width: DimensionValue; height: DimensionValue }>(() => {
     if (layoutMode === LayoutMode.Horizontal) {
       return {
         width: '100%',
@@ -232,9 +231,9 @@ const ScrambleImage = ({
       return {
         width: '100%',
         height:
-          (orientation === Orientation.Landscape
-            ? imageState.landscapeHeight
-            : imageState.portraitHeight) || defaultFillHeight,
+          orientation === Orientation.Landscape
+            ? imageState.landscapeHeight || defaultLandscapeHeight
+            : imageState.portraitHeight || defaultPortraitHeight,
       };
     }
     // LayoutMode.Multiple
@@ -242,7 +241,7 @@ const ScrambleImage = ({
       width: imageState.multipleFitWidth || '100%',
       height: imageState.multipleFitHeight || '100%',
     };
-  }, [layoutMode, imageState, orientation, defaultFillHeight]);
+  }, [layoutMode, imageState, orientation, defaultPortraitHeight, defaultLandscapeHeight]);
   const canvasRef = useRef<Canvas>(null);
   const uriRef = useRef(uri);
 
