@@ -30,6 +30,7 @@
 - [x] [哔咔漫画](https://manhuabika.com/)（需要代理和[登录](#登录认证相关)）
 - [x] [漫画 bz](https://mangabz.com/)（需要代理）
 - [x] [包子漫画](https://cn.baozimh.com/)（不需要代理但海外 ip 会走 cloudflare，需要在 webview 里通过校验）
+- [x] [嗨皮漫画](https://m.happymh.com/)（需要代理同时也有 cloudflare，而且 cf 校验需要进到详情页才能触发，稍微注意一下）
 
 ## 使用指南
 
