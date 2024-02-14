@@ -880,7 +880,7 @@ function* replaceDownloadPath(path: string, chapterHash?: string) {
       return path;
     }
 
-    const PATTERN_TEMPLATE = /{{([^{}|]+)\|?([^{}|]*)}}/g;
+    const PATTERN_TEMPLATE = /{{([^{}|]+\|?[^{}|]*)}}/g;
     const { sourceName, title: mangaTitle, author, tag, status } = manga;
     const { title: chapterTitle } = chapter;
     const templateMap: Record<string, string | string[]> = {
@@ -888,10 +888,10 @@ function* replaceDownloadPath(path: string, chapterHash?: string) {
       MANGA_NAME: mangaTitle,
       CHAPTER_ID: chapterId,
       CHAPTER_NAME: chapterTitle,
-      AUTHOR: author,
+      AUTHOR: author.length > 0 ? author : ['未知'],
       SOURCE_ID: source,
       SOURCE_NAME: sourceName,
-      TAG: tag,
+      TAG: tag.length > 0 ? tag : ['未知'],
       STATUS: statusToLabel(status),
     };
 
