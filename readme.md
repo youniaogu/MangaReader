@@ -20,7 +20,7 @@
 
 - [x] ~~[漫画柜](https://www.mhgui.com/)（大陆版，访问 403，已失效）~~
 - [x] [漫画柜 mobile](https://m.manhuagui.com/)（需要代理）
-- [x] [拷贝漫画](https://www.copymanga.org/)
+- [x] [拷贝漫画](https://www.mangacopy.com/)
 - [x] [漫画 db](https://www.manhuadb.com/)
 - [x] [禁漫天堂](https://18comic.vip)（需要代理，日本 ip 无法访问，疑似开启了 cloudflare，如果无法使用，请参考[cf 校验](#cloudflare-校验)）
 - [x] [动漫之家 mobile](https://m.dmzj.com/)（现在需要登录才能看了，使用前请在 webview 里登录）
