@@ -1,64 +1,74 @@
 import React from 'react';
-import { Text, VStack, HStack, Switch, ScrollView } from 'native-base';
+import DraggableFlatList, {
+  ScaleDecorator,
+  RenderItemParams,
+} from 'react-native-draggable-flatlist';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
+import { Box, Text, VStack, HStack, Switch } from 'native-base';
+import { useDebouncedSafeAreaInsets } from '~/hooks';
 import { Plugin as PluginType } from '~/plugins';
+import { TouchableOpacity } from 'react-native';
 import ScoreRate from '~/components/ScoreRate';
 
-const { disablePlugin } = action;
+const { sortPlugin, disablePlugin } = action;
 
 const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
   const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.plugin.list);
+  const { left, right, bottom } = useDebouncedSafeAreaInsets();
 
   const handleToggle = (plugin: PluginType) => {
     dispatch(disablePlugin(plugin));
   };
+  const renderItem = ({ item, drag, isActive }: RenderItemParams<(typeof list)[0]>) => (
+    <ScaleDecorator>
+      <TouchableOpacity onLongPress={drag} disabled={isActive}>
+        <HStack space={6} key={item.value} alignItems="center" flexDirection="row" px={4} py={3}>
+          <VStack space={1} flexGrow={1} w={0}>
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              color="purple.500"
+              onPress={() =>
+                navigate('Webview', {
+                  uri: item.href,
+                  source: item.value,
+                  userAgent: item.userAgent,
+                  injectedJavascript: item.injectedJavaScript,
+                })
+              }
+            >
+              {item.name} - {item.label} 🔗
+            </Text>
+            {item.description && <Text fontSize="sm">{item.description}</Text>}
+            <HStack alignItems="center">
+              <Text fontSize="sm">推荐指数：</Text>
+              <ScoreRate score={item.score} />
+            </HStack>
+          </VStack>
+          <Switch
+            size="md"
+            onTrackColor="purple.500"
+            value={!item.disabled}
+            onToggle={() => handleToggle(item.value)}
+          />
+        </HStack>
+      </TouchableOpacity>
+    </ScaleDecorator>
+  );
 
   return (
-    <ScrollView>
-      <VStack safeAreaX safeAreaBottom>
-        {list.map((item) => (
-          <HStack
-            space={6}
-            key={item.value}
-            alignItems="center"
-            flexDirection="row"
-            pl={5}
-            pr={3}
-            py={3}
-          >
-            <VStack space={1} flexGrow={1} w={0}>
-              <Text
-                fontSize="lg"
-                fontWeight="bold"
-                color="purple.500"
-                onPress={() =>
-                  navigate('Webview', {
-                    uri: item.href,
-                    source: item.value,
-                    userAgent: item.userAgent,
-                    injectedJavascript: item.injectedJavaScript,
-                  })
-                }
-              >
-                {item.name} - {item.label} 🔗
-              </Text>
-              <Text fontSize="sm">{item.description}</Text>
-              <HStack alignItems="center">
-                <Text fontSize="sm">推荐指数：</Text>
-                <ScoreRate score={item.score} />
-              </HStack>
-            </VStack>
-            <Switch
-              size="md"
-              onTrackColor="purple.500"
-              value={!item.disabled}
-              onToggle={() => handleToggle(item.value)}
-            />
-          </HStack>
-        ))}
-      </VStack>
-    </ScrollView>
+    <Box position="relative">
+      <DraggableFlatList
+        data={list}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.value}
+        onDragEnd={({ data }) => dispatch(sortPlugin(data))}
+        contentContainerStyle={{ paddingLeft: left, paddingRight: right, paddingBottom: bottom }}
+      />
+      {/* for navigation gesture go back */}
+      <Box w={4} position="absolute" top={0} bottom={0} left={left} bg="transparent" />
+    </Box>
   );
 };
 

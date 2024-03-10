@@ -256,6 +256,9 @@ const pluginSlice = createSlice({
         state.list[index].disabled = !state.list[index].disabled;
       }
     },
+    sortPlugin(state, action: PayloadAction<RootState['plugin']['list']>) {
+      state.list = action.payload;
+    },
     syncPlugin(_state, action: PayloadAction<RootState['plugin']>) {
       return action.payload;
     },
