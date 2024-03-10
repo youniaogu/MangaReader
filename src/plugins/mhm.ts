@@ -80,16 +80,16 @@ class ManHuaMao extends Base {
     const userAgent =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
-      score: 1,
+      disabled: true,
+      score: 0,
       id: Plugin.MHM,
       name: '漫画猫',
       shortName: 'MHM',
-      description: '网站挂了，已失效',
+      description: '已失效',
       href: 'https://www.maofly.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
       option: { discovery: discoveryOptions, search: [] },
-      disabled: true,
     });
   }
 

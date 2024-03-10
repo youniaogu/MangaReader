@@ -37,6 +37,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
                   injectedJavascript: item.injectedJavaScript,
                 })
               }
+              textDecorationLine={item.disabled ? 'line-through' : 'none'}
             >
               {item.name} - {item.label} 🔗
             </Text>

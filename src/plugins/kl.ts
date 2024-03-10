@@ -87,11 +87,12 @@ class KL extends Base {
     const userAgent =
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
     super({
-      score: 4,
+      disabled: true,
+      score: 1,
       id: Plugin.KL,
       name: 'kl漫画',
       shortName: 'KL',
-      description: '生肉',
+      description: '不维护',
       href: 'https://klmanga.net',
       userAgent,
       defaultHeaders: { Referer: 'https://klmanga.net/', 'User-Agent': userAgent },

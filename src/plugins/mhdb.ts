@@ -106,11 +106,12 @@ class ManHuaDB extends Base {
     const userAgent =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
-      score: 3,
+      disabled: true,
+      score: 1,
       id: Plugin.MHDB,
       name: '漫画db',
       shortName: 'MHDB',
-      description: '',
+      description: '不维护',
       href: 'https://www.manhuadb.com',
       userAgent,
       defaultHeaders: { Referer: 'https://www.manhuadb.com/', 'User-Agent': userAgent },

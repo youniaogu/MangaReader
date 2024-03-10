@@ -92,16 +92,16 @@ class ManHuaGui extends Base {
     const userAgent =
       'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
-      score: 1,
+      disabled: true,
+      score: 0,
       id: Plugin.MHG,
       name: '漫画柜',
       shortName: 'MHG',
-      description: '访问403，已失效',
+      description: '已失效',
       href: 'https://www.mhgui.com',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent },
       option: { discovery: discoveryOptions, search: [] },
-      disabled: true,
     });
   }
 
