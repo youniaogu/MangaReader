@@ -74,6 +74,7 @@ const {
   // plugin
   setSource,
   setExtra,
+  sortPlugin,
   disablePlugin,
   syncPlugin,
   // batch
@@ -250,21 +251,22 @@ function* syncDataSaga() {
       if (pluginData) {
         const plugin: RootState['plugin'] = JSON.parse(pluginData);
         const list: RootState['plugin']['list'] = [];
-
-        PluginMap.forEach((item) => {
-          const finded = plugin.list.find((obj) => obj.value === item.id);
-          item.syncExtraData(plugin.extra);
-          list.push({
-            name: item.name,
-            label: item.shortName,
-            value: item.id,
-            score: item.score,
-            href: item.href,
-            userAgent: item.userAgent,
-            description: item.description,
-            injectedJavaScript: item.injectedJavaScript,
-            disabled: finded ? finded.disabled : true,
-          });
+        plugin.list.forEach((item) => {
+          const finded = PluginMap.get(item.value);
+          if (nonNullable(finded)) {
+            finded.syncExtraData(plugin.extra);
+            list.push({
+              name: finded.name,
+              label: finded.shortName,
+              value: finded.id,
+              score: finded.score,
+              href: finded.href,
+              userAgent: finded.userAgent,
+              description: finded.description,
+              injectedJavaScript: finded.injectedJavaScript,
+              disabled: item ? item.disabled : true,
+            });
+          }
         });
         if (validate({ ...plugin, list }, pluginSchema)) {
           yield put(syncPlugin({ ...plugin, list }));
@@ -457,6 +459,7 @@ function* saveDataSaga() {
       setAndroidDownloadPath.type,
       setSource.type,
       setExtra.type,
+      sortPlugin.type,
       disablePlugin.type,
       viewChapter.type,
       viewPage.type,
