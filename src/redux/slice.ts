@@ -752,6 +752,12 @@ const dictSlice = createSlice({
           ...data,
         };
       })
+      .addCase(
+        chapterAction.loadChapter,
+        (state, action: PayloadAction<{ chapterHash: string }>) => {
+          delete state.chapter[action.payload.chapterHash];
+        }
+      )
       .addCase(chapterAction.loadChapterCompletion, (state, action) => {
         const { error, data } = action.payload;
         if (error) {

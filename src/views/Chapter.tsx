@@ -327,7 +327,12 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     navigation.setOptions({
       orientation: orientation === Orientation.Portrait ? 'landscape_right' : 'portrait',
     });
-  const handleReload = () => dispatch(loadChapter({ chapterHash }));
+  const handleReload = () => {
+    setChapterHash(chapterHash);
+    setHashList([chapterHash]);
+    readerRef.current?.clearStateRef();
+    dispatch(loadChapter({ chapterHash }));
+  };
   const handleLightToggle = () => dispatch(setLight(lightOn ? LightSwitch.Off : LightSwitch.On));
   const handleDirectionToggle = () => {
     if (inverted) {
