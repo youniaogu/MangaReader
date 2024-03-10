@@ -427,9 +427,16 @@ export function getDefaultFillMedianHeight(
   list: ImageState[],
   defaultHeight: { landscape: number; portrait: number }
 ) {
-  const mid = Math.min(Math.max(Math.ceil(list.length / 2), 0), list.length);
+  if (list.length <= 0) {
+    return {
+      portrait: defaultHeight.portrait,
+      landscape: defaultHeight.landscape,
+    };
+  }
+
+  const mid = Math.min(Math.max(Math.floor(list.length / 2), 0), list.length);
   return {
-    portrait: list[mid].portraitHeight || defaultHeight.portrait,
-    landscape: list[mid].landscapeHeight || defaultHeight.landscape,
+    portrait: list[mid]?.portraitHeight || defaultHeight.portrait,
+    landscape: list[mid]?.landscapeHeight || defaultHeight.landscape,
   };
 }

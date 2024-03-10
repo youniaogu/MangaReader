@@ -113,25 +113,28 @@ const DefaultImage = ({
           return;
         }
 
-        base64 = 'data:image/png;base64,' + base64;
-        ReactNativeImage.getSize(base64, (width, height) => {
-          const { dWidth, dHeight } = aspectFit(
-            { width, height },
-            {
-              width: (windowWidth - left - right) / 2,
-              height: windowHeight - top - bottom,
-            }
-          );
-          updateData({
-            ...imageState,
-            dataUrl: uri,
-            multipleFitWidth: dWidth,
-            multipleFitHeight: dHeight,
-            landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
-            portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
-            loadStatus: AsyncStatus.Fulfilled,
-          });
-        });
+        ReactNativeImage.getSize(
+          'data:image/png;base64,' + base64,
+          (width, height) => {
+            const { dWidth, dHeight } = aspectFit(
+              { width, height },
+              {
+                width: (windowWidth - left - right) / 2,
+                height: windowHeight - top - bottom,
+              }
+            );
+            updateData({
+              ...imageState,
+              dataUrl: uri,
+              multipleFitWidth: dWidth,
+              multipleFitHeight: dHeight,
+              landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
+              portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
+              loadStatus: AsyncStatus.Fulfilled,
+            });
+          },
+          handleError
+        );
       })
       .catch(handleError);
   }, [
