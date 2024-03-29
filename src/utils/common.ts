@@ -440,3 +440,15 @@ export function getDefaultFillMedianHeight(
     landscape: list[mid]?.landscapeHeight || defaultHeight.landscape,
   };
 }
+
+export function limitProperties<T extends Record<any, any>>(
+  obj: T,
+  maxPropertiesLength: number = 50
+): T {
+  let keys = Object.keys(obj);
+  if (keys.length > maxPropertiesLength) {
+    let oldestKey = keys[0];
+    delete obj[oldestKey];
+  }
+  return obj;
+}
