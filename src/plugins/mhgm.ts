@@ -4,6 +4,30 @@ import queryString from 'query-string';
 import LZString from 'lz-string';
 import * as cheerio from 'cheerio';
 
+const hostnames = [
+  { h: 'i', w: 0.1 },
+  { h: 'eu', w: 5 },
+  { h: 'eu1', w: 5 },
+  { h: 'us', w: 1 },
+  { h: 'us1', w: 1 },
+  { h: 'us2', w: 1 },
+  { h: 'us3', w: 1 },
+];
+
+const randomHostname = (n = hostnames) => {
+  for (var i = [n[0].w], r, t = 1; t < n.length; t++) {
+    i[t] = n[t].w + i[t - 1];
+  }
+  for (r = Math.random() * i[i.length - 1], t = 0; t < i.length; t++) {
+    if (i[t] > r) {
+      break;
+    }
+  }
+  return t;
+};
+
+const hostname = randomHostname(hostnames);
+
 const discoveryOptions = [
   {
     name: 'type',
@@ -375,7 +399,7 @@ class ManHuaGuiMobile extends Base {
         title: chapterTitle,
         headers: {
           ...this.defaultHeaders,
-          host: 'i.hamreus.com',
+          host: `${hostname}.hamreus.com`,
           referer: 'https://m.manhuagui.com/',
           accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
           'accept-encoding': 'gzip, deflate, br',
@@ -383,7 +407,7 @@ class ManHuaGuiMobile extends Base {
         },
         images: images.map((item: string) => ({
           uri: encodeURI(
-            decodeURI('https://i.hamreus.com' + item + '?' + queryString.stringify(sl))
+            decodeURI(`https://${hostname}.hamreus.com${item}?${queryString.stringify(sl)}`)
           ),
         })),
       },
