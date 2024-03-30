@@ -12,6 +12,7 @@ import {
   Hearing,
   Timer,
 } from '~/utils';
+import Cache from '~/utils/cache';
 import {
   Box,
   Text,
@@ -147,6 +148,8 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const pageSliderRef = useRef<PageSliderRef>(null);
   const callbackRef = useRef<(type: Volume) => void>();
   const sourceRef = useRef('');
+  const [render, setRender] = useState(false);
+  const cache = useMemo(() => new Cache(mangaHash), [mangaHash]);
 
   callbackRef.current = (type) => {
     if (type === Volume.Down) {
@@ -173,6 +176,23 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     useCallback(() => {
       dispatch(viewPage({ mangaHash, page: current }));
     }, [current, dispatch, mangaHash])
+  );
+  const init = useCallback(async () => {
+    setRender(false);
+    try {
+      await cache.initCacheMap();
+    } catch (error) {
+    } finally {
+      setRender(true);
+    }
+  }, [cache]);
+  useFocusEffect(
+    useCallback(() => {
+      init();
+      return () => {
+        cache.storeCacheMap();
+      };
+    }, [init, cache])
   );
   useVolumeUpDown(
     useCallback((type) => callbackRef.current && callbackRef.current(type), []),
@@ -432,26 +452,28 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
             : 'dark-content'
         }
       />
-
-      <Reader
-        key={orientation}
-        ref={readerRef}
-        data={data}
-        headers={headers}
-        initPage={page}
-        inverted={inverted}
-        seat={seat}
-        layoutMode={mode}
-        onTap={handleTap}
-        onLongPress={handleLongPress}
-        onImageLoad={handleImageLoad}
-        onPageChange={handlePageChange}
-        onLoadMore={handleLoadMore}
-        onScrollBeginDrag={() => setTimerSwitch(false)}
-        onScrollEndDrag={() => setTimerSwitch(true)}
-        onZoomStart={(scale) => setTimerSwitch(scale <= 1)}
-        onZoomEnd={(scale) => setTimerSwitch(scale <= 1)}
-      />
+      {render && (
+        <Reader
+          key={orientation}
+          ref={readerRef}
+          data={data}
+          headers={headers}
+          initPage={page}
+          inverted={inverted}
+          seat={seat}
+          layoutMode={mode}
+          onTap={handleTap}
+          onLongPress={handleLongPress}
+          onImageLoad={handleImageLoad}
+          onPageChange={handlePageChange}
+          onLoadMore={handleLoadMore}
+          onScrollBeginDrag={() => setTimerSwitch(false)}
+          onScrollEndDrag={() => setTimerSwitch(true)}
+          onZoomStart={(scale) => setTimerSwitch(scale <= 1)}
+          onZoomEnd={(scale) => setTimerSwitch(scale <= 1)}
+          cache={cache}
+        />
+      )}
       <ActionsheetSelect
         isOpen={isOpen}
         onClose={onClose}

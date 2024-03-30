@@ -1,29 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ImageState } from '~/components/ComicImage';
-import { trycatch, limitProperties } from './common';
 
 type CacheMap = Record<string, ImageState>;
 
 class Cache {
-  private comicCacheKey = 'comic_cache_key';
+  private _comicCacheKey: string;
   private _cacheMap: CacheMap = {};
-  private _identification: string;
-  private _allCacheMap: Record<string, CacheMap> = {};
 
   constructor(identification: string) {
-    this._identification = identification;
-    this._initCacheMap();
+    this._comicCacheKey = `CACHE_${identification}`;
   }
 
-  private _initCacheMap() {
-    const fn = async () => {
-      const value = await AsyncStorage.getItem(this.comicCacheKey);
-      if (value != null) {
-        this._allCacheMap = JSON.parse(value);
-        this._cacheMap = this._allCacheMap[this._identification] || {};
-      }
-    };
-    trycatch(fn, 'Cache read error: The error message is ');
+  async initCacheMap() {
+    const value = await AsyncStorage.getItem(this._comicCacheKey);
+    console.log('readData: ', JSON.stringify(value));
+    if (value != null) {
+      this._cacheMap = JSON.parse(value);
+    }
   }
 
   getImageState(uri: string) {
@@ -34,14 +27,19 @@ class Cache {
     this._cacheMap[uri] = state;
   }
 
-  storeCacheMap() {
-    const fn = async () => {
-      // 只缓存50条数据
-      const storeData = limitProperties(this._allCacheMap, 50);
-      storeData[this._identification] = this._cacheMap;
-      AsyncStorage.setItem(this.comicCacheKey, JSON.stringify(storeData));
-    };
-    trycatch(fn, 'Cache store error: The error message is ');
+  async storeCacheMap() {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const cacheKeys = keys.filter((key) => key.includes('CACHE_'));
+      // 限制只存50条
+      if (cacheKeys.length >= 50) {
+        await AsyncStorage.removeItem(cacheKeys[0]);
+      }
+      console.log('_cacheMap: ', JSON.stringify(this._cacheMap));
+      await AsyncStorage.setItem(this._comicCacheKey, JSON.stringify(this._cacheMap));
+    } catch (error) {
+      console.log('setCache error', error);
+    }
   }
 }
 
