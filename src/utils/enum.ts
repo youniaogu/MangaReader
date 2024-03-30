@@ -56,6 +56,7 @@ export enum ErrorMessage {
   PushTaskFail = '推送任务失败',
   CloudflareFail = 'cloudflare认证失败，请在Webview里重新校验',
   AccessSourceFail = '访问资源失败',
+  ExecutionJobFail = '执行任务失败',
 }
 
 export enum Orientation {
@@ -152,4 +153,18 @@ export enum SafeArea {
   None,
   X,
   Y,
+}
+
+export enum TemplateKey {
+  MANGA_ID = 'MANGA_ID',
+  MANGA_NAME = 'MANGA_NAME',
+  CHAPTER_ID = 'CHAPTER_ID',
+  CHAPTER_NAME = 'CHAPTER_NAME',
+  AUTHOR = 'AUTHOR',
+  SOURCE_ID = 'SOURCE_ID',
+  SOURCE_NAME = 'SOURCE_NAME',
+  TAG = 'TAG',
+  STATUS = 'STATUS',
+  HASH = 'HASH',
+  TIME = 'TIME',
 }
