@@ -1014,7 +1014,7 @@ function* thread() {
 
       const { timeout } = yield race({
         download: call(fileDownload, { source, headers }),
-        timeout: delay(15000),
+        timeout: delay(10000),
       });
       if (timeout) {
         throw new Error(ErrorMessage.Timeout);

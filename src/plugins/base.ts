@@ -121,7 +121,7 @@ abstract class Base {
       score,
       option = { discovery: [], search: [] },
       disabled = false,
-      batchDelay = 3000,
+      batchDelay = 1500,
       injectedJavaScript,
     } = init;
     this.id = id;
