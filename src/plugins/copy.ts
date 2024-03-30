@@ -318,7 +318,7 @@ class CopyManga extends Base {
     if (res.code === 200) {
       const data: ChapterListInfo = JSON.parse(AESDecrypt(res.results || ''));
       const { build, groups } = data;
-      const list = groups.default;
+      const list = groups.default || { chapters: [] };
 
       Object.keys(groups)
         .filter((key) => key !== 'default')
