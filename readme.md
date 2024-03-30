@@ -84,9 +84,4 @@ webview 存在 bug，需要安卓版本 9 及以上
 
 这个项目是在工作之余开发的，时间有限，如果遇到问题，欢迎 Issues 和 PR
 
-最后如果你觉得本项目对你有所帮助，可以帮忙点个 Star 或者请我喝杯咖啡 ☕️，非常感谢！
-
-<div>
-  <img src="./static/alipay.png" alt="alipay" width="120">
-  <img src="./static/wechatpay.jpg" alt="wechatpay" width="120">
-</div>
+最后如果你觉得本项目对你有所帮助，可以的话帮忙点个 Star 🌟，非常感谢！
