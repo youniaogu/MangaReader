@@ -57,6 +57,9 @@
                 "chapterHash": {
                     "type": "string"
                 },
+                "downloadPath": {
+                    "type": "string"
+                },
                 "fail": {
                     "items": {
                         "type": "string"
@@ -115,6 +118,7 @@
             },
             "required": [
                 "chapterHash",
+                "downloadPath",
                 "fail",
                 "pending",
                 "queue",

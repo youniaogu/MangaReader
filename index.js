@@ -9,6 +9,8 @@ import * as packageJson from './package.json';
 
 require('dayjs/locale/zh-cn');
 
+// https://day.js.org/docs/en/plugin/advanced-format
+dayjs.extend(require('dayjs/plugin/advancedFormat'));
 // https://day.js.org/docs/zh-CN/plugin/custom-parse-format
 dayjs.extend(require('dayjs/plugin/customParseFormat'));
 // https://day.js.org/docs/zh-CN/i18n/changing-locale

@@ -79,6 +79,7 @@ declare global {
     title: string;
     type: TaskType;
     status: AsyncStatus;
+    downloadPath: string;
     headers?: Record<string, string>;
     queue: { index: number; source: string; jobId: string }[];
     pending: string[];

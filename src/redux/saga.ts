@@ -25,6 +25,7 @@ import {
   ErrorMessage,
   AsyncStatus,
   TaskType,
+  TemplateKey,
 } from '~/utils';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { Permission, PermissionsAndroid, Platform } from 'react-native';
@@ -871,7 +872,11 @@ function* loadChapterSaga() {
   );
 }
 
-function* replaceDownloadPath(path: string, chapterHash?: string) {
+function* replaceDownloadPath(
+  path: string,
+  chapterHash?: string,
+  options?: { hash?: string; timestamp?: number }
+) {
   if (chapterHash) {
     const [source, mangaId, chapterId] = splitHash(chapterHash);
     const mangaHash = combineHash(source, mangaId);
@@ -886,22 +891,36 @@ function* replaceDownloadPath(path: string, chapterHash?: string) {
     const PATTERN_TEMPLATE = /{{([^{}|]+\|?[^{}|]*)}}/g;
     const { sourceName, title: mangaTitle, author, tag, status } = manga;
     const { title: chapterTitle } = chapter;
-    const templateMap: Record<string, string | string[]> = {
-      MANGA_ID: mangaId,
-      MANGA_NAME: mangaTitle,
-      CHAPTER_ID: chapterId,
-      CHAPTER_NAME: chapterTitle,
-      AUTHOR: author.length > 0 ? author : ['未知'],
-      SOURCE_ID: source,
-      SOURCE_NAME: sourceName,
-      TAG: tag.length > 0 ? tag : ['未知'],
-      STATUS: statusToLabel(status),
+    const templateMap: Record<TemplateKey, string | number | string[]> = {
+      [TemplateKey.MANGA_ID]: mangaId,
+      [TemplateKey.MANGA_NAME]: mangaTitle,
+      [TemplateKey.CHAPTER_ID]: chapterId,
+      [TemplateKey.CHAPTER_NAME]: chapterTitle,
+      [TemplateKey.AUTHOR]: author.length > 0 ? author : ['未知'],
+      [TemplateKey.SOURCE_ID]: source,
+      [TemplateKey.SOURCE_NAME]: sourceName,
+      [TemplateKey.TAG]: tag.length > 0 ? tag : ['未知'],
+      [TemplateKey.STATUS]: statusToLabel(status),
+      [TemplateKey.HASH]: options?.hash || nanoid(5),
+      [TemplateKey.TIME]: options?.timestamp || dayjs().valueOf(),
     };
 
     return path.replace(PATTERN_TEMPLATE, (_match, p1 = '') => {
-      const [template, separator = '、'] = p1.split('|');
-      const data = templateMap[template] || template;
-      return typeof data === 'string' ? data : data.join(separator);
+      const [template, parameter] = p1.split('|');
+      const data = templateMap[template as TemplateKey] || template;
+
+      switch (template) {
+        case TemplateKey.TIME: {
+          return dayjs(data).format(parameter || 'X');
+        }
+        case TemplateKey.AUTHOR:
+        case TemplateKey.TAG: {
+          return data.join(parameter || '、');
+        }
+        default: {
+          return data;
+        }
+      }
     });
   }
   return path;
@@ -934,26 +953,23 @@ function* checkAndroidPermission() {
     }
   }
 }
-function* checkAndroidDownloadPath(chapterHash?: string) {
+function* checkAndroidPath(path: string) {
   if (Platform.OS === 'android') {
-    const androidDownloadPath: string = yield call(
-      replaceDownloadPath,
-      ((state: RootState) => state.setting.androidDownloadPath)(yield select()),
-      chapterHash
-    );
-    const isExisted: boolean = yield call(FileSystem.exists, `${androidDownloadPath}`);
+    const isExisted: boolean = yield call(FileSystem.exists, path);
     if (!isExisted) {
-      yield call(FileSystem.mkdir, `${androidDownloadPath}`);
+      yield call(FileSystem.mkdir, path);
     }
   }
 }
 function* fileExport({
   source,
   chapterHash,
+  downloadPath,
   filename,
 }: {
   source: string;
   chapterHash: string;
+  downloadPath: string;
   filename?: string;
 }) {
   const cacheEntry = CacheManager.get(source, undefined);
@@ -970,17 +986,8 @@ function* fileExport({
       album: `${manga?.title}-${chapter?.title}`,
     });
   } else {
-    const androidDownloadPath: string = yield call(
-      replaceDownloadPath,
-      ((state: RootState) => state.setting.androidDownloadPath)(yield select()),
-      chapterHash
-    );
     const [, name, suffix] = path.match(/.*\/(.*)\.(.*)$/) || [];
-    yield call(
-      FileSystem.cp,
-      `file://${path}`,
-      `${androidDownloadPath}/${filename || name}.${suffix}`
-    );
+    yield call(FileSystem.cp, `file://${path}`, `${downloadPath}/${filename || name}.${suffix}`);
   }
 }
 function* thread() {
@@ -998,9 +1005,16 @@ function* thread() {
     const { taskId, jobId, chapterHash, type, source, headers, index } = job;
     yield put(startJob({ taskId, jobId }));
     try {
+      const task = ((state: RootState) => state.task.list.find((item) => item.taskId === taskId))(
+        yield select()
+      );
+      if (!nonNullable(task)) {
+        throw new Error(ErrorMessage.ExecutionJobFail);
+      }
+
       const { timeout } = yield race({
         download: call(fileDownload, { source, headers }),
-        timeout: delay(15000),
+        timeout: delay(10000),
       });
       if (timeout) {
         throw new Error(ErrorMessage.Timeout);
@@ -1008,7 +1022,12 @@ function* thread() {
 
       yield put(viewImage({ chapterHash, index, isVisited: false }));
       if (type === TaskType.Export) {
-        yield call(fileExport, { source, filename: String(index), chapterHash });
+        yield call(fileExport, {
+          source,
+          filename: String(index),
+          chapterHash,
+          downloadPath: task.downloadPath,
+        });
       }
       yield put(endJob({ taskId, jobId, status: AsyncStatus.Fulfilled }));
     } catch (e) {
@@ -1039,28 +1058,37 @@ function* pushChapterTask({
   actionId: string;
 }) {
   const chapter: Chapter | undefined = yield call(preloadChapter, chapterHash);
+  const androidDownloadPath = ((state: RootState) => state.setting.androidDownloadPath)(
+    yield select()
+  );
   if (!nonNullable(chapter)) {
     yield put(pushTask({ error: new Error(ErrorMessage.PushTaskFail), actionId }));
     return;
   }
 
-  const { title, headers, images, hash } = chapter;
+  const { title, headers, images } = chapter;
+  const taskId = nanoid(5);
+  const downloadPath: string = yield call(replaceDownloadPath, androidDownloadPath, chapterHash, {
+    hash: taskId,
+    timestamp: dayjs().valueOf(),
+  });
   if (taskType === TaskType.Export) {
     yield call(checkAndroidPermission);
-    yield call(checkAndroidDownloadPath, hash);
+    yield call(checkAndroidPath, downloadPath);
   }
 
   yield put(
     pushTask({
       actionId,
       data: {
-        taskId: nanoid(),
+        taskId,
         chapterHash,
         title,
         type: taskType,
         status: AsyncStatus.Default,
+        downloadPath,
         headers,
-        queue: images.map((item, index) => ({ index, jobId: nanoid(), source: item.uri })),
+        queue: images.map((item, index) => ({ index, jobId: nanoid(5), source: item.uri })),
         pending: [],
         success: [],
         fail: [],
