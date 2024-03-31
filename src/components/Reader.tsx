@@ -23,6 +23,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Box, Flex } from 'native-base';
 import Controller, { LongPressController } from '~/components/Controller';
 import ComicImage, { ImageState } from '~/components/ComicImage';
+import Cache from '~/utils/cache';
 
 export interface ReaderProps {
   initPage?: number;
@@ -48,6 +49,7 @@ export interface ReaderProps {
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onScrollBeginDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onScrollEndDrag?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  cache: Cache;
 }
 
 export interface ReaderRef {
@@ -96,6 +98,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     onScroll,
     onScrollBeginDrag,
     onScrollEndDrag,
+    cache,
   },
   ref
 ) => {
@@ -207,14 +210,19 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, scrambleType, needUnscramble } = item;
     const verticalState = verticalStateRef.current[index] || undefined;
+    const cacheState = cache.getImageState(uri);
     return (
       <Box
         overflow="hidden"
         style={{
           height:
             orientation === Orientation.Portrait
-              ? verticalState?.portraitHeight || defaultPortraitHeightRef.current
-              : verticalState?.landscapeHeight || defaultLandscapeHeightRef.current,
+              ? verticalState?.portraitHeight ||
+                cacheState?.portraitHeight ||
+                defaultPortraitHeightRef.current
+              : verticalState?.landscapeHeight ||
+                cacheState?.landscapeHeight ||
+                defaultLandscapeHeightRef.current,
         }}
       >
         <Controller
@@ -235,6 +243,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
             defaultLandscapeHeight={defaultLandscapeHeightRef.current}
             layoutMode={LayoutMode.Vertical}
             onChange={(state, idx = index) => {
+              cache.setImageState(uri, state);
               verticalStateRef.current[idx] = state;
               onImageLoad && onImageLoad(uri, item.chapterHash, item.current);
 
@@ -370,6 +379,13 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       keyExtractor={(item) => item.uri}
       ListHeaderComponent={<Box height={0} safeAreaTop />}
       ListFooterComponent={<Box height={0} safeAreaBottom />}
+      overrideItemLayout={(layout, item) => {
+        const state = cache.getImageState(item.uri);
+        if (state) {
+          layout.size =
+            orientation === Orientation.Portrait ? state.portraitHeight : state.landscapeHeight;
+        }
+      }}
     />
   );
 };
