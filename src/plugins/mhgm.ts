@@ -23,7 +23,7 @@ const randomHostname = (n = hostnames) => {
       break;
     }
   }
-  return t;
+  return n[t].h;
 };
 
 const hostname = randomHostname(hostnames);
