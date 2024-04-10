@@ -1,12 +1,12 @@
 import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
 import { aspectFit, AsyncStatus, LayoutMode, Orientation, ScrambleType, unscramble } from '~/utils';
-import { Image as ReactNativeImage, StyleSheet, Dimensions, DimensionValue } from 'react-native';
+import { StyleSheet, Dimensions, DimensionValue } from 'react-native';
 import { useDebouncedSafeAreaFrame, useDebouncedSafeAreaInsets } from '~/hooks';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
-import FastImage, { ResizeMode } from 'react-native-fast-image';
+import FastImage, { OnLoadEvent, ResizeMode } from 'react-native-fast-image';
 import Canvas, { Image as CanvasImage } from 'react-native-canvas';
 
 const groundPoundGif = require('~/assets/ground_pound.gif');
@@ -84,7 +84,6 @@ const DefaultImage = ({
     };
   }, [layoutMode, imageState, orientation, defaultPortraitHeight, defaultLandscapeHeight]);
   const uriRef = useRef(uri);
-  const base64Ref = useRef(uri);
 
   const updateData = useCallback(
     (data: ImageState) => {
@@ -101,64 +100,38 @@ const DefaultImage = ({
   const handleError = useCallback(() => {
     updateData({ ...imageState, loadStatus: AsyncStatus.Rejected });
   }, [imageState, updateData]);
-  const loadImage = useCallback(() => {
+
+  const handleImageLoadStart = useCallback(() => {
     setImageState({ ...imageState, loadStatus: AsyncStatus.Pending });
-    CacheManager.prefetchBlob(uri, { headers })
-      .then((base64) => {
-        if (!base64) {
-          handleError();
-          return;
-        }
-        if (layoutMode === LayoutMode.Horizontal) {
-          updateData({ ...imageState, dataUrl: uri, loadStatus: AsyncStatus.Fulfilled });
-          return;
-        }
-        ReactNativeImage.getSize(
-          'data:image/png;base64,' + base64,
-          (width, height) => {
-            const { dWidth, dHeight } = aspectFit(
-              { width, height },
-              {
-                width: (windowWidth - left - right) / 2,
-                height: windowHeight - top - bottom,
-              }
-            );
-            base64Ref.current = 'data:image/png;base64,' + base64;
-            updateData({
-              ...imageState,
-              dataUrl: uri,
-              multipleFitWidth: dWidth,
-              multipleFitHeight: dHeight,
-              landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
-              portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
-              loadStatus: AsyncStatus.Fulfilled,
-            });
-          },
-          handleError
-        );
-      })
-      .catch(handleError);
-  }, [
-    uri,
-    headers,
-    imageState,
-    layoutMode,
-    updateData,
-    handleError,
-    windowWidth,
-    windowHeight,
-    top,
-    left,
-    right,
-    bottom,
-  ]);
-  useFocusEffect(
-    useCallback(() => {
-      if (imageState.loadStatus === AsyncStatus.Default) {
-        loadImage();
+  }, [imageState]);
+
+  const handleImageLoad = useCallback(
+    (e: OnLoadEvent) => {
+      if (layoutMode === LayoutMode.Horizontal) {
+        updateData({ ...imageState, dataUrl: uri, loadStatus: AsyncStatus.Fulfilled });
+        return;
       }
-    }, [imageState, loadImage])
+      const { width, height } = e.nativeEvent;
+      const { dWidth, dHeight } = aspectFit(
+        { width, height },
+        {
+          width: (windowWidth - left - right) / 2,
+          height: windowHeight - top - bottom,
+        }
+      );
+      updateData({
+        ...imageState,
+        dataUrl: uri,
+        multipleFitWidth: dWidth,
+        multipleFitHeight: dHeight,
+        landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
+        portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
+        loadStatus: AsyncStatus.Fulfilled,
+      });
+    },
+    [updateData, layoutMode, imageState, uri, windowWidth, windowHeight, left, right, top, bottom]
   );
+
   useFocusEffect(
     useCallback(() => {
       if (uriRef.current !== uri) {
@@ -169,18 +142,17 @@ const DefaultImage = ({
   );
 
   const handleRetry = () => {
-    CacheManager.removeCacheEntry(uri)
-      .then(() => {})
-      .catch(() => {})
-      .finally(() => updateData({ ...imageState, loadStatus: AsyncStatus.Default }));
+    updateData({ ...imageState, loadStatus: AsyncStatus.Default });
   };
 
   if (
     imageState.loadStatus === AsyncStatus.Pending ||
     imageState.loadStatus === AsyncStatus.Default
   ) {
+    // onLoad() prop returns wrong values in 'height' and 'width' on Android
+    // https://github.com/DylanVann/react-native-fast-image/issues/944
     return (
-      <Center style={style}>
+      <Center style={[style, styles.relativeBox]}>
         <Image
           style={{ width: Math.min(windowWidth * 0.3, 180), height: windowHeight }}
           resizeMode="contain"
@@ -188,6 +160,17 @@ const DefaultImage = ({
           fadeDuration={0}
           source={groundPoundGif}
           alt="groundpound"
+        />
+        <FastImage
+          style={[style, styles.loadingImage]}
+          source={{
+            uri,
+            headers,
+          }}
+          resizeMode="contain"
+          onLoadStart={handleImageLoadStart}
+          onLoad={handleImageLoad}
+          onError={handleError}
         />
       </Center>
     );
@@ -200,15 +183,12 @@ const DefaultImage = ({
     );
   }
 
-  // https://github.com/candlefinance/faster-image 这个是不是能够替代FastImage
   return (
     <FastImage
       style={style}
       source={{
-        uri: base64Ref.current,
+        uri,
         headers,
-        // CacheManager已经缓存过了，FastImage不缓存
-        cache: FastImage.cacheControl.web,
       }}
       resizeMode={resizeModeDict[layoutMode]}
       onError={handleError}
@@ -420,6 +400,16 @@ const styles = StyleSheet.create({
     zIndex: -1,
     opacity: 0,
     position: 'absolute',
+  },
+  relativeBox: {
+    position: 'relative',
+  },
+  loadingImage: {
+    opacity: 0,
+    zIndex: -1,
+    position: 'absolute',
+    top: 0,
+    right: 0,
   },
 });
 
