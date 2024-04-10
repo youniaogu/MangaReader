@@ -2,7 +2,7 @@ import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
 import { aspectFit, AsyncStatus, LayoutMode, Orientation, ScrambleType, unscramble } from '~/utils';
 import { Image as ReactNativeImage, StyleSheet, Dimensions, DimensionValue } from 'react-native';
 import { useDebouncedSafeAreaFrame, useDebouncedSafeAreaInsets } from '~/hooks';
-import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
+import { CacheManager } from '@georstat/react-native-image-cache';
 import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
@@ -84,6 +84,7 @@ const DefaultImage = ({
     };
   }, [layoutMode, imageState, orientation, defaultPortraitHeight, defaultLandscapeHeight]);
   const uriRef = useRef(uri);
+  const base64Ref = useRef(uri);
 
   const updateData = useCallback(
     (data: ImageState) => {
@@ -112,7 +113,6 @@ const DefaultImage = ({
           updateData({ ...imageState, dataUrl: uri, loadStatus: AsyncStatus.Fulfilled });
           return;
         }
-
         ReactNativeImage.getSize(
           'data:image/png;base64,' + base64,
           (width, height) => {
@@ -123,6 +123,7 @@ const DefaultImage = ({
                 height: windowHeight - top - bottom,
               }
             );
+            base64Ref.current = 'data:image/png;base64,' + base64;
             updateData({
               ...imageState,
               dataUrl: uri,
@@ -199,11 +200,16 @@ const DefaultImage = ({
     );
   }
 
+  // https://github.com/candlefinance/faster-image 这个是不是能够替代FastImage
   return (
-    <CachedImage
-      source={uri}
-      options={{ headers }}
+    <FastImage
       style={style}
+      source={{
+        uri: base64Ref.current,
+        headers,
+        // CacheManager已经缓存过了，FastImage不缓存
+        cache: FastImage.cacheControl.web,
+      }}
       resizeMode={resizeModeDict[layoutMode]}
       onError={handleError}
     />
