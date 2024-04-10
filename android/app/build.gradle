@@ -75,8 +75,7 @@ android {
 
     namespace "com.mangareader"
     defaultConfig {
-        // applicationId "com.youniaogu.mangareader"
-        applicationId "com.mangareader"
+        applicationId "com.youniaogu.mangareader"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 46
