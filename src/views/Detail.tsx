@@ -523,19 +523,13 @@ export const PrehandleDrawer = () => {
             <SpinLoading size="sm" height={1} color={`purple.${Math.floor(progress * -5) + 9}00`} />
           </Box>
         )}
-        {item.status === AsyncStatus.Fulfilled && (
-          <Pressable px={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRemove(item.taskId)}>
-            <Icon
-              as={MaterialIcons}
-              size="md"
-              fontWeight="semibold"
-              name="check"
-              color="purple.900"
-            />
-          </Pressable>
-        )}
         {item.status === AsyncStatus.Rejected && (
-          <Pressable px={1} _pressed={{ opacity: 0.5 }} onPress={() => handleRetry(item.taskId)}>
+          <Pressable
+            px={1}
+            _pressed={{ opacity: 0.5 }}
+            onPress={() => handleRetry(item.taskId)}
+            onLongPress={() => handleRemove(item.taskId)}
+          >
             <Text fontWeight="bold" fontSize="sm" color="red.800">
               {item.fail.length}
             </Text>
