@@ -8,6 +8,7 @@ import {
   MultipleSeat,
   Hearing,
   Timer,
+  Animated,
   TaskType,
 } from '~/utils';
 import { Plugin } from '~/plugins';
@@ -125,6 +126,7 @@ declare global {
       /** 定时翻页 */
       timer: Timer;
       timerGap: number;
+      animated: Animated;
       androidDownloadPath: string;
     };
     plugin: {

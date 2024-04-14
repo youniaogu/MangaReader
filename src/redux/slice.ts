@@ -8,6 +8,7 @@ import {
   MultipleSeat,
   Hearing,
   Timer,
+  Animated,
 } from '~/utils';
 import { createSlice, combineReducers, PayloadAction } from '@reduxjs/toolkit';
 import { Plugin, defaultPlugin, defaultPluginList } from '~/plugins';
@@ -38,6 +39,7 @@ export const initialState: RootState = {
     seat: MultipleSeat.AToB,
     hearing: Hearing.Enable,
     timer: Timer.Disabled,
+    animated: Animated.Enable,
     timerGap: 5000,
     androidDownloadPath: Dirs.SDCardDir + '/DCIM/{{CHAPTER_NAME}}',
   },
@@ -224,6 +226,9 @@ const settingSlice = createSlice({
     },
     setTimerGap(state, action: PayloadAction<number>) {
       state.timerGap = action.payload;
+    },
+    setAnimated(state, action: PayloadAction<Animated>) {
+      state.animated = action.payload;
     },
     setAndroidDownloadPath(state, action: PayloadAction<string>) {
       state.androidDownloadPath = action.payload;

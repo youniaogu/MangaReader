@@ -11,6 +11,7 @@ import {
   MultipleSeat,
   Hearing,
   Timer,
+  Animated,
 } from '~/utils';
 import Cache from '~/utils/cache';
 import {
@@ -48,6 +49,7 @@ const {
   setHearing,
   setTimer,
   setTimerGap,
+  setAnimated,
   saveImage,
 } = action;
 const lastPageToastId = 'LAST_PAGE_TOAST_ID';
@@ -111,6 +113,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
   const light = useAppSelector((state) => state.setting.light);
   const timer = useAppSelector((state) => state.setting.timer);
   const timerGap = useAppSelector((state) => state.setting.timerGap);
+  const animated = useAppSelector((state) => state.setting.animated);
   const hearing = useAppSelector((state) => state.setting.hearing);
   const direction = useAppSelector((state) => state.setting.direction);
   const mangaDict = useAppSelector((state) => state.dict.manga);
@@ -206,18 +209,25 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
 
   const handlePrevPage = () => {
     if (mode !== LayoutMode.Multiple) {
-      readerRef.current?.scrollToIndex(Math.max(page - 1, 0));
+      readerRef.current?.scrollToIndex(Math.max(page - 1, 0), animated === Animated.Enable);
     } else {
-      readerRef.current?.scrollToIndex(Math.max(multiplePre + Math.ceil(current / 2) - 2, 0));
+      readerRef.current?.scrollToIndex(
+        Math.max(multiplePre + Math.ceil(current / 2) - 2, 0),
+        animated === Animated.Enable
+      );
     }
   };
   const handleNextPage = () => {
     if (mode !== LayoutMode.Multiple) {
-      readerRef.current?.scrollToIndex(Math.min(page + 1, Math.max(data.length - 1, 0)));
+      readerRef.current?.scrollToIndex(
+        Math.min(page + 1, Math.max(data.length - 1, 0)),
+        animated === Animated.Enable
+      );
     } else {
       const multipleMax = data[data.length - 1].multiplePre + data[data.length - 1].current;
       readerRef.current?.scrollToIndex(
-        Math.min(multiplePre + Math.ceil(current / 2), Math.max(multipleMax - 1, 0))
+        Math.min(multiplePre + Math.ceil(current / 2), Math.max(multipleMax - 1, 0)),
+        animated === Animated.Enable
       );
     }
   };
@@ -341,6 +351,15 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     } else {
       toast.show({ title: `已开启定时翻页，间隔${(timerGap / 1000).toFixed(1)}s` });
       dispatch(setTimer(Timer.Enable));
+    }
+  };
+  const handleAnimatedToggle = () => {
+    if (animated === Animated.Enable) {
+      toast.show({ title: '已关闭翻页动画' });
+      dispatch(setAnimated(Animated.Disabled));
+    } else {
+      toast.show({ title: '已开启翻页动画' });
+      dispatch(setAnimated(Animated.Enable));
     }
   };
   const handleOrientationToggle = () =>
@@ -616,6 +635,18 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
                       color={color}
                       onPress={handleTimerToggle}
                       onLongPress={handleTimerGapOpen}
+                    />
+                    <VectorIcon
+                      name={
+                        animated === Animated.Enable
+                          ? 'arrow-left-right-bold'
+                          : 'arrow-horizontal-lock'
+                      }
+                      size="lg"
+                      shadow="icon"
+                      source="materialCommunityIcons"
+                      color={color}
+                      onPress={handleAnimatedToggle}
                     />
                   </HStack>
                 </Stagger>

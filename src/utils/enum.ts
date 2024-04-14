@@ -168,3 +168,8 @@ export enum TemplateKey {
   HASH = 'HASH',
   TIME = 'TIME',
 }
+
+export enum Animated {
+  Enable,
+  Disabled,
+}
