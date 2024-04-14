@@ -1,5 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
+import { Platform } from 'react-native';
 import * as cheerio from 'cheerio';
 import dayjs from 'dayjs';
 
@@ -248,7 +249,9 @@ const PATTERN_MM_DD = /[0-9]{2}-[0-9]{2}/;
 class HappyManga extends Base {
   constructor() {
     const userAgent =
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
+      Platform.OS === 'android'
+        ? 'Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36'
+        : 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
     super({
       score: 5,
       id: Plugin.HAPPY,
