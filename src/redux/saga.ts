@@ -22,14 +22,15 @@ import {
   trycatch,
   nonNullable,
   statusToLabel,
+  runOnNative,
   ErrorMessage,
   AsyncStatus,
   TaskType,
   TemplateKey,
 } from '~/utils';
-import { InteractionManager, Permission, PermissionsAndroid, Platform } from 'react-native';
-import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
+import { Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, combineHash, PluginMap } from '~/plugins';
+import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { action, initialState } from './slice';
 import { Dirs, FileSystem } from 'react-native-file-access';
 import { CacheManager } from '@georstat/react-native-image-cache';
@@ -441,7 +442,7 @@ const saveDataWorker = (function () {
     isPending = true;
     while (count > 0) {
       count = 0;
-      yield call(InteractionManager.runAfterInteractions, { name: 'saveData', gen: saveData });
+      yield call(runOnNative, saveData);
       yield delay(1000);
     }
     isPending = false;

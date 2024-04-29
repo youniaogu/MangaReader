@@ -1,8 +1,8 @@
 import { ErrorMessage, MangaStatus, ScrambleType } from './enum';
 import { Draft, Draft07, JsonError, JsonSchema } from 'json-schema-library';
-import { delay, race, Effect } from 'redux-saga/effects';
+import { InteractionManager, Platform } from 'react-native';
+import { delay, race, Effect, call } from 'redux-saga/effects';
 import { ImageState } from '~/components/ComicImage';
-import { Platform } from 'react-native';
 import { Buffer } from 'buffer';
 import CookieManager from '@react-native-cookies/cookies';
 import queryString from 'query-string';
@@ -439,4 +439,20 @@ export function getDefaultFillMedianHeight(
     portrait: list[mid]?.portraitHeight || defaultHeight.portrait,
     landscape: list[mid]?.landscapeHeight || defaultHeight.landscape,
   };
+}
+
+export function* runOnNative(fn: (...args: any) => any) {
+  yield call(InteractionManager.runAfterInteractions, {
+    name: 'saveData',
+    gen: () => {
+      return new Promise(function* (res, rej) {
+        try {
+          yield call(fn);
+          res(true);
+        } catch (error) {
+          rej(false);
+        }
+      });
+    },
+  });
 }
