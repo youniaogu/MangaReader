@@ -22,13 +22,12 @@ import {
   trycatch,
   nonNullable,
   statusToLabel,
-  runOnNative,
   ErrorMessage,
   AsyncStatus,
   TaskType,
   TemplateKey,
 } from '~/utils';
-import { Permission, PermissionsAndroid, Platform } from 'react-native';
+import { InteractionManager, Permission, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, combineHash, PluginMap } from '~/plugins';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { action, initialState } from './slice';
@@ -372,63 +371,72 @@ function* saveData() {
   const setting = ((state: RootState) => state.setting)(yield select());
   const task = ((state: RootState) => state.task)(yield select());
 
-  const mangaIndex: string[] = [];
-  const chapterIndex: string[] = [];
-  const taskIndex: string[] = [];
-  const jobIndex: string[] = [];
-  const mangaDict: Record<string, any> = {};
-  const chapterDict: Record<string, any> = {};
-  const taskDict: Record<string, any> = {};
-  const jobDict: Record<string, any> = {};
+  const fn = () => {
+    const mangaIndex: string[] = [];
+    const chapterIndex: string[] = [];
+    const taskIndex: string[] = [];
+    const jobIndex: string[] = [];
+    const mangaDict: Record<string, any> = {};
+    const chapterDict: Record<string, any> = {};
+    const taskDict: Record<string, any> = {};
+    const jobDict: Record<string, any> = {};
 
-  favorites.forEach(({ mangaHash }) => {
-    const manga = dict.manga[mangaHash];
-    const lastWatch = dict.lastWatch[mangaHash];
-    if (nonNullable(manga) || nonNullable(lastWatch)) {
-      mangaDict[mangaHash] = { manga, lastWatch };
-      mangaIndex.push(mangaHash);
-    }
-    if (nonNullable(manga)) {
-      manga.chapters.forEach(({ hash: chapterHash }) => {
-        const chapter = dict.chapter[chapterHash];
-        const record = dict.record[chapterHash];
-        if (nonNullable(chapter) || nonNullable(record)) {
-          chapterDict[chapterHash] = { chapter, record };
-          chapterIndex.push(chapterHash);
-        }
-      });
-    }
-  });
-  task.list.forEach((item) => {
-    taskDict[item.taskId] = item;
-    taskIndex.push(item.taskId);
-  });
-  task.job.list.forEach((item) => {
-    jobDict[item.jobId] = item;
-    jobIndex.push(item.jobId);
-  });
+    favorites.forEach(({ mangaHash }) => {
+      const manga = dict.manga[mangaHash];
+      const lastWatch = dict.lastWatch[mangaHash];
+      if (nonNullable(manga) || nonNullable(lastWatch)) {
+        mangaDict[mangaHash] = { manga, lastWatch };
+        mangaIndex.push(mangaHash);
+      }
+      if (nonNullable(manga)) {
+        manga.chapters.forEach(({ hash: chapterHash }) => {
+          const chapter = dict.chapter[chapterHash];
+          const record = dict.record[chapterHash];
+          if (nonNullable(chapter) || nonNullable(record)) {
+            chapterDict[chapterHash] = { chapter, record };
+            chapterIndex.push(chapterHash);
+          }
+        });
+      }
+    });
+    task.list.forEach((item) => {
+      taskDict[item.taskId] = item;
+      taskIndex.push(item.taskId);
+    });
+    task.job.list.forEach((item) => {
+      jobDict[item.jobId] = item;
+      jobIndex.push(item.jobId);
+    });
 
-  const keyValuePairs: [string, string][] = [
-    ...dictToPairs(mangaDict),
-    ...dictToPairs(chapterDict),
-    ...dictToPairs(taskDict),
-    ...dictToPairs(jobDict),
-    [storageKey.mangaIndex, JSON.stringify(mangaIndex)],
-    [storageKey.chapterIndex, JSON.stringify(chapterIndex)],
-    [storageKey.taskIndex, JSON.stringify(taskIndex)],
-    [storageKey.jobIndex, JSON.stringify(jobIndex)],
-    [storageKey.favorites, JSON.stringify(favorites)],
-    [storageKey.plugin, JSON.stringify(plugin)],
-    [storageKey.setting, JSON.stringify(setting)],
-  ];
-  yield call(AsyncStorage.multiSet, keyValuePairs);
+    const keyValuePairs: [string, string][] = [
+      ...dictToPairs(mangaDict),
+      ...dictToPairs(chapterDict),
+      ...dictToPairs(taskDict),
+      ...dictToPairs(jobDict),
+      [storageKey.mangaIndex, JSON.stringify(mangaIndex)],
+      [storageKey.chapterIndex, JSON.stringify(chapterIndex)],
+      [storageKey.taskIndex, JSON.stringify(taskIndex)],
+      [storageKey.jobIndex, JSON.stringify(jobIndex)],
+      [storageKey.favorites, JSON.stringify(favorites)],
+      [storageKey.plugin, JSON.stringify(plugin)],
+      [storageKey.setting, JSON.stringify(setting)],
+    ];
+    const curr = keyValuePairs.map((item) => item[0]);
 
-  const curr = keyValuePairs.map((item) => item[0]);
-  const prev: string[] = yield call(AsyncStorage.getAllKeys);
-  const useless = prev.filter((key) => !curr.includes(key));
-  if (useless.length > 0) {
-    yield call(AsyncStorage.multiRemove, useless);
-  }
+    return new Promise((res, rej) => {
+      AsyncStorage.getAllKeys()
+        .then((prev) => {
+          const useless = prev.filter((key) => !curr.includes(key));
+          Promise.all([AsyncStorage.multiSet(keyValuePairs), AsyncStorage.multiRemove(useless)])
+            .then(res)
+            .catch(rej);
+        })
+        .catch(rej);
+    });
+  };
+
+  // 9MB 大小的备份数据可以优化 100ms 性能，大概 6fps
+  yield call(InteractionManager.runAfterInteractions, { name: 'saveData', gen: fn });
 }
 const saveDataWorker = (function () {
   let count = 0;
@@ -442,7 +450,7 @@ const saveDataWorker = (function () {
     isPending = true;
     while (count > 0) {
       count = 0;
-      yield call(runOnNative, saveData);
+      yield call(saveData);
       yield delay(1000);
     }
     isPending = false;
