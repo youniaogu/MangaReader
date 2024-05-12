@@ -280,6 +280,7 @@ class BaoziManga extends Base {
       [
         ...$('#chapter-items > div').toArray(),
         ...$('#chapters_other_list > div').toArray(),
+        ...$('.l-content .pure-g > div.comics-chapters').toArray(),
       ] as cheerio.TagElement[]
     )
       .map((div) => {
