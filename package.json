@@ -1,7 +1,7 @@
 {
   "name": "mangareader",
-  "version": "0.7.3",
-  "publishTime": "2024-04-14",
+  "version": "0.7.4",
+  "publishTime": "2024-05-12",
   "private": true,
   "scripts": {
     "start": "react-native start",
