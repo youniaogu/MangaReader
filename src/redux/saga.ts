@@ -27,7 +27,7 @@ import {
   TaskType,
   TemplateKey,
 } from '~/utils';
-import { InteractionManager, Permission, PermissionsAndroid, Platform } from 'react-native';
+import { InteractionManager, PermissionsAndroid, Platform } from 'react-native';
 import { splitHash, combineHash, PluginMap } from '~/plugins';
 import { nanoid, Action, PayloadAction } from '@reduxjs/toolkit';
 import { action, initialState } from './slice';
@@ -934,19 +934,6 @@ function* replaceDownloadPath(
   }
   return path;
 }
-function* hasAndroidPermission(permission: Permission) {
-  const hasPermission: boolean = yield call(PermissionsAndroid.check, permission);
-
-  if (hasPermission) {
-    return true;
-  }
-
-  const status: 'granted' | 'denied' | 'never_ask_again' = yield call(
-    PermissionsAndroid.request,
-    permission
-  );
-  return status === 'granted';
-}
 function* fileDownload({ source, headers }: { source: string; headers?: Record<string, string> }) {
   const blob: string | undefined = yield call(CacheManager.prefetchBlob, source, { headers });
   if (blob === undefined) {
@@ -954,11 +941,18 @@ function* fileDownload({ source, headers }: { source: string; headers?: Record<s
   }
 }
 function* checkAndroidPermission() {
-  if (Platform.OS === 'android') {
+  // https://stackoverflow.com/questions/76116840/write-external-storage-permission-is-always-blocked-in-react-native-android-plat
+  if (Platform.OS === 'android' && Platform.Version <= 29) {
     const writePermission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-    const hasWritePermission: boolean = yield call(hasAndroidPermission, writePermission);
-    if (!hasWritePermission) {
-      throw new Error(ErrorMessage.WithoutPermission);
+    const hasPermission: boolean = yield call(PermissionsAndroid.check, writePermission);
+    if (!hasPermission) {
+      const status: 'granted' | 'denied' | 'never_ask_again' = yield call(
+        PermissionsAndroid.request,
+        writePermission
+      );
+      if (status !== 'granted') {
+        throw new Error(`${ErrorMessage.WithoutPermission}: ${status}`);
+      }
     }
   }
 }
