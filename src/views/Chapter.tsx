@@ -461,6 +461,7 @@ const Chapter = ({ route, navigation }: StackChapterProps) => {
     <Box w="full" h="full" bg={bg}>
       <StatusBar
         backgroundColor={bg}
+        hidden={!showExtra}
         barStyle={
           showExtra
             ? lightOn
