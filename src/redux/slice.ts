@@ -407,7 +407,10 @@ const favoritesSlice = createSlice({
       const { mangaHash, enableBatch = true } = action.payload;
       state.unshift({ mangaHash, isTrend: false, enableBatch });
     },
-    removeFavorites(state, action: PayloadAction<string>) {
+    removeFavorites(state, action: PayloadAction<string | string[]>) {
+      if (Array.isArray(action.payload)) {
+        return state.filter((item) => !action.payload.includes(item.mangaHash));
+      }
       return state.filter((item) => item.mangaHash !== action.payload);
     },
     enabledBatch(state, action: PayloadAction<string>) {
