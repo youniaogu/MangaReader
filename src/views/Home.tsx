@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback, Fragment } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { nonNullable, AsyncStatus } from '~/utils';
-import { View, Text, HStack, Button, Modal, useDisclose } from 'native-base';
+import { View, Text, HStack, Button, Modal, useDisclose, useToast } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
 import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
@@ -22,6 +22,7 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
   const dispatch = useAppDispatch();
   const { isOpen, onOpen, onClose } = useDisclose();
   const headerRightOpacity = useSharedValue(0);
+  const toast = useToast();
 
   const favoriteList = useMemo(
     () => list.map((item) => dict[item.mangaHash]).filter(nonNullable),
@@ -75,6 +76,14 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
     onClose();
   }, [dispatch, onClose, selectedManga]);
 
+  const handleDeletePress = useCallback(() => {
+    if (!selectedManga.length) {
+      toast.show({ title: '请选择至少一本漫画' });
+      return;
+    }
+    onOpen();
+  }, [onOpen, toast, selectedManga]);
+
   const seteletModeHeaderRightStyle = useAnimatedStyle(() => {
     return {
       opacity: headerRightOpacity.value,
@@ -89,13 +98,13 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
           <HStack flexShrink={0}>
             <VectorIcon name="select-all" onPress={handleSelectAll} />
             <VectorIcon name="deselect" onPress={handleCancel} />
-            <VectorIcon name="delete" onPress={onOpen} />
+            <VectorIcon name="delete" onPress={handleDeletePress} />
           </HStack>
         </Animated.View>
       );
     }
     return <SearchAndAbout />;
-  }, [isSelectMode, handleCancel, onOpen, handleSelectAll, seteletModeHeaderRightStyle]);
+  }, [isSelectMode, handleCancel, handleSelectAll, seteletModeHeaderRightStyle, handleDeletePress]);
 
   useFocusEffect(
     useCallback(() => {
