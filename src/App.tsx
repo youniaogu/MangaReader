@@ -8,7 +8,6 @@ import { store, useAppSelector } from '~/redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
 import { useMessageToast } from '~/hooks';
-import { SearchAndAbout } from '~/views/Home';
 import { ErrorBoundary } from 'react-error-boundary';
 import { StyleSheet } from 'react-native';
 import { Provider } from 'react-redux';
@@ -56,7 +55,7 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
         initialRouteName="Home"
         screenOptions={{ header: DefaultHeader, freezeOnBlur: true }}
       >
-        <Screen name="Home" options={{ headerRight: SearchAndAbout }} component={Home} />
+        <Screen name="Home" component={Home} />
         <Screen
           name="Discovery"
           options={{ title: '', headerLeft: SearchAndPlugin }}
