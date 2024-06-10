@@ -70,12 +70,9 @@ class CopyManga extends Base {
       name: '禁漫天堂',
       shortName: 'JMC',
       description: '需要代理，屏蔽日本ip',
-      href: 'https://jmcomic.me',
+      href: 'https://18comic.vip',
       userAgent,
-      defaultHeaders: {
-        'User-Agent': userAgent,
-        Referer: 'https://jmcomic.me',
-      },
+      defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://18comic.vip' },
       option: { discovery: discoveryOptions, search: searchOptions },
     });
   }
@@ -84,7 +81,7 @@ class CopyManga extends Base {
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (page, { type, sort }) => {
     return {
-      url: `https://jmcomic.me/albums${type === Options.Default ? '' : `/${type}`}`,
+      url: `https://18comic.vip/albums${type === Options.Default ? '' : `/${type}`}`,
       body: {
         o: sort === Options.Default ? 'mr' : sort,
         page,
@@ -94,7 +91,7 @@ class CopyManga extends Base {
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page, { time, sort }) => {
     return {
-      url: 'https://jmcomic.me/search/photos',
+      url: 'https://18comic.vip/search/photos',
       body: {
         main_tag: 0,
         search_query: keyword,
@@ -107,14 +104,14 @@ class CopyManga extends Base {
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://jmcomic.me/album/${mangaId}`,
+      url: `https://18comic.vip/album/${mangaId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (_mangaId, chapterId) => {
     return {
-      url: `https://jmcomic.me/photo/${chapterId}`,
+      url: `https://18comic.vip/photo/${chapterId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -155,7 +152,7 @@ class CopyManga extends Base {
         }
 
         list.push({
-          href: 'https://jmcomic.me' + href,
+          href: 'https://18comic.vip' + href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
@@ -208,7 +205,7 @@ class CopyManga extends Base {
         }
 
         list.push({
-          href: 'https://jmcomic.me' + href,
+          href: 'https://18comic.vip' + href,
           hash: Base.combineHash(this.id, mangaId),
           source: this.id,
           sourceName: this.name,
@@ -232,7 +229,7 @@ class CopyManga extends Base {
 
     const [, mangaId] =
       ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
-    const href = `https://jmcomic.me/album/${mangaId}`;
+    const href = `https://18comic.vip/album/${mangaId}`;
     const title = $('h1#book-name').text() || '';
     const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
     const img = $('div#album_photo_cover div.thumb-overlay img').first();
@@ -257,7 +254,7 @@ class CopyManga extends Base {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,
           chapterId,
-          href: `https://jmcomic.me${chapterHref}`,
+          href: `https://18comic.vip${chapterHref}`,
           title: chapterTitle.replaceAll(/[\r\n]+/g, '').trim(),
         };
       })
@@ -279,7 +276,7 @@ class CopyManga extends Base {
         hash: Base.combineHash(this.id, mangaId, firstChapterId),
         mangaId,
         chapterId: firstChapterId,
-        href: `https://jmcomic.me${firstChapterHref}`,
+        href: `https://18comic.vip${firstChapterHref}`,
         title: '开始阅读',
       });
     }
@@ -348,9 +345,9 @@ class CopyManga extends Base {
         title,
         headers: {
           ...this.defaultHeaders,
-          referer: 'https://jmcomic.me/',
+          referer: 'https://18comic.vip/',
           accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-          'accept-encoding': 'gzip, deflate, br',
+          'accept-encoding': 'gzip, deflate, br, zstd',
           'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         },
         images: images.map((uri) => ({

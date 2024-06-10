@@ -257,7 +257,7 @@ class HappyManga extends Base {
       id: Plugin.HAPPY,
       name: '嗨皮漫画',
       shortName: 'HAPPY',
-      description: '需要代理',
+      description: '需要代理，图片有 CF 校验',
       href: 'https://m.happymh.com/',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://m.happymh.com/', Cookie: '' },
