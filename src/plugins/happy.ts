@@ -260,7 +260,10 @@ class HappyManga extends Base {
       description: '需要代理',
       href: 'https://m.happymh.com/',
       userAgent,
-      defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://m.happymh.com/' },
+      defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://m.happymh.com/', Cookie: '' },
+      injectedJavaScript: `(function() {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ cookie: document.cookie }));
+      })();`,
       option: { discovery: discoveryOptions, search: [] },
     });
   }
@@ -273,6 +276,10 @@ class HappyManga extends Base {
     }
     return true;
   }
+
+  syncExtraData = (data: Record<string, any>) => {
+    this.defaultHeaders.Cookie = data.cookie || '';
+  };
 
   prepareDiscoveryFetch: Base['prepareDiscoveryFetch'] = (
     page,
