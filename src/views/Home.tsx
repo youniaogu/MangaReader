@@ -96,15 +96,37 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
       return (
         <Animated.View style={seteletModeHeaderRightStyle}>
           <HStack flexShrink={0}>
-            <VectorIcon name="select-all" onPress={handleSelectAll} />
-            <VectorIcon name="deselect" onPress={handleCancel} />
-            <VectorIcon name="delete" onPress={handleDeletePress} />
+            <VectorIcon
+              source="materialCommunityIcons"
+              name="window-close"
+              onPress={handleCancel}
+            />
+            <VectorIcon
+              source="materialCommunityIcons"
+              name={
+                selectedManga.length <= 0
+                  ? 'checkbox-blank-outline'
+                  : selectedManga.length >= list.length
+                  ? 'checkbox-marked-outline'
+                  : 'checkbox-intermediate'
+              }
+              onPress={handleSelectAll}
+            />
+            <VectorIcon name="delete-forever" onPress={handleDeletePress} />
           </HStack>
         </Animated.View>
       );
     }
     return <SearchAndAbout />;
-  }, [isSelectMode, handleCancel, handleSelectAll, seteletModeHeaderRightStyle, handleDeletePress]);
+  }, [
+    list,
+    selectedManga,
+    isSelectMode,
+    seteletModeHeaderRightStyle,
+    handleCancel,
+    handleSelectAll,
+    handleDeletePress,
+  ]);
 
   useFocusEffect(
     useCallback(() => {

@@ -430,7 +430,7 @@ export const HeartAndBrowser = () => {
             name={
               selected.length <= 0
                 ? 'checkbox-blank-outline'
-                : selected.length >= manga.chapters.length - 1
+                : selected.length >= manga.chapters.length
                 ? 'checkbox-marked-outline'
                 : 'checkbox-intermediate'
             }
