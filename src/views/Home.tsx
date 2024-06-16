@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useCallback, Fragment } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { nonNullable, AsyncStatus } from '~/utils';
-import { View, Text, HStack, Button, Modal, useDisclose, useToast } from 'native-base';
+import { View, Text, HStack, Button, Modal, useDisclose } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
 import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
@@ -12,6 +12,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-na
 const { batchUpdate, removeFavorites } = action;
 
 const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
+  const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.favorites);
   const dict = useAppSelector((state) => state.dict.manga);
   const failList = useAppSelector((state) => state.batch.fail);
@@ -19,10 +20,8 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
   const loadStatus = useAppSelector((state) => state.app.launchStatus);
   const [selectedManga, setSelectedManga] = useState<string[]>([]);
   const [isSelectMode, setSelectMode] = useState(false);
-  const dispatch = useAppDispatch();
   const { isOpen, onOpen, onClose } = useDisclose();
   const headerRightOpacity = useSharedValue(0);
-  const toast = useToast();
 
   const favoriteList = useMemo(
     () => list.map((item) => dict[item.mangaHash]).filter(nonNullable),
@@ -76,14 +75,6 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
     onClose();
   }, [dispatch, onClose, selectedManga]);
 
-  const handleDeletePress = useCallback(() => {
-    if (!selectedManga.length) {
-      toast.show({ title: '请选择至少一本漫画' });
-      return;
-    }
-    onOpen();
-  }, [onOpen, toast, selectedManga]);
-
   const seteletModeHeaderRightStyle = useAnimatedStyle(() => {
     return {
       opacity: headerRightOpacity.value,
@@ -112,7 +103,12 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
               }
               onPress={handleSelectAll}
             />
-            <VectorIcon name="delete-forever" onPress={handleDeletePress} />
+            <VectorIcon
+              name="delete-forever"
+              opacity={selectedManga.length <= 0 ? 0.5 : 1}
+              disabled={selectedManga.length <= 0}
+              onPress={onOpen}
+            />
           </HStack>
         </Animated.View>
       );
@@ -125,14 +121,12 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
     seteletModeHeaderRightStyle,
     handleCancel,
     handleSelectAll,
-    handleDeletePress,
+    onOpen,
   ]);
 
   useFocusEffect(
     useCallback(() => {
-      setOptions({
-        headerRight: renderHeaderRight,
-      });
+      setOptions({ headerRight: renderHeaderRight });
     }, [renderHeaderRight, setOptions])
   );
 
@@ -151,20 +145,19 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
         itemOnLongPress={handleSelect}
         loading={loadStatus === AsyncStatus.Pending}
       />
-      <Modal useRNModal isOpen={isOpen} onClose={onClose} size="sm">
+      <Modal useRNModal isOpen={isOpen} onClose={onClose} size="xl">
         <Modal.Content>
-          <Modal.CloseButton />
           <Modal.Header>确认</Modal.Header>
           <Modal.Body>
             <Text>从列表删除所选漫画？</Text>
           </Modal.Body>
           <Modal.Footer>
-            <Button.Group space={2}>
-              <Button variant="ghost" colorScheme="gray" size="sm" onPress={onClose}>
+            <Button.Group size="sm" space="sm">
+              <Button px={5} variant="outline" colorScheme="gray" onPress={onClose}>
                 取消
               </Button>
-              <Button size="sm" colorScheme="purple" onPress={handleDelete}>
-                确定
+              <Button px={5} colorScheme="purple" onPress={handleDelete}>
+                确认
               </Button>
             </Button.Group>
           </Modal.Footer>

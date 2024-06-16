@@ -28,6 +28,7 @@ const VectorIcon = ({
   return (
     <IconButton
       p={2}
+      opacity={props.disabled ? 0.5 : 1}
       icon={<Icon shadow={shadow} as={sourceMap[source]} name={name} size={size} color={color} />}
       onPress={onPress}
       {...props}
