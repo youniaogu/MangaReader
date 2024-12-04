@@ -1,7 +1,7 @@
 import { FileSystem, Dirs } from 'react-native-file-access';
 import { ImageState } from '~/components/ComicImage';
 
-type CacheMap = Record<string, ImageState>;
+type CacheMap = Record<string, Omit<ImageState, 'dataUrl' | 'loadStatus'>>;
 
 class Cache {
   private _basePath = `${Dirs.DocumentDir}/@cache`; // 或者Dirs.CacheDir？
@@ -34,8 +34,12 @@ class Cache {
     return this._cacheMap[uri];
   }
 
-  setImageState(uri: string, state: ImageState) {
-    this._cacheMap[uri] = state;
+  // 去掉不需要存的dataUrl和loadStatus
+  setImageState(
+    uri: string,
+    { landscapeHeight, portraitHeight, multipleFitWidth, multipleFitHeight }: ImageState
+  ) {
+    this._cacheMap[uri] = { landscapeHeight, portraitHeight, multipleFitWidth, multipleFitHeight };
   }
 
   async storeCacheMap() {

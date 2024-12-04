@@ -70,6 +70,7 @@ const useChapterFlat = (hashList: string[], dict: RootState['dict']['chapter']) 
       multiplePre: number;
       current: number;
       chapterHash: string;
+      isBase64Image?: boolean;
     }[] = [];
 
     hashList.forEach((hash) => {
