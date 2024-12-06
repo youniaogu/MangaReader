@@ -37,6 +37,7 @@ export interface ReaderProps {
     pre: number;
     current: number;
     chapterHash: string;
+    isBase64Image?: boolean;
   }[];
   headers?: Chapter['headers'];
   onTap?: (position: PositionX) => void;
@@ -178,7 +179,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     onPageChangeRef.current && onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
   };
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
-    const { uri, scrambleType, needUnscramble } = item;
+    const { uri, scrambleType, needUnscramble, isBase64Image = false } = item;
     const horizontalState = horizontalStateRef.current[index] || undefined;
     return (
       <Controller
@@ -194,6 +195,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           index={index}
           scrambleType={scrambleType}
           needUnscramble={needUnscramble}
+          isBase64Image={isBase64Image}
           headers={headers}
           prevState={horizontalState}
           defaultPortraitHeight={defaultPortraitHeightRef.current}
@@ -208,7 +210,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     );
   };
   const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
-    const { uri, scrambleType, needUnscramble } = item;
+    const { uri, scrambleType, needUnscramble, isBase64Image = false } = item;
     const verticalState = verticalStateRef.current[index] || undefined;
     const cacheState = cache.getImageState(uri);
     return (
@@ -237,6 +239,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
             index={index}
             scrambleType={scrambleType}
             needUnscramble={needUnscramble}
+            isBase64Image={isBase64Image}
             headers={headers}
             prevState={verticalState}
             defaultPortraitHeight={defaultPortraitHeightRef.current}
@@ -271,37 +274,47 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         onZoomEnd={onZoomEnd}
       >
         <Flex w="full" h="full" flexDirection="row" alignItems="center" justifyContent="center">
-          {item.map(({ uri, scrambleType, needUnscramble, chapterHash, current }) => {
-            const multipleState = (multipleStateRef.current[index] || [])[uri] || undefined;
-            return (
-              <Box key={uri}>
-                <LongPressController
-                  onLongPress={() =>
-                    onLongPress && onLongPress(PositionX.Mid, multipleState?.dataUrl)
-                  }
-                >
-                  <ComicImage
-                    uri={uri}
-                    index={index}
-                    scrambleType={scrambleType}
-                    needUnscramble={needUnscramble}
-                    headers={headers}
-                    prevState={multipleState}
-                    defaultPortraitHeight={defaultPortraitHeightRef.current}
-                    defaultLandscapeHeight={defaultLandscapeHeightRef.current}
-                    layoutMode={LayoutMode.Multiple}
-                    onChange={(state, idx = index) => {
-                      if (typeof multipleStateRef.current[idx] !== 'object') {
-                        multipleStateRef.current[idx] = {};
-                      }
-                      multipleStateRef.current[idx][uri] = state;
-                      onImageLoad && onImageLoad(uri, chapterHash, current);
-                    }}
-                  />
-                </LongPressController>
-              </Box>
-            );
-          })}
+          {item.map(
+            ({
+              uri,
+              scrambleType,
+              needUnscramble,
+              chapterHash,
+              current,
+              isBase64Image = false,
+            }) => {
+              const multipleState = (multipleStateRef.current[index] || [])[uri] || undefined;
+              return (
+                <Box key={uri}>
+                  <LongPressController
+                    onLongPress={() =>
+                      onLongPress && onLongPress(PositionX.Mid, multipleState?.dataUrl)
+                    }
+                  >
+                    <ComicImage
+                      uri={uri}
+                      index={index}
+                      scrambleType={scrambleType}
+                      needUnscramble={needUnscramble}
+                      isBase64Image={isBase64Image}
+                      headers={headers}
+                      prevState={multipleState}
+                      defaultPortraitHeight={defaultPortraitHeightRef.current}
+                      defaultLandscapeHeight={defaultLandscapeHeightRef.current}
+                      layoutMode={LayoutMode.Multiple}
+                      onChange={(state, idx = index) => {
+                        if (typeof multipleStateRef.current[idx] !== 'object') {
+                          multipleStateRef.current[idx] = {};
+                        }
+                        multipleStateRef.current[idx][uri] = state;
+                        onImageLoad && onImageLoad(uri, chapterHash, current);
+                      }}
+                    />
+                  </LongPressController>
+                </Box>
+              );
+            }
+          )}
         </Flex>
       </Controller>
     );

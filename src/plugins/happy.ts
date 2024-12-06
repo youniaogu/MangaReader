@@ -269,6 +269,8 @@ class HappyManga extends Base {
   }
 
   private v = 'v2.13';
+  // 单独的漫画version
+  private readv = 'v3.1613134';
   private checkProxy<T = any>(res: T | string): res is T {
     if (typeof res === 'string') {
       this.checkCloudFlare(cheerio.load(res || ''));
@@ -322,15 +324,15 @@ class HappyManga extends Base {
   prepareChapterListFetch: Base['prepareChapterListFetch'] = () => {};
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
-      url: 'https://m.happymh.com/v2.0/apis/manga/read',
+      url: 'https://m.happymh.com/v2.0/apis/manga/reading',
       body: {
         code: mangaId,
         cid: chapterId,
-        v: this.v,
+        v: this.readv,
       },
       headers: new Headers({
         ...this.defaultHeaders,
-        Referer: `https://m.happymh.com/reads/${mangaId}/${chapterId}`,
+        Referer: `https://m.happymh.com/mangaread/${mangaId}/${chapterId}`,
         /** 不是 XML 请求会返回 403 */
         'X-Requested-With': 'XMLHttpRequest',
       }),
@@ -355,6 +357,7 @@ class HappyManga extends Base {
             bookCover: item.cover,
             title: item.name,
             latest: item.last_chapter,
+            headers: this.defaultHeaders,
           };
         }),
       };
@@ -382,6 +385,7 @@ class HappyManga extends Base {
             title: item.name,
             tag: item.genre_ids.split('、'),
             author: [item.author],
+            headers: this.defaultHeaders,
           };
         }),
       };
@@ -469,7 +473,7 @@ class HappyManga extends Base {
           name: res.data.manga_name,
           title: res.data.chapter_name,
           headers: { ...this.defaultHeaders, Referer: 'https://m.happymh.com/' },
-          images: res.data.scans.map((item) => ({ uri: item.url })),
+          images: res.data.scans.map((item) => ({ uri: item.url, isBase64Image: true })),
         },
       };
     } else {
