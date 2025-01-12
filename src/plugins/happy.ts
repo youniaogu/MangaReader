@@ -253,11 +253,13 @@ class HappyManga extends Base {
         ? 'Mozilla/5.0 (Linux; Android 8.0.0; SM-G955U Build/R16NW) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36'
         : 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
     super({
-      score: 5,
+      disabled: true,
+      score: 0,
       id: Plugin.HAPPY,
       name: '嗨皮漫画',
       shortName: 'HAPPY',
-      description: '需要代理，图片有 CF 校验',
+      description: '已失效',
+      // description: '需要代理，图片有 CF 校验',
       href: 'https://m.happymh.com/',
       userAgent,
       defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://m.happymh.com/', Cookie: '' },
