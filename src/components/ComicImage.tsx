@@ -272,7 +272,7 @@ const ScrambleImage = ({
         const ctx = canvasRef.current.getContext('2d');
         const image = new CanvasImage(canvasRef.current);
 
-        image.src = base64;
+        image.addEventListener('error', handleError);
         image.addEventListener('load', (event) => {
           // don't use Image.getSize from react-native
           // Image.getSize return wrong width and height when image have a huge width or height
@@ -282,50 +282,46 @@ const ScrambleImage = ({
           const height = event.target.height;
           const step = unscramble(i, width, height, scrambleType);
 
-          if (canvasRef.current) {
-            // if image size more than maxPixelSize, scale image to smaller
-            const imageScale = Math.floor(Math.min(maxPixelSize / (width * height), 1) * 100) / 100;
-            const scale = imageScale / windowScale;
-
-            canvasRef.current.width = width * scale;
-            canvasRef.current.height = height * scale;
-            ctx.scale(scale, scale);
-          } else {
-            return handleError();
+          if (!canvasRef.current) {
+            handleError();
+            return;
           }
+
+          // if image size more than maxPixelSize, scale image to smaller
+          const imageScale = Math.floor(Math.min(maxPixelSize / (width * height), 1) * 100) / 100;
+          const scale = imageScale / windowScale;
+
+          canvasRef.current.width = width * scale;
+          canvasRef.current.height = height * scale;
+          ctx.scale(scale, scale);
 
           step.forEach(({ dx, dy, sx, sy, sWidth, sHeight, dWidth, dHeight }) => {
             ctx.drawImage(image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
           });
 
-          if (canvasRef.current) {
-            canvasRef.current
-              .toDataURL()
-              .then((res) => {
-                const { dWidth, dHeight } = aspectFit(
-                  { width, height },
-                  {
-                    width: (windowWidth - left - right) / 2,
-                    height: windowHeight - top - bottom,
-                  }
-                );
-                updateData({
-                  ...imageState,
-                  dataUrl: res.replace(/^"|"$/g, ''),
-                  multipleFitWidth: dWidth,
-                  multipleFitHeight: dHeight,
-                  landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
-                  portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
-                  loadStatus: AsyncStatus.Fulfilled,
-                });
-              })
-              .catch(() => {
-                handleError();
+          canvasRef.current
+            .toDataURL()
+            .then((res) => {
+              const { dWidth, dHeight } = aspectFit(
+                { width, height },
+                {
+                  width: (windowWidth - left - right) / 2,
+                  height: windowHeight - top - bottom,
+                }
+              );
+              updateData({
+                ...imageState,
+                dataUrl: res.replace(/^"|"$/g, ''),
+                multipleFitWidth: dWidth,
+                multipleFitHeight: dHeight,
+                landscapeHeight: (height / width) * Math.max(windowWidth, windowHeight),
+                portraitHeight: (height / width) * Math.min(windowWidth, windowHeight),
+                loadStatus: AsyncStatus.Fulfilled,
               });
-          } else {
-            handleError();
-          }
+            })
+            .catch(handleError);
         });
+        image.src = base64;
       } else {
         handleError();
       }

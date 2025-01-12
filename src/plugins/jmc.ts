@@ -347,7 +347,8 @@ class CopyManga extends Base {
           ...this.defaultHeaders,
           referer: 'https://18comic.vip/',
           accept: 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
-          'accept-encoding': 'gzip, deflate, br, zstd',
+          // gzip 返回的内容会压缩，导致 base64 encode 出来 MIME type 为 image/gzip，无法直接显示
+          // 'accept-encoding': 'gzip, deflate, br, zstd',
           'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
         },
         images: images.map((uri) => ({
