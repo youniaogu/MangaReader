@@ -273,6 +273,9 @@ const ScrambleImage = ({
         const image = new CanvasImage(canvasRef.current);
 
         image.src = base64;
+        image.addEventListener('error', () => {
+          return handleError();
+        });
         image.addEventListener('load', (event) => {
           // don't use Image.getSize from react-native
           // Image.getSize return wrong width and height when image have a huge width or height
