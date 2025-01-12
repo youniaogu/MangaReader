@@ -1,7 +1,6 @@
 import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage } from '~/utils';
 import { AESDecrypt } from '~/utils';
-import * as cheerio from 'cheerio';
 
 interface BaseResponse<T> {
   code: number;
@@ -44,7 +43,7 @@ interface MangaInfoResponse
       last_chapter: { uuid: string; name: string };
     };
   }> {}
-interface ChapterListReponse extends BaseResponse<string> {}
+interface ChapterListResponse extends BaseResponse<string> {}
 interface ChapterListInfo {
   build: {
     path_word: string;
@@ -52,6 +51,22 @@ interface ChapterListInfo {
   };
   groups: Record<'default' | string, { chapters: { id: string; name: string }[] }>;
 }
+interface ChapterInfoResponse
+  extends BaseResponse<{
+    comic: { name: string; path_word: string };
+    chapter: {
+      uuid: string;
+      count: number;
+      size: number;
+      name: string;
+      comic_id: string;
+      comic_path_word: string;
+      group_id: null;
+      group_path_word: string;
+      datetime_created: string;
+      contents: { url: string }[];
+    };
+  }> {}
 
 const discoveryOptions = [
   {
@@ -142,8 +157,6 @@ const discoveryOptions = [
   },
 ];
 
-const PATTERN_HEADER = /(.+)\/(.+)/;
-
 class CopyManga extends Base {
   readonly fetchHeaders = {
     ...this.defaultHeaders,
@@ -229,7 +242,8 @@ class CopyManga extends Base {
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
-      url: `https://www.mangacopy.com/comic/${mangaId}/chapter/${chapterId}`,
+      url: `https://api.mangacopy.com/api/v3/comic/${mangaId}/chapter/${chapterId}`,
+      body: { platform: 3 },
       headers: new Headers({
         'User-Agent':
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
@@ -314,7 +328,7 @@ class CopyManga extends Base {
     }
   };
 
-  handleChapterList: Base['handleChapterList'] = (res: ChapterListReponse) => {
+  handleChapterList: Base['handleChapterList'] = (res: ChapterListResponse) => {
     if (res.code === 200) {
       const data: ChapterListInfo = JSON.parse(AESDecrypt(res.results || ''));
       const { build, groups } = data;
@@ -344,26 +358,20 @@ class CopyManga extends Base {
   };
 
   handleChapter: Base['handleChapter'] = (
-    text: string | null,
+    res: ChapterInfoResponse,
     mangaId: string,
     chapterId: string
   ) => {
-    const $ = cheerio.load(text || '');
-    const contentkey = $('div.imageData').first().attr('contentkey') || '';
-    const images = JSON.parse(AESDecrypt(contentkey));
-    const [, name = '', title = ''] =
-      ($('h4.header').first().text() || '').match(PATTERN_HEADER) || [];
-
     return {
       canLoadMore: false,
       chapter: {
         hash: Base.combineHash(this.id, mangaId, chapterId),
         mangaId,
         chapterId,
-        name,
-        title,
+        name: res.results.comic.name,
+        title: res.results.chapter.name,
         headers: this.imageHeaders,
-        images: images.map((item: { url: string }) => ({
+        images: res.results.chapter.contents.map((item: { url: string }) => ({
           uri: item.url.replace(/\.c[0-9]+x\./, '.c1500x.'),
         })),
       },
