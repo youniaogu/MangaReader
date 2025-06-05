@@ -162,7 +162,7 @@ class CopyManga extends Base {
     ...this.defaultHeaders,
     webp: '1',
     region: '1',
-    platform: '1',
+    // platform: '1',
     version: '2022.10.20',
     accept: 'application/json',
     'content-encoding': 'gzip, compress, br',
@@ -174,7 +174,8 @@ class CopyManga extends Base {
 
   constructor() {
     const userAgent =
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/114.0';
+    // 'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
     super({
       score: 5,
       id: Plugin.COPY,
@@ -210,9 +211,10 @@ class CopyManga extends Base {
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
     return {
-      url: 'https://api.mangacopy.com/api/v3/search/comic',
+      // url: 'https://api.mangacopy.com/api/v3/search/comic',
+      url: 'https://api.mangacopy.com/api/kb/web/searchbd/comics', // web api
       body: {
-        platform: 1,
+        // platform: 1,
         q: keyword,
         limit: 20,
         offset: (page - 1) * 20,
