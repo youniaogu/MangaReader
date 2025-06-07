@@ -212,7 +212,7 @@ class CopyManga extends Base {
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, page) => {
     return {
       // url: 'https://api.mangacopy.com/api/v3/search/comic', // 可能换地址了
-      url: 'https://api.mangacopy.com/api/kb/web/searchc/comics', // web api
+      url: 'https://api.mangacopy.com/api/kb/web/searchs/comics', // web api
       body: {
         // platform: 1,
         q: keyword,
