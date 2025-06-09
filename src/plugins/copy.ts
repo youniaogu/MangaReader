@@ -218,7 +218,7 @@ class CopyManga extends Base {
         q_type: '',
         _update: 'true',
       },
-      headers: { ...new Headers(this.fetchHeaders), platform: '2' },
+      headers: new Headers({ ...this.fetchHeaders, platform: '2' }),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
