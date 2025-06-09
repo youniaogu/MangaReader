@@ -162,8 +162,7 @@ class CopyManga extends Base {
     ...this.defaultHeaders,
     webp: '1',
     region: '1',
-    platform: '1',
-    version: '2022.10.20',
+    version: '2.3.6',
     accept: 'application/json',
     'content-encoding': 'gzip, compress, br',
   };
@@ -174,7 +173,7 @@ class CopyManga extends Base {
 
   constructor() {
     const userAgent =
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1';
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36';
     super({
       score: 5,
       id: Plugin.COPY,
@@ -219,7 +218,7 @@ class CopyManga extends Base {
         q_type: '',
         _update: 'true',
       },
-      headers: new Headers(this.fetchHeaders),
+      headers: new Headers({ ...this.fetchHeaders, platform: '2' }),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
@@ -234,20 +233,14 @@ class CopyManga extends Base {
   prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId) => {
     return {
       url: `https://www.mangacopy.com/comicdetail/${mangaId}/chapters`,
-      headers: new Headers({
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      }),
+      headers: new Headers({ 'User-Agent': this.userAgent || '' }),
     };
   };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
       url: `https://api.mangacopy.com/api/v3/comic/${mangaId}/chapter/${chapterId}`,
       body: { platform: 3 },
-      headers: new Headers({
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-      }),
+      headers: new Headers({ 'User-Agent': this.userAgent || '' }),
     };
   };
 
