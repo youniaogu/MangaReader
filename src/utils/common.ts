@@ -4,6 +4,7 @@ import { delay, race, Effect } from 'redux-saga/effects';
 import { ImageState } from '~/components/ComicImage';
 import { Platform } from 'react-native';
 import { Buffer } from 'buffer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CookieManager from '@react-native-cookies/cookies';
 import queryString from 'query-string';
 import CryptoJS from 'crypto-js';
@@ -440,3 +441,79 @@ export function getDefaultFillMedianHeight(
     landscape: list[mid]?.landscapeHeight || defaultHeight.landscape,
   };
 }
+
+export const saveLocalData = ({
+  favorites,
+  dict,
+  plugin,
+  setting,
+  task,
+}: {
+  favorites: RootState['favorites'];
+  dict: RootState['dict'];
+  plugin: RootState['plugin'];
+  setting: RootState['setting'];
+  task: RootState['task'];
+}) => {
+  const mangaIndex: string[] = [];
+  const chapterIndex: string[] = [];
+  const taskIndex: string[] = [];
+  const jobIndex: string[] = [];
+  const mangaDict: Record<string, any> = {};
+  const chapterDict: Record<string, any> = {};
+  const taskDict: Record<string, any> = {};
+  const jobDict: Record<string, any> = {};
+
+  favorites.forEach(({ mangaHash }) => {
+    const manga = dict.manga[mangaHash];
+    const lastWatch = dict.lastWatch[mangaHash];
+    if (nonNullable(manga) || nonNullable(lastWatch)) {
+      mangaDict[mangaHash] = { manga, lastWatch };
+      mangaIndex.push(mangaHash);
+    }
+    if (nonNullable(manga)) {
+      manga.chapters.forEach(({ hash: chapterHash }) => {
+        const chapter = dict.chapter[chapterHash];
+        const record = dict.record[chapterHash];
+        if (nonNullable(chapter) || nonNullable(record)) {
+          chapterDict[chapterHash] = { chapter, record };
+          chapterIndex.push(chapterHash);
+        }
+      });
+    }
+  });
+  task.list.forEach((item) => {
+    taskDict[item.taskId] = item;
+    taskIndex.push(item.taskId);
+  });
+  task.job.list.forEach((item) => {
+    jobDict[item.jobId] = item;
+    jobIndex.push(item.jobId);
+  });
+
+  const keyValuePairs: [string, string][] = [
+    ...dictToPairs(mangaDict),
+    ...dictToPairs(chapterDict),
+    ...dictToPairs(taskDict),
+    ...dictToPairs(jobDict),
+    [storageKey.mangaIndex, JSON.stringify(mangaIndex)],
+    [storageKey.chapterIndex, JSON.stringify(chapterIndex)],
+    [storageKey.taskIndex, JSON.stringify(taskIndex)],
+    [storageKey.jobIndex, JSON.stringify(jobIndex)],
+    [storageKey.favorites, JSON.stringify(favorites)],
+    [storageKey.plugin, JSON.stringify(plugin)],
+    [storageKey.setting, JSON.stringify(setting)],
+  ];
+  const curr = keyValuePairs.map((item) => item[0]);
+
+  return new Promise<void>((res, rej) => {
+    AsyncStorage.getAllKeys()
+      .then((prev) => {
+        const useless = prev.filter((key) => !curr.includes(key));
+        Promise.all([AsyncStorage.multiSet(keyValuePairs), AsyncStorage.multiRemove(useless)])
+          .then(() => res())
+          .catch(rej);
+      })
+      .catch(rej);
+  });
+};

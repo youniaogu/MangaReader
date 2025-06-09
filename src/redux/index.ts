@@ -1,9 +1,9 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { action, reducer } from './slice';
 import saga from './saga';
-import store from './store';
+import { store, persistor } from './store';
 
 const useAppDispatch = () => useDispatch<typeof store.dispatch>();
 const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export { action, reducer, store, saga, useAppSelector, useAppDispatch };
+export { action, reducer, store, saga, persistor, useAppSelector, useAppDispatch };

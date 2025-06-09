@@ -1,7 +1,9 @@
+import { persistStore, persistReducer } from 'redux-persist';
 import { configureStore } from '@reduxjs/toolkit';
 import { reducer } from './slice';
 import createSagaMiddleware from 'redux-saga';
 import saga from './saga';
+import { mmkvStorage } from './storage';
 
 const sagaMiddleware = createSagaMiddleware();
 const middleware = [sagaMiddleware];
@@ -11,11 +13,13 @@ if (__DEV__) {
   middleware.push(logger);
 }
 
-const store = configureStore({
-  reducer,
+const persistedReducer = persistReducer({ key: 'root', storage: mmkvStorage }, reducer);
+
+sagaMiddleware.run(saga);
+
+export const store = configureStore({
+  reducer: persistedReducer,
   middleware,
   devTools: __DEV__,
 });
-sagaMiddleware.run(saga);
-
-export default store;
+export const persistor = persistStore(store);

@@ -1,20 +1,22 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createNativeStackNavigator, NativeStackHeaderProps } from '@react-navigation/native-stack';
-import { navigationRef, customTheme, AsyncStatus } from '~/utils';
+import { navigationRef, customTheme, AsyncStatus, saveLocalData } from '~/utils';
 import { HeartAndBrowser, PrehandleDrawer } from '~/views/Detail';
 import { SearchAndPlugin, PluginSelect } from '~/views/Discovery';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { store, useAppSelector } from '~/redux';
+import { store, persistor, useAppSelector } from '~/redux';
 import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider } from 'native-base';
 import { useMessageToast } from '~/hooks';
 import { ErrorBoundary } from 'react-error-boundary';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, AppState } from 'react-native';
 import { Provider } from 'react-redux';
+import BackgroundService from 'react-native-background-actions';
 import ErrorFallback from '~/components/ErrorFallback';
 import RNBootSplash from 'react-native-bootsplash';
 import loadable from '@loadable/component';
 import Header from '~/components/Header';
+import { PersistGate } from 'redux-persist/integration/react';
 
 interface NavigationScreenProps {
   ready?: boolean;
@@ -72,8 +74,40 @@ const NavigationScreen = ({ ready = false }: NavigationScreenProps) => {
         <Screen name="Webview" component={Webview} />
         <Screen name="About" component={About} />
       </Navigator>
+      <BackgroundAction />
     </ErrorBoundary>
   );
+};
+
+const BackgroundAction = () => {
+  const favorites = useAppSelector((state) => state.favorites);
+  const dict = useAppSelector((state) => state.dict);
+  const plugin = useAppSelector((state) => state.plugin);
+  const setting = useAppSelector((state) => state.setting);
+  const task = useAppSelector((state) => state.task);
+
+  const backgroundTask = useCallback(async () => {
+    await BackgroundService.start(() => saveLocalData({ favorites, dict, plugin, setting, task }), {
+      taskName: 'saveData',
+      taskTitle: '同步本地数据中...',
+      taskDesc: '',
+      taskIcon: { name: 'ic_launcher', type: 'mipmap' },
+    });
+  }, [favorites, dict, plugin, setting, task]);
+
+  useEffect(() => {
+    const nativeSubscription = AppState.addEventListener('change', (appState) => {
+      if (
+        (appState === 'background' || appState === 'inactive') &&
+        !BackgroundService.isRunning()
+      ) {
+        backgroundTask();
+      }
+    });
+    return nativeSubscription.remove;
+  }, [backgroundTask]);
+
+  return null;
 };
 
 const App = () => {
@@ -82,12 +116,14 @@ const App = () => {
   return (
     <GestureHandlerRootView style={styles.wrapper}>
       <Provider store={store}>
-        <NativeBaseProvider theme={customTheme}>
-          <NavigationContainer ref={navigationRef} onReady={() => setReady(true)}>
-            <NavigationScreen ready={ready} />
-            <PrehandleDrawer />
-          </NavigationContainer>
-        </NativeBaseProvider>
+        <PersistGate loading={null} persistor={persistor}>
+          <NativeBaseProvider theme={customTheme}>
+            <NavigationContainer ref={navigationRef} onReady={() => setReady(true)}>
+              <NavigationScreen ready={ready} />
+              <PrehandleDrawer />
+            </NavigationContainer>
+          </NativeBaseProvider>
+        </PersistGate>
       </Provider>
     </GestureHandlerRootView>
   );

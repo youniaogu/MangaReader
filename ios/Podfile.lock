@@ -388,6 +388,8 @@ PODS:
   - React-jsinspector (0.72.10)
   - React-logger (0.72.10):
     - glog
+  - react-native-background-actions (3.0.1):
+    - React-Core
   - react-native-cameraroll (5.10.0):
     - React-Core
   - react-native-cookies (6.2.1):
@@ -397,6 +399,9 @@ PODS:
   - react-native-file-access (2.6.0):
     - React-Core
     - ZIPFoundation (= 0.9.11)
+  - react-native-mmkv (3.2.0):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - react-native-safe-area-context (4.7.4):
     - React-Core
   - react-native-volume-manager (1.10.0):
@@ -622,10 +627,12 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-background-actions (from `../node_modules/react-native-background-actions`)
   - "react-native-cameraroll (from `../node_modules/@react-native-camera-roll/camera-roll`)"
   - "react-native-cookies (from `../node_modules/@react-native-cookies/cookies`)"
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-file-access (from `../node_modules/react-native-file-access`)
+  - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-volume-manager (from `../node_modules/react-native-volume-manager`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -723,6 +730,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-background-actions:
+    :path: "../node_modules/react-native-background-actions"
   react-native-cameraroll:
     :path: "../node_modules/@react-native-camera-roll/camera-roll"
   react-native-cookies:
@@ -731,6 +740,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-document-picker"
   react-native-file-access:
     :path: "../node_modules/react-native-file-access"
+  react-native-mmkv:
+    :path: "../node_modules/react-native-mmkv"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-volume-manager:
@@ -830,10 +841,12 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 45ef2ec6dcde31b90469175ec76ddac77b91dfc3
   React-jsinspector: de0198127395fec3058140a20c045167f761bb16
   React-logger: dc3a2b174d79c2da635059212747d8d929b54e06
+  react-native-background-actions: ecffd3f0864140ef6cf21c29be6819a02b531a52
   react-native-cameraroll: 4701ae7c3dbcd3f5e9e150ca17f250a276154b35
   react-native-cookies: f54fcded06bb0cda05c11d86788020b43528a26c
   react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-file-access: a4398950e02999b5ab97f3055feb7ee28e6615a3
+  react-native-mmkv: d08d7af533d0af474f18b391e9f50a9cd318e7d7
   react-native-safe-area-context: 2cd91d532de12acdb0a9cbc8d43ac72a8e4c897c
   react-native-volume-manager: 3c7d8047841b6831730dea7bf25250522388b4f4
   react-native-webview: 9f111dfbcfc826084d6c507f569e5e03342ee1c1
