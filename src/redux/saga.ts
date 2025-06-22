@@ -740,7 +740,7 @@ function* loadMangaInfoSaga() {
         plugin.prepareMangaInfoFetch(mangaId)
       );
       const { error: pluginError, manga } = trycatch(
-        () => plugin.handleMangaInfo(data),
+        () => plugin.handleMangaInfo(data, mangaId),
         '漫画详情解析错误：'
       );
 
