@@ -170,11 +170,11 @@ export function mergeQuery(uri: string, key: string, value: string) {
   return queryString.stringifyUrl({ url, query: { ...query, [key]: value } });
 }
 
-export function AESDecrypt(contentKey: string): string {
+export function AESDecrypt(contentKey: string, key: string): string {
   const a = contentKey.substring(0x0, 0x10);
   const b = contentKey.substring(0x10, contentKey.length);
 
-  const c = CryptoJS.enc.Utf8.parse('xxxmanga.woo.key');
+  const c = CryptoJS.enc.Utf8.parse(key);
   const d = CryptoJS.enc.Utf8.parse(a);
 
   const e = CryptoJS.enc.Hex.parse(b);
