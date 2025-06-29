@@ -104,9 +104,9 @@ class BaoziManga extends Base {
       name: '包子漫画',
       shortName: 'BZM',
       description: '国漫',
-      href: 'https://cn.baozimh.com/',
+      href: 'https://cn.baozimhcn.com/',
       userAgent,
-      defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://cn.baozimh.com/' },
+      defaultHeaders: { 'User-Agent': userAgent, Referer: 'https://cn.baozimhcn.com/' },
       option: { discovery: discoveryOptions, search: [] },
     });
   }
@@ -140,20 +140,20 @@ class BaoziManga extends Base {
     }
 
     return {
-      url: 'https://cn.baozimh.com/api/bzmhq/amp_comic_list',
+      url: 'https://cn.baozimhcn.com/api/bzmhq/amp_comic_list',
       body,
       headers: new Headers(this.defaultHeaders),
     };
   };
   prepareSearchFetch: Base['prepareSearchFetch'] = (keyword, _page) => {
     return {
-      url: `https://cn.baozimh.com/search?q=${keyword}`,
+      url: `https://cn.baozimhcn.com/search?q=${keyword}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
   prepareMangaInfoFetch: Base['prepareMangaInfoFetch'] = (mangaId) => {
     return {
-      url: `https://cn.baozimh.com/comic/${mangaId}`,
+      url: `https://cn.baozimhcn.com/comic/${mangaId}`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -162,8 +162,8 @@ class BaoziManga extends Base {
     return {
       url:
         typeof extra.hash === 'string'
-          ? `https://cn.czmanga.com/comic/chapter/${mangaId}_${extra.hash}/${chapterId}_${page}.html`
-          : `https://cn.czmanga.com/comic/chapter/${mangaId}/${chapterId}_${page}.html`,
+          ? `https://cn.dzmanga.com/comic/chapter/${mangaId}_${extra.hash}/${chapterId}_${page}.html`
+          : `https://cn.dzmanga.com/comic/chapter/${mangaId}/${chapterId}_${page}.html`,
       headers: new Headers(this.defaultHeaders),
     };
   };
@@ -173,7 +173,7 @@ class BaoziManga extends Base {
     this.checkCloudFlare($);
     return {
       discovery: res.items.map((item) => ({
-        href: `https://cn.baozimh.com/comic/${item.comic_id}`,
+        href: `https://cn.baozimhcn.com/comic/${item.comic_id}`,
         hash: Base.combineHash(this.id, String(item.comic_id)),
         source: this.id,
         sourceName: this.name,
@@ -206,7 +206,7 @@ class BaoziManga extends Base {
       const [, mangaId] = href.match(PATTERN_MANGA_ID) || [];
 
       return {
-        href: `https://cn.baozimh.com/comic/${mangaId}`,
+        href: `https://cn.baozimhcn.com/comic/${mangaId}`,
         hash: Base.combineHash(this.id, mangaId),
         source: this.id,
         sourceName: this.name,
@@ -294,7 +294,7 @@ class BaoziManga extends Base {
           hash: Base.combineHash(this.id, mangaId, chapterId),
           mangaId,
           chapterId,
-          href: `https://cn.czmanga.com/comic/chapter/${mangaId}/${chapterId}.html`,
+          href: `https://cn.dzmanga.com/comic/chapter/${mangaId}/${chapterId}.html`,
           title: chapterTitle,
         };
       })
@@ -307,7 +307,7 @@ class BaoziManga extends Base {
       manga.status = MangaStatus.End;
     }
 
-    manga.href = `https://cn.baozimh.com/comic/${mangaId}`;
+    manga.href = `https://cn.baozimhcn.com/comic/${mangaId}`;
     manga.mangaId = mangaId;
     manga.hash = Base.combineHash(this.id, mangaId);
     manga.title = title;
