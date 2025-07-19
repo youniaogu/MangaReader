@@ -2,6 +2,7 @@ import Base, { Plugin, Options } from './base';
 import { MangaStatus, ErrorMessage, ScrambleType } from '~/utils';
 import { Platform } from 'react-native';
 import * as cheerio from 'cheerio';
+import base64 from 'base-64';
 
 const discoveryOptions = [
   {
@@ -57,6 +58,7 @@ const PATTERN_SCRIPT_MANGA_ID = /var series_id = (.+);/;
 const PATTERN_SCRIPT_CHAPTER_ID = /var aid = (.+);/;
 const PATTERN_SCRIPT_SCRAMBLE_ID = /var scramble_id = (.+);/;
 const PATTERN_HTTP_URL = /(https?:\/\/[^\s/$.?#].[^\s]*)/;
+const PATTERN_INFO_SCRIPT = /base64DecodeUtf8\("(.*)"\)/;
 
 class CopyManga extends Base {
   constructor() {
@@ -222,15 +224,12 @@ class CopyManga extends Base {
     return { search: list };
   };
 
-  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null) => {
+  handleMangaInfo: Base['handleMangaInfo'] = (text: string | null, mangaId: string) => {
     const $ = cheerio.load(text || '');
 
     this.checkCloudFlare($, this.cfTitle);
 
-    const [, mangaId] =
-      ($('meta[property=og:url]').attr('content') || '').match(PATTERN_MANGA_ID) || [];
     const href = `https://18comic.vip/album/${mangaId}`;
-    const title = $('h1#book-name').text() || '';
     const updateTime = $('span[itemprop=datePublished]').last().attr('content') || '';
     const img = $('div#album_photo_cover div.thumb-overlay img').first();
     const src = img.attr('data-original') || img.attr('src') || img.attr('data-cfsrc') || '';
@@ -238,16 +237,21 @@ class CopyManga extends Base {
     const tag = (
       $('div#intro-block div.tag-block span[data-type=tags] a').toArray() as cheerio.TagElement[]
     ).map((item) => item.children[0].data || '');
-    const author = (
-      $('div#intro-block div.tag-block span[data-type=author] a').toArray() as cheerio.TagElement[]
-    ).map((item) => item.children[0].data || '');
-    const chapters = (
-      $('div#episode-block div.episode ul.btn-toolbar a').toArray() as cheerio.TagElement[]
-    )
+    const chapterScriptContent =
+      ($('script:not([src])').toArray() as cheerio.TagElement[]).filter((item) => {
+        if (item.children.length <= 0) {
+          return false;
+        }
+        return PATTERN_INFO_SCRIPT.test(item.children[0].data || '');
+      })[0].children[0].data || '';
+    const [, stringifyData] = chapterScriptContent.match(PATTERN_INFO_SCRIPT) || [];
+    const $$ = cheerio.load(decodeURIComponent(escape(base64.decode(stringifyData))));
+
+    const chapters = ($$('.episode ul.btn-toolbar a').toArray() as cheerio.TagElement[])
       .map((a) => {
-        const $$ = cheerio.load(a);
+        const $$$ = cheerio.load(a);
         const chapterHref = a.attribs.href;
-        const chapterTitle = ($$('li')[0] as cheerio.TagElement).children[0].data || '';
+        const chapterTitle = ($$$('.h2_series')[0] as cheerio.TagElement).children[0].data || '';
         const [, chapterId] = chapterHref.match(PATTERN_CHAPTER_ID) || [];
 
         return {
@@ -259,7 +263,7 @@ class CopyManga extends Base {
         };
       })
       .reverse();
-    const firstChapterHref = $('a.reading').first().attr('href');
+    const firstChapterHref = $$('.read-block .btn').first().attr('href');
     const [, firstChapterId] = firstChapterHref?.match(PATTERN_CHAPTER_ID) || [];
 
     let status = MangaStatus.Unknown;
@@ -290,11 +294,8 @@ class CopyManga extends Base {
         sourceName: this.name,
         mangaId: mangaId,
         infoCover: cover,
-        title,
         latest,
         updateTime,
-        author,
-        tag,
         status,
         chapters,
       },

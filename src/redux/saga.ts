@@ -898,7 +898,7 @@ function* replaceDownloadPath(
     }
 
     const PATTERN_TEMPLATE = /{{([^{}|]+\|?[^{}|]*)}}/g;
-    const { sourceName, title: mangaTitle, author, tag, status } = manga;
+    const { sourceName, title: mangaTitle = 'unknown', author, tag, status } = manga;
     const { title: chapterTitle } = chapter;
     const templateMap: Record<TemplateKey, string | number | string[]> = {
       [TemplateKey.MANGA_ID]: mangaId,

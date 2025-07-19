@@ -26,7 +26,7 @@ declare global {
     bookCover: string;
     infoCover: string;
     headers?: Record<string, string>;
-    title: string;
+    title?: string;
     latest: string;
     updateTime: string;
     author: string[];
@@ -37,7 +37,15 @@ declare global {
   interface IncreaseManga
     extends PartialOption<
       Manga,
-      'latest' | 'updateTime' | 'author' | 'tag' | 'status' | 'chapters' | 'bookCover' | 'infoCover'
+      | 'latest'
+      | 'updateTime'
+      | 'author'
+      | 'tag'
+      | 'status'
+      | 'chapters'
+      | 'bookCover'
+      | 'infoCover'
+      | 'title'
     > {}
   interface ChapterItem {
     hash: string;

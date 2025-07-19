@@ -267,7 +267,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
             fontSize={18}
             fontWeight="bold"
             numberOfLines={2}
-            onPress={() => handleSearch(data.title)}
+            onPress={() => data.title && handleSearch(data.title)}
           >
             {data.title}
           </Text>
