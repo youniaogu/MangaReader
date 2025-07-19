@@ -52,22 +52,22 @@ interface ChapterListInfo {
   };
   groups: Record<'default' | string, { chapters: { id: string; name: string }[] }>;
 }
-interface ChapterInfoResponse
-  extends BaseResponse<{
-    comic: { name: string; path_word: string };
-    chapter: {
-      uuid: string;
-      count: number;
-      size: number;
-      name: string;
-      comic_id: string;
-      comic_path_word: string;
-      group_id: null;
-      group_path_word: string;
-      datetime_created: string;
-      contents: { url: string }[];
-    };
-  }> {}
+// interface ChapterInfoResponse
+//   extends BaseResponse<{
+//     comic: { name: string; path_word: string };
+//     chapter: {
+//       uuid: string;
+//       count: number;
+//       size: number;
+//       name: string;
+//       comic_id: string;
+//       comic_path_word: string;
+//       group_id: null;
+//       group_path_word: string;
+//       datetime_created: string;
+//       contents: { url: string }[];
+//     };
+//   }> {}
 
 const discoveryOptions = [
   {
@@ -158,7 +158,8 @@ const discoveryOptions = [
   },
 ];
 
-const PATTERN_KEY = /var dio = '(.*?)'/;
+const CHAPTER_PATTERN_KEY = /var ccy = '(.*?)'/;
+const MANGA_PATTERN_KEY = /var ccx = '(.*?)'/;
 
 class CopyManga extends Base {
   key = 'xxymanga.zzl.key';
@@ -186,10 +187,10 @@ class CopyManga extends Base {
       name: '拷贝漫画',
       shortName: 'COPY',
       description: '',
-      href: 'https://mangacopy.com/',
+      href: 'https://www.mangacopy.com',
       userAgent,
       defaultHeaders: {
-        Referer: 'https://mangacopy.com/',
+        Referer: 'https://www.mangacopy.com',
         'User-Agent': userAgent,
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
@@ -245,14 +246,26 @@ class CopyManga extends Base {
   prepareChapterListFetch: Base['prepareChapterListFetch'] = (mangaId) => {
     return {
       url: `https://www.mangacopy.com/comicdetail/${mangaId}/chapters`,
-      headers: new Headers({ 'User-Agent': this.userAgent || '' }),
+      headers: new Headers({
+        'User-Agent': this.userAgent || '',
+        Referer: `https://www.mangacopy.com/comic/${mangaId}`,
+      }),
     };
   };
+  // prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
+  //   return {
+  //     url: `https://api.mangacopy.com/api/v3/comic/${mangaId}/chapter/${chapterId}`,
+  //     body: { platform: 3 },
+  //     headers: new Headers({ 'User-Agent': 'COPY/2.3.1' }),
+  //   };
+  // };
   prepareChapterFetch: Base['prepareChapterFetch'] = (mangaId, chapterId) => {
     return {
-      url: `https://api.mangacopy.com/api/v3/comic/${mangaId}/chapter/${chapterId}`,
-      body: { platform: 3 },
-      headers: new Headers({ 'User-Agent': 'COPY/2.3.1' }),
+      url: `https://www.mangacopy.com/comic/${mangaId}/chapter/${chapterId}`,
+      headers: new Headers({
+        'User-Agent': this.userAgent || '',
+        Referer: `https://www.mangacopy.com/comic/${mangaId}`,
+      }),
     };
   };
 
@@ -299,14 +312,15 @@ class CopyManga extends Base {
     }
   };
 
-  matchKey = (html: string) => {
-    const match = html.match(PATTERN_KEY);
+  matchKey = (html: string, patterKey: RegExp) => {
+    const match = html.match(patterKey);
     if (match) {
-      this.key = match[1];
+      return match[1];
     }
+    return '';
   };
   handleMangaInfo: Base['handleMangaInfo'] = (text: string | null, mangaId: string) => {
-    this.matchKey(text ?? '');
+    this.key = this.matchKey(text ?? '', MANGA_PATTERN_KEY);
 
     const $ = cheerio.load(text || '');
     const cover = $('.comicParticulars-left-img > img').first().attr('data-src') || '';
@@ -452,21 +466,47 @@ class CopyManga extends Base {
     }
   };
 
+  // handleChapter: Base['handleChapter'] = (
+  //   res: ChapterInfoResponse,
+  //   mangaId: string,
+  //   chapterId: string
+  // ) => {
+  //   return {
+  //     canLoadMore: false,
+  //     chapter: {
+  //       hash: Base.combineHash(this.id, mangaId, chapterId),
+  //       mangaId,
+  //       chapterId,
+  //       name: res.results.comic.name,
+  //       title: res.results.chapter.name,
+  //       headers: this.imageHeaders,
+  //       images: res.results.chapter.contents.map((item: { url: string }) => ({
+  //         uri: item.url.replace(/\.c[0-9]+x\./, '.c1500x.'),
+  //       })),
+  //     },
+  //   };
+  // };
   handleChapter: Base['handleChapter'] = (
-    res: ChapterInfoResponse,
+    text: string | null,
     mangaId: string,
     chapterId: string
   ) => {
+    const $ = cheerio.load(text || '');
+    const header = $('h4.header').first().text();
+    const [name = '', title = ''] = header.split('/');
+    const key = this.matchKey(text ?? '', CHAPTER_PATTERN_KEY);
+    const imageData = ($('div.imageData')[0] as cheerio.TagElement).attribs.contentkey;
+    const images: { url: string }[] = JSON.parse(AESDecrypt(imageData, key));
     return {
       canLoadMore: false,
       chapter: {
         hash: Base.combineHash(this.id, mangaId, chapterId),
         mangaId,
         chapterId,
-        name: res.results.comic.name,
-        title: res.results.chapter.name,
+        name,
+        title,
         headers: this.imageHeaders,
-        images: res.results.chapter.contents.map((item: { url: string }) => ({
+        images: images.map((item: { url: string }) => ({
           uri: item.url.replace(/\.c[0-9]+x\./, '.c1500x.'),
         })),
       },
