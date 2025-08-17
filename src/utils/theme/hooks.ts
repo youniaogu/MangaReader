@@ -18,3 +18,5 @@ export const useSubTextColor = () => useTokenColor('subText');
 export const useCardBgColor = () => useTokenColor('card');
 export const useBorderColor = () => useTokenColor('border');
 export const useHeaderBgColor = () => useTokenColor('header');
+
+export const usePlaceholderTextColor = () => useTokenColor('placeholderTextColor');

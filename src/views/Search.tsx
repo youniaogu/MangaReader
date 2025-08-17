@@ -1,11 +1,12 @@
-import React, { useMemo, useState, useEffect, useCallback, Fragment } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
-import { Button, HStack, useDisclose } from 'native-base';
+import { Box, Button, HStack, useDisclose, View } from 'native-base';
 import { nonNullable, AsyncStatus } from '~/utils';
 import { PluginMap } from '~/plugins';
 import ActionsheetSelect from '~/components/ActionsheetSelect';
 import Bookshelf from '~/components/Bookshelf';
+import { useBackgroundColor } from '~/utils/theme/hooks';
 
 const { loadSearch, setSearchFilter } = action;
 
@@ -19,6 +20,7 @@ const Search = ({ route, navigation }: StackSearchProps) => {
     () => list.map((item) => dict[item]).filter(nonNullable),
     [dict, list]
   );
+  const bg = useBackgroundColor();
 
   useFocusEffect(
     useCallback(() => {
@@ -43,17 +45,19 @@ const Search = ({ route, navigation }: StackSearchProps) => {
   );
 
   return (
-    <Fragment>
+    <View flex={1} bg={bg}>
       <SearchOption />
-      <Bookshelf
-        emptyText="没找到相关漫画~"
-        list={searchList}
-        reload={handleReload}
-        loadMore={handleLoadMore}
-        itemOnPress={handleDetail}
-        loading={loadStatus === AsyncStatus.Pending}
-      />
-    </Fragment>
+      <Box bg={bg}>
+        <Bookshelf
+          emptyText="没找到相关漫画~"
+          list={searchList}
+          reload={handleReload}
+          loadMore={handleLoadMore}
+          itemOnPress={handleDetail}
+          loading={loadStatus === AsyncStatus.Pending}
+        />
+      </Box>
+    </View>
   );
 };
 

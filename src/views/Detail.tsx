@@ -33,6 +33,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import VectorIcon from '~/components/VectorIcon';
 import RedHeart from '~/components/RedHeart';
+import { useBackgroundColor } from '~/utils/theme/hooks';
 
 const {
   loadManga,
@@ -109,6 +110,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
       return [...data.chapters].reverse();
     }
   }, [data, sequence]);
+  const bg = useBackgroundColor();
 
   useOnce(() => {
     if (!nonNullable(data) || (nonNullable(data) && data.chapters.length <= 0)) {
@@ -249,7 +251,7 @@ const Detail = ({ route, navigation }: StackDetailProps) => {
   };
 
   return (
-    <Box w="full" h="full">
+    <Box w="full" h="full" bg={bg}>
       <Flex safeAreaX w="full" bg="purple.500" flexDirection="row" pl={4} pr={4} pb={4}>
         <CachedImage
           options={{ headers: data.headers }}

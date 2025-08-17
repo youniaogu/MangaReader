@@ -1,15 +1,19 @@
-﻿import { useColorMode } from 'native-base';
-import { useAppSelector } from '~/redux';
-import { useEffect } from 'react';
+﻿import { ColorMode, StorageManager } from 'native-base';
+import { store } from '~/redux';
 import { LightSwitch } from '~/utils';
 
-export default function ThemeBridge() {
-  const { setColorMode } = useColorMode();
-  const light = useAppSelector((s) => s.setting.light);
+const ThemeBridge: StorageManager = {
+  get: async () => {
+    const light = store.getState().setting.light;
+    return light === LightSwitch.On ? 'light' : 'dark';
+  },
+  set: async (value: ColorMode) => {
+    // 这里可以 dispatch 你的 Redux action，保持同步
+    store.dispatch({
+      type: 'setting/setLight',
+      payload: value === 'light' ? LightSwitch.On : LightSwitch.Off,
+    });
+  },
+};
 
-  useEffect(() => {
-    setColorMode(light === LightSwitch.On ? 'light' : 'dark');
-  }, [light, setColorMode]);
-
-  return null;
-}
+export default ThemeBridge;
