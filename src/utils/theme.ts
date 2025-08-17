@@ -1,4 +1,6 @@
 import { extendTheme } from 'native-base';
+import { useAppSelector } from '~/redux';
+import { LightSwitch } from '~/utils/enum';
 
 export const customTheme = extendTheme({
   colors: {
@@ -38,3 +40,8 @@ export const customTheme = extendTheme({
     },
   },
 });
+
+export function useThemeColor<T = string>(lightValue: T, darkValue: T): T {
+  const light = useAppSelector((state) => state.setting.light);
+  return light === LightSwitch.On ? lightValue : darkValue;
+}
