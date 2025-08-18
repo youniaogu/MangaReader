@@ -11,6 +11,7 @@ import SpinLoading from '~/components/SpinLoading';
 import Loading from '~/components/Loading';
 import Empty from '~/components/Empty';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useBackgroundColor } from '~/utils/theme/hooks';
 
 interface BookshelfProps {
   list: Manga[];
@@ -61,6 +62,7 @@ const Bookshelf = ({
     }),
     [itemWidth, failList, trendList, activeList, negativeList, isSelectMode, selectedList]
   );
+  const bg = useBackgroundColor();
 
   const handlePress = (hash: string) => {
     return () => {
@@ -80,7 +82,7 @@ const Bookshelf = ({
     return <Loading />;
   }
   if (!loading && list.length === 0) {
-    return <Empty text={emptyText} onPress={reload} />;
+    return <Empty bg={bg} text={emptyText} onPress={reload} />;
   }
 
   return (

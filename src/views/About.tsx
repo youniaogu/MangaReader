@@ -90,7 +90,7 @@ const About = () => {
   };
 
   return (
-    <View bg={bg}>
+    <View flex={1} bg={bg}>
       <ScrollView>
         <VStack space={6} px={8} py={8} safeAreaX safeAreaBottom>
           <VStack alignItems="center">

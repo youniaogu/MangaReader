@@ -1,6 +1,6 @@
 ﻿export const themeTokens = {
   // 背景
-  bg: { light: 'white', dark: 'purple.700' },
+  bg: { light: 'white', dark: 'purple.900' },
   // 主文本
   text: { light: 'purple.900', dark: 'purple.50' },
   // 次文本
