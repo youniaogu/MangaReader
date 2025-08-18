@@ -1,6 +1,7 @@
 import React, {
   memo,
   useRef,
+  useState,
   useMemo,
   useCallback,
   useImperativeHandle,
@@ -106,9 +107,14 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
   const { width: windowWidth, height: windowHeight, orientation } = useDebouncedSafeAreaFrame();
   const multipleData = useTakeTwo(data, 2, seat);
   const flashListRef = useRef<FlashList<any>>(null);
+
   const horizontalStateRef = useRef<(ImageState | null)[]>([]);
   const verticalStateRef = useRef<(ImageState | null)[]>([]);
   const multipleStateRef = useRef<Record<string, ImageState | null>[]>([]);
+
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [canLoadSet, setCanLoadSet] = useState<Set<number>>(new Set());
+  const lastCanLoadKeyRef = useRef('');
 
   const portraitHeight = (Math.max(windowWidth, windowHeight) * 3) / 5;
   const landscapeHeight = (Math.min(windowWidth, windowHeight) * 3) / 5;
@@ -150,34 +156,61 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
     },
   }));
 
-  // https://github.com/Shopify/flash-list/issues/637
-  // onViewableItemsChanged is bound in constructor and do not get updated when those props change
-  const HandleViewableItemsChanged = ({
-    viewableItems,
-  }: {
-    viewableItems: ViewToken[];
-    changed: ViewToken[];
-  }) => {
-    if (!viewableItems || viewableItems.length <= 0) {
-      return;
-    }
+  // 维护“可见+预加载窗口”的幂等集合，避免无意义的 setState 触发回环
+  const updateCanLoad = useCallback(
+    (visibleIdx: number[]) => {
+      const buf = 2; // 预加载窗口
+      const total = layoutMode === LayoutMode.Multiple ? multipleData.length : data.length;
+      const next = new Set<number>();
+      for (const i of visibleIdx) {
+        for (let k = i - buf; k <= i + buf; k++) {
+          if (k >= 0 && k < total) {
+            next.add(k);
+          }
+        }
+      }
+      const key = [...next].sort((a, b) => a - b).join(',');
+      if (key !== lastCanLoadKeyRef.current) {
+        lastCanLoadKeyRef.current = key;
+        setCanLoadSet(next);
+      }
+    },
+    [data.length, multipleData.length, layoutMode]
+  );
 
-    const last = viewableItems[viewableItems.length - 1];
-    onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
-  };
-  const HandleMultipleViewableItemsChanged = ({
-    viewableItems,
-  }: {
-    viewableItems: ViewToken[];
-    changed: ViewToken[];
-  }) => {
-    if (!viewableItems || viewableItems.length <= 0) {
-      return;
-    }
+  // 初始页预加载窗口
+  useFocusEffect(
+    useCallback(() => {
+      updateCanLoad([initialScrollIndex]);
+    }, [initialScrollIndex, updateCanLoad])
+  );
 
-    const last = viewableItems[viewableItems.length - 1];
-    onPageChangeRef.current && onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
-  };
+  // 稳定的可见项回调（避免每次 render 重新创建）
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
+      if (!viewableItems?.length) {
+        return;
+      }
+      const last = viewableItems[viewableItems.length - 1];
+      onPageChangeRef.current && onPageChangeRef.current(last.index || 0);
+      const visibleIdx = viewableItems.map((v) => v.index!).filter((n) => Number.isFinite(n));
+      updateCanLoad(visibleIdx);
+    }
+  ).current;
+
+  const onMultipleViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: ViewToken[]; changed: ViewToken[] }) => {
+      if (!viewableItems?.length) {
+        return;
+      }
+      const last = viewableItems[viewableItems.length - 1];
+      onPageChangeRef.current &&
+        onPageChangeRef.current(last.item[0].pre + last.item[0].current - 1);
+      const visibleIdx = viewableItems.map((v) => v.index!).filter((n) => Number.isFinite(n));
+      updateCanLoad(visibleIdx);
+    }
+  ).current;
+
   const renderHorizontalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, scrambleType, needUnscramble, isBase64Image = false } = item;
     const horizontalState = horizontalStateRef.current[index] || undefined;
@@ -193,6 +226,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         <ComicImage
           uri={uri}
           index={index}
+          shouldLoad={canLoadSet.has(index) && !isScrolling}
           scrambleType={scrambleType}
           needUnscramble={needUnscramble}
           isBase64Image={isBase64Image}
@@ -209,6 +243,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       </Controller>
     );
   };
+
   const renderVerticalItem = ({ item, index }: ListRenderItemInfo<(typeof data)[0]>) => {
     const { uri, scrambleType, needUnscramble, isBase64Image = false } = item;
     const verticalState = verticalStateRef.current[index] || undefined;
@@ -237,6 +272,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
           <ComicImage
             uri={uri}
             index={index}
+            shouldLoad={canLoadSet.has(index) && !isScrolling}
             scrambleType={scrambleType}
             needUnscramble={needUnscramble}
             isBase64Image={isBase64Image}
@@ -264,6 +300,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       </Box>
     );
   };
+
   const renderMultipleItem = ({ item, index }: ListRenderItemInfo<(typeof multipleData)[0]>) => {
     return (
       <Controller
@@ -275,14 +312,7 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       >
         <Flex w="full" h="full" flexDirection="row" alignItems="center" justifyContent="center">
           {item.map(
-            ({
-              uri,
-              scrambleType,
-              needUnscramble,
-              chapterHash,
-              current,
-              isBase64Image = false,
-            }) => {
+            ({ uri, scrambleType, needUnscramble, chapterHash, current, isBase64Image }) => {
               const multipleState = (multipleStateRef.current[index] || [])[uri] || undefined;
               return (
                 <Box key={uri}>
@@ -294,9 +324,10 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
                     <ComicImage
                       uri={uri}
                       index={index}
+                      shouldLoad={canLoadSet.has(index) && !isScrolling}
                       scrambleType={scrambleType}
                       needUnscramble={needUnscramble}
-                      isBase64Image={isBase64Image}
+                      isBase64Image={!!isBase64Image}
                       headers={headers}
                       prevState={multipleState}
                       defaultPortraitHeight={defaultPortraitHeightRef.current}
@@ -334,12 +365,18 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
+        onScrollBeginDrag={(e) => {
+          setIsScrolling(true);
+          onScrollBeginDrag?.(e);
+        }}
+        onScrollEndDrag={(e) => {
+          setIsScrolling(false);
+          onScrollEndDrag?.(e);
+        }}
         onScroll={onScroll}
-        onScrollBeginDrag={onScrollBeginDrag}
-        onScrollEndDrag={onScrollEndDrag}
         onEndReached={onLoadMore}
         onEndReachedThreshold={3}
-        onViewableItemsChanged={HandleMultipleViewableItemsChanged}
+        onViewableItemsChanged={onMultipleViewableItemsChanged}
         renderItem={renderMultipleItem}
         keyExtractor={(item) => item.map((i) => i.uri).join('#')}
       />
@@ -360,12 +397,18 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
         initialScrollIndex={initialScrollIndex}
         estimatedItemSize={windowWidth}
         estimatedListSize={{ width: windowWidth, height: windowHeight }}
+        onScrollBeginDrag={(e) => {
+          setIsScrolling(true);
+          onScrollBeginDrag?.(e);
+        }}
+        onScrollEndDrag={(e) => {
+          setIsScrolling(false);
+          onScrollEndDrag?.(e);
+        }}
         onScroll={onScroll}
-        onScrollBeginDrag={onScrollBeginDrag}
-        onScrollEndDrag={onScrollEndDrag}
         onEndReached={onLoadMore}
-        onEndReachedThreshold={5}
-        onViewableItemsChanged={HandleViewableItemsChanged}
+        onEndReachedThreshold={3}
+        onViewableItemsChanged={onViewableItemsChanged}
         renderItem={renderHorizontalItem}
         keyExtractor={(item) => item.uri}
       />
@@ -382,12 +425,18 @@ const Reader: ForwardRefRenderFunction<ReaderRef, ReaderProps> = (
       initialScrollIndex={initialScrollIndex}
       estimatedItemSize={(windowHeight * 3) / 5}
       estimatedListSize={{ width: windowWidth, height: windowHeight }}
+      onScrollBeginDrag={(e) => {
+        setIsScrolling(true);
+        onScrollBeginDrag?.(e);
+      }}
+      onScrollEndDrag={(e) => {
+        setIsScrolling(false);
+        onScrollEndDrag?.(e);
+      }}
       onScroll={onScroll}
-      onScrollBeginDrag={onScrollBeginDrag}
-      onScrollEndDrag={onScrollEndDrag}
       onEndReached={onLoadMore}
-      onEndReachedThreshold={5}
-      onViewableItemsChanged={HandleViewableItemsChanged}
+      onEndReachedThreshold={2}
+      onViewableItemsChanged={onViewableItemsChanged}
       renderItem={renderVerticalItem}
       keyExtractor={(item) => item.uri}
       ListHeaderComponent={<Box height={0} safeAreaTop />}
