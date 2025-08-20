@@ -47,7 +47,7 @@ const Search = ({ route, navigation }: StackSearchProps) => {
   return (
     <View flex={1} bg={bg}>
       <SearchOption />
-      <Box bg={bg}>
+      <Box bg={bg} flex={1}>
         <Bookshelf
           emptyText="没找到相关漫画~"
           list={searchList}
