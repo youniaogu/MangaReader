@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useCallback, Fragment } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { nonNullable, AsyncStatus } from '~/utils';
 import { View, Text, HStack, Button, Modal, useDisclose } from 'native-base';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBackgroundColor } from '~/utils/theme/hooks';
 import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
 import Rotate from '~/components/Rotate';
@@ -22,6 +23,7 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
   const [isSelectMode, setSelectMode] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclose();
   const headerRightOpacity = useSharedValue(0);
+  const bg = useBackgroundColor();
 
   const favoriteList = useMemo(
     () => list.map((item) => dict[item.mangaHash]).filter(nonNullable),
@@ -131,7 +133,7 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
   );
 
   return (
-    <Fragment>
+    <View flex={1} bg={bg}>
       <Bookshelf
         emptyText="漫画收藏为空~"
         list={favoriteList}
@@ -163,7 +165,7 @@ const Home = ({ navigation: { navigate, setOptions } }: StackHomeProps) => {
           </Modal.Footer>
         </Modal.Content>
       </Modal>
-    </Fragment>
+    </View>
   );
 };
 

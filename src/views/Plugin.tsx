@@ -9,6 +9,7 @@ import { useDebouncedSafeAreaInsets } from '~/hooks';
 import { Plugin as PluginType } from '~/plugins';
 import { TouchableOpacity } from 'react-native';
 import ScoreRate from '~/components/ScoreRate';
+import { useBackgroundColor } from '~/utils/theme/hooks';
 
 const { sortPlugin, disablePlugin } = action;
 
@@ -16,6 +17,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
   const dispatch = useAppDispatch();
   const list = useAppSelector((state) => state.plugin.list);
   const { left, right, bottom } = useDebouncedSafeAreaInsets();
+  const bg = useBackgroundColor();
 
   const handleToggle = (plugin: PluginType) => {
     dispatch(disablePlugin(plugin));
@@ -59,7 +61,7 @@ const Plugin = ({ navigation: { navigate } }: StackPluginProps) => {
   );
 
   return (
-    <Box position="relative">
+    <Box position="relative" bg={bg}>
       <DraggableFlatList
         data={list}
         renderItem={renderItem}

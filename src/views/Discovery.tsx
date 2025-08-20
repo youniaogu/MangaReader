@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useCallback, Fragment } from 'react';
-import { Text, Input, Button, HStack, useDisclose } from 'native-base';
+import React, { useMemo, useState, useCallback } from 'react';
+import { View, Text, Input, Button, HStack, useDisclose } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { useRoute, useFocusEffect, RouteProp } from '@react-navigation/native';
 import { nonNullable, AsyncStatus } from '~/utils';
@@ -9,6 +9,7 @@ import ActionsheetSelect from '~/components/ActionsheetSelect';
 import VectorIcon from '~/components/VectorIcon';
 import Bookshelf from '~/components/Bookshelf';
 import * as RootNavigation from '~/utils/navigation';
+import { useBackgroundColor } from '~/utils/theme/hooks';
 
 const { loadDiscovery, setSource, setDiscoveryFilter, resetSearchFilter } = action;
 
@@ -22,6 +23,7 @@ const Discovery = ({ navigation }: StackDiscoveryProps) => {
     () => list.map((item) => dict[item]).filter(nonNullable),
     [dict, list]
   );
+  const bg = useBackgroundColor();
 
   useFocusEffect(
     useCallback(() => {
@@ -43,7 +45,7 @@ const Discovery = ({ navigation }: StackDiscoveryProps) => {
   );
 
   return (
-    <Fragment>
+    <View flex={1} bg={bg}>
       <SearchOption />
       <Bookshelf
         emptyText="没找到相关漫画~"
@@ -53,7 +55,7 @@ const Discovery = ({ navigation }: StackDiscoveryProps) => {
         itemOnPress={handleDetail}
         loading={loadStatus === AsyncStatus.Pending}
       />
-    </Fragment>
+    </View>
   );
 };
 
@@ -156,7 +158,7 @@ export const PluginSelect = () => {
   };
 
   return (
-    <Fragment>
+    <View>
       <Button
         p={0}
         mr={1}
@@ -185,7 +187,7 @@ export const PluginSelect = () => {
           </HStack>
         }
       />
-    </Fragment>
+    </View>
   );
 };
 

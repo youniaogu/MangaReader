@@ -9,6 +9,8 @@ import {
   Center,
   ScrollView,
   useDisclose,
+  View,
+  useColorMode,
 } from 'native-base';
 import { action, useAppSelector, useAppDispatch } from '~/redux';
 import { Linking, Platform } from 'react-native';
@@ -18,6 +20,7 @@ import ErrorWithRetry from '~/components/ErrorWithRetry';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SpinLoading from '~/components/SpinLoading';
 import PathModal from '~/components/PathModal';
+import { useBackgroundColor, useTextColor } from '~/utils/theme/hooks';
 
 const { backup, restore, clearCache, loadLatestRelease, setAndroidDownloadPath } = action;
 const christmasGif = require('~/assets/christmas.gif');
@@ -36,6 +39,9 @@ const About = () => {
   const backupStatus = useAppSelector((state) => state.datasync.backupStatus);
   const restoreStatus = useAppSelector((state) => state.datasync.restoreStatus);
   const androidDownloadPath = useAppSelector((state) => state.setting.androidDownloadPath);
+  const { colorMode, setColorMode } = useColorMode();
+  const bg = useBackgroundColor();
+  const text = useTextColor();
 
   const handleRetry = () => {
     dispatch(loadLatestRelease());
@@ -46,6 +52,10 @@ const About = () => {
   };
   const handleRestore = () => {
     dispatch(restore());
+  };
+
+  const handleThemeToggle = () => {
+    setColorMode(colorMode === 'light' ? 'dark' : 'light');
   };
 
   const handleApkDownload = () => {
@@ -80,140 +90,151 @@ const About = () => {
   };
 
   return (
-    <ScrollView>
-      <VStack space={6} px={8} py={8} safeAreaX safeAreaBottom>
-        <VStack alignItems="center">
-          <Text fontSize="3xl" fontWeight="bold" color="purple.900">
-            {release.name}
-          </Text>
-          <Text fontSize="md" fontWeight="bold" color="purple.900">
-            {`${release.publishTime}  ${release.version}`}
-          </Text>
+    <View flex={1} bg={bg}>
+      <ScrollView>
+        <VStack space={6} px={8} py={8} safeAreaX safeAreaBottom>
+          <VStack alignItems="center">
+            <Text fontSize="3xl" fontWeight="bold" color={text}>
+              {release.name}
+            </Text>
+            <Text fontSize="md" fontWeight="bold" color={text}>
+              {`${release.publishTime}  ${release.version}`}
+            </Text>
+          </VStack>
+
+          {release.loadStatus === AsyncStatus.Pending && <SpinLoading />}
+          {release.loadStatus === AsyncStatus.Rejected && (
+            <ErrorWithRetry color="black" onRetry={handleRetry} />
+          )}
+          {release.loadStatus === AsyncStatus.Fulfilled && release.latest === undefined && (
+            <Center alignItems="center">
+              <Image
+                w={24}
+                h={32}
+                resizeMode="contain"
+                resizeMethod="resize"
+                fadeDuration={0}
+                source={christmasGif}
+                alt="christmas"
+              />
+              <Text pb={4} fontWeight="bold">
+                暂无更新
+              </Text>
+            </Center>
+          )}
+          {release.loadStatus === AsyncStatus.Fulfilled && release.latest !== undefined && (
+            <Fragment>
+              <Text fontSize="lg" fontWeight="bold">
+                {release.latest.publishTime} {release.latest.version}
+              </Text>
+              <Text pb={4} fontSize="md" fontWeight="bold">
+                {release.latest.changeLog}
+              </Text>
+
+              <Button
+                shadow={2}
+                _text={{ fontWeight: 'bold' }}
+                leftIcon={<Icon as={MaterialIcons} name="android" size="lg" />}
+                onPress={handleApkDownload}
+              >
+                APK下载
+              </Button>
+              <Button
+                shadow={2}
+                _text={{ fontWeight: 'bold' }}
+                leftIcon={<Icon as={MaterialIcons} name="build" size="lg" />}
+                onPress={handleIpaDownload}
+              >
+                IPA下载
+              </Button>
+            </Fragment>
+          )}
+
+          <Button
+            shadow={2}
+            _text={{ fontWeight: 'bold' }}
+            isLoading={backupStatus === AsyncStatus.Pending}
+            leftIcon={<Icon as={MaterialIcons} name="backup" size="lg" />}
+            onPress={handleBackup}
+          >
+            备份
+          </Button>
+          <Button
+            shadow={2}
+            isLoading={restoreStatus === AsyncStatus.Pending}
+            _text={{ fontWeight: 'bold' }}
+            leftIcon={<Icon as={MaterialIcons} name="restore" size="lg" />}
+            onPress={handleRestore}
+          >
+            恢复
+          </Button>
+          {(Platform.OS === 'android' || __DEV__) && (
+            <Button
+              shadow={2}
+              _text={{ fontWeight: 'bold' }}
+              leftIcon={<Icon as={MaterialIcons} name="drive-file-move" size="lg" />}
+              onPress={onAlbumPathOpen}
+            >
+              漫画导出目录
+            </Button>
+          )}
+          <Button
+            shadow={2}
+            _text={{ fontWeight: 'bold' }}
+            isLoading={backupStatus === AsyncStatus.Pending}
+            leftIcon={<Icon as={MaterialIcons} name="contrast" size="lg" />}
+            onPress={handleThemeToggle}
+          >
+            切换暗色/明亮模式
+          </Button>
+          <Button
+            shadow={2}
+            isLoading={isClearing}
+            colorScheme="warning"
+            _text={{ fontWeight: 'bold' }}
+            leftIcon={<Icon as={MaterialIcons} name="image-not-supported" size="lg" />}
+            onPress={handleImageCacheClear}
+          >
+            清除图片缓存
+          </Button>
+          {__DEV__ && (
+            <Button
+              shadow={2}
+              isLoading={clearStatus === AsyncStatus.Pending}
+              colorScheme="danger"
+              _text={{ fontWeight: 'bold' }}
+              leftIcon={<Icon as={MaterialIcons} name="clear-all" size="lg" />}
+              onPress={onModalOpen}
+            >
+              清除本地离线数据
+            </Button>
+          )}
         </VStack>
 
-        {release.loadStatus === AsyncStatus.Pending && <SpinLoading />}
-        {release.loadStatus === AsyncStatus.Rejected && (
-          <ErrorWithRetry color="black" onRetry={handleRetry} />
-        )}
-        {release.loadStatus === AsyncStatus.Fulfilled && release.latest === undefined && (
-          <Center alignItems="center">
-            <Image
-              w={24}
-              h={32}
-              resizeMode="contain"
-              resizeMethod="resize"
-              fadeDuration={0}
-              source={christmasGif}
-              alt="christmas"
-            />
-            <Text pb={4} fontWeight="bold">
-              暂无更新
-            </Text>
-          </Center>
-        )}
-        {release.loadStatus === AsyncStatus.Fulfilled && release.latest !== undefined && (
-          <Fragment>
-            <Text fontSize="lg" fontWeight="bold">
-              {release.latest.publishTime} {release.latest.version}
-            </Text>
-            <Text pb={4} fontSize="md" fontWeight="bold">
-              {release.latest.changeLog}
-            </Text>
+        <Modal useRNModal size="xl" isOpen={isModalOpen} onClose={onModalClose}>
+          <Modal.Content>
+            <Modal.Header>警告</Modal.Header>
+            <Modal.Body>此操作会清空收藏列表、漫画数据、插件和观看设置，请谨慎！</Modal.Body>
+            <Modal.Footer>
+              <Button.Group size="sm" space="sm">
+                <Button px={5} variant="outline" colorScheme="coolGray" onPress={onModalClose}>
+                  取消
+                </Button>
+                <Button px={5} colorScheme="danger" onPress={handleStorageCacheClear}>
+                  确认
+                </Button>
+              </Button.Group>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal>
 
-            <Button
-              shadow={2}
-              _text={{ fontWeight: 'bold' }}
-              leftIcon={<Icon as={MaterialIcons} name="android" size="lg" />}
-              onPress={handleApkDownload}
-            >
-              APK下载
-            </Button>
-            <Button
-              shadow={2}
-              _text={{ fontWeight: 'bold' }}
-              leftIcon={<Icon as={MaterialIcons} name="build" size="lg" />}
-              onPress={handleIpaDownload}
-            >
-              IPA下载
-            </Button>
-          </Fragment>
-        )}
-
-        <Button
-          shadow={2}
-          _text={{ fontWeight: 'bold' }}
-          isLoading={backupStatus === AsyncStatus.Pending}
-          leftIcon={<Icon as={MaterialIcons} name="backup" size="lg" />}
-          onPress={handleBackup}
-        >
-          备份
-        </Button>
-        <Button
-          shadow={2}
-          isLoading={restoreStatus === AsyncStatus.Pending}
-          _text={{ fontWeight: 'bold' }}
-          leftIcon={<Icon as={MaterialIcons} name="restore" size="lg" />}
-          onPress={handleRestore}
-        >
-          恢复
-        </Button>
-        {(Platform.OS === 'android' || __DEV__) && (
-          <Button
-            shadow={2}
-            _text={{ fontWeight: 'bold' }}
-            leftIcon={<Icon as={MaterialIcons} name="drive-file-move" size="lg" />}
-            onPress={onAlbumPathOpen}
-          >
-            漫画导出目录
-          </Button>
-        )}
-        <Button
-          shadow={2}
-          isLoading={isClearing}
-          colorScheme="warning"
-          _text={{ fontWeight: 'bold' }}
-          leftIcon={<Icon as={MaterialIcons} name="image-not-supported" size="lg" />}
-          onPress={handleImageCacheClear}
-        >
-          清除图片缓存
-        </Button>
-        {__DEV__ && (
-          <Button
-            shadow={2}
-            isLoading={clearStatus === AsyncStatus.Pending}
-            colorScheme="danger"
-            _text={{ fontWeight: 'bold' }}
-            leftIcon={<Icon as={MaterialIcons} name="clear-all" size="lg" />}
-            onPress={onModalOpen}
-          >
-            清除本地离线数据
-          </Button>
-        )}
-      </VStack>
-
-      <Modal useRNModal size="xl" isOpen={isModalOpen} onClose={onModalClose}>
-        <Modal.Content>
-          <Modal.Header>警告</Modal.Header>
-          <Modal.Body>此操作会清空收藏列表、漫画数据、插件和观看设置，请谨慎！</Modal.Body>
-          <Modal.Footer>
-            <Button.Group size="sm" space="sm">
-              <Button px={5} variant="outline" colorScheme="coolGray" onPress={onModalClose}>
-                取消
-              </Button>
-              <Button px={5} colorScheme="danger" onPress={handleStorageCacheClear}>
-                确认
-              </Button>
-            </Button.Group>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal>
-
-      <PathModal
-        isOpen={isAlbumPathOpen}
-        defaultValue={androidDownloadPath}
-        onClose={handleAlbumPathClose}
-      />
-    </ScrollView>
+        <PathModal
+          isOpen={isAlbumPathOpen}
+          defaultValue={androidDownloadPath}
+          onClose={handleAlbumPathClose}
+        />
+      </ScrollView>
+    </View>
   );
 };
 

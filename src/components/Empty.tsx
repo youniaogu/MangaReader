@@ -3,7 +3,6 @@ import { Center, Text, Image, Pressable } from 'native-base';
 import { ColorType } from 'native-base/lib/typescript/components/types';
 
 const taptapGif = require('~/assets/tap_tap.gif');
-
 interface EmptyProps {
   bg?: ColorType;
   color?: ColorType;
