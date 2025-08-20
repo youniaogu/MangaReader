@@ -168,10 +168,10 @@ class CopyManga extends Base {
     webp: '1',
     region: '1',
     platform: '3',
-    version: '2.3.1',
+    version: '3.0.0',
     accept: 'application/json',
     'content-encoding': 'gzip, compress, br',
-    'User-Agent': 'COPY/2.3.1',
+    'User-Agent': 'COPY/3.0.0',
   };
   readonly imageHeaders = {
     ...this.defaultHeaders,
