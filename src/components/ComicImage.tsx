@@ -1,8 +1,9 @@
-import React, { useCallback, useState, useMemo, useRef, useEffect, memo } from 'react';
+import React, { useCallback, useState, useMemo, useRef, memo } from 'react';
 import { aspectFit, AsyncStatus, LayoutMode, Orientation, ScrambleType, unscramble } from '~/utils';
 import { Image as ReactNativeImage, StyleSheet, Dimensions, DimensionValue } from 'react-native';
 import { useDebouncedSafeAreaFrame, useDebouncedSafeAreaInsets } from '~/hooks';
 import { CachedImage, CacheManager } from '@georstat/react-native-image-cache';
+import { useFocusEffect } from '@react-navigation/native';
 import { Center, Image } from 'native-base';
 import ErrorWithRetry from '~/components/ErrorWithRetry';
 import FastImage, { ResizeMode } from 'react-native-fast-image';
@@ -40,8 +41,6 @@ export interface ImageProps {
   headers?: { [name: string]: string };
   layoutMode?: LayoutMode;
   prevState?: ImageState;
-  /** 受 Reader 控制：只有允许时才启动加载 */
-  shouldLoad?: boolean;
   /** 这两个高度只用于竖屏模式，动态修改高度避免抖动过度 */
   defaultPortraitHeight: number;
   defaultLandscapeHeight: number;
@@ -59,7 +58,6 @@ const DefaultImage = ({
   headers = {},
   layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
-  shouldLoad = true,
   defaultPortraitHeight,
   defaultLandscapeHeight,
   onChange,
@@ -156,19 +154,21 @@ const DefaultImage = ({
     right,
     bottom,
   ]);
-  useEffect(() => {
-    if (shouldLoad && imageState.loadStatus === AsyncStatus.Default) {
-      loadImage();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLoad, uri, headers]);
-  // 资源变化时回填外部缓存状态（不再使用 useFocusEffect，避免循环依赖）
-  useEffect(() => {
-    if (uriRef.current !== uri) {
-      uriRef.current = uri;
-      setImageState(prevState);
-    }
-  }, [uri, prevState]);
+  useFocusEffect(
+    useCallback(() => {
+      if (imageState.loadStatus === AsyncStatus.Default) {
+        loadImage();
+      }
+    }, [imageState, loadImage])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      if (uriRef.current !== uri) {
+        uriRef.current = uri;
+        setImageState(prevState);
+      }
+    }, [uri, prevState])
+  );
 
   const handleRetry = () => {
     CacheManager.removeCacheEntry(uri)
@@ -219,7 +219,6 @@ const ScrambleImage = ({
   headers = {},
   layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
-  shouldLoad = true,
   defaultPortraitHeight,
   defaultLandscapeHeight,
   onChange,
@@ -348,18 +347,21 @@ const ScrambleImage = ({
       )
       .catch(handleError);
   }, [uri, headers, base64ToUrl, handleError]);
-  useEffect(() => {
-    if (shouldLoad && imageState.loadStatus === AsyncStatus.Default) {
-      loadImage();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLoad, uri, headers]);
-  useEffect(() => {
-    if (uriRef.current !== uri) {
-      uriRef.current = uri;
-      setImageState(prevState);
-    }
-  }, [uri, prevState]);
+  useFocusEffect(
+    useCallback(() => {
+      if (imageState.loadStatus === AsyncStatus.Default) {
+        loadImage();
+      }
+    }, [imageState, loadImage])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      if (uriRef.current !== uri) {
+        uriRef.current = uri;
+        setImageState(prevState);
+      }
+    }, [uri, prevState])
+  );
 
   const handleRetry = () => {
     CacheManager.removeCacheEntry(uri)
@@ -413,7 +415,6 @@ const Base64Image = ({
   headers = {},
   layoutMode = LayoutMode.Horizontal,
   prevState = defaultState,
-  shouldLoad = true,
   defaultPortraitHeight,
   defaultLandscapeHeight,
   onChange,
@@ -537,18 +538,21 @@ const Base64Image = ({
     right,
     bottom,
   ]);
-  useEffect(() => {
-    if (shouldLoad && imageState.loadStatus === AsyncStatus.Default) {
-      loadImage();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shouldLoad, uri, headers]);
-  useEffect(() => {
-    if (uriRef.current !== uri) {
-      uriRef.current = uri;
-      setImageState(prevState);
-    }
-  }, [uri, prevState]);
+  useFocusEffect(
+    useCallback(() => {
+      if (imageState.loadStatus === AsyncStatus.Default) {
+        loadImage();
+      }
+    }, [imageState, loadImage])
+  );
+  useFocusEffect(
+    useCallback(() => {
+      if (uriRef.current !== uri) {
+        uriRef.current = uri;
+        setImageState(prevState);
+      }
+    }, [uri, prevState])
+  );
 
   const handleRetry = () => {
     CacheManager.removeCacheEntry(uri)
@@ -583,10 +587,10 @@ const Base64Image = ({
   }
 
   return (
-    <FastImage
+    <ReactNativeImage
+      source={{ uri: imageState.base64 }}
       style={style}
       resizeMode={resizeModeDict[layoutMode]}
-      source={{ uri: imageState.base64! }}
       onError={handleError}
     />
   );
