@@ -181,7 +181,6 @@ const About = () => {
           <Button
             shadow={2}
             _text={{ fontWeight: 'bold' }}
-            isLoading={backupStatus === AsyncStatus.Pending}
             leftIcon={<Icon as={MaterialIcons} name="contrast" size="lg" />}
             onPress={handleThemeToggle}
           >

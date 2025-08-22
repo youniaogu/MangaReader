@@ -35,7 +35,7 @@ import { Dirs, FileSystem } from 'react-native-file-access';
 import { CacheManager } from '@georstat/react-native-image-cache';
 import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import DocumentPicker, { DocumentPickerResponse } from 'react-native-document-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Storage, KeyValuePair } from '~/utils/storage';
 import base64 from 'base-64';
 import dayjs from 'dayjs';
 import Share from 'react-native-share';
@@ -174,7 +174,7 @@ function* syncDataSaga() {
         [, pluginData],
         [, settingData],
         [, dictData],
-      ]: KeyValuePair[] = yield call(AsyncStorage.multiGet, [
+      ]: KeyValuePair[] = yield call(Storage.multiGet, [
         storageKey.mangaIndex,
         storageKey.chapterIndex,
         storageKey.taskIndex,
@@ -190,7 +190,7 @@ function* syncDataSaga() {
         const dict: RootState['dict'] = { manga: {}, chapter: {}, lastWatch: {}, record: {} };
         if (mangaIndexData) {
           const mangaIndex: string[] = JSON.parse(mangaIndexData);
-          const mangaPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, mangaIndex);
+          const mangaPairs: KeyValuePair[] = yield call(Storage.multiGet, mangaIndex);
           const mangaDict = pairsToDict(mangaPairs);
           for (const key in mangaDict) {
             dict.manga[key] = mangaDict[key].manga;
@@ -199,7 +199,7 @@ function* syncDataSaga() {
         }
         if (chapterIndexData) {
           const chapterIndex: string[] = JSON.parse(chapterIndexData);
-          const chapterPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, chapterIndex);
+          const chapterPairs: KeyValuePair[] = yield call(Storage.multiGet, chapterIndex);
           const chapterDict = pairsToDict(chapterPairs);
           for (const key in chapterDict) {
             dict.chapter[key] = chapterDict[key].chapter;
@@ -219,18 +219,18 @@ function* syncDataSaga() {
         } else {
           yield put(toastMessage('同步字典数据失败：格式错误'));
         }
-        yield call(AsyncStorage.removeItem, storageKey.dict);
+        yield call(Storage.removeItem, storageKey.dict);
       }
 
       if (taskIndexData) {
         const taskIndex: string[] = JSON.parse(taskIndexData);
-        const taskPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, taskIndex);
+        const taskPairs: KeyValuePair[] = yield call(Storage.multiGet, taskIndex);
         const taskDict = pairsToDict(taskPairs);
         task.list = taskIndex.map((item) => taskDict[item]);
       }
       if (jobIndexData) {
         const jobIndex: string[] = JSON.parse(jobIndexData);
-        const jobPairs: KeyValuePair[] = yield call(AsyncStorage.multiGet, jobIndex);
+        const jobPairs: KeyValuePair[] = yield call(Storage.multiGet, jobIndex);
         const jobDict = pairsToDict(jobPairs);
         task.job.list = jobIndex.map((item) => jobDict[item]);
       }
@@ -421,17 +421,9 @@ function* saveData() {
       [storageKey.plugin, JSON.stringify(plugin)],
       [storageKey.setting, JSON.stringify(setting)],
     ];
-    const curr = keyValuePairs.map((item) => item[0]);
 
     return new Promise((res, rej) => {
-      AsyncStorage.getAllKeys()
-        .then((prev) => {
-          const useless = prev.filter((key) => !curr.includes(key));
-          Promise.all([AsyncStorage.multiSet(keyValuePairs), AsyncStorage.multiRemove(useless)])
-            .then(res)
-            .catch(rej);
-        })
-        .catch(rej);
+      Storage.multiSet(keyValuePairs).then(res).catch(rej);
     });
   };
 
@@ -492,7 +484,7 @@ function* saveDataSaga() {
 }
 function* clearCacheSaga() {
   yield takeLatestSuspense(clearCache.type, function* () {
-    yield call(AsyncStorage.clear);
+    yield call(Storage.clear);
     yield put(syncData());
     yield take(syncDataCompletion.type);
     yield put(clearCacheCompletion({}));
