@@ -1,7 +1,7 @@
 {
   "name": "mangareader",
-  "version": "0.7.10",
-  "publishTime": "2025-07-19",
+  "version": "0.7.11",
+  "publishTime": "2026-10-04",
   "private": true,
   "scripts": {
     "start": "react-native start",
@@ -42,6 +42,7 @@
     "crypto-js": "^4.1.1",
     "dayjs": "^1.11.10",
     "json-schema-library": "^9.0.3",
+    "json5": "^2.2.3",
     "lz-string": "^1.4.4",
     "native-base": "^3.4.4",
     "query-string": "^7.1.1",
